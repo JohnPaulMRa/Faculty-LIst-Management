@@ -1,0 +1,67 @@
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Faculty } from '@/types/faculty';
+import { FC } from 'react';
+import FormE2 from './FormE2';
+import FormE5 from './FormE5';
+
+type Props = {
+    isOpen: boolean;
+    onOpenChange: (open: boolean) => void;
+    faculty: Faculty | null;
+    onSave: (faculty: Faculty) => void;
+};
+
+const FacultyFileDetailsModal: FC<Props> = ({ isOpen, onOpenChange, faculty, onSave }) => {
+    const getStatusBadge = (status: string): string => {
+        const styles: Record<string, string> = {
+            'Completed': 'bg-emerald-100 text-emerald-700 border-emerald-200',
+            'No Submission': 'bg-red-100 text-red-700 border-red-200',
+            'Not Yet Completed': 'bg-orange-100 text-orange-700 border-orange-200',
+        };
+        return styles[status] || 'bg-gray-100 text-gray-800';
+    };
+
+    return (
+        <Dialog open={isOpen} onOpenChange={onOpenChange}>
+            <DialogContent className="sm:max-w-[95vw] w-[95vw] h-[95vh] flex flex-col p-0 gap-0 border-none outline-none bg-white [&>button]:hidden">
+                <div className="flex justify-end p-0 absolute top-0 right-0 z-50">
+                    <DialogTitle className="sr-only">Faculty File Details</DialogTitle>
+                     {/* Close button is automatically added by DialogContent usually, but we might need to style it or ensure z-index */}
+                </div>
+                
+                {faculty && (
+                    <div className="flex-1 overflow-hidden p-0 bg-white relative">
+                        {faculty.form_type === 'E2' ? (
+                            <div className="h-full w-full overflow-hidden">
+                                <FormE2 
+                                    faculty={faculty} 
+                                    onSave={(data) => onSave({ ...faculty, ...data } as Faculty)} 
+                                />
+                            </div>
+                        ) : faculty.form_type === 'E5' ? (
+                            <div className="h-full w-full overflow-hidden">
+                                <FormE5 
+                                    faculty={faculty} 
+                                    onSave={(data) => onSave({ ...faculty, ...data } as Faculty)}
+                                />
+                            </div>
+                        ) : (
+                            <div className="flex items-center justify-center h-64 text-gray-500">
+                                Unknown Form Type
+                            </div>
+                        )}
+                    </div>
+                )}
+            </DialogContent>
+        </Dialog>
+    );
+};
+
+export default FacultyFileDetailsModal;
