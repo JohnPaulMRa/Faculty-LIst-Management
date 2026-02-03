@@ -88,7 +88,7 @@ const FacultyListTable: FC<Props> = ({ facultyList, yearFilter, onFileClick, onD
                                                 <FileSpreadsheet className="h-3 w-3"/> Expand File
                                             </DropdownMenuItem>
                                             <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => onEdit(faculty)}>
-                                                <Edit className="h-3 w-3"/> Edit Details
+                                                <Edit className="h-3 w-3"/> Update Details
                                             </DropdownMenuItem>
                                             <DropdownMenuSeparator />
                                             <DropdownMenuItem className="gap-2 text-red-600 cursor-pointer" onClick={() => onDelete(faculty.id)}>

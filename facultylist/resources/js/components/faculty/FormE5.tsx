@@ -115,81 +115,135 @@ const FormE5: FC<Props> = ({ faculty, onSave }) => {
                     <table className="w-full min-w-[2500px] border-collapse text-[11px] font-sans">
                         {/* ... Thead content is preserved ... */}
                         <thead className="bg-white text-black sticky top-0 z-30 shadow-sm text-center">
+
+
                             {/* Main Headers - Merged and Multi-row */}
                             <tr className="bg-black text-white border-b border-white/30 h-10">
                                 {/* Row 1: Main Headers */}
-                                <th rowSpan={2} className="border border-white/30 w-64 px-1">Name of Faculty (LN, FN, MI)</th>
-                                <th rowSpan={2} className="border border-white/30 w-20 px-1">Full-Time/ Part-Time (use Code)</th>
-                                <th rowSpan={2} className="border border-white/30 w-16 px-1">Gender (use Code)</th>
-                                <th rowSpan={2} className="border border-white/30 w-24 px-1">Primary Teaching Discipline (use Code)</th>
+                                <th rowSpan={3} className="border border-white/30 w-64 px-1">Name of Faculty (LN, FN, MI)</th>
+                                <th rowSpan={3} className="border border-white/30 w-20 px-1">Full-Time/ Part-Time (use Code)</th>
+                                <th rowSpan={3} className="border border-white/30 w-24 px-1">Primary Teaching Discipline (use Code)</th>
+                                
+                                {/* A6-A11 BLOCK */}
+                                <th rowSpan={3} className="border border-white/30 w-24 px-1">IS FACULTY MEMBER TENURED?</th>
+                                <th rowSpan={3} className="border border-white/30 w-20 px-1">SSL SALARY GRADE</th>
+                                <th rowSpan={3} className="border border-white/30 w-24 px-1">ANNUAL BASIC SALARY</th>
+                                <th rowSpan={3} className="border border-white/30 w-20 px-1">ON LEAVE WITHOUT PAY?</th>
+                                <th rowSpan={3} className="border border-white/30 w-20 px-1">FULL-TIME EQUIVALENT OF THE FACULTY</th>
+                                <th rowSpan={3} className="border border-white/30 w-16 px-1">GENDER OF FACULTY</th>
                                 
                                 <th colSpan={7} className="border border-white/30 py-1">Educational Credential Earned</th>
                                 
-                                <th rowSpan={2} className="border border-white/30 w-24 px-1">Professional License (use Code)</th>
-                                <th rowSpan={2} className="border border-white/30 w-24 px-1">Tenure of Employment (use Code)</th>
-                                <th rowSpan={2} className="border border-white/30 w-20 px-1">Faculty Rank (use Code)</th>
-                                <th rowSpan={2} className="border border-white/30 w-20 px-1">Teaching Load (use Code)</th>
-                                <th rowSpan={2} className="border border-white/30 w-64 px-1">Subjects Taught (please enumerate)</th>
-                                <th rowSpan={2} className="border border-white/30 w-24 px-1">Annual Salary (use Code)</th>
+                                <th rowSpan={3} className="border border-white/30 w-20 px-1">MASTERS DEGREE WITH THESIS?</th>
+                                <th rowSpan={3} className="border border-white/30 w-20 px-1">DOCTORATE WITH DISSERTATION?</th>
+                                
+                                <th rowSpan={3} className="border border-white/30 w-24 px-1">Professional License (use Code)</th>
+                                <th rowSpan={3} className="border border-white/30 w-20 px-1">Faculty Rank (use Code)</th>
+                                <th rowSpan={3} className="border border-white/30 w-20 px-1">Teaching Load (use Code)</th>
+                                <th rowSpan={3} className="border border-white/30 w-64 px-1">Subjects Taught (please enumerate)</th>
                             </tr>
-                            <tr className="bg-black text-white border-b border-white/30 h-16">
-                                {/* Educational Credential Sub-headers */}
-                                <th className="border border-white/30 w-24 px-1">HIGHEST DEGREE ATTAINED <br/><span className="text-[9px] font-normal">Use 3-digit code</span></th>
+                            <tr className="bg-black text-white border-b border-white/30 h-8">
+                                {/* Educational Credential Sub-headers Level 1 */}
+                                <th className="border border-white/30 w-24 px-1">HIGHEST DEGREE ATTAINED</th>
+                                <th colSpan={2} className="border border-white/30 w-60 px-1">SPECIFIC DISCIPLINE OF BACHELORS DEGREE</th>
+                                <th colSpan={2} className="border border-white/30 w-60 px-1">SPECIFIC DISCIPLINE OF MASTERS DEGREE</th>
+                                <th colSpan={2} className="border border-white/30 w-60 px-1">SPECIFIC DISCIPLINE OF DOCTORATE</th>
+                            </tr>
+                            <tr className="bg-black text-white border-b border-white/30 h-8">
+                                {/* Educational Credential Sub-headers Level 2 */}
+                                <th className="border border-white/30 w-24 px-1 text-[9px] font-normal">Use 3-digit code.</th>
+                                <th className="border border-white/30 w-40 px-1 text-[9px] font-normal">Program Name</th>
+                                <th className="border border-white/30 w-20 px-1 text-[9px] font-normal">Use 6-digit code.</th>
+                                <th className="border border-white/30 w-40 px-1 text-[9px] font-normal">Program Name</th>
+                                <th className="border border-white/30 w-20 px-1 text-[9px] font-normal">Use 6-digit code.</th>
+                                <th className="border border-white/30 w-40 px-1 text-[9px] font-normal">Program Name</th>
+                                <th className="border border-white/30 w-20 px-1 text-[9px] font-normal">Use 6-digit code.</th>
+                            </tr>
+                            
+                            {/* EXAMPLE ROW */}
+                            <tr className="bg-white text-black text-[11px] font-sans h-8 hover:bg-gray-50">
+                                <td className="border border-black px-2 italic font-bold">DELA CRUZ, JUAN V.</td>
+                                <td className="border border-black text-center">1</td>
+                                <td className="border border-black text-center">450100</td>
                                 
-                                <th className="border border-white/30 w-40 px-1">SPECIFIC DISCIPLINE OF BACHELORS DEGREE <br/><span className="text-[9px] font-normal">Program Name</span></th>
-                                <th className="border border-white/30 w-20 px-1">Use 6-digit code</th>
+                                {/* A6-A11 */}
+                                <td className="border border-black text-center">2</td> {/* Tenure */}
+                                <td className="border border-black text-center">18</td> {/* SSL */}
+                                <td className="border border-black text-center">503</td> {/* Salary? using old annual salary val */}
+                                <td className="border border-black text-center">N</td> {/* Leave */}
+                                <td className="border border-black text-center">1.0</td> {/* FTE */}
+                                <td className="border border-black text-center">1</td> {/* Gender */}
+
+                                <td className="border border-black text-center">178912</td>
+                                <td className="border border-black text-center"></td>
+                                <td className="border border-black text-center">178912</td>
+                                <td className="border border-black text-center"></td>
+                                <td className="border border-black text-center">178912</td>
+                                <td className="border border-black text-center"></td>
+                                <td className="border border-black text-center">24</td>
                                 
-                                <th className="border border-white/30 w-40 px-1">SPECIFIC DISCIPLINE OF MASTERS DEGREE <br/><span className="text-[9px] font-normal">Program Name</span></th>
-                                <th className="border border-white/30 w-20 px-1">Use 6-digit code</th>
-                                
-                                <th className="border border-white/30 w-40 px-1">SPECIFIC DISCIPLINE OF DOCTORATE <br/><span className="text-[9px] font-normal">Program Name</span></th>
-                                <th className="border border-white/30 w-20 px-1">Use 6-digit code</th>
+                                {/* B8-B9 */}
+                                <td className="border border-black text-center">1</td>
+                                <td className="border border-black text-center">2</td>
+
+                                <td className="border border-black text-center">178912</td>
+                                <td className="border border-black text-center">1</td>
+                                <td className="border border-black text-center">20</td>
+                                <td className="border border-black px-1 text-left italic">Algebra 1 & 2, Trigonometry Differential & Integral Calculus</td>
                             </tr>
                             
                             {/* "PLEASE START BELOW" ROW */}
                             <tr className="bg-black text-white border-b border-black">
-                                <th colSpan={18} className="text-left px-2 py-1 font-bold italic">PLEASE START BELOW</th>
+                                <th colSpan={22} className="text-left px-2 py-1 font-bold italic">PLEASE START BELOW</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {/* DATA INPUT ROW */}
+                             {/* DATA INPUT ROW */}
                              <tr className="bg-white hover:bg-gray-100">
                                 <td className="border border-black p-0 h-8 font-bold">
                                     <Input 
                                         className="h-full w-full border-none rounded-none bg-transparent px-2 text-left text-[11px] focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-black uppercase" 
                                         value={formData.name || ''} 
                                         onChange={(e) => handleChange('name', e.target.value)}
-                                        placeholder="DELA CRUZ, JUAN V."
                                     />
                                 </td>
-                                <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" defaultValue="1" /></td>
-                                <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" defaultValue="1" /></td>
-                                <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" defaultValue="450100" /></td>
-                                
-                                <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" defaultValue="503" /></td>
-                                
-                                <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" defaultValue="178912" /></td>
+                                <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" /></td>
                                 <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" /></td>
                                 
-                                <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" defaultValue="178912" /></td>
+                                {/* A6-A11 */}
                                 <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" /></td>
-                                
-                                <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" defaultValue="178912" /></td>
+                                <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" /></td>
+                                <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" /></td>
+                                <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" /></td>
+                                <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" /></td>
                                 <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" /></td>
 
-                                <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" defaultValue="24" /></td>
-                                <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" defaultValue="1" /></td>
-                                <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" defaultValue="20" /></td>
-                                <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" defaultValue="30" /></td>
-                                <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-left text-[11px]" defaultValue="Algebra 1 & 2, Trigonometry" /></td>
-                                <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" defaultValue="9" /></td>
+                                <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" /></td>
+                                <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" /></td>
+                                <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" /></td>
+                                
+                                <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" /></td>
+                                
+                                <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" /></td>
+                                <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" /></td>
+                                
+                                <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" /></td>
+                                
+                                {/* B8-B9 */}
+                                <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" /></td>
+                                <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" /></td>
+
+                                <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" /></td>
+                                <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" /></td>
+                                <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" /></td>
+                                <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-left text-[11px]" /></td>
                             </tr>
 
                             {/* EMPTY ROWS */}
                             {[...Array(15)].map((_, r) => (
                                 <tr key={r} className="hover:bg-gray-100">
                                     <td className="border border-black h-8"></td>
-                                    {[...Array(16)].map((_, c) => (
+                                    {[...Array(21)].map((_, c) => (
                                         <td key={c} className="border border-black"></td>
                                     ))}
                                 </tr>

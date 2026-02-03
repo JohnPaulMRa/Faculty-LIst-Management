@@ -155,8 +155,7 @@ const FacultyProfile: FC = () => {
     };
 
     const handleEdit = (faculty: Faculty): void => {
-        alert(`Edit function for ${faculty.name} is not yet implemented.`);
-        // Placeholder for edit logic
+        handleFileClick(faculty);
     };
 
     const handleUpdateFaculty = (updatedFaculty: Faculty) => {

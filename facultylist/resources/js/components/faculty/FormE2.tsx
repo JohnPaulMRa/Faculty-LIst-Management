@@ -198,8 +198,8 @@ const FormE2: FC<Props> = ({ faculty, onSave }) => {
                             <tr className="align-bottom h-24">
                                 <th className="border border-white/30 px-2 text-left align-middle wrap-break-word whitespace-normal">NAME OF FACULTY (Last name, first name, middle initial)</th>
                                 <th className="border border-white/30 px-1 align-middle whitespace-normal">GENERIC FACULTY RANK</th>
-                                <th className="border border-white/30 px-1 align-middle whitespace-normal">HOME COLLEGE</th>
-                                <th className="border border-white/30 px-1 align-middle whitespace-normal">HOME DEPT</th>
+                                <th rowSpan={2} className="border border-white/30 px-1 align-middle whitespace-normal">HOME COLLEGE</th>
+                                <th rowSpan={2} className="border border-white/30 px-1 align-middle whitespace-normal">HOME DEPT</th>
                                 <th className="border border-white/30 px-1 align-middle whitespace-normal">IS FACULTY MEMBER TENURED?</th>
                                 <th className="border border-white/30 px-1 align-middle whitespace-normal">SSL SALARY GRADE</th>
                                 <th className="border border-white/30 px-1 align-middle whitespace-normal">ANNUAL BASIC SALARY</th>
@@ -249,12 +249,7 @@ const FormE2: FC<Props> = ({ faculty, onSave }) => {
                             <tr className="bg-black text-[9px] h-6">
                                 <th className="border border-white/30 px-1 uppercase align-middle">Elem/ Secondary/ Tech Voc</th>
                                 <th className="border border-white/30 px-1 align-middle">Use code.</th>
-                                <th className="border border-white/30 px-1 bg-black"></th>
-                                <th className="border border-white/30 px-1 bg-black"></th>
-                                <th className="border border-white/30 px-1 align-middle">Use code.</th>
-                                <th colSpan={3} className="border border-white/30 px-1 align-middle">Use code.</th>
-                                <th className="border border-white/30 px-1 bg-black"></th>
-                                <th className="border border-white/30 px-1 bg-black"></th>
+                                <th colSpan={6} className="border border-white/30 px-1 align-middle">Use code.</th>
                                 
                                 <th className="border border-white/30 px-1 align-middle">Use 3-digit code.</th>
                                 <th className="border border-white/30 px-1 align-middle">Use code.</th>
