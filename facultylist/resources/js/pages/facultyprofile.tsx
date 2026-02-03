@@ -29,48 +29,48 @@ import FacultyListTable from '@/components/faculty/FacultyListTable';
 
 // --- MOCK DATA ---
 const initialFacultyData: Faculty[] = [
-    { 
-        id: 'CHED-12-001', 
-        name: 'Dr. Maria Santos', 
-        email: 'msantos@ched.gov.ph', 
-        department: 'Technical Division', 
-        rank: 'Chief Educ. Prog. Spc.', 
-        degree: 'PhD in Ed. Mgmt.', 
-        status: 'Completed', 
-        employment: 'Plantilla', 
+    {
+        id: 'FAC-001',
+        name: 'Dr. Maria Santos',
+        email: 'msantos@university.edu',
+        department: 'Biology Department',
+        rank: 'Professor III',
+        degree: 'PhD in Biology',
+        status: 'Completed',
+        employment: 'Plantilla',
         avatar_initials: 'MS',
-        joined_year: '2024',
-        form_type: 'E2',
-        import_group: 'A1' 
+        joined_year: '2021',
+        form_type: 'E5',
+        import_group: 'A1'
     },
-    { 
-        id: 'CHED-12-002', 
-        name: 'Engr. Juan Dela Cruz', 
-        email: 'jdelacruz@ched.gov.ph', 
-        department: 'Engineering Unit', 
-        rank: 'Educ. Supervisor II', 
-        degree: 'MS Civil Eng.', 
-        status: 'No Submission', 
-        employment: 'Plantilla', 
+    {
+        id: 'FAC-002',
+        name: 'Prof. Juan Dela Cruz',
+        email: 'jdelacruz@university.edu',
+        department: 'Mathematics',
+        rank: 'Associate Professor I',
+        degree: 'MS Mathematics',
+        status: 'Not Yet Completed',
+        employment: 'Part-time',
         avatar_initials: 'JD',
         joined_year: '2023',
-        form_type: 'E2',
-        import_group: 'All'
-    },
-    { 
-        id: 'CHED-12-003', 
-        name: 'Ms. Sarah Lee', 
-        email: 'slee@ched.gov.ph', 
-        department: 'Quality Assurance', 
-        rank: 'Project Tech. Staff', 
-        degree: 'MA Public Admin.', 
-        status: 'Not Yet Completed', 
-        employment: 'Contract of Service', 
-        avatar_initials: 'SL',
-        joined_year: '2025',
         form_type: 'E5',
-        import_group: 'C1'
+        import_group: 'B'
     },
+    {
+        id: 'FAC-003',
+        name: 'Inst. Ana Reyes',
+        email: 'areyes@university.edu',
+        department: 'Chemistry',
+        rank: 'Instructor I',
+        degree: 'BS Chemistry',
+        status: 'No Submission',
+        employment: 'Plantilla',
+        avatar_initials: 'AR',
+        joined_year: '2024',
+        form_type: 'E5',
+        import_group: 'A2'
+    }
 ];
 
 const breadcrumbs = [
@@ -86,6 +86,7 @@ const FacultyProfile: FC = () => {
 
     const [isImportModalOpen, setIsImportModalOpen] = useState<boolean>(false);
     const [importType, setImportType] = useState<'E2' | 'E5'>('E5'); 
+    const [importGroup, setImportGroup] = useState<string>('');
     const [selectedFile, setSelectedFile] = useState<Faculty | null>(null);
     const [isFileModalOpen, setIsFileModalOpen] = useState<boolean>(false);
 
@@ -98,6 +99,9 @@ const FacultyProfile: FC = () => {
                 f.degree.toLowerCase().includes(searchQuery.toLowerCase());
             
             const matchesYear = yearFilter === 'All Years' || f.joined_year === yearFilter;
+
+            // Optional: Filter by Group if needed?
+            // const matchesGroup = ...
 
             return matchesSearch && matchesYear;
         });
@@ -119,11 +123,16 @@ const FacultyProfile: FC = () => {
     };
 
     const handleFileImport = (file: File): void => {
-        // Simulate auto-detection logic (e.g., reading header)
-        const detectedGroups = ["A1", "A2", "B", "C1"];
-        const randomGroup = detectedGroups[Math.floor(Math.random() * detectedGroups.length)];
+        // Use selected group for E2 (A groups), undefined for E5
+        const detectedGroup = importType === 'E2' ? importGroup : undefined;
         
-        alert(`Importing ${importType} data. Detected Group: ${randomGroup} from file '${file.name}'.`);
+        // Validation for E2: require group
+        if (importType === 'E2' && !detectedGroup) {
+            alert("Please select a Group for Form E2 import.");
+            return;
+        }
+
+        alert(`Importing ${importType} data. Group: ${detectedGroup || 'N/A'} from file '${file.name}'.`);
         
         const importedEntry: Faculty = {
             id: `IMP-${Math.floor(Math.random() * 999)}`,
@@ -137,10 +146,11 @@ const FacultyProfile: FC = () => {
             avatar_initials: 'IM',
             joined_year: '2024',
             form_type: importType,
-            import_group: randomGroup
+            import_group: detectedGroup
         };
         setFacultyList([importedEntry, ...facultyList]);
         setIsImportModalOpen(false); 
+        setImportGroup(''); // Reset group after import
     };
 
     const handleDelete = (id: string): void => {
@@ -185,7 +195,7 @@ const FacultyProfile: FC = () => {
                         </div>
                         <div>
                             <h2 className="text-2xl font-bold tracking-tight text-[#003468] dark:text-white uppercase">Faculty</h2>
-                            <p className="text-sm text-gray-500">Manage faculty records and employment status.</p>
+                            <p className="text-sm text-gray-500">Faculty records and employment status.</p>
                         </div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -193,7 +203,12 @@ const FacultyProfile: FC = () => {
                             isOpen={isImportModalOpen}
                             onOpenChange={setIsImportModalOpen}
                             importType={importType}
-                            setImportType={setImportType}
+                            setImportType={(type) => { 
+                                setImportType(type); 
+                                setImportGroup(''); 
+                            }}
+                            importGroup={importGroup}
+                            setImportGroup={setImportGroup}
                             onFileImport={handleFileImport}
                         />
                         
@@ -231,22 +246,27 @@ const FacultyProfile: FC = () => {
                                 onChange={(e) => setSearchQuery(e.target.value)} 
                             />
                         </div>
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="sm" className={`gap-2 ml-4 ${yearFilter !== 'All Years' ? 'text-blue-600 font-semibold' : 'text-gray-600'}`}>
-                                    <Calendar className="h-4 w-4" /> 
-                                    {yearFilter === 'All Years' ? 'Year' : yearFilter}
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-48">
-                                <DropdownMenuLabel>Select Year</DropdownMenuLabel>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuCheckboxItem checked={yearFilter === 'All Years'} onCheckedChange={() => setYearFilter('All Years')}>All Years</DropdownMenuCheckboxItem>
-                                {['2026', '2025', '2024', '2023', '2022', '2021'].map((year) => (
-                                    <DropdownMenuCheckboxItem key={year} checked={yearFilter === year} onCheckedChange={() => setYearFilter(year)}>{year}</DropdownMenuCheckboxItem>
-                                ))}
-                            </DropdownMenuContent>
-                        </DropdownMenu>
+                        <div className="flex items-center gap-2 ml-4">
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" size="sm" className={`gap-2 ${yearFilter !== 'All Years' ? 'text-blue-600 font-semibold' : 'text-gray-600'}`}>
+                                        <Calendar className="h-4 w-4" /> 
+                                        {yearFilter === 'All Years' ? 'School Year' : yearFilter}
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" className="w-48">
+                                    <DropdownMenuLabel>Select School Year</DropdownMenuLabel>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuCheckboxItem checked={yearFilter === 'All Years'} onCheckedChange={() => setYearFilter('All Years')}>All Years</DropdownMenuCheckboxItem>
+                                    {['2025-2026', '2024-2025', '2023-2024', '2022-2023', '2021-2022', '2020-2021'].map((year) => (
+                                        <DropdownMenuCheckboxItem key={year} checked={yearFilter === year} onCheckedChange={() => setYearFilter(year)}>{year}</DropdownMenuCheckboxItem>
+                                    ))}
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                            <Button size="sm" className="bg-[#003468] text-white hover:bg-[#002a54] shadow-sm">
+                                Submit
+                            </Button>
+                        </div>
                     </div>
 
                     <FacultyListTable 

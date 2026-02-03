@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Save, X, ChevronLeft, ChevronRight, Plus } from 'lucide-react';
 import { DialogClose } from '@/components/ui/dialog';
+import ReferenceTableE5 from './ReferenceTableE5';
 
 type Props = {
     faculty?: Faculty;
@@ -50,235 +51,175 @@ const FormE5: FC<Props> = ({ faculty, onSave }) => {
         { id: 'Reference', label: 'Reference' }
     ];
 
-    const ReferenceTable = () => (
-        <div className="p-4 bg-white min-h-full">
-            <h3 className="font-bold text-lg mb-4 text-black uppercase">Reference Codes</h3>
-            <div className="grid grid-cols-2 gap-8 text-[11px]">
-                <div>
-                   <h4 className="font-bold border-b border-black mb-2">1. Full-Time / Part-Time</h4>
-                   <ul className="space-y-1">
-                       <li>1 - Full-time</li>
-                       <li>2 - Part-time</li>
-                   </ul>
-                </div>
-                 <div>
-                   <h4 className="font-bold border-b border-black mb-2">2. Gender</h4>
-                   <ul className="space-y-1">
-                       <li>1 - Male</li>
-                       <li>2 - Female</li>
-                   </ul>
-                </div>
-                 <div>
-                   <h4 className="font-bold border-b border-black mb-2">3. Faculty Rank</h4>
-                   <ul className="space-y-1">
-                       <li>1 - Instructor</li>
-                       <li>2 - Asst. Prof</li>
-                       <li>3 - Assoc. Prof</li>
-                       <li>4 - Professor</li>
-                   </ul>
-                </div>
-                 <div>
-                   <h4 className="font-bold border-b border-black mb-2">4. Tenure</h4>
-                   <ul className="space-y-1">
-                       <li>1 - Permanent</li>
-                       <li>2 - Temporary</li>
-                       <li>3 - Contractual</li>
-                   </ul>
-                </div>
-            </div>
-        </div>
-    );
-
     return (
-        <div className="flex flex-col h-full w-full">
+        <div className="flex flex-col h-full w-full bg-gray-50">
              {/* Header */}
-             <div className="bg-white text-black px-2 py-1 text-xl font-bold uppercase border border-black shrink-0 flex justify-between items-center">
-                <span>CHED FORM E5 - FACULTY OR TEACHING STAFF IN HIGHER EDUCATION PROGRAMS</span>
+             <div className="bg-white text-gray-900 px-6 py-4 flex justify-between items-center border-b border-gray-200 shrink-0">
+                <h2 className="text-lg font-bold uppercase tracking-tight">FORM E5</h2>
                 <div className="flex items-center gap-2">
-                    <Button 
-                        size="sm" 
-                        className="h-6 px-3 bg-green-500 hover:bg-green-400 text-black border border-black rounded-s text-[15px] uppercase tracking-wider font-bold flex items-center gap-1"
-                        onClick={handleSave}
-                    >
-                        <Save className="h-3 w-3" /> Save
-                    </Button>
-                    <DialogClose className="h-6 w-6 flex items-center justify-center text-black hover:bg-gray-200 rounded-sm">
-                        <X className="h-4 w-4" />
+                    <DialogClose className="h-8 w-8 flex items-center justify-center text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors">
+                        <X className="h-5 w-5" />
                     </DialogClose>
                 </div>
             </div>
 
-            <div className="flex-1 overflow-auto border border-black bg-white relative">
+            <div className="flex-1 overflow-hidden relative">
                  {activeTab === 'Reference' ? (
-                    <ReferenceTable />
+                    <ReferenceTableE5 />
                 ) : (
-                    <table className="w-full min-w-[2500px] border-collapse text-[11px] font-sans">
-                        {/* ... Thead content is preserved ... */}
-                        <thead className="bg-white text-black sticky top-0 z-30 shadow-sm text-center">
+                    <div className="h-full overflow-auto p-4 bg-gray-50">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 pb-4">
 
+                            {/* Faculty Details Card */}
+                            <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm space-y-3">
+                                <h3 className="font-bold text-gray-900 border-b pb-2">Faculty Details</h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    <div className="grid gap-1 col-span-2">
+                                        <label className="text-xs font-semibold text-gray-600">Faculty Name (LN, FN, MI)</label>
+                                        <Input 
+                                            value={formData.name || ''} 
+                                            onChange={(e) => handleChange('name', e.target.value)}
+                                            className="uppercase"
+                                        />
+                                    </div>
+                                    <div className="grid gap-1">
+                                        <label className="text-xs font-semibold text-gray-600">Full-Time/Part-Time </label>
+                                        <Input 
+                                            value={formData.fullTimeCode}
+                                            onChange={(e) => handleChange('fullTimeCode', e.target.value)}
+                                            placeholder="Code"
+                                        />
+                                    </div>
+                                    <div className="grid gap-1">
+                                        <label className="text-xs font-semibold text-gray-600">Gender </label>
+                                        <Input 
+                                            value={formData.genderCode}
+                                            onChange={(e) => handleChange('genderCode', e.target.value)}
+                                            placeholder="Code"
+                                        />
+                                    </div>
+                                    <div className="grid gap-1">
+                                        <label className="text-xs font-semibold text-gray-600">Primary Teaching Discipline</label>
+                                        <Input 
+                                            value={formData.disciplineCode}
+                                            onChange={(e) => handleChange('disciplineCode', e.target.value)}
+                                            placeholder="Code"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
 
-                            {/* Main Headers - Merged and Multi-row */}
-                            <tr className="bg-black text-white border-b border-white/30 h-10">
-                                {/* Row 1: Main Headers */}
-                                <th rowSpan={3} className="border border-white/30 w-64 px-1">Name of Faculty (LN, FN, MI)</th>
-                                <th rowSpan={3} className="border border-white/30 w-20 px-1">Full-Time/ Part-Time (use Code)</th>
-                                <th rowSpan={3} className="border border-white/30 w-24 px-1">Primary Teaching Discipline (use Code)</th>
-                                
-                                {/* A6-A11 BLOCK */}
-                                <th rowSpan={3} className="border border-white/30 w-24 px-1">IS FACULTY MEMBER TENURED?</th>
-                                <th rowSpan={3} className="border border-white/30 w-20 px-1">SSL SALARY GRADE</th>
-                                <th rowSpan={3} className="border border-white/30 w-24 px-1">ANNUAL BASIC SALARY</th>
-                                <th rowSpan={3} className="border border-white/30 w-20 px-1">ON LEAVE WITHOUT PAY?</th>
-                                <th rowSpan={3} className="border border-white/30 w-20 px-1">FULL-TIME EQUIVALENT OF THE FACULTY</th>
-                                <th rowSpan={3} className="border border-white/30 w-16 px-1">GENDER OF FACULTY</th>
-                                
-                                <th colSpan={7} className="border border-white/30 py-1">Educational Credential Earned</th>
-                                
-                                <th rowSpan={3} className="border border-white/30 w-20 px-1">MASTERS DEGREE WITH THESIS?</th>
-                                <th rowSpan={3} className="border border-white/30 w-20 px-1">DOCTORATE WITH DISSERTATION?</th>
-                                
-                                <th rowSpan={3} className="border border-white/30 w-24 px-1">Professional License (use Code)</th>
-                                <th rowSpan={3} className="border border-white/30 w-20 px-1">Faculty Rank (use Code)</th>
-                                <th rowSpan={3} className="border border-white/30 w-20 px-1">Teaching Load (use Code)</th>
-                                <th rowSpan={3} className="border border-white/30 w-64 px-1">Subjects Taught (please enumerate)</th>
-                            </tr>
-                            <tr className="bg-black text-white border-b border-white/30 h-8">
-                                {/* Educational Credential Sub-headers Level 1 */}
-                                <th className="border border-white/30 w-24 px-1">HIGHEST DEGREE ATTAINED</th>
-                                <th colSpan={2} className="border border-white/30 w-60 px-1">SPECIFIC DISCIPLINE OF BACHELORS DEGREE</th>
-                                <th colSpan={2} className="border border-white/30 w-60 px-1">SPECIFIC DISCIPLINE OF MASTERS DEGREE</th>
-                                <th colSpan={2} className="border border-white/30 w-60 px-1">SPECIFIC DISCIPLINE OF DOCTORATE</th>
-                            </tr>
-                            <tr className="bg-black text-white border-b border-white/30 h-8">
-                                {/* Educational Credential Sub-headers Level 2 */}
-                                <th className="border border-white/30 w-24 px-1 text-[9px] font-normal">Use 3-digit code.</th>
-                                <th className="border border-white/30 w-40 px-1 text-[9px] font-normal">Program Name</th>
-                                <th className="border border-white/30 w-20 px-1 text-[9px] font-normal">Use 6-digit code.</th>
-                                <th className="border border-white/30 w-40 px-1 text-[9px] font-normal">Program Name</th>
-                                <th className="border border-white/30 w-20 px-1 text-[9px] font-normal">Use 6-digit code.</th>
-                                <th className="border border-white/30 w-40 px-1 text-[9px] font-normal">Program Name</th>
-                                <th className="border border-white/30 w-20 px-1 text-[9px] font-normal">Use 6-digit code.</th>
-                            </tr>
-                            
-                            {/* EXAMPLE ROW */}
-                            <tr className="bg-white text-black text-[11px] font-sans h-8 hover:bg-gray-50">
-                                <td className="border border-black px-2 italic font-bold">DELA CRUZ, JUAN V.</td>
-                                <td className="border border-black text-center">1</td>
-                                <td className="border border-black text-center">450100</td>
-                                
-                                {/* A6-A11 */}
-                                <td className="border border-black text-center">2</td> {/* Tenure */}
-                                <td className="border border-black text-center">18</td> {/* SSL */}
-                                <td className="border border-black text-center">503</td> {/* Salary? using old annual salary val */}
-                                <td className="border border-black text-center">N</td> {/* Leave */}
-                                <td className="border border-black text-center">1.0</td> {/* FTE */}
-                                <td className="border border-black text-center">1</td> {/* Gender */}
+                            {/* Educational Credential Earned Card */}
+                            <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm space-y-3">
+                                <h3 className="font-bold text-gray-900 border-b pb-2">Educational Credential Earned</h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-3">
+                                    <div className="grid gap-1 col-span-2">
+                                        <label className="text-xs font-semibold text-gray-600">Highest Degree Attained</label>
+                                        <Input 
+                                            value={formData.degree}
+                                            onChange={(e) => handleChange('degree', e.target.value)}
+                                            placeholder="Code (e.g. 503)"
+                                        />
+                                    </div>  
+                                    <div className="grid gap-1 col-span-2">
+                                        <label className="text-xs font-semibold text-gray-600">Specific Discipline of Bachelors Degree</label>
+                                        <div className="flex gap-2">
+                                            <Input placeholder="Code" className="w-24 shrink-0" value={formData.bachelorsCode} onChange={e => handleChange('bachelorsCode', e.target.value)} />
+                                            <Input placeholder="Program Name" className="w-full" value={formData.bachelors} onChange={e => handleChange('bachelors', e.target.value)} />
+                                        </div>
+                                    </div>
+                                    <div className="grid gap-1 col-span-2">
+                                        <label className="text-xs font-semibold text-gray-600">Specific Discipline of Masters Degree</label>
+                                        <div className="flex gap-2">
+                                            <Input placeholder="Code" className="w-24 shrink-0" value={formData.mastersCode} onChange={e => handleChange('mastersCode', e.target.value)} />
+                                            <Input placeholder="Program Name" className="w-full" value={formData.masters} onChange={e => handleChange('masters', e.target.value)} />
+                                        </div>
+                                    </div>
+                                    <div className="grid gap-1 col-span-2">
+                                        <label className="text-xs font-semibold text-gray-600">Specific Discipline of Doctorate Degree</label>
+                                        <div className="flex gap-1.5">
+                                            <Input placeholder="Code" className="w-24 shrink-0" value={formData.doctorateCode} onChange={e => handleChange('doctorateCode', e.target.value)} />
+                                            <Input placeholder="Program Name" className="w-full" value={formData.doctorate} onChange={e => handleChange('doctorate', e.target.value)} />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
 
-                                <td className="border border-black text-center">178912</td>
-                                <td className="border border-black text-center"></td>
-                                <td className="border border-black text-center">178912</td>
-                                <td className="border border-black text-center"></td>
-                                <td className="border border-black text-center">178912</td>
-                                <td className="border border-black text-center"></td>
-                                <td className="border border-black text-center">24</td>
-                                
-                                {/* B8-B9 */}
-                                <td className="border border-black text-center">1</td>
-                                <td className="border border-black text-center">2</td>
+                            {/* Employment Details Card */}
+                            <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm space-y-3">
+                                {/* REMOVED HEADER */}
+                                <div className="grid grid-cols-1 gap-3">
+                                    <div className="grid gap-1">
+                                        <label className="text-xs font-semibold text-gray-600">Professional License</label>
+                                        <Input 
+                                            value={formData.licenseCode}
+                                            onChange={(e) => handleChange('licenseCode', e.target.value)}
+                                            placeholder="Code"
+                                        />
+                                    </div>
+                                    <div className="grid gap-1">
+                                        <label className="text-xs font-semibold text-gray-600">Tenure of Employment</label>
+                                        <Input 
+                                            value={formData.tenureCode}
+                                            onChange={(e) => handleChange('tenureCode', e.target.value)}
+                                            placeholder="Code"
+                                        />
+                                    </div>
+                                    <div className="grid gap-1">
+                                        <label className="text-xs font-semibold text-gray-600">Faculty Rank</label>
+                                        <Input 
+                                            value={formData.rankCode}
+                                            onChange={(e) => handleChange('rankCode', e.target.value)}
+                                            placeholder="Code"
+                                        />
+                                    </div>
+                                    <div className="grid gap-1">
+                                        <label className="text-xs font-semibold text-gray-600">Annual Salary</label>
+                                        <Input 
+                                            value={formData.salaryCode}
+                                            onChange={(e) => handleChange('salaryCode', e.target.value)}
+                                            placeholder="Salary Grade Code"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
 
-                                <td className="border border-black text-center">178912</td>
-                                <td className="border border-black text-center">1</td>
-                                <td className="border border-black text-center">20</td>
-                                <td className="border border-black px-1 text-left italic">Algebra 1 & 2, Trigonometry Differential & Integral Calculus</td>
-                            </tr>
-                            
-                            {/* "PLEASE START BELOW" ROW */}
-                            <tr className="bg-black text-white border-b border-black">
-                                <th colSpan={22} className="text-left px-2 py-1 font-bold italic">PLEASE START BELOW</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                             {/* DATA INPUT ROW */}
-                             <tr className="bg-white hover:bg-gray-100">
-                                <td className="border border-black p-0 h-8 font-bold">
-                                    <Input 
-                                        className="h-full w-full border-none rounded-none bg-transparent px-2 text-left text-[11px] focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-black uppercase" 
-                                        value={formData.name || ''} 
-                                        onChange={(e) => handleChange('name', e.target.value)}
-                                    />
-                                </td>
-                                <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" /></td>
-                                <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" /></td>
-                                
-                                {/* A6-A11 */}
-                                <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" /></td>
-                                <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" /></td>
-                                <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" /></td>
-                                <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" /></td>
-                                <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" /></td>
-                                <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" /></td>
-
-                                <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" /></td>
-                                <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" /></td>
-                                <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" /></td>
-                                
-                                <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" /></td>
-                                
-                                <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" /></td>
-                                <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" /></td>
-                                
-                                <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" /></td>
-                                
-                                {/* B8-B9 */}
-                                <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" /></td>
-                                <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" /></td>
-
-                                <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" /></td>
-                                <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" /></td>
-                                <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" /></td>
-                                <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-left text-[11px]" /></td>
-                            </tr>
-
-                            {/* EMPTY ROWS */}
-                            {[...Array(15)].map((_, r) => (
-                                <tr key={r} className="hover:bg-gray-100">
-                                    <td className="border border-black h-8"></td>
-                                    {[...Array(21)].map((_, c) => (
-                                        <td key={c} className="border border-black"></td>
-                                    ))}
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                            {/* Teaching Information Card */}
+                            <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm space-y-3">
+                                {/* REMOVED HEADER */}
+                                <div className="grid grid-cols-1 gap-3">
+                                    <div className="grid gap-1">
+                                        <label className="text-xs font-semibold text-gray-600">Teaching Load</label>
+                                        <Input 
+                                            value={formData.loadCode}
+                                            onChange={(e) => handleChange('loadCode', e.target.value)}
+                                            placeholder="Code"
+                                        />
+                                    </div>
+                                    <div className="grid gap-1">
+                                        <label className="text-xs font-semibold text-gray-600">Subjects Taught</label>
+                                        <Input 
+                                            value={formData.subjects}
+                                            onChange={(e) => handleChange('subjects', e.target.value)}
+                                            placeholder="Enumerate subjects..."
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 )}
             </div>
 
-            {/* SHEET TABS */}
-            {/* SHEET TABS - MATCHED TO E2 STYLE */}
-            <div className="flex items-center bg-[#f0f0f0] border-t border-gray-300 px-1 gap-1 h-8 shrink-0 overflow-x-auto">
-                <div className="flex items-center space-x-2 mr-4 text-gray-500">
-                     <div className="flex gap-1">
-                        <button className="hover:bg-gray-200 p-0.5 rounded"><ChevronLeft className="h-3 w-3" /></button>
-                        <button className="hover:bg-gray-200 p-0.5 rounded"><ChevronRight className="h-3 w-3" /></button>
-                     </div>
-                </div>
-                {tabs.map((tab) => (
-                     <button
-                        key={tab.id}
-                        onClick={() => setActiveTab(tab.id)}
-                        className={`
-                            px-4 py-1 text-[11px] font-medium transition-colors border-r border-black h-full relative top-px whitespace-nowrap
-                            ${activeTab === tab.id 
-                                ? 'bg-black text-white border-t-2 border-t-black border-b-black shadow-sm' 
-                                : 'bg-[#f0f0f0] text-gray-600 hover:bg-gray-200'}
-                        `}
-                     >
-                        {tab.label}
-                     </button>
-                ))}
-                <button className="px-2 py-1 text-gray-500 hover:bg-gray-200 rounded-full ml-1">
-                    <Plus className="h-4 w-4" />
-                </button>
+            {/* Footer */}
+            <div className="bg-white p-4 border-t border-gray-200 flex justify-end shrink-0">
+                <Button 
+                    size="sm" 
+                    className="h-9 px-6 bg-emerald-600 hover:bg-emerald-700 text-white border-0 rounded-md font-semibold flex items-center gap-2 shadow-sm transition-all"
+                    onClick={handleSave}
+                >
+                    <Save className="h-4 w-4" /> Update
+                </Button>
             </div>
         </div>
     );

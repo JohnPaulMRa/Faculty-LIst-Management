@@ -26,26 +26,26 @@ const breadcrumbs: BreadcrumbItem[] = [
 // --- MOCK DATA SETS (For Interactivity) ---
 const dataSets = {
     '1st Sem': {
-        totalFaculty: 124,
-        licensedFaculty: 87,
-        employment: { fullTime: 94, partTime: 30 },
+        totalFaculty: 3,
+        licensedFaculty: 2,
+        employment: { fullTime: 2, partTime: 1 },
         qualifications: [
-            { label: 'Doctorate', count: 18, color: 'bg-purple-500', text: 'text-purple-600' },
-            { label: 'Masters', count: 56, color: 'bg-blue-500', text: 'text-blue-600' },
-            { label: 'Bachelors', count: 50, color: 'bg-emerald-500', text: 'text-emerald-600' },
+            { label: 'Doctorate', count: 1, color: 'bg-purple-500', text: 'text-purple-600' },
+            { label: 'Masters', count: 1, color: 'bg-blue-500', text: 'text-blue-600' },
+            { label: 'Bachelors', count: 1, color: 'bg-emerald-500', text: 'text-emerald-600' },
         ],
-        teachingLoad: { regular: 80, overload: 24, underload: 20 }
+        teachingLoad: { regular: 1, overload: 1, underload: 1 }
     },
     '2nd Sem': {
-        totalFaculty: 130,
-        licensedFaculty: 92,
-        employment: { fullTime: 98, partTime: 32 },
+        totalFaculty: 3,
+        licensedFaculty: 2,
+        employment: { fullTime: 2, partTime: 1 },
         qualifications: [
-            { label: 'Doctorate', count: 20, color: 'bg-purple-500', text: 'text-purple-600' },
-            { label: 'Masters', count: 60, color: 'bg-blue-500', text: 'text-blue-600' },
-            { label: 'Bachelors', count: 50, color: 'bg-emerald-500', text: 'text-emerald-600' },
+            { label: 'Doctorate', count: 1, color: 'bg-purple-500', text: 'text-purple-600' },
+            { label: 'Masters', count: 1, color: 'bg-blue-500', text: 'text-blue-600' },
+            { label: 'Bachelors', count: 1, color: 'bg-emerald-500', text: 'text-emerald-600' },
         ],
-        teachingLoad: { regular: 85, overload: 15, underload: 30 }
+        teachingLoad: { regular: 1, overload: 1, underload: 1 }
     }
 };
 

@@ -1,13 +1,10 @@
+import { FC } from 'react';
 import {
     Dialog,
     DialogContent,
-    DialogDescription,
-    DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
 import { Faculty } from '@/types/faculty';
-import { FC } from 'react';
 import FormE2 from './FormE2';
 import FormE5 from './FormE5';
 
@@ -30,7 +27,7 @@ const FacultyFileDetailsModal: FC<Props> = ({ isOpen, onOpenChange, faculty, onS
 
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[95vw] w-[95vw] h-[95vh] flex flex-col p-0 gap-0 border-none outline-none bg-white [&>button]:hidden">
+            <DialogContent className="sm:max-w-[95vw] w-[95vw] max-h-[95vh] flex flex-col p-0 gap-0 border-none outline-none bg-white [&>button]:hidden rounded-2xl overflow-hidden">
                 <div className="flex justify-end p-0 absolute top-0 right-0 z-50">
                     <DialogTitle className="sr-only">Faculty File Details</DialogTitle>
                      {/* Close button is automatically added by DialogContent usually, but we might need to style it or ensure z-index */}

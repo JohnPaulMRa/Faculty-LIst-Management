@@ -352,7 +352,7 @@ const FormE2: FC<Props> = ({ faculty, onSave }) => {
                             </tr>
                             
                             {/* EMPTY ROWS */}
-                            {[...Array(15)].map((_, r) => (
+                            {[...Array(8)].map((_, r) => (
                                 <tr key={r} className="hover:bg-gray-100">
                                     <td className="border border-black h-8"></td>
                                     {[...Array(40)].map((_, c) => (
@@ -362,9 +362,10 @@ const FormE2: FC<Props> = ({ faculty, onSave }) => {
                             ))}
                         </tbody>
                     </table>
+                    
                 )}
             </div>
-            
+
             {/* SHEET TABS */}
             <div className="flex items-center bg-[#f0f0f0] border-t border-gray-300 px-1 gap-1 h-8 shrink-0 overflow-x-auto">
                 <div className="flex items-center space-x-2 mr-4 text-gray-500">

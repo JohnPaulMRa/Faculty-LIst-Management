@@ -16,7 +16,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { ChevronDown, FileSpreadsheet, UploadCloud } from 'lucide-react';
-import { Faculty } from '@/types/faculty';
+import { Faculty, IMPORT_GROUP_OPTIONS } from '@/types/faculty';
 import { FC, useRef, ChangeEvent } from 'react';
 
 type Props = {
@@ -24,6 +24,8 @@ type Props = {
     onOpenChange: (open: boolean) => void;
     importType: 'E2' | 'E5';
     setImportType: (type: 'E2' | 'E5') => void;
+    importGroup: string;
+    setImportGroup: (group: string) => void;
     onFileImport: (file: File) => void;
 };
 
@@ -32,6 +34,8 @@ const FacultyImportModal: FC<Props> = ({
     onOpenChange, 
     importType, 
     setImportType, 
+    importGroup,
+    setImportGroup,
     onFileImport
 }) => {
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -54,7 +58,7 @@ const FacultyImportModal: FC<Props> = ({
             <DialogContent className="sm:max-w-2xl">
                 <DialogHeader>
                     <DialogTitle>Import Faculty Data</DialogTitle>
-                    <DialogDescription>Select form template and upload file. Group will be detected automatically.</DialogDescription>
+                    <DialogDescription>Select form template and upload file.</DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
                     <div className="space-y-2">
@@ -68,15 +72,29 @@ const FacultyImportModal: FC<Props> = ({
                         </Select>
                     </div>
                     
-                    {/* Auto-detect Group Visualization */}
-                    <div className="space-y-2">
-                        <Label>Group</Label>
-                        <div className="p-3 bg-gray-50 border border-gray-200 rounded-md text-sm text-gray-500 italic flex justify-between items-center">
-                            <span>Auto-detecting from file...</span>
-                            <span className="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded font-medium not-italic">Auto</span>
+                    {/* Group Selection - ONLY for E2 */}
+                    {importType === 'E2' && (
+                        <div className="space-y-2">
+                            <Label>Group</Label>
+                            <Select value={importGroup} onValueChange={setImportGroup}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select Group" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {IMPORT_GROUP_OPTIONS
+                                        .filter(opt => opt.includes('GROUP A'))
+                                        .map((option) => (
+                                            <SelectItem key={option} value={option.replace('GROUP ', '')}>
+                                                {option}
+                                            </SelectItem>
+                                        ))
+                                    }
+                                </SelectContent>
+                            </Select>
+                            <p className="text-xs text-gray-500">Select the specific group for this batch of faculty records.</p>
                         </div>
-                        <p className="text-xs text-gray-500">The system will automatically identify the group from the uploaded file header.</p>
-                    </div>
+                    )}
+
                     <div className="flex flex-col gap-3 pt-2">
                         <div className="relative" onClick={() => fileInputRef.current?.click()}>
                             <div className="flex h-32 w-full flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer">

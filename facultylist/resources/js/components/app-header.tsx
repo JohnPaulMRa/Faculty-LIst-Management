@@ -19,7 +19,7 @@ import { UserMenuContent } from '@/components/user-menu-content';
 import { useCurrentUrl } from '@/hooks/use-current-url';    
 import { useInitials } from '@/hooks/use-initials';
 import { cn } from '@/lib/utils';
-import { dashboard,facultyprofile, userprofile } from '@/routes';
+import { dashboard,facultyprofile } from '@/routes';
 import type { BreadcrumbItem, NavItem, SharedData } from '@/types';
 import AppLogoIcon from './app-logo-icon';
 
@@ -39,12 +39,6 @@ const mainNavItems: NavItem[] = [
         title: 'Faculty Profile',
         href: facultyprofile(),
         icon: UserCog,
-    },
-    // Only include this if you have the route defined
-    {
-        title: 'User Profile',
-        href: userprofile ? userprofile() : '#',
-        icon: User,
     },
 ];
 
