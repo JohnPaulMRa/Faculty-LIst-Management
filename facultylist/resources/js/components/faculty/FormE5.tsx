@@ -5,6 +5,23 @@ import { Button } from '@/components/ui/button';
 import { Save, X, ChevronLeft, ChevronRight, Plus } from 'lucide-react';
 import { DialogClose } from '@/components/ui/dialog';
 import ReferenceTableE5 from './ReferenceTableE5';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import { 
+    fullTimePartTime, 
+    gender, 
+    highestDegree, 
+    professionalLicense, 
+    tenure, 
+    facultyRank, 
+    teachingLoad, 
+    annualSalary 
+} from '@/constants/facultyDataE5';
 
 type Props = {
     faculty?: Faculty;
@@ -46,11 +63,6 @@ const FormE5: FC<Props> = ({ faculty, onSave }) => {
         } as any); 
     };
 
-    const tabs = [
-        { id: 'DataEntry', label: 'Faculty Data Entry Form' },
-        { id: 'Reference', label: 'Reference' }
-    ];
-
     return (
         <div className="flex flex-col h-full w-full bg-gray-50">
              {/* Header */}
@@ -73,8 +85,8 @@ const FormE5: FC<Props> = ({ faculty, onSave }) => {
                             {/* Faculty Details Card */}
                             <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm space-y-3">
                                 <h3 className="font-bold text-gray-900 border-b pb-2">Faculty Details</h3>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                    <div className="grid gap-1 col-span-2">
+                                <div className="flex flex-col gap-3">
+                                    <div className="grid gap-1">
                                         <label className="text-xs font-semibold text-gray-600">Faculty Name (LN, FN, MI)</label>
                                         <Input 
                                             value={formData.name || ''} 
@@ -84,19 +96,47 @@ const FormE5: FC<Props> = ({ faculty, onSave }) => {
                                     </div>
                                     <div className="grid gap-1">
                                         <label className="text-xs font-semibold text-gray-600">Full-Time/Part-Time </label>
-                                        <Input 
-                                            value={formData.fullTimeCode}
-                                            onChange={(e) => handleChange('fullTimeCode', e.target.value)}
-                                            placeholder="Code"
-                                        />
+                                        <div className="flex gap-2">
+                                            <Select value={formData.fullTimeCode} onValueChange={(val) => handleChange('fullTimeCode', val)}>
+                                                <SelectTrigger className="w-24 shrink-0">
+                                                    <span className="truncate flex-1 text-center">{formData.fullTimeCode || "Code"}</span>
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {fullTimePartTime.map((item) => (
+                                                        <SelectItem key={item.code} value={item.code} textValue={item.code}>
+                                                            {item.code} - {item.desc}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                            <Input 
+                                                readOnly 
+                                                className="flex-1 bg-gray-50 text-gray-600" 
+                                                value={fullTimePartTime.find(i => i.code === formData.fullTimeCode)?.desc || ''} 
+                                            />
+                                        </div>
                                     </div>
                                     <div className="grid gap-1">
                                         <label className="text-xs font-semibold text-gray-600">Gender </label>
-                                        <Input 
-                                            value={formData.genderCode}
-                                            onChange={(e) => handleChange('genderCode', e.target.value)}
-                                            placeholder="Code"
-                                        />
+                                        <div className="flex gap-2">
+                                            <Select value={formData.genderCode} onValueChange={(val) => handleChange('genderCode', val)}>
+                                                <SelectTrigger className="w-24 shrink-0">
+                                                    <span className="truncate flex-1 text-center">{formData.genderCode || "Code"}</span>
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {gender.map((item) => (
+                                                        <SelectItem key={item.code} value={item.code} textValue={item.code}>
+                                                            {item.code} - {item.desc}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                            <Input 
+                                                readOnly 
+                                                className="flex-1 bg-gray-50 text-gray-600" 
+                                                value={gender.find(i => i.code === formData.genderCode)?.desc || ''} 
+                                            />
+                                        </div>
                                     </div>
                                     <div className="grid gap-1">
                                         <label className="text-xs font-semibold text-gray-600">Primary Teaching Discipline</label>
@@ -115,11 +155,25 @@ const FormE5: FC<Props> = ({ faculty, onSave }) => {
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-3">
                                     <div className="grid gap-1 col-span-2">
                                         <label className="text-xs font-semibold text-gray-600">Highest Degree Attained</label>
-                                        <Input 
-                                            value={formData.degree}
-                                            onChange={(e) => handleChange('degree', e.target.value)}
-                                            placeholder="Code (e.g. 503)"
-                                        />
+                                        <div className="flex gap-2">
+                                            <Select value={formData.degree} onValueChange={(val) => handleChange('degree', val)}>
+                                                <SelectTrigger className="w-24 shrink-0">
+                                                    <span className="truncate flex-1 text-center">{formData.degree || "Code"}</span>
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {highestDegree.map((item) => (
+                                                        <SelectItem key={item.code} value={item.code} textValue={item.code}>
+                                                            {item.code} - {item.desc}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                            <Input 
+                                                readOnly 
+                                                className="flex-1 bg-gray-50 text-gray-600" 
+                                                value={highestDegree.find(i => i.code === formData.degree)?.desc || ''} 
+                                            />
+                                        </div>
                                     </div>  
                                     <div className="grid gap-1 col-span-2">
                                         <label className="text-xs font-semibold text-gray-600">Specific Discipline of Bachelors Degree</label>
@@ -145,56 +199,119 @@ const FormE5: FC<Props> = ({ faculty, onSave }) => {
                                 </div>
                             </div>
 
-                            {/* Employment Details Card */}
-                            <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm space-y-3">
-                                {/* REMOVED HEADER */}
-                                <div className="grid grid-cols-1 gap-3">
+                            {/* Employment & Teaching Details Card */}
+                            <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm space-y-3 lg:col-span-2">
+                                <h3 className="font-bold text-gray-900 border-b pb-2">Employment & Teaching Details</h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-3">
                                     <div className="grid gap-1">
                                         <label className="text-xs font-semibold text-gray-600">Professional License</label>
-                                        <Input 
-                                            value={formData.licenseCode}
-                                            onChange={(e) => handleChange('licenseCode', e.target.value)}
-                                            placeholder="Code"
-                                        />
+                                        <div className="flex gap-2">
+                                            <Select value={formData.licenseCode} onValueChange={(val) => handleChange('licenseCode', val)}>
+                                                <SelectTrigger className="w-24 shrink-0">
+                                                    <span className="truncate flex-1 text-center">{formData.licenseCode || "Code"}</span>
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {professionalLicense.map((item) => (
+                                                        <SelectItem key={item.code} value={item.code} textValue={item.code}>
+                                                            {item.code} - {item.desc}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                            <Input 
+                                                readOnly 
+                                                className="flex-1 bg-gray-50 text-gray-600" 
+                                                value={professionalLicense.find(i => i.code === formData.licenseCode)?.desc || ''} 
+                                            />
+                                        </div>
                                     </div>
                                     <div className="grid gap-1">
                                         <label className="text-xs font-semibold text-gray-600">Tenure of Employment</label>
-                                        <Input 
-                                            value={formData.tenureCode}
-                                            onChange={(e) => handleChange('tenureCode', e.target.value)}
-                                            placeholder="Code"
-                                        />
+                                        <div className="flex gap-2">
+                                            <Select value={formData.tenureCode} onValueChange={(val) => handleChange('tenureCode', val)}>
+                                                <SelectTrigger className="w-24 shrink-0">
+                                                    <span className="truncate flex-1 text-center">{formData.tenureCode || "Code"}</span>
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {tenure.map((item) => (
+                                                        <SelectItem key={item.code} value={item.code} textValue={item.code}>
+                                                            {item.code} - {item.desc}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                            <Input 
+                                                readOnly 
+                                                className="flex-1 bg-gray-50 text-gray-600" 
+                                                value={tenure.find(i => i.code === formData.tenureCode)?.desc || ''} 
+                                            />
+                                        </div>
                                     </div>
                                     <div className="grid gap-1">
                                         <label className="text-xs font-semibold text-gray-600">Faculty Rank</label>
-                                        <Input 
-                                            value={formData.rankCode}
-                                            onChange={(e) => handleChange('rankCode', e.target.value)}
-                                            placeholder="Code"
-                                        />
+                                        <div className="flex gap-2">
+                                            <Select value={formData.rankCode} onValueChange={(val) => handleChange('rankCode', val)}>
+                                                <SelectTrigger className="w-24 shrink-0">
+                                                    <span className="truncate flex-1 text-center">{formData.rankCode || "Code"}</span>
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {facultyRank.map((item) => (
+                                                        <SelectItem key={item.code} value={item.code} textValue={item.code}>
+                                                            {item.code} - {item.desc}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                            <Input 
+                                                readOnly 
+                                                className="flex-1 bg-gray-50 text-gray-600" 
+                                                value={facultyRank.find(i => i.code === formData.rankCode)?.desc || ''} 
+                                            />
+                                        </div>
                                     </div>
                                     <div className="grid gap-1">
                                         <label className="text-xs font-semibold text-gray-600">Annual Salary</label>
-                                        <Input 
-                                            value={formData.salaryCode}
-                                            onChange={(e) => handleChange('salaryCode', e.target.value)}
-                                            placeholder="Salary Grade Code"
-                                        />
+                                        <div className="flex gap-2">
+                                            <Select value={formData.salaryCode} onValueChange={(val) => handleChange('salaryCode', val)}>
+                                                <SelectTrigger className="w-24 shrink-0">
+                                                    <span className="truncate flex-1 text-center">{formData.salaryCode || "Code"}</span>
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {annualSalary.map((item) => (
+                                                        <SelectItem key={item.code} value={item.code} textValue={item.code}>
+                                                            {item.code} - {item.desc}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                            <Input 
+                                                readOnly 
+                                                className="flex-1 bg-gray-50 text-gray-600" 
+                                                value={annualSalary.find(i => i.code === formData.salaryCode)?.desc || ''} 
+                                            />
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
-
-                            {/* Teaching Information Card */}
-                            <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm space-y-3">
-                                {/* REMOVED HEADER */}
-                                <div className="grid grid-cols-1 gap-3">
                                     <div className="grid gap-1">
                                         <label className="text-xs font-semibold text-gray-600">Teaching Load</label>
-                                        <Input 
-                                            value={formData.loadCode}
-                                            onChange={(e) => handleChange('loadCode', e.target.value)}
-                                            placeholder="Code"
-                                        />
+                                        <div className="flex gap-2">
+                                            <Select value={formData.loadCode} onValueChange={(val) => handleChange('loadCode', val)}>
+                                                <SelectTrigger className="w-24 shrink-0">
+                                                    <span className="truncate flex-1 text-center">{formData.loadCode || "Code"}</span>
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {teachingLoad.map((item) => (
+                                                        <SelectItem key={item.code} value={item.code} textValue={item.code}>
+                                                            {item.code} - {item.desc}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                            <Input 
+                                                readOnly 
+                                                className="flex-1 bg-gray-50 text-gray-600" 
+                                                value={teachingLoad.find(i => i.code === formData.loadCode)?.desc || ''} 
+                                            />
+                                        </div>
                                     </div>
                                     <div className="grid gap-1">
                                         <label className="text-xs font-semibold text-gray-600">Subjects Taught</label>
