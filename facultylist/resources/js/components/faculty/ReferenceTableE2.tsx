@@ -1,6 +1,6 @@
 import { FC } from 'react';
 
-const ReferenceTableE5: FC = () => {
+const ReferenceTableE2: FC = () => {
     // Data derived from reference image
     const col1 = [ // Full-Time/Part-Time
         { code: "1", desc: "The person is a full-time employee of the HEI." },
@@ -140,4 +140,4 @@ const ReferenceTableE5: FC = () => {
     );
 };
 
-export default ReferenceTableE5;
+export default ReferenceTableE2;

@@ -59,7 +59,7 @@ export const FacultyProfileCards: FC<FacultyProfileCardsProps> = ({ formData, ha
 
     const cardClass = readOnly 
         ? "space-y-3" 
-        : "bg-white p-4 rounded-xl border border-gray-200 shadow-sm space-y-3";
+        : "bg-white p-4 rounded-none border border-gray-200 shadow-sm space-y-3";
 
     return (
          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 pb-4">
@@ -383,7 +383,7 @@ const ViewProfileModalE5: FC<Props> = ({ isOpen, onOpenChange, faculty, onEdit }
                                 <Edit className="h-4 w-4" /> Edit Profile
                             </Button>
                         )}
-                        <DialogClose onClick={() => onOpenChange(false)} className="h-8 w-8 flex items-center justify-center text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors">
+                        <DialogClose onClick={() => onOpenChange(false)} className="h-8 w-8 flex items-center justify-center text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-none transition-colors">
                             <X className="h-5 w-5" />
                         </DialogClose>
                     </div>

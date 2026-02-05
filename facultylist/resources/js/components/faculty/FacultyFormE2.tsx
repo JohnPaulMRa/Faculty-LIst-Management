@@ -19,79 +19,7 @@ const SHEET_TABS = [
     { id: 'Reference', label: 'Reference', title: 'REFERENCE CODES', remarks: 'Codes to be used in filling out the form.' },
 ];
 
-const ReferenceTable = () => (
-    <div className="flex h-full">
-         <div className="flex-1 overflow-auto bg-white p-4">
-            <h3 className="font-bold text-lg mb-4">Reference Codes</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                 {/* Generic Faculty Rank */}
-                 <div>
-                    <h4 className="font-bold border-b border-black mb-2">Generic Faculty Rank</h4>
-                    <table className="w-full text-xs">
-                        <thead>
-                            <tr><th className="text-left font-bold">Code</th><th className="text-left font-bold">Description</th></tr>
-                        </thead>
-                        <tbody>
-                            <tr><td>10</td><td>INSTRUCTOR</td></tr>
-                            <tr><td>20</td><td>ASSISTANT PROFESSOR</td></tr>
-                            <tr><td>30</td><td>ASSOCIATE PROFESSOR</td></tr>
-                            <tr><td>40</td><td>FULL PROFESSOR</td></tr>
-                            <tr><td>50</td><td>UNIVERSITY PROFESSOR</td></tr>
-                        </tbody>
-                    </table>
-                 </div>
-
-                 {/* Tenure */}
-                 <div>
-                    <h4 className="font-bold border-b border-black mb-2">Tenure</h4>
-                    <table className="w-full text-xs">
-                         <thead>
-                            <tr><th className="text-left font-bold">Code</th><th className="text-left font-bold">Description</th></tr>
-                        </thead>
-                        <tbody>
-                            <tr><td>1</td><td>Faculty member is tenured</td></tr>
-                            <tr><td>2</td><td>Faculty member has own plantilla item but NOT TENURED</td></tr>
-                            <tr><td>3</td><td>Faculty member has no plantilla item</td></tr>
-                        </tbody>
-                    </table>
-                 </div>
-
-                  {/* Highest Degree */}
-                  <div>
-                    <h4 className="font-bold border-b border-black mb-2">Highest Degree</h4>
-                    <table className="w-full text-xs">
-                         <thead>
-                            <tr><th className="text-left font-bold">Code</th><th className="text-left font-bold">Description</th></tr>
-                        </thead>
-                        <tbody>
-                             <tr><td>100</td><td>No formal education</td></tr>
-                             <tr><td>101</td><td>Partial elementary schooling</td></tr>
-                             <tr><td>102</td><td>Completed elementary</td></tr>
-                             <tr><td>201</td><td>Partial completion of High School</td></tr>
-                             <tr><td>202</td><td>Secondary school graduate</td></tr>
-                             <tr><td>302</td><td>Completed Tech/Voc</td></tr>
-                             <tr><td>402</td><td>Completed pre-bacc certificate</td></tr>
-                        </tbody>
-                    </table>
-                 </div>
-
-                  {/* Gender */}
-                  <div>
-                    <h4 className="font-bold border-b border-black mb-2">Gender</h4>
-                    <table className="w-full text-xs">
-                         <thead>
-                            <tr><th className="text-left font-bold">Code</th><th className="text-left font-bold">Description</th></tr>
-                        </thead>
-                        <tbody>
-                             <tr><td>1</td><td>Male</td></tr>
-                             <tr><td>2</td><td>Female</td></tr>
-                        </tbody>
-                    </table>
-                 </div>
-            </div>
-         </div>
-    </div>
-);
+import ReferenceTableE2 from './ReferenceTableE2';
 
 type Props = {
     faculty?: Faculty;
@@ -99,7 +27,7 @@ type Props = {
     onSave?: (data: Partial<Faculty>) => void;
 };
 
-const FormE2: FC<Props> = ({ faculty, onSave }) => {
+const FacultyFormE2: FC<Props> = ({ faculty, onSave }) => {
     const [activeTab, setActiveTab] = useState('A1');
     const [formData, setFormData] = useState<Partial<Faculty>>({});
     const currentGroup = SHEET_TABS.find(tab => tab.id === activeTab) || SHEET_TABS[0];
@@ -127,12 +55,12 @@ const FormE2: FC<Props> = ({ faculty, onSave }) => {
                 <div className="flex items-center gap-2">
                     <Button 
                         size="sm" 
-                        className="h-6 px-3 bg-green-500 hover:bg-green-400 text-black border border-black rounded-s text-[15px] uppercase tracking-wider font-bold flex items-center gap-1" 
+                        className="h-6 px-3 bg-green-500 hover:bg-green-400 text-black border border-black rounded-none text-[15px] uppercase tracking-wider font-bold flex items-center gap-1" 
                         onClick={handleSave}
                     >
                         <Save className="h-3 w-3" /> Save
                     </Button>
-                    <DialogClose className="h-6 w-6 flex items-center justify-center text-black hover:bg-gray-200 rounded-sm">
+                    <DialogClose className="h-6 w-6 flex items-center justify-center text-black hover:bg-gray-200 rounded-none">
                         <X className="h-4 w-4" />
                     </DialogClose>
                 </div>
@@ -142,7 +70,7 @@ const FormE2: FC<Props> = ({ faculty, onSave }) => {
 
             <div className="flex-1 overflow-auto border border-black bg-white relative">
                 {activeTab === 'Reference' ? (
-                    <ReferenceTable />
+                    <ReferenceTableE2 />
                 ) : (
                     <table className="w-full min-w-[3000px] border-collapse text-[11px] font-sans">
                         <thead className="bg-black text-white sticky top-0 z-30 shadow-md">
@@ -370,8 +298,8 @@ const FormE2: FC<Props> = ({ faculty, onSave }) => {
             <div className="flex items-center bg-[#f0f0f0] border-t border-gray-300 px-1 gap-1 h-8 shrink-0 overflow-x-auto">
                 <div className="flex items-center space-x-2 mr-4 text-gray-500">
                      <div className="flex gap-1">
-                        <button className="hover:bg-gray-200 p-0.5 rounded"><ChevronLeft className="h-3 w-3" /></button>
-                        <button className="hover:bg-gray-200 p-0.5 rounded"><ChevronRight className="h-3 w-3" /></button>
+                        <button className="hover:bg-gray-200 p-0.5 rounded-none"><ChevronLeft className="h-3 w-3" /></button>
+                        <button className="hover:bg-gray-200 p-0.5 rounded-none"><ChevronRight className="h-3 w-3" /></button>
                      </div>
                 </div>
                 {SHEET_TABS.map((tab) => (
@@ -388,7 +316,7 @@ const FormE2: FC<Props> = ({ faculty, onSave }) => {
                         {tab.label}
                      </button>
                 ))}
-                <button className="px-2 py-1 text-gray-500 hover:bg-gray-200 rounded-full ml-1">
+                <button className="px-2 py-1 text-gray-500 hover:bg-gray-200 rounded-none ml-1">
                     <Plus className="h-4 w-4" />
                 </button>
             </div>
@@ -396,4 +324,4 @@ const FormE2: FC<Props> = ({ faculty, onSave }) => {
     );
 };
 
-export default FormE2;
+export default FacultyFormE2;

@@ -5,8 +5,8 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog';
 import { Faculty } from '@/types/faculty';
-import FormE2 from './FormE2';
-import FormE5 from './FormE5';
+import FacultyFormE2 from './FacultyFormE2';
+import FacultyFormE5 from './FacultyFormE5';
 
 type Props = {
     isOpen: boolean;
@@ -37,14 +37,14 @@ const FacultyFileDetailsModal: FC<Props> = ({ isOpen, onOpenChange, faculty, onS
                     <div className="flex-1 overflow-hidden p-0 bg-white relative">
                         {faculty.form_type === 'E2' ? (
                             <div className="h-full w-full overflow-hidden">
-                                <FormE2 
+                                <FacultyFormE2 
                                     faculty={faculty} 
                                     onSave={(data) => onSave({ ...faculty, ...data } as Faculty)} 
                                 />
                             </div>
                         ) : faculty.form_type === 'E5' ? (
                             <div className="h-full w-full overflow-hidden">
-                                <FormE5 
+                                <FacultyFormE5 
                                     faculty={faculty} 
                                     onSave={(data) => onSave({ ...faculty, ...data } as Faculty)}
                                 />

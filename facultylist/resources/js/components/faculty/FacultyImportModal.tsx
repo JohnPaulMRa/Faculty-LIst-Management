@@ -97,7 +97,7 @@ const FacultyImportModal: FC<Props> = ({
 
                     <div className="flex flex-col gap-3 pt-2">
                         <div className="relative" onClick={() => fileInputRef.current?.click()}>
-                            <div className="flex h-32 w-full flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer">
+                            <div className="flex h-32 w-full flex-col items-center justify-center rounded-none border-2 border-dashed border-gray-300 bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer">
                                 <div className="flex flex-col items-center justify-center pt-5 pb-6">
                                     <UploadCloud className="h-8 w-8 text-gray-400 mb-2" />
                                     <p className="text-sm text-gray-500">Click to upload XLSX/CSV</p>

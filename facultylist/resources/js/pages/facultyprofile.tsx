@@ -25,7 +25,8 @@ import AppLayout from '@/layouts/app-layout';
 import { Faculty, IMPORT_GROUP_OPTIONS } from '@/types/faculty';
 import FacultyFileDetailsModal from '@/components/faculty/FacultyFileDetailsModal';
 import FacultyImportModal from '@/components/faculty/FacultyImportModal';
-import FacultyListTable from '@/components/faculty/FacultyListTable';
+import FacultyListTableE5 from '@/components/faculty/FacultyListTableE5';
+import FacultyListTableE2 from '@/components/faculty/FacultyListTableE2';
 
 // Basic declaration for Ziggy's route helper
 declare function route(name?: string, params?: any, absolute?: boolean): string;
@@ -306,7 +307,7 @@ const FacultyProfile: FC<FacultyProfileProps> = ({ initialFacultyData = [], filt
                         </div>
                     </div>
 
-                    <FacultyListTable 
+                    <FacultyListTableE5 
                         facultyList={facultyList}
                         yearFilter={yearFilter}
                         onFileClick={handleFileClick}

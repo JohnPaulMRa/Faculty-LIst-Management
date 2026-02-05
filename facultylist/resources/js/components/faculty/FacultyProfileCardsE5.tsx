@@ -25,7 +25,7 @@ type FacultyProfileCardsProps = {
     readOnly?: boolean;
 };
 
-export const FacultyProfileCards: FC<FacultyProfileCardsProps> = ({ formData, handleChange, readOnly = false }) => {
+export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, handleChange, readOnly = false }) => {
     
     // Helper to get description for codes
     const getDesc = (list: { code: string, desc: string }[], code?: string) => {
@@ -94,7 +94,7 @@ export const FacultyProfileCards: FC<FacultyProfileCardsProps> = ({ formData, ha
                                 disabled={readOnly}
                                 onValueChange={(val) => onErrorSafeChange('genderCode', val)}
                             >
-                                <SelectTrigger className="w-24 shrink-0 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900">
+                                <SelectTrigger className="w-24 shrink-0 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900 rounded-none">
                                     <SelectValue placeholder="Code" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -107,7 +107,7 @@ export const FacultyProfileCards: FC<FacultyProfileCardsProps> = ({ formData, ha
                             </Select>
                             <Input 
                                 readOnly 
-                                className="flex-1 bg-gray-50 text-gray-600 cursor-default focus-visible:ring-0" 
+                                className="flex-1 bg-gray-50 text-gray-600 cursor-default focus-visible:ring-0 rounded-none" 
                                 value={getDesc(gender, formData.genderCode)} 
                             />
                         </div>
@@ -118,7 +118,7 @@ export const FacultyProfileCards: FC<FacultyProfileCardsProps> = ({ formData, ha
                             value={formData.disciplineCode}
                             onChange={(code, desc) => onErrorSafeChange('disciplineCode', code)}
                             disabled={readOnly}
-                            className="opacity-100 disabled:opacity-100 disabled:bg-white text-gray-900"
+                            className="opacity-100 disabled:opacity-100 disabled:bg-white text-gray-900 rounded-none"
                         />
                     </div>
                 </div>
@@ -136,7 +136,7 @@ export const FacultyProfileCards: FC<FacultyProfileCardsProps> = ({ formData, ha
                                 disabled={readOnly}
                                 onValueChange={(val) => onErrorSafeChange('degree', val)}
                             >
-                                <SelectTrigger className="w-24 shrink-0 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900">
+                                <SelectTrigger className="w-24 shrink-0 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900 rounded-none">
                                     <SelectValue placeholder="Code" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -149,7 +149,7 @@ export const FacultyProfileCards: FC<FacultyProfileCardsProps> = ({ formData, ha
                             </Select>
                             <Input 
                                 readOnly 
-                                className="flex-1 bg-gray-50 text-gray-600 cursor-default focus-visible:ring-0" 
+                                className="flex-1 bg-gray-50 text-gray-600 cursor-default focus-visible:ring-0 rounded-none" 
                                 value={getDesc(highestDegree, formData.degree)} 
                             />
                         </div>
@@ -163,7 +163,7 @@ export const FacultyProfileCards: FC<FacultyProfileCardsProps> = ({ formData, ha
                                 onErrorSafeChange('bachelors', desc);
                             }}
                             disabled={readOnly}
-                            className="opacity-100 disabled:opacity-100 disabled:bg-white text-gray-900"
+                            className="opacity-100 disabled:opacity-100 disabled:bg-white text-gray-900 rounded-none"
                         />
                     </div>
                     <div className="grid gap-1 col-span-2">
@@ -175,7 +175,7 @@ export const FacultyProfileCards: FC<FacultyProfileCardsProps> = ({ formData, ha
                                 onErrorSafeChange('masters', desc);
                             }}
                             disabled={readOnly}
-                            className="opacity-100 disabled:opacity-100 disabled:bg-white text-gray-900"
+                            className="opacity-100 disabled:opacity-100 disabled:bg-white text-gray-900 rounded-none"
                         />
                     </div>
                     <div className="grid gap-1 col-span-2">
@@ -187,7 +187,7 @@ export const FacultyProfileCards: FC<FacultyProfileCardsProps> = ({ formData, ha
                                 onErrorSafeChange('doctorate', desc);
                             }}
                             disabled={readOnly}
-                            className="opacity-100 disabled:opacity-100 disabled:bg-white text-gray-900"
+                            className="opacity-100 disabled:opacity-100 disabled:bg-white text-gray-900 rounded-none"
                         />
                     </div>
                 </div>
@@ -195,7 +195,6 @@ export const FacultyProfileCards: FC<FacultyProfileCardsProps> = ({ formData, ha
 
             {/* Employment & Teaching Details Card */}
             <div className={`${cardClass} lg:col-span-2`}>
-                <h3 className="font-bold text-gray-900 border-b pb-2">Employment & Teaching Details</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-3">
                     <div className="grid gap-1">
                         <label className="text-xs font-semibold text-gray-600">Professional License</label>
@@ -205,7 +204,7 @@ export const FacultyProfileCards: FC<FacultyProfileCardsProps> = ({ formData, ha
                                 disabled={readOnly}
                                 onValueChange={(val) => onErrorSafeChange('licenseCode', val)}
                             >
-                                <SelectTrigger className="w-24 shrink-0 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900">
+                                <SelectTrigger className="w-24 shrink-0 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900 rounded-none">
                                     <SelectValue placeholder="Code" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -218,7 +217,7 @@ export const FacultyProfileCards: FC<FacultyProfileCardsProps> = ({ formData, ha
                             </Select>
                             <Input 
                                 readOnly 
-                                className="flex-1 bg-gray-50 text-gray-600 cursor-default focus-visible:ring-0" 
+                                className="flex-1 bg-gray-50 text-gray-600 cursor-default focus-visible:ring-0 rounded-none" 
                                 value={getDesc(professionalLicense, formData.licenseCode)} 
                             />
                         </div>
@@ -231,7 +230,7 @@ export const FacultyProfileCards: FC<FacultyProfileCardsProps> = ({ formData, ha
                                 disabled={readOnly}
                                 onValueChange={(val) => onErrorSafeChange('tenureCode', val)}
                             >
-                                <SelectTrigger className="w-24 shrink-0 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900">
+                                <SelectTrigger className="w-24 shrink-0 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900 rounded-none">
                                     <SelectValue placeholder="Code" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -244,7 +243,7 @@ export const FacultyProfileCards: FC<FacultyProfileCardsProps> = ({ formData, ha
                             </Select>
                             <Input 
                                 readOnly 
-                                className="flex-1 bg-gray-50 text-gray-600 cursor-default focus-visible:ring-0" 
+                                className="flex-1 bg-gray-50 text-gray-600 cursor-default focus-visible:ring-0 rounded-none" 
                                 value={getDesc(tenure, formData.tenureCode)} 
                             />
                         </div>
@@ -257,7 +256,7 @@ export const FacultyProfileCards: FC<FacultyProfileCardsProps> = ({ formData, ha
                                 disabled={readOnly}
                                 onValueChange={(val) => onErrorSafeChange('rankCode', val)}
                             >
-                                <SelectTrigger className="w-24 shrink-0 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900">
+                                <SelectTrigger className="w-24 shrink-0 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900 rounded-none">
                                     <SelectValue placeholder="Code" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -270,7 +269,7 @@ export const FacultyProfileCards: FC<FacultyProfileCardsProps> = ({ formData, ha
                             </Select>
                             <Input 
                                 readOnly 
-                                className="flex-1 bg-gray-50 text-gray-600 cursor-default focus-visible:ring-0" 
+                                className="flex-1 bg-gray-50 text-gray-600 cursor-default focus-visible:ring-0 rounded-none" 
                                 value={getDesc(facultyRank, formData.rankCode)} 
                             />
                         </div>
@@ -283,7 +282,7 @@ export const FacultyProfileCards: FC<FacultyProfileCardsProps> = ({ formData, ha
                                 disabled={readOnly}
                                 onValueChange={(val) => onErrorSafeChange('salaryCode', val)}
                             >
-                                <SelectTrigger className="w-24 shrink-0 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900">
+                                <SelectTrigger className="w-24 shrink-0 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900 rounded-none">
                                     <SelectValue placeholder="Code" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -296,7 +295,7 @@ export const FacultyProfileCards: FC<FacultyProfileCardsProps> = ({ formData, ha
                             </Select>
                             <Input 
                                 readOnly 
-                                className="flex-1 bg-gray-50 text-gray-600 cursor-default focus-visible:ring-0" 
+                                className="flex-1 bg-gray-50 text-gray-600 cursor-default focus-visible:ring-0 rounded-none" 
                                 value={getDesc(annualSalary, formData.salaryCode)} 
                             />
                         </div>
@@ -309,7 +308,7 @@ export const FacultyProfileCards: FC<FacultyProfileCardsProps> = ({ formData, ha
                                 disabled={readOnly}
                                 onValueChange={(val) => onErrorSafeChange('loadCode', val)}
                             >
-                                <SelectTrigger className="w-24 shrink-0 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900">
+                                <SelectTrigger className="w-24 shrink-0 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900 rounded-none">
                                     <SelectValue placeholder="Code" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -322,7 +321,7 @@ export const FacultyProfileCards: FC<FacultyProfileCardsProps> = ({ formData, ha
                             </Select>
                             <Input 
                                 readOnly 
-                                className="flex-1 bg-gray-50 text-gray-600 cursor-default focus-visible:ring-0" 
+                                className="flex-1 bg-gray-50 text-gray-600 cursor-default focus-visible:ring-0 rounded-none" 
                                 value={getDesc(teachingLoad, formData.loadCode)} 
                             />
                         </div>

@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Save, X, ChevronLeft, ChevronRight, Plus } from 'lucide-react';
 import { DialogClose } from '@/components/ui/dialog';
 import ReferenceTableE5 from './ReferenceTableE5';
-import { FacultyProfileCards } from './FacultyProfileCards';
+import { FacultyProfileCardsE5 } from './FacultyProfileCardsE5';
 import DisciplineSelector from './DisciplineSelector';
 import {
     Select,
@@ -31,7 +31,7 @@ type Props = {
     onCancel?: () => void;
 };
 
-const FormE5: FC<Props> = ({ faculty, onSave }) => {
+const FacultyFormE5: FC<Props> = ({ faculty, onSave }) => {
     const [activeTab, setActiveTab] = useState('DataEntry');
     const [formData, setFormData] = useState({
         name: faculty?.name || '',
@@ -118,7 +118,7 @@ const FormE5: FC<Props> = ({ faculty, onSave }) => {
             <div className="bg-white text-gray-900 px-6 py-4 flex justify-between items-center border-b border-gray-200 shrink-0">
                 <h2 className="text-lg font-bold uppercase tracking-tight">Faculty Details</h2>
                 <div className="flex items-center gap-2">
-                    <DialogClose className="h-8 w-8 flex items-center justify-center text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors">
+                    <DialogClose className="h-8 w-8 flex items-center justify-center text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-none transition-colors">
                         <X className="h-5 w-5" />
                     </DialogClose>
                 </div>
@@ -131,7 +131,7 @@ const FormE5: FC<Props> = ({ faculty, onSave }) => {
                     <ReferenceTableE5 />
                 ) : (
                     <div className="h-full overflow-auto p-4 bg-gray-50">
-                        <FacultyProfileCards 
+                        <FacultyProfileCardsE5 
                             formData={formData} 
                             handleChange={handleChange} 
                             readOnly={false}
@@ -154,4 +154,4 @@ const FormE5: FC<Props> = ({ faculty, onSave }) => {
     );
 };
 
-export default FormE5;
+export default FacultyFormE5;

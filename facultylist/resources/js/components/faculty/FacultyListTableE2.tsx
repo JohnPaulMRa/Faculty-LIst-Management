@@ -13,7 +13,7 @@ type Props = {
     onEdit: (faculty: Faculty) => void;
 };
 
-const FacultyListTable: FC<Props> = ({ facultyList, yearFilter, onFileClick, onDelete, onEdit }) => {
+const FacultyListTableE2: FC<Props> = ({ facultyList, yearFilter, onFileClick, onDelete, onEdit }) => {
     const getStatusBadge = (status: string): string => {
         const styles: Record<string, string> = {
             'Completed': 'bg-emerald-100 text-emerald-700 border border-emerald-200',
@@ -28,7 +28,7 @@ const FacultyListTable: FC<Props> = ({ facultyList, yearFilter, onFileClick, onD
             <div className="overflow-x-auto">
                 {/* SPREADSHEET HEADER */}
                 <div className="bg-gray-50 text-black px-4 py-3 text-sm font-bold uppercase tracking-wide border-b border-gray-300">
-                    FACULTY DATA RECORDS
+                    FACULTY DATA RECORDS (E2)
                 </div>
 
                 <table className="w-full border-collapse text-xl whitespace-nowrap font-sans">
@@ -55,28 +55,22 @@ const FacultyListTable: FC<Props> = ({ facultyList, yearFilter, onFileClick, onD
                                     {faculty.employment === 'Plantilla' ? 'Full-Time' : 'Part-Time'}
                                 </td>
                                 <td className="px-3 py-2 text-center">
-                                    {faculty.form_type === 'E5' ? (
-                                        <span className={`text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-sm font-bold ${getStatusBadge(faculty.status)}`}>
-                                            {faculty.status === 'Completed' ? 'Updated' : 'Not Updated'}
-                                        </span>
-                                    ) : (
-                                        <span className={`text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-sm font-bold ${getStatusBadge(faculty.status)}`}>
-                                            {faculty.status}
-                                        </span>
-                                    )}
+                                    <span className={`text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-none font-bold ${getStatusBadge(faculty.status)}`}>
+                                        {faculty.status}
+                                    </span>
                                 </td>
                                 <td className="px-3 py-2 font-bold text-center">
                                     <div className="flex items-center justify-center gap-2">
                                         <button 
                                             onClick={() => onEdit(faculty)}
-                                            className="flex items-center gap-1 text-black-600 hover:text-black transition-colors bg-blue-50 px-2 py-1.5 rounded-md border border-blue-200 text-xs font-semibold"
+                                            className="flex items-center gap-1 text-black-600 hover:text-black transition-colors bg-blue-50 px-2 py-1.5 rounded-none border border-blue-200 text-xs font-semibold"
                                             title="View Profile"
                                         >
                                             <Eye className="h-3 w-3" /> View Profile
                                         </button>
                                         <button 
                                             onClick={() => onDelete(faculty.id)}
-                                            className="flex items-center gap-1 text-red-600 hover:text-red-800 transition-colors bg-red-50 px-2 py-1.5 rounded-md border border-red-200 text-xs font-semibold"
+                                            className="flex items-center gap-1 text-red-600 hover:text-red-800 transition-colors bg-red-50 px-2 py-1.5 rounded-none border border-red-200 text-xs font-semibold"
                                             title="Delete"
                                         >
                                             <Trash2 className="h-3 w-3" /> Delete
@@ -99,4 +93,4 @@ const FacultyListTable: FC<Props> = ({ facultyList, yearFilter, onFileClick, onD
     );
 };
 
-export default FacultyListTable;
+export default FacultyListTableE2;
