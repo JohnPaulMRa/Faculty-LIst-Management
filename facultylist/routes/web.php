@@ -18,9 +18,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('facultyprofile', function () {
-        return Inertia::render('facultyprofile');
-    })->name('facultyprofile');
+    Route::get('facultyprofile', [\App\Http\Controllers\FacultyController::class, 'index'])->name('facultyprofile');
+    Route::post('faculty', [\App\Http\Controllers\FacultyController::class, 'store'])->name('faculty.store');
+    Route::put('faculty/{id}', [\App\Http\Controllers\FacultyController::class, 'update'])->name('faculty.update');
+    Route::delete('faculty/{id}', [\App\Http\Controllers\FacultyController::class, 'destroy'])->name('faculty.destroy');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {

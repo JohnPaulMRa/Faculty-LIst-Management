@@ -18,7 +18,7 @@ const FacultyListTable: FC<Props> = ({ facultyList, yearFilter, onFileClick, onD
         const styles: Record<string, string> = {
             'Completed': 'bg-emerald-100 text-emerald-700 border border-emerald-200',
             'No Submission': 'bg-red-100 text-red-700 border border-red-200',
-            'Not Yet Completed': 'bg-orange-100 text-orange-700 border border-orange-200',
+            'Not Yet Completed': 'bg-red-100 text-red-700 border border-red-200',
         };
         return styles[status] || 'bg-gray-100 text-gray-700 border border-gray-200';
     };
@@ -34,29 +34,29 @@ const FacultyListTable: FC<Props> = ({ facultyList, yearFilter, onFileClick, onD
                 <table className="w-full border-collapse text-xl whitespace-nowrap font-sans">
                     <thead>
                         <tr className="bg-gray-100 text-black border-b border-gray-300">
-                            <th className="px-3 py-2 border-r border-gray-300 font-bold text-center">Faculty Name</th>
-                            <th className="px-3 py-2 border-r border-gray-300 font-bold text-center">Full-Time / Part-Time</th>
-                            <th className="px-3 py-2 border-r border-gray-300 font-bold text-center">Gender</th>
-                            <th className="px-3 py-2 border-r border-gray-300 font-bold text-center">Status</th>
+                            <th className="px-3 py-2 font-bold text-center">No.</th>
+                            <th className="px-3 py-2 font-bold text-center">Academic Year</th>
+                            <th className="px-3 py-2 font-bold text-center">Faculty Name</th>
+                            <th className="px-3 py-2 font-bold text-center">Gender</th>
+                            <th className="px-3 py-2 font-bold text-center">Full-Time / Part-Time</th>
+                            <th className="px-3 py-2 font-bold text-center">Status</th>
                             <th className="px-3 py-2 font-bold text-center">Action</th>
                         </tr>
                     </thead>
                     <tbody className="bg-white text-sm ">
                     {facultyList.length > 0 ? (
-                        facultyList.map((faculty) => (
+                        facultyList.map((faculty, index) => (
                             <tr key={faculty.id} className="border-b border-gray-300 hover:bg-gray-100 transition-colors">
-                                <td className="px-3 py-2 border-r border-gray-300 text-center font-medium text-black">{faculty.name}</td>
-                                <td className="px-3 py-2 border-r border-gray-300 text-center text-black">
+                                <td className="px-3 py-2 text-center text-black">{index + 1}</td>
+                                <td className="px-3 py-2 text-center text-black">{faculty.joined_year}</td>
+                                <td className="px-3 py-2 text-center font-medium text-black">{faculty.name}</td>
+                                <td className="px-3 py-2 text-center text-black">Female</td>
+                                <td className="px-3 py-2 text-center text-black">
                                     {faculty.employment === 'Plantilla' ? 'Full-Time' : 'Part-Time'}
                                 </td>
-                                <td className="px-3 py-2 border-r border-gray-300 text-center text-black">Female</td>
-                                <td className="px-3 py-2 border-r border-gray-300 text-center">
+                                <td className="px-3 py-2 text-center">
                                     {faculty.form_type === 'E5' ? (
-                                        <span className={`text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-sm font-bold ${
-                                            faculty.status === 'Completed' 
-                                                ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' 
-                                                : 'bg-red-100 text-red-700 border border-red-200'
-                                        }`}>
+                                        <span className={`text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-sm font-bold ${getStatusBadge(faculty.status)}`}>
                                             {faculty.status === 'Completed' ? 'Updated' : 'Not Updated'}
                                         </span>
                                     ) : (
@@ -69,7 +69,7 @@ const FacultyListTable: FC<Props> = ({ facultyList, yearFilter, onFileClick, onD
                                     <div className="flex items-center justify-center gap-2">
                                         <button 
                                             onClick={() => onEdit(faculty)}
-                                            className="flex items-center gap-1 text-blue-600 hover:text-blue-800 transition-colors bg-blue-50 px-2 py-1.5 rounded-md border border-blue-200 text-xs font-semibold"
+                                            className="flex items-center gap-1 text-black-600 hover:text-black transition-colors bg-blue-50 px-2 py-1.5 rounded-md border border-blue-200 text-xs font-semibold"
                                             title="View Profile"
                                         >
                                             <Eye className="h-3 w-3" /> View Profile
@@ -87,7 +87,7 @@ const FacultyListTable: FC<Props> = ({ facultyList, yearFilter, onFileClick, onD
                         ))
                     ) : (
                         <tr>
-                            <td colSpan={10} className="px-6 py-8 text-center text-gray-500 text-sm border border-gray-300 bg-gray-50">
+                            <td colSpan={7} className="px-6 py-8 text-center text-gray-500 text-sm border border-gray-300 bg-gray-50">
                                 No records found for {yearFilter}.
                             </td>
                         </tr>

@@ -1,12 +1,13 @@
-import { Head } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import { 
     ScrollText, 
     Calendar,
     FileDown,
-    FileSpreadsheet
+    FileSpreadsheet,
+    Search
 } from 'lucide-react';
 import type { FC } from 'react';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -19,7 +20,6 @@ import {
     DropdownMenuCheckboxItem,
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
-import { Search } from 'lucide-react';
 import AppLayout from '@/layouts/app-layout';
 
 import { Faculty, IMPORT_GROUP_OPTIONS } from '@/types/faculty';
@@ -27,85 +27,47 @@ import FacultyFileDetailsModal from '@/components/faculty/FacultyFileDetailsModa
 import FacultyImportModal from '@/components/faculty/FacultyImportModal';
 import FacultyListTable from '@/components/faculty/FacultyListTable';
 
-// --- MOCK DATA ---
-const initialFacultyData: Faculty[] = [
-    {
-        id: 'FAC-001',
-        name: 'Dr. Maria Santos',
-        email: 'msantos@university.edu',
-        department: 'Biology Department',
-        rank: 'Professor III',
-        degree: 'PhD in Biology',
-        status: 'Completed',
-        employment: 'Plantilla',
-        avatar_initials: 'MS',
-        joined_year: '2021',
-        form_type: 'E5',
-        import_group: 'A1'
-    },
-    {
-        id: 'FAC-002',
-        name: 'Prof. Juan Dela Cruz',
-        email: 'jdelacruz@university.edu',
-        department: 'Mathematics',
-        rank: 'Associate Professor I',
-        degree: 'MS Mathematics',
-        status: 'Not Yet Completed',
-        employment: 'Part-time',
-        avatar_initials: 'JD',
-        joined_year: '2023',
-        form_type: 'E5',
-        import_group: 'B'
-    },
-    {
-        id: 'FAC-003',
-        name: 'Inst. Ana Reyes',
-        email: 'areyes@university.edu',
-        department: 'Chemistry',
-        rank: 'Instructor I',
-        degree: 'BS Chemistry',
-        status: 'No Submission',
-        employment: 'Plantilla',
-        avatar_initials: 'AR',
-        joined_year: '2024',
-        form_type: 'E5',
-        import_group: 'A2'
-    }
-];
+// Basic declaration for Ziggy's route helper
+declare function route(name?: string, params?: any, absolute?: boolean): string;
 
 const breadcrumbs = [
     { title: 'Faculty', href: '/faculty-profile' },
 ];
 
-const FacultyProfile: FC = () => {
+interface FacultyProfileProps {
+    initialFacultyData: Faculty[];
+    filters: {
+        search?: string;
+        year?: string;
+    };
+}
+
+const FacultyProfile: FC<FacultyProfileProps> = ({ initialFacultyData = [], filters = {} }) => {
     const [facultyList, setFacultyList] = useState<Faculty[]>(initialFacultyData);
-    const [searchQuery, setSearchQuery] = useState<string>('');
+    const [searchQuery, setSearchQuery] = useState<string>(filters.search || '');
+    const [yearFilter, setYearFilter] = useState<string>(filters.year || 'All Years');
+
+    useEffect(() => {
+        setFacultyList(initialFacultyData);
+    }, [initialFacultyData]);
     
     // --- STATE ---
-    const [yearFilter, setYearFilter] = useState<string>('All Years');
-
     const [isImportModalOpen, setIsImportModalOpen] = useState<boolean>(false);
     const [importType, setImportType] = useState<'E2' | 'E5'>('E5'); 
     const [importGroup, setImportGroup] = useState<string>('');
     const [selectedFile, setSelectedFile] = useState<Faculty | null>(null);
     const [isFileModalOpen, setIsFileModalOpen] = useState<boolean>(false);
 
-    // --- FILTER LOGIC ---
-    const filteredFaculty = useMemo(() => {
-        return facultyList.filter(f => {
-            const matchesSearch = 
-                f.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                f.department.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                f.degree.toLowerCase().includes(searchQuery.toLowerCase());
-            
-            const matchesYear = yearFilter === 'All Years' || f.joined_year === yearFilter;
-
-            // Optional: Filter by Group if needed?
-            // const matchesGroup = ...
-
-            return matchesSearch && matchesYear;
+    const handleSubmit = () => {
+        router.get(route('facultyprofile'), {
+            search: searchQuery,
+            year: yearFilter
+        }, {
+            preserveState: true,
+            preserveScroll: true,
+            replace: true
         });
-    }, [facultyList, searchQuery, yearFilter]);
+    };
 
     // --- HANDLERS ---
     const handleDownloadTemplate = (type: 'E2' | 'E5'): void => {
@@ -185,10 +147,11 @@ const FacultyProfile: FC = () => {
 
         alert(`Importing ${importType} data. Group: ${detectedGroup || 'N/A'} from file '${file.name}'.`);
         
-        const importedEntry: Faculty = {
-            id: `IMP-${Math.floor(Math.random() * 999)}`,
+        const importedEntry = {
+            // In a real app, you'd parse variables from the file here.
+            // For now, preserving mock logic sending to backend
             name: 'Prof. Imported User',
-            email: 'import@ched.gov.ph',
+            email: `import${Math.floor(Math.random() * 999)}@ched.gov.ph`,
             department: 'Imported Dept',
             rank: 'Guest Lecturer',
             degree: 'PhD',
@@ -199,14 +162,28 @@ const FacultyProfile: FC = () => {
             form_type: importType,
             import_group: detectedGroup
         };
-        setFacultyList([importedEntry, ...facultyList]);
-        setIsImportModalOpen(false); 
-        setImportGroup(''); // Reset group after import
+
+        router.post(route('faculty.store'), importedEntry, {
+            onSuccess: () => {
+                setIsImportModalOpen(false); 
+                setImportGroup(''); 
+                alert("Faculty imported successfully.");
+            },
+            onError: (errors) => {
+                console.error("Import failed:", errors);
+                alert("Failed to import faculty.");
+            }
+        });
     };
 
     const handleDelete = (id: string): void => {
         if(confirm("Delete this record? This action cannot be undone.")) {
-            setFacultyList(prev => prev.filter(f => f.id !== id));
+            router.delete(route('faculty.destroy', id), {
+                onSuccess: () => {
+                    // Alert handled by flash message usually, or here
+                },
+                onError: () => alert("Failed to delete faculty.")
+            });
         }
     };
 
@@ -215,14 +192,18 @@ const FacultyProfile: FC = () => {
         setIsFileModalOpen(true);
     };
 
-    const handleEdit = (faculty: Faculty): void => {
-        handleFileClick(faculty);
-    };
-
     const handleUpdateFaculty = (updatedFaculty: Faculty) => {
-        setFacultyList(prev => prev.map(f => f.id === updatedFaculty.id ? updatedFaculty : f));
-        setSelectedFile(updatedFaculty); 
-        alert("Faculty details saved successfully (Local State Only).");
+        router.put(route('faculty.update', updatedFaculty.id), updatedFaculty, {
+             onSuccess: () => {
+                alert("Faculty details updated successfully.");
+                setIsFileModalOpen(false);
+                setSelectedFile(updatedFaculty); // Update local selected file to reflect changes immediately if needed
+             },
+             onError: (errors) => {
+                console.error("Update failed:", errors);
+                alert("Failed to update faculty details.");
+             }
+        });
     };
 
     return (
@@ -239,16 +220,7 @@ const FacultyProfile: FC = () => {
             
             <div className="flex flex-1 flex-col gap-6 w-full p-4 md:px-8 text-[#1b1b18] dark:text-[#EDEDEC]">
                 {/* HEADER */}
-                <div className="flex flex-col justify-between gap-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-[#18181b] lg:flex-row lg:items-center">
-                    <div className="flex items-center gap-4">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[#003468] text-white shadow-sm">
-                            <ScrollText className="h-6 w-6" />
-                        </div>
-                        <div>
-                            <h2 className="text-2xl font-bold tracking-tight text-[#003468] dark:text-white uppercase">Faculty</h2>
-                            <p className="text-sm text-gray-500">Faculty records and employment status.</p>
-                        </div>
-                    </div>
+                <div className="flex flex-col justify-end gap-4 p-2 lg:flex-row lg:items-center">
                     <div className="flex items-center gap-2">
                         <FacultyImportModal 
                             isOpen={isImportModalOpen}
@@ -300,36 +272,50 @@ const FacultyProfile: FC = () => {
                         <div className="flex items-center gap-2 ml-4">
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" size="sm" className={`gap-2 ${yearFilter !== 'All Years' ? 'text-blue-600 font-semibold' : 'text-gray-600'}`}>
+                                    <Button variant="ghost" size="sm" className="gap-2 text-gray-600 font-semibold">
                                         <Calendar className="h-4 w-4" /> 
-                                        {yearFilter === 'All Years' ? 'School Year' : yearFilter}
+                                        Academic Year : <span className="text-blue-600 ml-1 font-bold">{yearFilter === 'All Years' ? 'All' : yearFilter}</span>
                                     </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end" className="w-48">
-                                    <DropdownMenuLabel>Select School Year</DropdownMenuLabel>
+                                    <DropdownMenuLabel>Select Academic Year</DropdownMenuLabel>
                                     <DropdownMenuSeparator />
                                     <DropdownMenuCheckboxItem checked={yearFilter === 'All Years'} onCheckedChange={() => setYearFilter('All Years')}>All Years</DropdownMenuCheckboxItem>
-                                    {['2025-2026', '2024-2025', '2023-2024', '2022-2023', '2021-2022', '2020-2021'].map((year) => (
-                                        <DropdownMenuCheckboxItem key={year} checked={yearFilter === year} onCheckedChange={() => setYearFilter(year)}>{year}</DropdownMenuCheckboxItem>
-                                    ))}
+                                    {Array.from({ length: 6 }, (_, i) => {
+                                        const currentYear = new Date().getFullYear();
+                                        // Start from next year (e.g., 2026 -> 2026-2027) or current (2025-2026) depending on preference.
+                                        // Assuming we want to show a range centered on now or mostly recent.
+                                        // Generating: [Current+1]-[Current+2], [Current]-[Current+1], ...
+                                        // e.g. if 2026: 2026-2027, 2025-2026, ...
+                                        const startYear = currentYear - i + 1; 
+                                        const yearString = `${startYear}-${startYear + 1}`;
+                                        return (
+                                            <DropdownMenuCheckboxItem key={yearString} checked={yearFilter === yearString} onCheckedChange={() => setYearFilter(yearString)}>
+                                                {yearString}
+                                            </DropdownMenuCheckboxItem>
+                                        );
+                                    })}
                                 </DropdownMenuContent>
                             </DropdownMenu>
-                            <Button size="sm" className="bg-[#003468] text-white hover:bg-[#002a54] shadow-sm">
+                            <Button size="sm" onClick={handleSubmit} variant="outline" className="text-[#003468] border-[#003468] hover:bg-gray-100 shadow-sm mr-2">
+                                Retrieval
+                            </Button>
+                            <Button size="sm" onClick={handleSubmit} className="bg-[#003468] text-white hover:bg-[#002a54] shadow-sm">
                                 Submit
                             </Button>
                         </div>
                     </div>
 
                     <FacultyListTable 
-                        facultyList={filteredFaculty}
+                        facultyList={facultyList}
                         yearFilter={yearFilter}
                         onFileClick={handleFileClick}
                         onDelete={handleDelete}
-                        onEdit={handleEdit}
+                        onEdit={handleFileClick}
                     />
                 </div>
             </div>
-        </AppLayout>
+            </AppLayout>
         </>
     );
 };

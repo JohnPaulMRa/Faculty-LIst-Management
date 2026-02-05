@@ -11,9 +11,6 @@ import {
 } from '@/constants/facultyDataE5';
 
 const ReferenceTableE5: FC = () => {
-    // Data derived from reference image
-    // Data is now imported from @/constants/facultyData
-
     const maxRows = Math.max(fullTimePartTime.length, gender.length, highestDegree.length, professionalLicense.length, tenure.length, facultyRank.length, teachingLoad.length, annualSalary.length);
 
     return (

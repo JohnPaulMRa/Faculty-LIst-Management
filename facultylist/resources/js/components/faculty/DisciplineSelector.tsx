@@ -42,6 +42,7 @@ type Props = {
     onChange: (code: string, desc: string) => void;
     placeholder?: string;
     className?: string; // To support external styling
+    disabled?: boolean;
 };
 
 // Map group codes to their respective discipline arrays
@@ -90,7 +91,7 @@ const findDisciplineGroup = (code: string) => {
     return "";
 };
 
-const DisciplineSelector: FC<Props> = ({ value, onChange, placeholder = "Select Discipline", className }) => {
+const DisciplineSelector: FC<Props> = ({ value, onChange, placeholder = "Select Discipline", className, disabled }) => {
     const [selectedGroup, setSelectedGroup] = useState<string>("");
 
     // Initialize group based on value
@@ -125,8 +126,8 @@ const DisciplineSelector: FC<Props> = ({ value, onChange, placeholder = "Select 
     return (
         <div className={`flex gap-2 w-full ${className}`}>
             {/* Major Group Select */}
-            <Select value={selectedGroup} onValueChange={handleGroupChange}>
-                <SelectTrigger className="w-[180px] shrink-0">
+            <Select value={selectedGroup} onValueChange={handleGroupChange} disabled={disabled}>
+                <SelectTrigger className="w-[180px] shrink-0 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900 rounded-none">
                     <SelectValue placeholder="Select Major Group" />
                 </SelectTrigger>
                 <SelectContent className="h-[300px]">
@@ -142,13 +143,13 @@ const DisciplineSelector: FC<Props> = ({ value, onChange, placeholder = "Select 
             <Input 
                 value={value || ''} 
                 readOnly 
-                className="w-24 shrink-0 bg-gray-50 text-center font-mono"
+                className="w-24 shrink-0 bg-gray-50 text-center font-mono disabled:opacity-100 rounded-none"
                 placeholder="Code" 
             />
 
             {/* Specific Discipline Select */}
-            <Select value={value} onValueChange={handleDisciplineChange} disabled={!selectedGroup}>
-                <SelectTrigger className="flex-1">
+            <Select value={value} onValueChange={handleDisciplineChange} disabled={disabled || !selectedGroup}>
+                <SelectTrigger className="flex-1 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900 rounded-none">
                      {/* Show ONLY description in the value */}
                      <span className="truncate">
                         {value ? (
