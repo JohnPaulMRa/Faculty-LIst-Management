@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Save, X, ChevronLeft, ChevronRight, Plus } from 'lucide-react';
 import { DialogClose } from '@/components/ui/dialog';
 import ReferenceTableE5 from './ReferenceTableE5';
+import DisciplineSelector from './DisciplineSelector';
 import {
     Select,
     SelectContent,
@@ -33,22 +34,31 @@ const FormE5: FC<Props> = ({ faculty, onSave }) => {
     const [activeTab, setActiveTab] = useState('DataEntry');
     const [formData, setFormData] = useState({
         name: faculty?.name || '',
-        fullTimeCode: '',
-        genderCode: '',
-        disciplineCode: '',
-        degree: '',
-        bachelors: '',
-        bachelorsCode: '',
-        masters: '',
-        mastersCode: '',
-        doctorate: '',
-        doctorateCode: '',
-        licenseCode: '',
-        tenureCode: '',
-        rankCode: '',
-        loadCode: '',
-        subjects: '',
-        salaryCode: ''
+        fullTimeCode: faculty?.fullTimeCode || '',
+        genderCode: faculty?.genderCode || '',
+        disciplineCode: faculty?.disciplineCode || '',
+        degree: faculty?.degree || '', // This maps to 'degree' code in state, but 'degree' string in Faculty type? Wait.
+        // Faculty type has `degree: string` which was used for display (e.g. "PhD in Biology").
+        // form uses `degree` for highestDegree code? 
+        // Let's check: line 159: value={formData.degree} -> highestDegree list.
+        // So I should map this carefully. 
+        // In Faculty type, 'degree' might store the description or the code.
+        // Given 'degree: string', let's assume it stores coverage of "Highest Degree Attained".
+        // Use faculty.degree if it looks like a code (3 digits), otherwise safe to leave empty?
+        // Or assume local state saves code into `degree` field of Faculty object.
+        
+        bachelors: faculty?.bachelors || '',
+        bachelorsCode: faculty?.bachelorsCode || '',
+        masters: faculty?.masters || '',
+        mastersCode: faculty?.mastersCode || '',
+        doctorate: faculty?.doctorate || '',
+        doctorateCode: faculty?.doctorateCode || '',
+        licenseCode: faculty?.licenseCode || '',
+        tenureCode: faculty?.tenureCode || '',
+        rankCode: faculty?.rankCode || '',
+        loadCode: faculty?.loadCode || '',
+        subjects: faculty?.subjects || '',
+        salaryCode: faculty?.salaryCode || ''
     });
 
     const handleChange = (field: string, value: string) => {
@@ -140,16 +150,15 @@ const FormE5: FC<Props> = ({ faculty, onSave }) => {
                                     </div>
                                     <div className="grid gap-1">
                                         <label className="text-xs font-semibold text-gray-600">Primary Teaching Discipline</label>
-                                        <Input 
+                                        <DisciplineSelector 
                                             value={formData.disciplineCode}
-                                            onChange={(e) => handleChange('disciplineCode', e.target.value)}
-                                            placeholder="Code"
+                                            onChange={(code, desc) => handleChange('disciplineCode', code)}
                                         />
                                     </div>
-                                </div>
                             </div>
+                        </div>
 
-                            {/* Educational Credential Earned Card */}
+                        {/* Educational Credential Earned Card */}
                             <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm space-y-3">
                                 <h3 className="font-bold text-gray-900 border-b pb-2">Educational Credential Earned</h3>
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-3">
@@ -177,24 +186,33 @@ const FormE5: FC<Props> = ({ faculty, onSave }) => {
                                     </div>  
                                     <div className="grid gap-1 col-span-2">
                                         <label className="text-xs font-semibold text-gray-600">Specific Discipline of Bachelors Degree</label>
-                                        <div className="flex gap-2">
-                                            <Input placeholder="Code" className="w-24 shrink-0" value={formData.bachelorsCode} onChange={e => handleChange('bachelorsCode', e.target.value)} />
-                                            <Input placeholder="Program Name" className="w-full" value={formData.bachelors} onChange={e => handleChange('bachelors', e.target.value)} />
-                                        </div>
+                                        <DisciplineSelector 
+                                            value={formData.bachelorsCode}
+                                            onChange={(code, desc) => {
+                                                handleChange('bachelorsCode', code);
+                                                handleChange('bachelors', desc);
+                                            }}
+                                        />
                                     </div>
                                     <div className="grid gap-1 col-span-2">
                                         <label className="text-xs font-semibold text-gray-600">Specific Discipline of Masters Degree</label>
-                                        <div className="flex gap-2">
-                                            <Input placeholder="Code" className="w-24 shrink-0" value={formData.mastersCode} onChange={e => handleChange('mastersCode', e.target.value)} />
-                                            <Input placeholder="Program Name" className="w-full" value={formData.masters} onChange={e => handleChange('masters', e.target.value)} />
-                                        </div>
+                                        <DisciplineSelector 
+                                            value={formData.mastersCode}
+                                            onChange={(code, desc) => {
+                                                handleChange('mastersCode', code);
+                                                handleChange('masters', desc);
+                                            }}
+                                        />
                                     </div>
                                     <div className="grid gap-1 col-span-2">
                                         <label className="text-xs font-semibold text-gray-600">Specific Discipline of Doctorate Degree</label>
-                                        <div className="flex gap-1.5">
-                                            <Input placeholder="Code" className="w-24 shrink-0" value={formData.doctorateCode} onChange={e => handleChange('doctorateCode', e.target.value)} />
-                                            <Input placeholder="Program Name" className="w-full" value={formData.doctorate} onChange={e => handleChange('doctorate', e.target.value)} />
-                                        </div>
+                                        <DisciplineSelector 
+                                            value={formData.doctorateCode}
+                                            onChange={(code, desc) => {
+                                                handleChange('doctorateCode', code);
+                                                handleChange('doctorate', desc);
+                                            }}
+                                        />
                                     </div>
                                 </div>
                             </div>

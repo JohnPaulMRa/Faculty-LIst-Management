@@ -11,6 +11,23 @@ export type Faculty = {
     joined_year: string;
     form_type: 'E2' | 'E5';
     import_group?: string; 
+    
+    // Form E5 Specific Fields (Optional)
+    fullTimeCode?: string;
+    genderCode?: string;
+    disciplineCode?: string;
+    bachelorsCode?: string;
+    bachelors?: string;
+    mastersCode?: string;
+    masters?: string;
+    doctorateCode?: string;
+    doctorate?: string;
+    licenseCode?: string;
+    tenureCode?: string;
+    rankCode?: string;
+    salaryCode?: string;
+    loadCode?: string;
+    subjects?: string;
 };
 
 export const IMPORT_GROUP_OPTIONS = [

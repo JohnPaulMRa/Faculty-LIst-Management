@@ -109,10 +109,61 @@ const FacultyProfile: FC = () => {
 
     // --- HANDLERS ---
     const handleDownloadTemplate = (type: 'E2' | 'E5'): void => {
-        const headers = ["ID","Name","Rank","Degree","Status","Year"];
-        const rowExample = ["001","Juan Cruz","Prof I","PhD","Completed","2024"];
-        const fileName = type === 'E2' ? "FORM_E2_PUBLIC.csv" : "FORM_E5_PRIVATE.csv";
-        const csvContent = "data:text/csv;charset=utf-8," + [headers, rowExample].join("\n");
+        let headers: string[] = [];
+        let rowExample: string[] = [];
+        let fileName = "";
+
+        if (type === 'E2') {
+             headers = ["ID","Name","Rank","Degree","Status","Year"];
+             rowExample = ["001","Juan Cruz","Prof I","PhD","Completed","2024"];
+             fileName = "FORM_E2_PUBLIC.csv";
+        } else {
+            // E5 Full Headers
+            headers = [
+                "Faculty Name", 
+                "Full-Time Code", 
+                "Gender Code", 
+                "Primary Disc. Group", 
+                "Primary Disc. Code", 
+                "Highest Degree Code", 
+                "Bachelors Disc. Group", 
+                "Bachelors Disc. Code", 
+                "Masters Disc. Group", 
+                "Masters Disc. Code", 
+                "Doctorate Disc. Group", 
+                "Doctorate Disc. Code", 
+                "Professional License Code", 
+                "Tenure Code", 
+                "Rank Code", 
+                "Salary Code", 
+                "Load Code", 
+                "Subjects Taught"
+            ];
+            rowExample = [
+                "Dela Cruz, Juan M.", 
+                "1", // Full-time
+                "1", // Male
+                "46", // Mathematics Group
+                "461103", // Statistics Code
+                "903", // Doctorate
+                "46", // Bach Group
+                "460100", // Bach Code
+                "46", // Mast Group
+                "461101", // Mast Code
+                "46", // Doc Group
+                "461103", // Doc Code
+                "1", // License
+                "1", // Permanent
+                "50", // Professor
+                "6", // Salary
+                "30", // Load
+                "Calculus, Algebra"
+            ];
+            fileName = "FORM_E5_PRIVATE.csv";
+        }
+
+        const processRow = (row: string[]) => row.map(cell => `"${cell.replace(/"/g, '""')}"`).join(",");
+        const csvContent = "data:text/csv;charset=utf-8," + [processRow(headers), processRow(rowExample)].join("\n");
         const encodedUri = encodeURI(csvContent);
         const link = document.createElement("a");
         link.setAttribute("href", encodedUri);
