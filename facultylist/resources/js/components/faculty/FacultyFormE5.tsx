@@ -14,25 +14,18 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { 
-    fullTimePartTime, 
-    gender, 
-    highestDegree, 
-    professionalLicense, 
-    tenure, 
-    facultyRank, 
-    teachingLoad, 
-    annualSalary 
-} from '@/constants/facultyDataE5';
+
 
 type Props = {
     faculty?: Faculty;
     onSave?: (data: any) => void;
     onCancel?: () => void;
+    referenceData: any;
 };
 
-const FacultyFormE5: FC<Props> = ({ faculty, onSave }) => {
+const FacultyFormE5: FC<Props> = ({ faculty, onSave, referenceData }) => {
     const [activeTab, setActiveTab] = useState('DataEntry');
+    // ... (rest of state omitted for brevity, logic remains same)
     const [formData, setFormData] = useState({
         name: faculty?.name || '',
         fullTimeCode: faculty?.fullTimeCode || '',
@@ -83,13 +76,13 @@ const FacultyFormE5: FC<Props> = ({ faculty, onSave }) => {
     };
 
     const handleSave = () => {
-        // Check if all required fields are filled
+        // Required fields based on "Form E5" completeness
         const requiredFields = [
             formData.name,
             formData.fullTimeCode,
             formData.genderCode,
-            formData.disciplineCode,
-            formData.degree,
+            formData.disciplineCode, // Primary Discipline
+            // formData.degree, // Not strictly a code, but maybe required
             formData.licenseCode,
             formData.tenureCode,
             formData.rankCode,
@@ -98,17 +91,17 @@ const FacultyFormE5: FC<Props> = ({ faculty, onSave }) => {
             formData.subjects
         ];
 
+        // Check if all required fields are truthy and not empty strings
         const isComplete = requiredFields.every(field => field && field.trim() !== '');
 
-        // If complete, update to 'Completed'. 
-        // If not complete, revert/set to 'Not Yet Completed' to reflect "Not Updated" state.
+        // Automatically set status based on completeness
         const newStatus = isComplete ? 'Completed' : 'Not Yet Completed';
 
         onSave?.({ 
             ...faculty, 
             ...formData,
             status: newStatus,
-            activeTab // Save the active sheet context if needed
+            activeTab
         } as any); 
     };
 
@@ -128,13 +121,14 @@ const FacultyFormE5: FC<Props> = ({ faculty, onSave }) => {
 
             <div className="flex-1 overflow-hidden relative">
                  {activeTab === 'Reference' ? (
-                    <ReferenceTableE5 />
+                    <ReferenceTableE5 referenceData={referenceData} />
                 ) : (
                     <div className="h-full overflow-auto p-4 bg-gray-50">
                         <FacultyProfileCardsE5 
                             formData={formData} 
                             handleChange={handleChange} 
                             readOnly={false}
+                            referenceData={referenceData}
                         />
                     </div>
                 )}

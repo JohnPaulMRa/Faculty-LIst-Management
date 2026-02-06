@@ -25,9 +25,10 @@ type Props = {
     faculty?: Faculty;
     onCancel?: () => void;
     onSave?: (data: Partial<Faculty>) => void;
+    referenceData?: any;
 };
 
-const FacultyFormE2: FC<Props> = ({ faculty, onSave }) => {
+const FacultyFormE2: FC<Props> = ({ faculty, onSave, referenceData }) => {
     const [activeTab, setActiveTab] = useState('A1');
     const [formData, setFormData] = useState<Partial<Faculty>>({});
     const currentGroup = SHEET_TABS.find(tab => tab.id === activeTab) || SHEET_TABS[0];

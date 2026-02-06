@@ -8,24 +8,15 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import DisciplineSelector from './DisciplineSelector';
-import { 
-    fullTimePartTime, 
-    gender, 
-    highestDegree, 
-    professionalLicense, 
-    tenure, 
-    facultyRank, 
-    teachingLoad, 
-    annualSalary 
-} from '@/constants/facultyDataE5';
 
 type FacultyProfileCardsProps = {
     formData: any;
     handleChange?: (field: string, value: any) => void;
     readOnly?: boolean;
+    referenceData: any;
 };
 
-export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, handleChange, readOnly = false }) => {
+export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, handleChange, readOnly = false, referenceData }) => {
     
     // Helper to get description for codes
     const getDesc = (list: { code: string, desc: string }[], code?: string) => {
@@ -72,7 +63,7 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                                     <SelectValue placeholder="Code" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    {fullTimePartTime.map((item) => (
+                                    {referenceData.fullTimePartTime.map((item: any) => (
                                         <SelectItem key={item.code} value={item.code}>
                                             {item.code} - {item.desc}
                                         </SelectItem>
@@ -82,7 +73,7 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                             <Input 
                                 readOnly 
                                 className="flex-1 bg-gray-50 text-gray-600 cursor-default focus-visible:ring-0 rounded-none" 
-                                value={getDesc(fullTimePartTime, formData.fullTimeCode)} 
+                                value={getDesc(referenceData.fullTimePartTime, formData.fullTimeCode)} 
                             />
                         </div>
                     </div>
@@ -98,7 +89,7 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                                     <SelectValue placeholder="Code" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    {gender.map((item) => (
+                                    {referenceData.gender.map((item: any) => (
                                         <SelectItem key={item.code} value={item.code}>
                                             {item.code} - {item.desc}
                                         </SelectItem>
@@ -108,7 +99,7 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                             <Input 
                                 readOnly 
                                 className="flex-1 bg-gray-50 text-gray-600 cursor-default focus-visible:ring-0 rounded-none" 
-                                value={getDesc(gender, formData.genderCode)} 
+                                value={getDesc(referenceData.gender, formData.genderCode)} 
                             />
                         </div>
                     </div>
@@ -119,6 +110,7 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                             onChange={(code, desc) => onErrorSafeChange('disciplineCode', code)}
                             disabled={readOnly}
                             className="opacity-100 disabled:opacity-100 disabled:bg-white text-gray-900 rounded-none"
+                            referenceData={referenceData}
                         />
                     </div>
                 </div>
@@ -140,7 +132,7 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                                     <SelectValue placeholder="Code" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    {highestDegree.map((item) => (
+                                    {referenceData.highestDegree.map((item: any) => (
                                         <SelectItem key={item.code} value={item.code}>
                                             {item.code} - {item.desc}
                                         </SelectItem>
@@ -150,7 +142,7 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                             <Input 
                                 readOnly 
                                 className="flex-1 bg-gray-50 text-gray-600 cursor-default focus-visible:ring-0 rounded-none" 
-                                value={getDesc(highestDegree, formData.degree)} 
+                                value={getDesc(referenceData.highestDegree, formData.degree)} 
                             />
                         </div>
                     </div>  
@@ -164,6 +156,7 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                             }}
                             disabled={readOnly}
                             className="opacity-100 disabled:opacity-100 disabled:bg-white text-gray-900 rounded-none"
+                            referenceData={referenceData}
                         />
                     </div>
                     <div className="grid gap-1 col-span-2">
@@ -176,6 +169,7 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                             }}
                             disabled={readOnly}
                             className="opacity-100 disabled:opacity-100 disabled:bg-white text-gray-900 rounded-none"
+                            referenceData={referenceData}
                         />
                     </div>
                     <div className="grid gap-1 col-span-2">
@@ -188,6 +182,7 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                             }}
                             disabled={readOnly}
                             className="opacity-100 disabled:opacity-100 disabled:bg-white text-gray-900 rounded-none"
+                            referenceData={referenceData}
                         />
                     </div>
                 </div>
@@ -208,7 +203,7 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                                     <SelectValue placeholder="Code" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    {professionalLicense.map((item) => (
+                                    {referenceData.professionalLicense.map((item: any) => (
                                         <SelectItem key={item.code} value={item.code}>
                                             {item.code} - {item.desc}
                                         </SelectItem>
@@ -218,7 +213,7 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                             <Input 
                                 readOnly 
                                 className="flex-1 bg-gray-50 text-gray-600 cursor-default focus-visible:ring-0 rounded-none" 
-                                value={getDesc(professionalLicense, formData.licenseCode)} 
+                                value={getDesc(referenceData.professionalLicense, formData.licenseCode)} 
                             />
                         </div>
                     </div>
@@ -234,7 +229,7 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                                     <SelectValue placeholder="Code" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    {tenure.map((item) => (
+                                    {referenceData.tenure.map((item: any) => (
                                         <SelectItem key={item.code} value={item.code}>
                                             {item.code} - {item.desc}
                                         </SelectItem>
@@ -244,7 +239,7 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                             <Input 
                                 readOnly 
                                 className="flex-1 bg-gray-50 text-gray-600 cursor-default focus-visible:ring-0 rounded-none" 
-                                value={getDesc(tenure, formData.tenureCode)} 
+                                value={getDesc(referenceData.tenure, formData.tenureCode)} 
                             />
                         </div>
                     </div>
@@ -260,7 +255,7 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                                     <SelectValue placeholder="Code" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    {facultyRank.map((item) => (
+                                    {referenceData.facultyRank.map((item: any) => (
                                         <SelectItem key={item.code} value={item.code}>
                                             {item.code} - {item.desc}
                                         </SelectItem>
@@ -270,7 +265,7 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                             <Input 
                                 readOnly 
                                 className="flex-1 bg-gray-50 text-gray-600 cursor-default focus-visible:ring-0 rounded-none" 
-                                value={getDesc(facultyRank, formData.rankCode)} 
+                                value={getDesc(referenceData.facultyRank, formData.rankCode)} 
                             />
                         </div>
                     </div>
@@ -286,7 +281,7 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                                     <SelectValue placeholder="Code" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    {annualSalary.map((item) => (
+                                    {referenceData.annualSalary.map((item: any) => (
                                         <SelectItem key={item.code} value={item.code}>
                                             {item.code} - {item.desc}
                                         </SelectItem>
@@ -296,7 +291,7 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                             <Input 
                                 readOnly 
                                 className="flex-1 bg-gray-50 text-gray-600 cursor-default focus-visible:ring-0 rounded-none" 
-                                value={getDesc(annualSalary, formData.salaryCode)} 
+                                value={getDesc(referenceData.annualSalary, formData.salaryCode)} 
                             />
                         </div>
                     </div>
@@ -312,7 +307,7 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                                     <SelectValue placeholder="Code" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    {teachingLoad.map((item) => (
+                                    {referenceData.teachingLoad.map((item: any) => (
                                         <SelectItem key={item.code} value={item.code}>
                                             {item.code} - {item.desc}
                                         </SelectItem>
@@ -322,7 +317,7 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                             <Input 
                                 readOnly 
                                 className="flex-1 bg-gray-50 text-gray-600 cursor-default focus-visible:ring-0 rounded-none" 
-                                value={getDesc(teachingLoad, formData.loadCode)} 
+                                value={getDesc(referenceData.teachingLoad, formData.loadCode)} 
                             />
                         </div>
                     </div>

@@ -1,16 +1,20 @@
 import { FC } from 'react';
-import { 
-    fullTimePartTime, 
-    gender, 
-    highestDegree, 
-    professionalLicense, 
-    tenure, 
-    facultyRank, 
-    teachingLoad, 
-    annualSalary 
-} from '@/constants/facultyDataE5';
 
-const ReferenceTableE5: FC = () => {
+type ReferenceTableProps = {
+    referenceData: any;
+};
+
+const ReferenceTableE5: FC<ReferenceTableProps> = ({ referenceData }) => {
+    // Safe access to arrays
+    const fullTimePartTime = referenceData?.fullTimePartTime || [];
+    const gender = referenceData?.gender || [];
+    const highestDegree = referenceData?.highestDegree || [];
+    const professionalLicense = referenceData?.professionalLicense || [];
+    const tenure = referenceData?.tenure || [];
+    const facultyRank = referenceData?.facultyRank || [];
+    const teachingLoad = referenceData?.teachingLoad || [];
+    const annualSalary = referenceData?.annualSalary || [];
+
     const maxRows = Math.max(fullTimePartTime.length, gender.length, highestDegree.length, professionalLicense.length, tenure.length, facultyRank.length, teachingLoad.length, annualSalary.length);
 
     return (

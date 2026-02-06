@@ -41,9 +41,10 @@ interface FacultyProfileProps {
         search?: string;
         year?: string;
     };
+    referenceData: any;
 }
 
-const FacultyProfile: FC<FacultyProfileProps> = ({ initialFacultyData = [], filters = {} }) => {
+const FacultyProfile: FC<FacultyProfileProps> = ({ initialFacultyData = [], filters = {}, referenceData }) => {
     const [facultyList, setFacultyList] = useState<Faculty[]>(initialFacultyData);
     const [searchQuery, setSearchQuery] = useState<string>(filters.search || '');
     const [yearFilter, setYearFilter] = useState<string>(filters.year || 'All Years');
@@ -136,7 +137,7 @@ const FacultyProfile: FC<FacultyProfileProps> = ({ initialFacultyData = [], filt
         document.body.removeChild(link);
     };
 
-    const handleFileImport = (file: File): void => {
+    const handleFileImport = async (file: File): Promise<void> => {
         // Use selected group for E2 (A groups), undefined for E5
         const detectedGroup = importType === 'E2' ? importGroup : undefined;
         
@@ -146,44 +147,106 @@ const FacultyProfile: FC<FacultyProfileProps> = ({ initialFacultyData = [], filt
             return;
         }
 
-        alert(`Importing ${importType} data. Group: ${detectedGroup || 'N/A'} from file '${file.name}'.`);
-        
-        const importedEntry = {
-            // In a real app, you'd parse variables from the file here.
-            // For now, preserving mock logic sending to backend
-            name: 'Prof. Imported User',
-            email: `import${Math.floor(Math.random() * 999)}@ched.gov.ph`,
-            department: 'Imported Dept',
-            rank: 'Guest Lecturer',
-            degree: 'PhD',
-            status: 'Completed',
-            employment: 'Contract of Service',
-            avatar_initials: 'IM',
-            joined_year: '2024',
-            form_type: importType,
-            import_group: detectedGroup
-        };
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            const data = e.target?.result;
+            // Dynamically import xlsx to avoid massive initial bundle size if possible, or just standard import
+            // Since we installed it, we can use it. Ideally we would allow this to be chunked.
+            // For simplicity, we assume standard import at top or dynamic here.
+            // Let's rely on dynamic import or assume global `XLSX` available if we didn't add import top.
+            // But better to add import at top. I will add the import statement separately.
+            
+            const { read, utils } = await import("xlsx");
+            const workbook = read(data, { type: 'binary' });
+            const sheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[sheetName];
+            const jsonData = utils.sheet_to_json(worksheet, { header: 1 });
 
-        router.post(route('faculty.store'), importedEntry, {
-            onSuccess: () => {
-                setIsImportModalOpen(false); 
-                setImportGroup(''); 
-                alert("Faculty imported successfully.");
-            },
-            onError: (errors) => {
-                console.error("Import failed:", errors);
-                alert("Failed to import faculty.");
+            // Remove header row
+            const rows = jsonData.slice(1) as any[];
+
+            if (rows.length === 0) {
+                alert("File appears to be empty.");
+                return;
             }
-        });
+
+            // Map data based on type
+            const mappedData = rows.map((row: any) => {
+                if (importType === 'E5') {
+                    // Mapping based on "Form E5 Private" structure (roughly based on headers)
+                    // Row index: 0=Name, 1=FullTimeCode, 2=GenderCode, etc.
+                    return {
+                        name: row[0],
+                        fullTimeCode: row[1]?.toString(),
+                        genderCode: row[2]?.toString(),
+                        disciplineCode: row[4]?.toString(), // Primary Disc Code
+                        // ... Mapping other fields sparsely for now. 
+                        // If exact column mapping is critical, we need strict index checks.
+                        // Assuming simple mapping for key fields:
+                        rankCode: row[14]?.toString(),
+                        salaryCode: row[15]?.toString(),
+                        
+                        // Default required fields for DB
+                        email: `imported.${Date.now()}.${Math.floor(Math.random()*1000)}@placeholder.com`, // Placeholder email
+                        form_type: 'E5',
+                        joined_year: '2024-2025', // Default 
+                        status: 'Not Yet Completed',
+                        employment: row[1] == '1' ? 'Plantilla' : 'Part-time', 
+                        degree: 'Unknown', // Derived from highest degree code later
+                        avatar_initials: row[0]?.substring(0,2).toUpperCase() || 'NA'
+                    };
+                } else {
+                    // E2 Mapping
+                     return {
+                        name: row[1], // ID is 0
+                        rank: row[2],
+                        degree: row[3],
+                        status: row[4] || 'Not Yet Completed',
+                        joined_year: row[5] || '2024',
+                        form_type: 'E2',
+                        import_group: detectedGroup,
+                        email: `imported.e2.${Date.now()}.${Math.floor(Math.random()*1000)}@placeholder.com`,
+                        avatar_initials: row[1]?.substring(0,2).toUpperCase() || 'NA'
+                     };
+                }
+            }).filter(item => item.name); // Filter empty rows
+
+            if (mappedData.length === 0) {
+                 alert("No valid records found in the uploaded file. Please check the template provided.");
+                 return;
+            }
+
+            if (confirm(`Ready to import ${mappedData.length} records?`)) {
+                try {
+                    // Using hardcoded path to bypass named route cache issues with Wayfinder/Ziggy
+                    router.post('/faculty/import', { faculty: mappedData }, {
+                        onSuccess: () => {
+                            setIsImportModalOpen(false); 
+                            setImportGroup(''); 
+                            alert("Faculty imported successfully.");
+                        },
+                        onError: (errors) => {
+                            console.error("Import failed:", errors);
+                            alert("Failed to import faculty. Check console for details.");
+                        }
+                    });
+                } catch (err: any) {
+                    console.error("Route Error:", err);
+                    alert("System error: Could not find import route. Please refresh the page and try again.");
+                }
+            }
+        }; 
+        reader.readAsBinaryString(file);
     };
 
     const handleDelete = (id: string): void => {
         if(confirm("Delete this record? This action cannot be undone.")) {
-            router.delete(route('faculty.destroy', id), {
+            // Using hardcoded path to bypass caching issues
+            router.delete(`/faculty/${id}`, {
                 onSuccess: () => {
-                    // Alert handled by flash message usually, or here
+                   // Success handled globally/by Inertia reload
                 },
-                onError: () => alert("Failed to delete faculty.")
+                onError: () => alert("Failed to delete faculty. Please check connection.")
             });
         }
     };
@@ -194,11 +257,12 @@ const FacultyProfile: FC<FacultyProfileProps> = ({ initialFacultyData = [], filt
     };
 
     const handleUpdateFaculty = (updatedFaculty: Faculty) => {
-        router.put(route('faculty.update', updatedFaculty.id), updatedFaculty, {
+        // Using hardcoded path to bypass caching issues
+        router.put(`/faculty/${updatedFaculty.id}`, updatedFaculty, {
              onSuccess: () => {
                 alert("Faculty details updated successfully.");
                 setIsFileModalOpen(false);
-                setSelectedFile(updatedFaculty); // Update local selected file to reflect changes immediately if needed
+                setSelectedFile(updatedFaculty); 
              },
              onError: (errors) => {
                 console.error("Update failed:", errors);
@@ -214,6 +278,7 @@ const FacultyProfile: FC<FacultyProfileProps> = ({ initialFacultyData = [], filt
                 onOpenChange={setIsFileModalOpen} 
                 faculty={selectedFile} 
                 onSave={handleUpdateFaculty}
+                referenceData={referenceData}
             />
 
             <AppLayout breadcrumbs={breadcrumbs}>

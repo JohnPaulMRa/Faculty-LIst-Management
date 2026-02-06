@@ -22,6 +22,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('faculty', [\App\Http\Controllers\FacultyController::class, 'store'])->name('faculty.store');
     Route::put('faculty/{id}', [\App\Http\Controllers\FacultyController::class, 'update'])->name('faculty.update');
     Route::delete('faculty/{id}', [\App\Http\Controllers\FacultyController::class, 'destroy'])->name('faculty.destroy');
+    Route::post('faculty/import', [\App\Http\Controllers\FacultyController::class, 'bulkStore'])->name('faculty.import');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {

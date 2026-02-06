@@ -13,9 +13,10 @@ type Props = {
     onOpenChange: (open: boolean) => void;
     faculty: Faculty | null;
     onSave: (faculty: Faculty) => void;
+    referenceData: any;
 };
 
-const FacultyFileDetailsModal: FC<Props> = ({ isOpen, onOpenChange, faculty, onSave }) => {
+const FacultyFileDetailsModal: FC<Props> = ({ isOpen, onOpenChange, faculty, onSave, referenceData }) => {
     const getStatusBadge = (status: string): string => {
         const styles: Record<string, string> = {
             'Completed': 'bg-emerald-100 text-emerald-700 border-emerald-200',
@@ -39,7 +40,8 @@ const FacultyFileDetailsModal: FC<Props> = ({ isOpen, onOpenChange, faculty, onS
                             <div className="h-full w-full overflow-hidden">
                                 <FacultyFormE2 
                                     faculty={faculty} 
-                                    onSave={(data) => onSave({ ...faculty, ...data } as Faculty)} 
+                                    onSave={(data) => onSave({ ...faculty, ...data } as Faculty)}
+                                    referenceData={referenceData} 
                                 />
                             </div>
                         ) : faculty.form_type === 'E5' ? (
@@ -47,6 +49,7 @@ const FacultyFileDetailsModal: FC<Props> = ({ isOpen, onOpenChange, faculty, onS
                                 <FacultyFormE5 
                                     faculty={faculty} 
                                     onSave={(data) => onSave({ ...faculty, ...data } as Faculty)}
+                                    referenceData={referenceData}
                                 />
                             </div>
                         ) : (
