@@ -17,8 +17,10 @@ const FacultyListTableE5: FC<Props> = ({ facultyList, yearFilter, onFileClick, o
     const getStatusBadge = (status: string): string => {
         const styles: Record<string, string> = {
             'Completed': 'bg-emerald-100 text-emerald-700 border border-emerald-200',
+            'Updated': 'bg-emerald-100 text-emerald-700 border border-emerald-200',
             'No Submission': 'bg-red-100 text-red-700 border border-red-200',
             'Not Yet Completed': 'bg-red-100 text-red-700 border border-red-200',
+            'Not Updated': 'bg-red-100 text-red-700 border border-red-200',
         };
         return styles[status] || 'bg-gray-100 text-gray-700 border border-gray-200';
     };
@@ -55,15 +57,9 @@ const FacultyListTableE5: FC<Props> = ({ facultyList, yearFilter, onFileClick, o
                                     {faculty.employment === 'Plantilla' ? 'Full-Time' : 'Part-Time'}
                                 </td>
                                 <td className="px-3 py-2 text-center">
-                                    {faculty.form_type === 'E5' ? (
-                                        <span className={`text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-none font-bold ${getStatusBadge(faculty.status)}`}>
-                                            {faculty.status === 'Completed' ? 'Updated' : 'Not Updated'}
-                                        </span>
-                                    ) : (
-                                        <span className={`text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-none font-bold ${getStatusBadge(faculty.status)}`}>
-                                            {faculty.status}
-                                        </span>
-                                    )}
+                                    <span className={`text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-none font-bold ${getStatusBadge(faculty.status)}`}>
+                                        {faculty.status}
+                                    </span>
                                 </td>
                                 <td className="px-3 py-2 font-bold text-center">
                                     <div className="flex items-center justify-center gap-2">

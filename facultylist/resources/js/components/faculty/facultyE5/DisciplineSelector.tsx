@@ -74,13 +74,13 @@ const DisciplineSelector: FC<Props> = ({ value, onChange, placeholder = "Select 
     const currentDisciplines = disciplineMap[selectedGroup] || [];
 
     return (
-        <div className={`flex gap-2 w-full ${className}`}>
-            {/* Major Group Select */}
+        <div className={`flex flex-col gap-2 w-full ${className}`}>
+            {/* Row 1: Major Group Select (Full Width) */}
             <Select value={selectedGroup} onValueChange={handleGroupChange} disabled={disabled}>
-                <SelectTrigger className="w-[180px] shrink-0 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900 rounded-none">
+                <SelectTrigger className="w-full shrink-0 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900 rounded-none">
                     <SelectValue placeholder="Select Major Group" />
                 </SelectTrigger>
-                <SelectContent className="h-[300px]">
+                <SelectContent className="max-h-[300px]">
                     {groups.map((group: any) => (
                         <SelectItem key={group.code} value={group.code}>
                             {group.desc}
@@ -89,38 +89,40 @@ const DisciplineSelector: FC<Props> = ({ value, onChange, placeholder = "Select 
                 </SelectContent>
             </Select>
 
-            {/* Code Input (Read-only) */}
-            <Input 
-                value={value || ''} 
-                readOnly 
-                className="w-24 shrink-0 bg-gray-50 text-center font-mono disabled:opacity-100 rounded-none"
-                placeholder="Code" 
-            />
+            {/* Row 2: Code + Specific Discipline */}
+            <div className="flex gap-2 w-full">
+                {/* Code Input (Read-only) */}
+                <Input 
+                    value={value || ''} 
+                    readOnly 
+                    className="w-24 shrink-0 bg-gray-50 text-center font-mono disabled:opacity-100 rounded-none"
+                    placeholder="Code" 
+                />
 
-            {/* Specific Discipline Select */}
-            <Select value={value} onValueChange={handleDisciplineChange} disabled={disabled || !selectedGroup}>
-                <SelectTrigger className="flex-1 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900 rounded-none">
-                     <span className="truncate">
-                        {value ? (
-                             (() => {
-                                const d = currentDisciplines.find((d: any) => d.code === value);
-                                if (d) return d.desc;
-                                return value;
-                             })()
-                        ) : (
-                            <span className="text-muted-foreground">{placeholder}</span>
-                        )}
-                     </span>
-                </SelectTrigger>
-                <SelectContent className="h-[300px] min-w-[300px]">
-                    {currentDisciplines.map((item: any) => (
-                        <SelectItem key={item.code} value={item.code}>
-                            <span className="font-mono mr-2 text-gray-500">{item.code}</span>
-                            {item.desc}
-                        </SelectItem>
-                    ))}
-                </SelectContent>
-            </Select>
+                {/* Specific Discipline Select */}
+                <Select value={value} onValueChange={handleDisciplineChange} disabled={disabled || !selectedGroup}>
+                    <SelectTrigger className="flex-1 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900 rounded-none">
+                         <span className="truncate">
+                            {value ? (
+                                 (() => {
+                                    const d = currentDisciplines.find((d: any) => d.code === value);
+                                    if (d) return d.desc;
+                                    return value;
+                                 })()
+                            ) : (
+                                <span className="text-muted-foreground">{placeholder}</span>
+                            )}
+                         </span>
+                    </SelectTrigger>
+                    <SelectContent className="max-h-[300px] min-w-[300px]">
+                        {currentDisciplines.map((item: any) => (
+                            <SelectItem key={item.code} value={item.code}>
+                                {item.desc}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            </div>
         </div>
     );
 };

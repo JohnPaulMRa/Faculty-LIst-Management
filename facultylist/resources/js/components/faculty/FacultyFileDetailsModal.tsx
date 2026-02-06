@@ -5,8 +5,8 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog';
 import { Faculty } from '@/types/faculty';
-import FacultyFormE2 from './FacultyFormE2';
-import FacultyFormE5 from './FacultyFormE5';
+import FacultyFormE2 from './facultyE2/FacultyFormE2';
+import FacultyFormE5 from './facultyE5/FacultyFormE5';
 
 type Props = {
     isOpen: boolean;
@@ -36,7 +36,7 @@ const FacultyFileDetailsModal: FC<Props> = ({ isOpen, onOpenChange, faculty, onS
                 
                 {faculty && (
                     <div className="flex-1 overflow-hidden p-0 bg-white relative">
-                        {faculty.form_type === 'E2' ? (
+                        {(faculty.form_type === 'E2') ? (
                             <div className="h-full w-full overflow-hidden">
                                 <FacultyFormE2 
                                     faculty={faculty} 
@@ -44,17 +44,14 @@ const FacultyFileDetailsModal: FC<Props> = ({ isOpen, onOpenChange, faculty, onS
                                     referenceData={referenceData} 
                                 />
                             </div>
-                        ) : faculty.form_type === 'E5' ? (
+                        ) : (
+                            // Default to E5 if E5 or null/undefined
                             <div className="h-full w-full overflow-hidden">
                                 <FacultyFormE5 
                                     faculty={faculty} 
                                     onSave={(data) => onSave({ ...faculty, ...data } as Faculty)}
                                     referenceData={referenceData}
                                 />
-                            </div>
-                        ) : (
-                            <div className="flex items-center justify-center h-64 text-gray-500">
-                                Unknown Form Type
                             </div>
                         )}
                     </div>

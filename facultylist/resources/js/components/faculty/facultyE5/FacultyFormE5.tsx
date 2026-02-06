@@ -95,7 +95,7 @@ const FacultyFormE5: FC<Props> = ({ faculty, onSave, referenceData }) => {
         const isComplete = requiredFields.every(field => field && field.trim() !== '');
 
         // Automatically set status based on completeness
-        const newStatus = isComplete ? 'Completed' : 'Not Yet Completed';
+        const newStatus = isComplete ? 'Updated' : 'Not Updated';
 
         onSave?.({ 
             ...faculty, 

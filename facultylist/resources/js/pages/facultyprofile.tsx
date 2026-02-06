@@ -25,8 +25,8 @@ import AppLayout from '@/layouts/app-layout';
 import { Faculty, IMPORT_GROUP_OPTIONS } from '@/types/faculty';
 import FacultyFileDetailsModal from '@/components/faculty/FacultyFileDetailsModal';
 import FacultyImportModal from '@/components/faculty/FacultyImportModal';
-import FacultyListTableE5 from '@/components/faculty/FacultyListTableE5';
-import FacultyListTableE2 from '@/components/faculty/FacultyListTableE2';
+import FacultyListTableE5 from '@/components/faculty/facultyE5/FacultyListTableE5';
+import FacultyListTableE2 from '@/components/faculty/facultyE2/FacultyListTableE2';
 
 // Basic declaration for Ziggy's route helper
 declare function route(name?: string, params?: any, absolute?: boolean): string;
