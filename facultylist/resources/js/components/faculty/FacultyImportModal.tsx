@@ -16,8 +16,10 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { ChevronDown, FileSpreadsheet, UploadCloud } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 import { Faculty, IMPORT_GROUP_OPTIONS } from '@/types/faculty';
 import { FC, useRef, ChangeEvent } from 'react';
+
 
 type Props = {
     isOpen: boolean;
@@ -26,6 +28,8 @@ type Props = {
     setImportType: (type: 'E2' | 'E5') => void;
     importGroup: string;
     setImportGroup: (group: string) => void;
+    importYear: string;
+    setImportYear: (year: string) => void;
     onFileImport: (file: File) => void;
 };
 
@@ -36,6 +40,8 @@ const FacultyImportModal: FC<Props> = ({
     setImportType, 
     importGroup,
     setImportGroup,
+    importYear,
+    setImportYear,
     onFileImport
 }) => {
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -58,7 +64,7 @@ const FacultyImportModal: FC<Props> = ({
             <DialogContent className="sm:max-w-2xl">
                 <DialogHeader>
                     <DialogTitle>Import Faculty Data</DialogTitle>
-                    <DialogDescription>Select form template and upload file.</DialogDescription>
+                    <DialogDescription>Select form template, academic year, and upload file.</DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
                     <div className="space-y-2">
@@ -71,6 +77,19 @@ const FacultyImportModal: FC<Props> = ({
                             </SelectContent>
                         </Select>
                     </div>
+
+                    <div className="space-y-2">
+                            <Label>Academic Year</Label>
+                            <div className="relative">
+                                <Input 
+                                    value={importYear} 
+                                    readOnly 
+                                    disabled
+                                    className="bg-gray-100 text-gray-500 cursor-not-allowed border-gray-200" 
+                                />
+                            </div>
+                            <p className="text-xs text-gray-500">Records will be tagged with this academic year.</p>
+                        </div>
                     
                     {/* Group Selection - ONLY for E2 */}
                     {importType === 'E2' && (

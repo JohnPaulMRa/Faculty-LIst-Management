@@ -24,7 +24,8 @@ class FacultyController extends Controller
 
         // Year Filter
         if ($request->filled('year') && $request->input('year') !== 'All Years') {
-            $query->where('joined_year', $request->input('year'));
+            // Using LIKE/trim to be robust against "2024-2025 " vs "2024-2025"
+            $query->where('joined_year', 'like', '%' . trim($request->input('year')) . '%');
         }
 
         // Fetch Reference Data from Database
@@ -54,10 +55,18 @@ class FacultyController extends Controller
         
         $facultyData = $query->get();
 
+        // Get dynamic years from DB
+        $availableYears = \App\Models\Faculty::select('joined_year')
+            ->whereNotNull('joined_year')
+            ->distinct()
+            ->orderBy('joined_year', 'desc')
+            ->pluck('joined_year');
+
         return \Inertia\Inertia::render('facultyprofile', [
             'initialFacultyData' => $facultyData,
             'filters' => $request->only(['search', 'year']),
-            'referenceData' => $referenceData
+            'referenceData' => $referenceData,
+            'availableYears' => $availableYears
         ]);
     }
 
@@ -78,12 +87,14 @@ class FacultyController extends Controller
 
     public function bulkStore(Request $request)
     {
-        $data = $request->validate([
+        $request->validate([
             'faculty' => 'required|array',
             'faculty.*.name' => 'required|string',
         ]);
 
-        foreach ($data['faculty'] as $record) {
+        $data = $request->input('faculty');
+
+        foreach ($data as $record) {
             // Use updateOrCreate to avoid duplicates if name exists, or just create
             // For now, strict create or basic updateOrCreate on email/name
             \App\Models\Faculty::updateOrCreate(

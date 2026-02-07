@@ -43,64 +43,88 @@ const FacultyFormE5: FC<Props> = ({ faculty, onSave, referenceData }) => {
         rankCode: faculty?.rankCode || '',
         loadCode: faculty?.loadCode || '',
         subjects: faculty?.subjects || '',
-        salaryCode: faculty?.salaryCode || ''
+        salaryCode: faculty?.salaryCode || '',
+        joined_year: faculty?.joined_year || '',
+        status: faculty?.status || ''
     });
+
+    // Helper to normalize code/description values
+    const normalizeCode = (list: { code: string, desc: string }[], value?: string) => {
+        if (!value || !list) return value || '';
+        
+        // precise match for code
+        if (list.some(item => item.code === value)) return value;
+        
+        // fallback: try to find by description (case-insensitive, trimmed)
+        const found = list.find(item => item.desc.trim().toLowerCase() === value.trim().toLowerCase());
+        
+        return found ? found.code : value;
+    };
 
     // Update form data when faculty prop changes
     useEffect(() => {
         if (faculty) {
             setFormData({
                 name: faculty.name || '',
-                fullTimeCode: faculty.fullTimeCode || '',
-                genderCode: faculty.genderCode || '',
-                disciplineCode: faculty.disciplineCode || '',
-                degree: faculty.degree || '',
+                fullTimeCode: normalizeCode(referenceData?.fullTimePartTime, faculty.fullTimeCode),
+                genderCode: normalizeCode(referenceData?.gender, faculty.genderCode),
+                disciplineCode: faculty.disciplineCode || '', // Discipline is distinct, keeping as is
+                degree: normalizeCode(referenceData?.highestDegree, faculty.degree),
                 bachelors: faculty.bachelors || '',
-                bachelorsCode: faculty.bachelorsCode || '',
+                bachelorsCode: faculty.bachelorsCode || '', // Discipline codes are complex, skipping simple normalization
                 masters: faculty.masters || '',
                 mastersCode: faculty.mastersCode || '',
                 doctorate: faculty.doctorate || '',
                 doctorateCode: faculty.doctorateCode || '',
-                licenseCode: faculty.licenseCode || '',
-                tenureCode: faculty.tenureCode || '',
-                rankCode: faculty.rankCode || '',
-                loadCode: faculty.loadCode || '',
+                licenseCode: normalizeCode(referenceData?.professionalLicense, faculty.licenseCode),
+                tenureCode: normalizeCode(referenceData?.tenure, faculty.tenureCode),
+                rankCode: normalizeCode(referenceData?.facultyRank, faculty.rankCode),
+                loadCode: normalizeCode(referenceData?.teachingLoad, faculty.loadCode),
                 subjects: faculty.subjects || '',
-                salaryCode: faculty.salaryCode || ''
+                salaryCode: normalizeCode(referenceData?.annualSalary, faculty.salaryCode),
+                joined_year: faculty.joined_year || '',
+                status: faculty.status || ''
             });
         }
-    }, [faculty]);
+    }, [faculty, referenceData]);
 
     const handleChange = (field: string, value: string) => {
         setFormData(prev => ({ ...prev, [field]: value }));
     };
 
     const handleSave = () => {
-        // Required fields based on "Form E5" completeness
-        const requiredFields = [
-            formData.name,
-            formData.fullTimeCode,
-            formData.genderCode,
-            formData.disciplineCode, // Primary Discipline
-            // formData.degree, // Not strictly a code, but maybe required
-            formData.licenseCode,
-            formData.tenureCode,
-            formData.rankCode,
-            formData.loadCode,
-            formData.salaryCode,
-            formData.subjects
-        ];
+        // If status is manually set (and valid), use it.
+        // Otherwise, fallback to auto-calculation logic (or keep as is if we want strict manual control now)
+        // Let's defer to user selection if present.
+        
+        let finalStatus = formData.status;
 
-        // Check if all required fields are truthy and not empty strings
-        const isComplete = requiredFields.every(field => field && field.trim() !== '');
+        // If no status is selected/set, we can try to auto-calculate or default to "Not Updated"
+        if (!finalStatus) {
+            // Required fields based on "Form E5" completeness
+            const requiredFields = [
+                formData.name,
+                formData.fullTimeCode,
+                formData.genderCode,
+                formData.disciplineCode, // Primary Discipline
+                // formData.degree, // Not strictly a code, but maybe required
+                formData.licenseCode,
+                formData.tenureCode,
+                formData.rankCode,
+                formData.loadCode,
+                formData.salaryCode,
+                formData.subjects
+            ];
 
-        // Automatically set status based on completeness
-        const newStatus = isComplete ? 'Updated' : 'Not Updated';
+            // Check if all required fields are truthy and not empty strings
+            const isComplete = requiredFields.every(field => field && field.trim() !== '');
+            finalStatus = isComplete ? 'Updated' : 'Not Updated';
+        }
 
         onSave?.({ 
             ...faculty, 
             ...formData,
-            status: newStatus,
+            status: finalStatus,
             activeTab
         } as any); 
     };

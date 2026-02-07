@@ -23,6 +23,16 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
         return list.find(item => item.code === code)?.desc || '';
     };
 
+    // Helper to lookup code from value (handles case where value is description)
+    const lookupCode = (list: { code: string, desc: string }[], value?: string) => {
+        if (!value || !list) return '';
+        // If value is a known code, return it
+        if (list.some(item => item.code === value)) return value;
+        // If value is a known description (loose match), return code
+        const found = list.find(item => item.desc.trim().toLowerCase() === value.trim().toLowerCase());
+        return found ? found.code : '';
+    };
+
     // Helper to handle change if not readOnly
     const onErrorSafeChange = (field: string, value: any) => {
         if (!readOnly && handleChange) {
@@ -48,31 +58,34 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                             onChange={(e) => onErrorSafeChange('name', e.target.value)}
                             className="uppercase focus-visible:ring-0 disabled:opacity-100 disabled:bg-white rounded-none"
                             readOnly={readOnly}
-                            disabled={readOnly} // Use disabled for consistent styling override if needed, or rely on readOnly
+                            disabled={readOnly}
                         />
                     </div>
+                    
+
                     <div className="grid gap-1">
                         <label className="text-xs font-semibold text-gray-600">Full-Time/Part-Time </label>
                         <div className="flex gap-2">
-                            <Input 
+                             <Input 
                                 readOnly 
                                 className="w-24 shrink-0 bg-gray-50 text-center font-mono focus-visible:ring-0 disabled:opacity-100 disabled:bg-white rounded-none" 
-                                value={formData.fullTimeCode || ''} 
+                                value={lookupCode(referenceData.fullTimePartTime, formData.fullTimeCode)} 
                                 placeholder="Code"
                             />
+
                             <Select 
                                 value={formData.fullTimeCode} 
                                 disabled={readOnly}
                                 onValueChange={(val) => onErrorSafeChange('fullTimeCode', val)}
                             >
-                                <SelectTrigger className="flex-1 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900 rounded-none">
-                                    <span className="truncate">
+                                <SelectTrigger className="flex-1 h-auto whitespace-normal text-left disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900 rounded-none py-2">
+                                    <span>
                                         {formData.fullTimeCode ? getDesc(referenceData.fullTimePartTime, formData.fullTimeCode) : <span className="text-muted-foreground">Select Status</span>}
                                     </span>
                                 </SelectTrigger>
                                 <SelectContent>
                                     {referenceData.fullTimePartTime.map((item: any) => (
-                                        <SelectItem key={item.code} value={item.code}>
+                                        <SelectItem key={item.code} value={item.code} className="whitespace-normal">
                                             {item.desc}
                                         </SelectItem>
                                     ))}
@@ -86,9 +99,10 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                             <Input 
                                 readOnly 
                                 className="w-24 shrink-0 bg-gray-50 text-center font-mono focus-visible:ring-0 disabled:opacity-100 disabled:bg-white rounded-none" 
-                                value={formData.genderCode || ''} 
+                                value={lookupCode(referenceData.gender, formData.genderCode)} 
                                 placeholder="Code"
                             />
+
                             <Select 
                                 value={formData.genderCode} 
                                 disabled={readOnly}
@@ -132,9 +146,10 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                             <Input 
                                 readOnly 
                                 className="w-24 shrink-0 bg-gray-50 text-center font-mono focus-visible:ring-0 disabled:opacity-100 disabled:bg-white rounded-none" 
-                                value={formData.degree || ''} 
+                                value={lookupCode(referenceData.highestDegree, formData.degree)} 
                                 placeholder="Code"
                             />
+
                             <Select 
                                 value={formData.degree} 
                                 disabled={readOnly}
@@ -206,9 +221,10 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                             <Input 
                                 readOnly 
                                 className="w-24 shrink-0 bg-gray-50 text-center font-mono focus-visible:ring-0 disabled:opacity-100 disabled:bg-white rounded-none" 
-                                value={formData.licenseCode || ''} 
+                                value={lookupCode(referenceData.professionalLicense, formData.licenseCode)} 
                                 placeholder="Code"
                             />
+
                             <Select 
                                 value={formData.licenseCode} 
                                 disabled={readOnly}
@@ -235,9 +251,10 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                             <Input 
                                 readOnly 
                                 className="w-24 shrink-0 bg-gray-50 text-center font-mono focus-visible:ring-0 disabled:opacity-100 disabled:bg-white rounded-none" 
-                                value={formData.tenureCode || ''} 
+                                value={lookupCode(referenceData.tenure, formData.tenureCode)} 
                                 placeholder="Code"
                             />
+
                             <Select 
                                 value={formData.tenureCode} 
                                 disabled={readOnly}
@@ -264,9 +281,10 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                             <Input 
                                 readOnly 
                                 className="w-24 shrink-0 bg-gray-50 text-center font-mono focus-visible:ring-0 disabled:opacity-100 disabled:bg-white rounded-none" 
-                                value={formData.rankCode || ''} 
+                                value={lookupCode(referenceData.facultyRank, formData.rankCode)} 
                                 placeholder="Code"
                             />
+
                             <Select 
                                 value={formData.rankCode} 
                                 disabled={readOnly}
@@ -293,9 +311,10 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                             <Input 
                                 readOnly 
                                 className="w-24 shrink-0 bg-gray-50 text-center font-mono focus-visible:ring-0 disabled:opacity-100 disabled:bg-white rounded-none" 
-                                value={formData.salaryCode || ''} 
+                                value={lookupCode(referenceData.annualSalary, formData.salaryCode)} 
                                 placeholder="Code"
                             />
+
                             <Select 
                                 value={formData.salaryCode} 
                                 disabled={readOnly}
@@ -319,12 +338,13 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                     <div className="grid gap-1">
                         <label className="text-xs font-semibold text-gray-600">Teaching Load</label>
                         <div className="flex gap-2">
-                            <Input 
+                             <Input 
                                 readOnly 
                                 className="w-24 shrink-0 bg-gray-50 text-center font-mono focus-visible:ring-0 disabled:opacity-100 disabled:bg-white rounded-none" 
-                                value={formData.loadCode || ''} 
+                                value={lookupCode(referenceData.teachingLoad, formData.loadCode)} 
                                 placeholder="Code"
                             />
+
                             <Select 
                                 value={formData.loadCode} 
                                 disabled={readOnly}

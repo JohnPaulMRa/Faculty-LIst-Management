@@ -23,8 +23,10 @@ import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/app-layout';
 
 import { Faculty, IMPORT_GROUP_OPTIONS } from '@/types/faculty';
+import { getCurrentAcademicYear } from '@/lib/utils';
 import FacultyFileDetailsModal from '@/components/faculty/FacultyFileDetailsModal';
 import FacultyImportModal from '@/components/faculty/FacultyImportModal';
+import FacultyDownloadModal from '@/components/faculty/FacultyDownloadModal';
 import FacultyListTableE5 from '@/components/faculty/facultyE5/FacultyListTableE5';
 import FacultyListTableE2 from '@/components/faculty/facultyE2/FacultyListTableE2';
 
@@ -42,9 +44,10 @@ interface FacultyProfileProps {
         year?: string;
     };
     referenceData: any;
+    availableYears?: string[];
 }
 
-const FacultyProfile: FC<FacultyProfileProps> = ({ initialFacultyData = [], filters = {}, referenceData }) => {
+const FacultyProfile: FC<FacultyProfileProps> = ({ initialFacultyData = [], filters = {}, referenceData, availableYears = [] }) => {
     const [facultyList, setFacultyList] = useState<Faculty[]>(initialFacultyData);
     const [searchQuery, setSearchQuery] = useState<string>(filters.search || '');
     const [yearFilter, setYearFilter] = useState<string>(filters.year || 'All Years');
@@ -55,8 +58,10 @@ const FacultyProfile: FC<FacultyProfileProps> = ({ initialFacultyData = [], filt
     
     // --- STATE ---
     const [isImportModalOpen, setIsImportModalOpen] = useState<boolean>(false);
+    const [isDownloadModalOpen, setIsDownloadModalOpen] = useState<boolean>(false);
     const [importType, setImportType] = useState<'E2' | 'E5'>('E5'); 
     const [importGroup, setImportGroup] = useState<string>('');
+    const [importYear, setImportYear] = useState<string>(getCurrentAcademicYear()); 
     const [selectedFile, setSelectedFile] = useState<Faculty | null>(null);
     const [isFileModalOpen, setIsFileModalOpen] = useState<boolean>(false);
 
@@ -69,72 +74,6 @@ const FacultyProfile: FC<FacultyProfileProps> = ({ initialFacultyData = [], filt
             preserveScroll: true,
             replace: true
         });
-    };
-
-    // --- HANDLERS ---
-    const handleDownloadTemplate = (type: 'E2' | 'E5'): void => {
-        let headers: string[] = [];
-        let rowExample: string[] = [];
-        let fileName = "";
-
-        if (type === 'E2') {
-             headers = ["ID","Name","Rank","Degree","Status","Year"];
-             rowExample = ["001","Juan Cruz","Prof I","PhD","Completed","2024"];
-             fileName = "FORM_E2_PUBLIC.csv";
-        } else {
-            // E5 Full Headers
-            headers = [
-                "Faculty Name", 
-                "Full-Time Code", 
-                "Gender Code", 
-                "Primary Disc. Group", 
-                "Primary Disc. Code", 
-                "Highest Degree Code", 
-                "Bachelors Disc. Group", 
-                "Bachelors Disc. Code", 
-                "Masters Disc. Group", 
-                "Masters Disc. Code", 
-                "Doctorate Disc. Group", 
-                "Doctorate Disc. Code", 
-                "Professional License Code", 
-                "Tenure Code", 
-                "Rank Code", 
-                "Salary Code", 
-                "Load Code", 
-                "Subjects Taught"
-            ];
-            rowExample = [
-                "Dela Cruz, Juan M.", 
-                "1", // Full-time
-                "1", // Male
-                "46", // Mathematics Group
-                "461103", // Statistics Code
-                "903", // Doctorate
-                "46", // Bach Group
-                "460100", // Bach Code
-                "46", // Mast Group
-                "461101", // Mast Code
-                "46", // Doc Group
-                "461103", // Doc Code
-                "1", // License
-                "1", // Permanent
-                "50", // Professor
-                "6", // Salary
-                "30", // Load
-                "Calculus, Algebra"
-            ];
-            fileName = "FORM_E5_PRIVATE.csv";
-        }
-
-        const processRow = (row: string[]) => row.map(cell => `"${cell.replace(/"/g, '""')}"`).join(",");
-        const csvContent = "data:text/csv;charset=utf-8," + [processRow(headers), processRow(rowExample)].join("\n");
-        const encodedUri = encodeURI(csvContent);
-        const link = document.createElement("a");
-        link.setAttribute("href", encodedUri);
-        link.setAttribute("download", fileName);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
     };
 
     const handleFileImport = async (file: File): Promise<void> => {
@@ -150,11 +89,6 @@ const FacultyProfile: FC<FacultyProfileProps> = ({ initialFacultyData = [], filt
         const reader = new FileReader();
         reader.onload = async (e) => {
             const data = e.target?.result;
-            // Dynamically import xlsx to avoid massive initial bundle size if possible, or just standard import
-            // Since we installed it, we can use it. Ideally we would allow this to be chunked.
-            // For simplicity, we assume standard import at top or dynamic here.
-            // Let's rely on dynamic import or assume global `XLSX` available if we didn't add import top.
-            // But better to add import at top. I will add the import statement separately.
             
             const { read, utils } = await import("xlsx");
             const workbook = read(data, { type: 'binary' });
@@ -162,8 +96,18 @@ const FacultyProfile: FC<FacultyProfileProps> = ({ initialFacultyData = [], filt
             const worksheet = workbook.Sheets[sheetName];
             const jsonData = utils.sheet_to_json(worksheet, { header: 1 });
 
-            // Remove header row
-            const rows = jsonData.slice(1) as any[];
+            // Find header row index by looking for "Name of Faculty" or "Faculty Name"
+            const headerRowIndex = jsonData.findIndex((row: any) => 
+                row.some((cell: any) => 
+                    cell && (
+                        cell.toString().toLowerCase().includes("name of faculty") || 
+                        cell.toString().toLowerCase().includes("faculty name")
+                    )
+                )
+            );
+
+            const startIndex = headerRowIndex !== -1 ? headerRowIndex + 1 : 1;
+            const rows = jsonData.slice(startIndex) as any[];
 
             if (rows.length === 0) {
                 alert("File appears to be empty.");
@@ -180,34 +124,41 @@ const FacultyProfile: FC<FacultyProfileProps> = ({ initialFacultyData = [], filt
                         fullTimeCode: row[1]?.toString(),
                         genderCode: row[2]?.toString(),
                         disciplineCode: row[4]?.toString(), // Primary Disc Code
-                        // ... Mapping other fields sparsely for now. 
-                        // If exact column mapping is critical, we need strict index checks.
-                        // Assuming simple mapping for key fields:
+                        degree: row[5]?.toString(), // Highest Degree Code
+                        
+                        // Education Specifics
+                        bachelorsCode: row[7]?.toString(),
+                        mastersCode: row[9]?.toString(),
+                        doctorateCode: row[11]?.toString(),
+
+                        licenseCode: row[12]?.toString(),
+                        tenureCode: row[13]?.toString(),
                         rankCode: row[14]?.toString(),
                         salaryCode: row[15]?.toString(),
+                        loadCode: row[16]?.toString(),
+                        subjects: row[17]?.toString() || '',
                         
                         // Default required fields for DB
                         email: `imported.${Date.now()}.${Math.floor(Math.random()*1000)}@placeholder.com`, // Placeholder email
                         form_type: 'E5',
-                        joined_year: '2024-2025', // Default 
-                        status: 'Not Yet Completed',
+                        joined_year: importYear, // Use selected import year
+                        status: 'Not Updated',
                         employment: row[1] == '1' ? 'Plantilla' : 'Part-time', 
-                        degree: 'Unknown', // Derived from highest degree code later
                         avatar_initials: row[0]?.substring(0,2).toUpperCase() || 'NA'
                     };
                 } else {
                     // E2 Mapping
-                     return {
+                    return {
                         name: row[1], // ID is 0
                         rank: row[2],
                         degree: row[3],
                         status: row[4] || 'Not Yet Completed',
-                        joined_year: row[5] || '2024',
+                        joined_year: importYear,
                         form_type: 'E2',
                         import_group: detectedGroup,
                         email: `imported.e2.${Date.now()}.${Math.floor(Math.random()*1000)}@placeholder.com`,
                         avatar_initials: row[1]?.substring(0,2).toUpperCase() || 'NA'
-                     };
+                    };
                 }
             }).filter(item => item.name); // Filter empty rows
 
@@ -216,7 +167,7 @@ const FacultyProfile: FC<FacultyProfileProps> = ({ initialFacultyData = [], filt
                  return;
             }
 
-            if (confirm(`Ready to import ${mappedData.length} records?`)) {
+            if (confirm(`Ready to import ${mappedData.length} records into Academic Year: ${importYear}?`)) {
                 try {
                     // Using hardcoded path to bypass named route cache issues with Wayfinder/Ziggy
                     router.post('/faculty/import', { faculty: mappedData }, {
@@ -281,6 +232,11 @@ const FacultyProfile: FC<FacultyProfileProps> = ({ initialFacultyData = [], filt
                 referenceData={referenceData}
             />
 
+            <FacultyDownloadModal 
+                isOpen={isDownloadModalOpen}
+                onOpenChange={setIsDownloadModalOpen}
+            />
+
             <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Faculty List Profile - CHED XII" />
             
@@ -298,28 +254,17 @@ const FacultyProfile: FC<FacultyProfileProps> = ({ initialFacultyData = [], filt
                             }}
                             importGroup={importGroup}
                             setImportGroup={setImportGroup}
+                            importYear={importYear}
+                            setImportYear={setImportYear}
                             onFileImport={handleFileImport}
                         />
                         
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button className="bg-[#003468] hover:bg-[#002a54] gap-2 text-white shadow-md">
-                                    <FileDown className="h-4 w-4" /> Download Template
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-56">
-                                <DropdownMenuLabel>Select Form Type</DropdownMenuLabel>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem className="cursor-pointer" onClick={() => handleDownloadTemplate('E2')}>
-                                    <FileSpreadsheet className="mr-2 h-4 w-4 text-green-600" />
-                                    <span>Form E-2 (Public/SUC)</span>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem className="cursor-pointer" onClick={() => handleDownloadTemplate('E5')}>
-                                    <FileSpreadsheet className="mr-2 h-4 w-4 text-blue-600" />
-                                    <span>Form E-5 (Private/LUC)</span>
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
+                        <Button 
+                            onClick={() => setIsDownloadModalOpen(true)}
+                            className="bg-[#003468] hover:bg-[#002a54] gap-2 text-white shadow-md"
+                        >
+                            <FileDown className="h-4 w-4" /> Download Template
+                        </Button>
                     </div>
                 </div>
 
@@ -346,21 +291,33 @@ const FacultyProfile: FC<FacultyProfileProps> = ({ initialFacultyData = [], filt
                                 <DropdownMenuContent align="end" className="w-48">
                                     <DropdownMenuLabel>Select Academic Year</DropdownMenuLabel>
                                     <DropdownMenuSeparator />
-                                    <DropdownMenuCheckboxItem checked={yearFilter === 'All Years'} onCheckedChange={() => setYearFilter('All Years')}>All Years</DropdownMenuCheckboxItem>
-                                    {Array.from({ length: 6 }, (_, i) => {
-                                        const currentYear = new Date().getFullYear();
-                                        // Start from next year (e.g., 2026 -> 2026-2027) or current (2025-2026) depending on preference.
-                                        // Assuming we want to show a range centered on now or mostly recent.
-                                        // Generating: [Current+1]-[Current+2], [Current]-[Current+1], ...
-                                        // e.g. if 2026: 2026-2027, 2025-2026, ...
-                                        const startYear = currentYear - i + 1; 
-                                        const yearString = `${startYear}-${startYear + 1}`;
-                                        return (
-                                            <DropdownMenuCheckboxItem key={yearString} checked={yearFilter === yearString} onCheckedChange={() => setYearFilter(yearString)}>
+                                    <DropdownMenuCheckboxItem 
+                                        checked={yearFilter === 'All Years'} 
+                                        onCheckedChange={() => {
+                                            setYearFilter('All Years');
+                                            // Auto-submit on change
+                                            router.get(route('facultyprofile'), { search: searchQuery, year: 'All Years' }, { preserveState: true, preserveScroll: true, replace: true });
+                                        }}
+                                    >
+                                        All Years
+                                    </DropdownMenuCheckboxItem>
+                                    {availableYears && availableYears.length > 0 ? (
+                                        availableYears.map((yearString) => (
+                                            <DropdownMenuCheckboxItem 
+                                                key={yearString} 
+                                                checked={yearFilter === yearString} 
+                                                onCheckedChange={() => {
+                                                    setYearFilter(yearString);
+                                                    // Auto-submit on change
+                                                    router.get(route('facultyprofile'), { search: searchQuery, year: yearString }, { preserveState: true, preserveScroll: true, replace: true });
+                                                }}
+                                            >
                                                 {yearString}
                                             </DropdownMenuCheckboxItem>
-                                        );
-                                    })}
+                                        ))
+                                    ) : (
+                                        <DropdownMenuLabel className="font-normal text-xs text-muted-foreground p-2">No academic years found</DropdownMenuLabel>
+                                    )}
                                 </DropdownMenuContent>
                             </DropdownMenu>
                             <Button size="sm" onClick={handleSubmit} variant="outline" className="text-[#003468] border-[#003468] hover:bg-gray-100 shadow-sm mr-2">
@@ -378,6 +335,7 @@ const FacultyProfile: FC<FacultyProfileProps> = ({ initialFacultyData = [], filt
                         onFileClick={handleFileClick}
                         onDelete={handleDelete}
                         onEdit={handleFileClick}
+                        referenceData={referenceData}
                     />
                 </div>
             </div>
