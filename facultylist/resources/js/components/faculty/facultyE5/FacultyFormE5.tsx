@@ -7,13 +7,6 @@ import { DialogClose } from '@/components/ui/dialog';
 import ReferenceTableE5 from './ReferenceTableE5';
 import { FacultyProfileCardsE5 } from './FacultyProfileCardsE5';
 import DisciplineSelector from './DisciplineSelector';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
 
 
 type Props = {
@@ -91,6 +84,43 @@ const FacultyFormE5: FC<Props> = ({ faculty, onSave, referenceData }) => {
     const handleChange = (field: string, value: string) => {
         setFormData(prev => ({ ...prev, [field]: value }));
     };
+
+    // Auto-calculate status based on form completion
+    useEffect(() => {
+        const requiredFields = [
+            formData.name,
+            formData.fullTimeCode,
+            formData.genderCode,
+            formData.disciplineCode, 
+            formData.degree,
+            formData.licenseCode,
+            formData.tenureCode,
+            formData.rankCode,
+            formData.loadCode,
+            formData.salaryCode,
+            formData.subjects
+        ];
+
+        // Check if all required fields are truthy and not empty strings
+        const isComplete = requiredFields.every(field => field && field.trim() !== '');
+        const newStatus = isComplete ? 'Updated' : 'Not Updated';
+
+        if (formData.status !== newStatus) {
+            setFormData(prev => ({ ...prev, status: newStatus }));
+        }
+    }, [
+        formData.name,
+        formData.fullTimeCode,
+        formData.genderCode,
+        formData.disciplineCode, 
+        formData.degree,
+        formData.licenseCode,
+        formData.tenureCode,
+        formData.rankCode,
+        formData.loadCode,
+        formData.salaryCode,
+        formData.subjects
+    ]);
 
     const handleSave = () => {
         // If status is manually set (and valid), use it.

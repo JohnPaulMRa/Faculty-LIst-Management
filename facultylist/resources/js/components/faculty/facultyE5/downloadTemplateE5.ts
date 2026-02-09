@@ -1,71 +1,95 @@
 import { utils, writeFile } from 'xlsx';
 
 export const downloadTemplateE5 = (): void => {
-    // 1. Title Row
-    const title = ["CHED FORM E5 - FACULTY OR TEACHING STAFF IN HIGHER EDUCATION PROGRAMS"];
-
-    // 2. Header Row (Reordered and Renamed to match image)
+    // 1. Sheet 1: Faculty Data Entry Form
+    // ------------------------------------
     const headers = [
         "Name of Faculty (LN, FN MI)",
-        "Gender (use Code)",
         "Full-Time/ Part-Time (use Code)",
-        "Primary Disc. Group",
-        "Primary Disc. Code",
-        "Highest Degree Code",
-        "Bachelors Disc. Group",
-        "Bachelors Disc. Code",
-        "Masters Disc. Group",
-        "Masters Disc. Code",
-        "Doctorate Disc. Group",
-        "Doctorate Disc. Code",
-        "Professional License Code",
-        "Tenure Code",
-        "Rank Code",
-        "Salary Code",
-        "Load Code",
-        "Subjects Taught"
+        "Gender (use Code)"
     ];
 
-    // 3. Example Row (Data reordered to match headers)
-    const example = [
-        "Dela Cruz, Juan M.",
-        "1", // Gender (Male) - Moved to index 1
-        "1", // FT/PT - Moved to index 2
-        "46", // Mathematics Group
-        "461103", // Statistics Code
-        "903", // Doctorate
-        "46", // Bach Group
-        "460100", // Bach Code
-        "46", // Mast Group
-        "461101", // Mast Code
-        "46", // Doc Group
-        "461103", // Doc Code
-        "1", // License
-        "1", // Permanent
-        "50", // Professor
-        "6", // Salary
-        "30", // Load
-        "Calculus, Algebra"
+    const dataSheet1 = [
+        headers
     ];
 
-    // 4. Construct Data Array
-    const data = [
-        title,
-        headers,
-        [], // Empty row for clarity if desired, but user image shows blank rows under headers. I'll include the example row for usability if not strictly "blank". Let's include example for now as previously done.
-        example
+    const ws1 = utils.aoa_to_sheet(dataSheet1);
+
+    // 2. Sheet 2: Reference
+    // ------------------------------------
+    const refHeaders = ["No.", "Full-Time / Part-Time", "No.", "Gender"];
+    
+    const refData = [
+        // Headers
+        refHeaders,
+        // Rows
+        [1, "The person is a full-time employee of the HEI.", 1, "Male"],
+        [2, "The person is a half-time employee of the HEI.", 2, "Female"],
+        [3, "Student employee such as Student Assistant or Graduate Assistant"],
+        [4, "Teaching Fellow, Associate or Assistant."],
+        [5, "None of the above and therefore part-time. This includes: lecturers (all \nranks), adjunct or affiliate faculty, visiting professors, professors \nemeriti, Physicians on call, lawyers or accountants on retainer basis, etc."],
+        [9, "Not known or not indicated."]
     ];
 
-    // 5. Create Workbook
-    const worksheet = utils.aoa_to_sheet(data);
+    const ws2 = utils.aoa_to_sheet(refData);
 
-    // Merge Title Cell
-    if(!worksheet['!merges']) worksheet['!merges'] = [];
-    worksheet['!merges'].push({ s: { r: 0, c: 0 }, e: { r: 0, c: 17 } }); // Merge A1:R1
+    // 4. Set Column Widths (Sheet 1)
+    ws1['!cols'] = [
+        { wch: 30 }, // A: Name (Wide)
+        { wch: 25 }, // B: FT/PT (Medium)
+        { wch: 15 }  // C: Gender (Narrower)
+    ];
 
+    // 5. Data Validation (Sheet 1)
+    // Note: This uses the '!dataValidation' property which is supported by some SheetJS versions/formats.
+    // If not supported, it will just be ignored but won't break the file.
+    // We target rows 2 to 1000 for data entry.
+    ws1['!dataValidation'] = [
+        {
+            sqref: "B2:B1000",
+            formula1: "=Reference!$A$2:$A$7",
+            type: "list",
+            operator: "equal",
+            showDropDown: true
+        },
+        {
+            sqref: "C2:C1000",
+            formula1: "=Reference!$C$2:$C$3",
+            type: "list",
+            operator: "equal",
+            showDropDown: true
+        }
+    ];
+    
+    // Since basic SheetJS write often strips validation, we rely on the Reference sheet being present.
+    // However, if the environment supports it, we try adding it.
+    
+    // Set Row Heights (especially for Row 6 - Code 5)
+    ws2['!rows'] = [
+        { hpt: 20 }, // Header
+        { hpt: 20 }, // Row 2
+        { hpt: 20 }, // Row 3
+        { hpt: 20 }, // Row 4
+        { hpt: 20 }, // Row 5
+        { hpt: 60 }, // Row 6 (Code 5 - Taller for wrapped text)
+        { hpt: 20 }, // Row 7
+        { hpt: 20 }, // Row 8
+        { hpt: 20 }  // Row 9
+    ];
+
+    // 6. Set Column Widths (Sheet 2: Reference)
+    ws2['!cols'] = [
+        { wch: 5 },  // A: No.
+        { wch: 60 }, // B: Description (Even Wider for wrapped text)
+        { wch: 5 },  // C: No.
+        { wch: 10 }  // D: Gender
+    ];
+
+    // 7. Create Workbook
     const workbook = utils.book_new();
-    utils.book_append_sheet(workbook, worksheet, "Form E5");
+    utils.book_append_sheet(workbook, ws1, "Faculty Data Entry Form");
+    utils.book_append_sheet(workbook, ws2, "Reference");
 
-    // 6. Download
-    writeFile(workbook, "FORM_E5_PRIVATE.xlsx");
+    // 8. Download
+    writeFile(workbook, "CHED FORM E5.xlsx");
 };

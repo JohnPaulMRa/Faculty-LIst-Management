@@ -123,27 +123,27 @@ const FacultyProfile: FC<FacultyProfileProps> = ({ initialFacultyData = [], filt
                         name: row[0],
                         fullTimeCode: row[1]?.toString(),
                         genderCode: row[2]?.toString(),
-                        disciplineCode: row[4]?.toString(), // Primary Disc Code
-                        degree: row[5]?.toString(), // Highest Degree Code
+                        disciplineCode: row[3]?.toString(), 
+                        degree: row[4]?.toString(), 
                         
                         // Education Specifics
-                        bachelorsCode: row[7]?.toString(),
-                        mastersCode: row[9]?.toString(),
-                        doctorateCode: row[11]?.toString(),
+                        bachelorsCode: row[6]?.toString(),
+                        mastersCode: row[8]?.toString(),
+                        doctorateCode: row[10]?.toString(),
 
-                        licenseCode: row[12]?.toString(),
-                        tenureCode: row[13]?.toString(),
-                        rankCode: row[14]?.toString(),
-                        salaryCode: row[15]?.toString(),
-                        loadCode: row[16]?.toString(),
-                        subjects: row[17]?.toString() || '',
+                        licenseCode: row[11]?.toString(),
+                        tenureCode: row[12]?.toString(),
+                        rankCode: row[13]?.toString(),
+                        salaryCode: row[14]?.toString(),
+                        loadCode: row[15]?.toString(),
+                        subjects: row[16]?.toString() || '',
                         
                         // Default required fields for DB
                         email: `imported.${Date.now()}.${Math.floor(Math.random()*1000)}@placeholder.com`, // Placeholder email
                         form_type: 'E5',
                         joined_year: importYear, // Use selected import year
                         status: 'Not Updated',
-                        employment: row[1] == '1' ? 'Plantilla' : 'Part-time', 
+                        employment: row[1] == '1' ? 'Plantilla' : 'Part-time', // Check FullTime code (row[1])
                         avatar_initials: row[0]?.substring(0,2).toUpperCase() || 'NA'
                     };
                 } else {
