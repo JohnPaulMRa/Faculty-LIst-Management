@@ -41,13 +41,17 @@ class FacultyController extends Controller
             
             // Simplified disciplines for direct controller injection (Static for now as no table exists yet)
             // Simplified disciplines for direct controller injection (Now Dynamic)
-            'groupDiscipline' => \Illuminate\Support\Facades\DB::table('e5_ref_major_group')
+            'groupDiscipline' => \Illuminate\Support\Facades\DB::table('ref_major_discipline')
                 ->select('code', 'description as desc')
                 ->orderBy('code')
                 ->get(),
 
-            'disciplines' => \Illuminate\Support\Facades\DB::table('e5_ref_discipline')
-                ->select('major_group_code', 'code', 'description as desc')
+            // Dynamic disciplines
+            // 'disciplines' => collect([]), // No sub-disciplines (removed mock)
+
+            'disciplines' => \Illuminate\Support\Facades\DB::table('ref_specific_discipline')
+                // Note: Frontend likely expects `major_group_code`
+                ->select('major_discipline_code as major_group_code', 'code', 'description as desc')
                 ->orderBy('code')
                 ->get()
                 ->groupBy('major_group_code')
@@ -125,5 +129,28 @@ class FacultyController extends Controller
         }
 
         return redirect()->back()->with('error', 'Faculty not found.');
+    }
+    public function submit(Request $request)
+    {
+        $request->validate([
+            'year' => 'required|string',
+        ]);
+
+        $year = $request->input('year');
+
+        // Logic to updated statuses for the given year
+        // Assuming we want to mark all "Updated" or "Not Updated" records as "Completed" 
+        // or just "Completed" if they are ready. 
+        // For now, let's update all records for the year to 'Completed' 
+        // (Ideally, you'd only update those that are valid/ready, but per request "Submit functions")
+        
+        $updatedCount = \App\Models\Faculty::where('joined_year', $year)
+            ->update(['status' => 'Completed']);
+
+        if ($updatedCount > 0) {
+             return redirect()->back()->with('success', "Successfully submitted {$updatedCount} faculty records for {$year}.");
+        }
+
+        return redirect()->back()->with('error', "No records found to submit for {$year}.");
     }
 }

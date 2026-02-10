@@ -45,13 +45,13 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
         : "bg-white p-4 border border-gray-200 shadow-sm space-y-3";
 
     return (
-         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 pb-4">
+         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
 
             {/* Faculty Details Card */}
             <div className={cardClass}>
                 
                 <div className="flex flex-col gap-3">
-                    <div className="grid gap-1">
+                    <div className="grid gap-3">
                         <label className="text-xs font-semibold text-gray-600">Faculty Name (LN, FN, MI)</label>
                         <Input 
                             value={formData.name || ''} 
@@ -63,7 +63,7 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                     </div>
                     
 
-                    <div className="grid gap-1">
+                    <div className="grid gap-3">
                         <label className="text-xs font-semibold text-gray-600">Full-Time/Part-Time </label>
                         <div className="flex gap-2">
                              <Input 
@@ -93,7 +93,7 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                             </Select>
                         </div>
                     </div>
-                    <div className="grid gap-1">
+                    <div className="grid gap-3">
                         <label className="text-xs font-semibold text-gray-600">Gender </label>
                         <div className="flex gap-2">
                             <Input 
@@ -123,7 +123,7 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                             </Select>
                         </div>
                     </div>
-                    <div className="grid gap-1">
+                    <div className="grid gap-3">
                         <label className="text-xs font-semibold text-gray-600">Primary Teaching Discipline</label>
                         <DisciplineSelector 
                             value={formData.disciplineCode}
@@ -213,9 +213,10 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
             </div>
 
             {/* Employment & Teaching Details Card */}
-            <div className={`${cardClass} lg:col-span-2`}>
+            <div className={`${cardClass} lg:col-span-2 mt-4`}>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-3">
-                    <div className="grid gap-1">
+                    {/* Row 1 */}
+                    <div className="grid gap-3">
                         <label className="text-xs font-semibold text-gray-600">Professional License</label>
                         <div className="flex gap-2">
                             <Input 
@@ -245,37 +246,8 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                             </Select>
                         </div>
                     </div>
-                    <div className="grid gap-1">
-                        <label className="text-xs font-semibold text-gray-600">Tenure of Employment</label>
-                        <div className="flex gap-2">
-                            <Input 
-                                readOnly 
-                                className="w-24 shrink-0 bg-gray-50 text-center font-mono focus-visible:ring-0 disabled:opacity-100 disabled:bg-white rounded-none" 
-                                value={lookupCode(referenceData.tenure, formData.tenureCode)} 
-                                placeholder="Code"
-                            />
-
-                            <Select 
-                                value={formData.tenureCode} 
-                                disabled={readOnly}
-                                onValueChange={(val) => onErrorSafeChange('tenureCode', val)}
-                            >
-                                <SelectTrigger className="flex-1 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900 rounded-none">
-                                    <span className="truncate">
-                                        {formData.tenureCode ? getDesc(referenceData.tenure, formData.tenureCode) : <span className="text-muted-foreground">Select Tenure</span>}
-                                    </span>
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {referenceData.tenure.map((item: any) => (
-                                        <SelectItem key={item.code} value={item.code}>
-                                            {item.desc}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-                    </div>
-                    <div className="grid gap-1">
+                    {/* Row 2 */}
+                    <div className="grid gap-3">
                         <label className="text-xs font-semibold text-gray-600">Faculty Rank</label>
                         <div className="flex gap-2">
                             <Input 
@@ -305,37 +277,9 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                             </Select>
                         </div>
                     </div>
-                    <div className="grid gap-1">
-                        <label className="text-xs font-semibold text-gray-600">Annual Salary</label>
-                        <div className="flex gap-2">
-                            <Input 
-                                readOnly 
-                                className="w-24 shrink-0 bg-gray-50 text-center font-mono focus-visible:ring-0 disabled:opacity-100 disabled:bg-white rounded-none" 
-                                value={lookupCode(referenceData.annualSalary, formData.salaryCode)} 
-                                placeholder="Code"
-                            />
 
-                            <Select 
-                                value={formData.salaryCode} 
-                                disabled={readOnly}
-                                onValueChange={(val) => onErrorSafeChange('salaryCode', val)}
-                            >
-                                <SelectTrigger className="flex-1 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900 rounded-none">
-                                    <span className="truncate">
-                                        {formData.salaryCode ? getDesc(referenceData.annualSalary, formData.salaryCode) : <span className="text-muted-foreground">Select Salary</span>}
-                                    </span>
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {referenceData.annualSalary.map((item: any) => (
-                                        <SelectItem key={item.code} value={item.code}>
-                                            {item.desc}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-                    </div>
-                    <div className="grid gap-1">
+                    {/* Row 3 */}
+                    <div className="grid gap-3">
                         <label className="text-xs font-semibold text-gray-600">Teaching Load</label>
                         <div className="flex gap-2">
                              <Input 
@@ -365,7 +309,69 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                             </Select>
                         </div>
                     </div>
-                    <div className="grid gap-1">
+                    <div className="grid gap-3">
+                        <label className="text-xs font-semibold text-gray-600">Annual Salary</label>
+                        <div className="flex gap-2">
+                            <Input 
+                                readOnly 
+                                className="w-24 shrink-0 bg-gray-50 text-center font-mono focus-visible:ring-0 disabled:opacity-100 disabled:bg-white rounded-none" 
+                                value={lookupCode(referenceData.annualSalary, formData.salaryCode)} 
+                                placeholder="Code"
+                            />
+
+                            <Select 
+                                value={formData.salaryCode} 
+                                disabled={readOnly}
+                                onValueChange={(val) => onErrorSafeChange('salaryCode', val)}
+                            >
+                                <SelectTrigger className="flex-1 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900 rounded-none">
+                                    <span className="truncate">
+                                        {formData.salaryCode ? getDesc(referenceData.annualSalary, formData.salaryCode) : <span className="text-muted-foreground">Select Salary</span>}
+                                    </span>
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {referenceData.annualSalary.map((item: any) => (
+                                        <SelectItem key={item.code} value={item.code}>
+                                            {item.desc}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </div>
+
+                    {/* Row 4 */}
+                    <div className="grid gap-3">
+                        <label className="text-xs font-semibold text-gray-600">Tenure of Employment</label>
+                        <div className="flex gap-2">
+                            <Input 
+                                readOnly 
+                                className="w-24 shrink-0 bg-gray-50 text-center font-mono focus-visible:ring-0 disabled:opacity-100 disabled:bg-white rounded-none" 
+                                value={lookupCode(referenceData.tenure, formData.tenureCode)} 
+                                placeholder="Code"
+                            />
+
+                            <Select 
+                                value={formData.tenureCode} 
+                                disabled={readOnly}
+                                onValueChange={(val) => onErrorSafeChange('tenureCode', val)}
+                            >
+                                <SelectTrigger className="flex-2 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900 rounded-none">
+                                    <span className="truncate">
+                                        {formData.tenureCode ? getDesc(referenceData.tenure, formData.tenureCode) : <span className="text-muted-foreground">Select Tenure</span>}
+                                    </span>
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {referenceData.tenure.map((item: any) => (
+                                        <SelectItem key={item.code} value={item.code}>
+                                            {item.desc}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </div>
+                    <div className="grid gap-3">
                         <label className="text-xs font-semibold text-gray-600">Subjects Taught</label>
                         <Input 
                             value={formData.subjects || ''} 

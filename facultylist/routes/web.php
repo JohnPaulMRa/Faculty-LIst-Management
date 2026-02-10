@@ -23,6 +23,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('faculty/{id}', [\App\Http\Controllers\FacultyController::class, 'update'])->name('faculty.update');
     Route::delete('faculty/{id}', [\App\Http\Controllers\FacultyController::class, 'destroy'])->name('faculty.destroy');
     Route::post('faculty/import', [\App\Http\Controllers\FacultyController::class, 'bulkStore'])->name('faculty.import');
+    Route::post('faculty/submit', [\App\Http\Controllers\FacultyController::class, 'submit'])->name('faculty.submit');
+    
+    // Admin Routes
+    Route::get('/admin/dashboard', function () {
+        return Inertia::render('Admin/AdminDashboard');
+    })->name('admin.dashboard');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {

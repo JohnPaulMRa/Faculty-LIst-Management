@@ -65,7 +65,7 @@ const FacultyProfile: FC<FacultyProfileProps> = ({ initialFacultyData = [], filt
     const [selectedFile, setSelectedFile] = useState<Faculty | null>(null);
     const [isFileModalOpen, setIsFileModalOpen] = useState<boolean>(false);
 
-    const handleSubmit = () => {
+    const handleRetrieval = () => {
         router.get(route('facultyprofile'), {
             search: searchQuery,
             year: yearFilter
@@ -74,6 +74,24 @@ const FacultyProfile: FC<FacultyProfileProps> = ({ initialFacultyData = [], filt
             preserveScroll: true,
             replace: true
         });
+    };
+    
+    const handleSubmit = () => {
+        if (yearFilter === 'All Years') {
+            alert("Please select a specific Academic Year before submitting.");
+            return;
+        }
+
+        if (confirm(`Are you sure you want to SUBMIT the faculty list for ${yearFilter}? This will mark records as Completed.`)) {
+             router.post(route('faculty.submit'), {
+                 year: yearFilter
+             }, {
+                 preserveState: true,
+                 preserveScroll: true,
+                 onSuccess: () => alert("Faculty list submitted successfully!"),
+                 onError: () => alert("Failed to submit faculty list.")
+             });
+        }
     };
 
     const handleFileImport = async (file: File): Promise<void> => {
@@ -320,7 +338,7 @@ const FacultyProfile: FC<FacultyProfileProps> = ({ initialFacultyData = [], filt
                                     )}
                                 </DropdownMenuContent>
                             </DropdownMenu>
-                            <Button size="sm" onClick={handleSubmit} variant="outline" className="text-[#003468] border-[#003468] hover:bg-gray-100 shadow-sm mr-2">
+                            <Button size="sm" onClick={handleRetrieval} variant="outline" className="text-[#003468] border-[#003468] hover:bg-gray-100 shadow-sm mr-2">
                                 Retrieval
                             </Button>
                             <Button size="sm" onClick={handleSubmit} className="bg-[#003468] text-white hover:bg-[#002a54] shadow-sm">
