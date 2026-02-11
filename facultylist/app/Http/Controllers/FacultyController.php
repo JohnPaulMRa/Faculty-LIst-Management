@@ -15,10 +15,10 @@ class FacultyController extends Controller
         // Search Filter
         if ($request->filled('search')) {
             $search = $request->input('search');
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('department', 'like', "%{$search}%")
-                  ->orWhere('degree', 'like', "%{$search}%");
+                    ->orWhere('department', 'like', "%{$search}%")
+                    ->orWhere('degree', 'like', "%{$search}%");
             });
         }
 
@@ -38,7 +38,7 @@ class FacultyController extends Controller
             'facultyRank' => \Illuminate\Support\Facades\DB::table('e5_ref_faculty_rank')->select('code', 'description as desc')->get(),
             'teachingLoad' => \Illuminate\Support\Facades\DB::table('e5_ref_teaching_load')->select('code', 'description as desc')->get(),
             'annualSalary' => \Illuminate\Support\Facades\DB::table('e5_ref_annual_salary')->select('code', 'description as desc')->get(),
-            
+
             // Simplified disciplines for direct controller injection (Static for now as no table exists yet)
             // Simplified disciplines for direct controller injection (Now Dynamic)
             'groupDiscipline' => \Illuminate\Support\Facades\DB::table('ref_major_discipline')
@@ -54,9 +54,9 @@ class FacultyController extends Controller
                 ->select('major_discipline_code as major_group_code', 'code', 'description as desc')
                 ->orderBy('code')
                 ->get()
-                ->groupBy('major_group_code')
+            // ->groupBy('major_group_code') // Flattened for easier frontend filtering
         ];
-        
+
         $facultyData = $query->get();
 
         // Get dynamic years from DB
@@ -82,7 +82,7 @@ class FacultyController extends Controller
             'email' => 'required|email|unique:faculties,email',
             // Add other mandatory fields
         ]);
-        
+
         // For now allowing all fields from request for flexibility with imports
         \App\Models\Faculty::create($request->all());
 
@@ -113,7 +113,7 @@ class FacultyController extends Controller
     public function update(Request $request, $id)
     {
         $faculty = \App\Models\Faculty::findOrFail($id);
-        
+
         $faculty->update($request->all());
 
         return redirect()->back()->with('success', 'Faculty updated successfully.');
@@ -143,12 +143,12 @@ class FacultyController extends Controller
         // or just "Completed" if they are ready. 
         // For now, let's update all records for the year to 'Completed' 
         // (Ideally, you'd only update those that are valid/ready, but per request "Submit functions")
-        
+
         $updatedCount = \App\Models\Faculty::where('joined_year', $year)
             ->update(['status' => 'Completed']);
 
         if ($updatedCount > 0) {
-             return redirect()->back()->with('success', "Successfully submitted {$updatedCount} faculty records for {$year}.");
+            return redirect()->back()->with('success', "Successfully submitted {$updatedCount} faculty records for {$year}.");
         }
 
         return redirect()->back()->with('error', "No records found to submit for {$year}.");

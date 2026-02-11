@@ -1,4 +1,4 @@
-import type { FC} from 'react';
+import type { FC } from 'react';
 import { useEffect, useState } from 'react';
 import { Input } from '@/components/ui/input';
 import {
@@ -12,6 +12,7 @@ import {
 type Discipline = {
     code: string;
     desc: string;
+    major_group_code?: string;
 };
 
 type Props = {
@@ -28,16 +29,18 @@ const DisciplineSelector: FC<Props> = ({ value, onChange, placeholder = "Select 
 
     // Safe access to reference data
     const groups = referenceData?.groupDiscipline || [];
-    const disciplineMap = referenceData?.disciplines || {};
+    // Flattened disciplines from controller
+    const allDisciplines: Discipline[] = Array.isArray(referenceData?.disciplines)
+        ? referenceData.disciplines
+        : [];
 
     const findDisciplineGroup = (code: string) => {
         if (!code) return "";
-        
-        // First try to find by checking which array contains the code
-        for (const [groupCode, disciplines] of Object.entries(disciplineMap)) {
-            if ((disciplines as Discipline[]).find(d => d.code === code)) {
-                return groupCode;
-            }
+
+        // Find by checking the flat list for the code
+        const found = allDisciplines.find(d => d.code === code);
+        if (found && found.major_group_code) {
+            return found.major_group_code;
         }
 
         // Fallback to prefix matching
@@ -51,10 +54,20 @@ const DisciplineSelector: FC<Props> = ({ value, onChange, placeholder = "Select 
 
     // Initialize group based on value
     useEffect(() => {
+        // Debug logging to verify data reception
+        if (!referenceData) {
+            console.warn("DisciplineSelector: No referenceData provided");
+        } else {
+            console.log("DisciplineSelector: Loaded groups:", groups.length);
+            console.log("DisciplineSelector: Loaded total disciplines:", allDisciplines.length);
+        }
+
         if (value && referenceData) {
             const group = findDisciplineGroup(value);
             if (group) {
                 setSelectedGroup(group);
+            } else {
+                console.warn("DisciplineSelector: Could not find group for value:", value);
             }
         }
     }, [value, referenceData]);
@@ -65,14 +78,23 @@ const DisciplineSelector: FC<Props> = ({ value, onChange, placeholder = "Select 
     };
 
     const handleDisciplineChange = (code: string) => {
-        const disciplines = disciplineMap[selectedGroup] || [];
-        const discipline = disciplines.find((d: any) => d.code === code);
+        // Find from flat list
+        const discipline = allDisciplines.find((d) => d.code === code);
         if (discipline) {
             onChange(discipline.code, discipline.desc);
         }
     };
 
-    const currentDisciplines = disciplineMap[selectedGroup] || [];
+    // Filter disciplines for the selected group
+    const currentDisciplines = allDisciplines.filter(d => d.major_group_code === selectedGroup);
+
+    if (groups.length === 0) {
+        return (
+            <div className={`text-red-500 text-xs ${className}`}>
+                Error: Reference data not loaded.
+            </div>
+        );
+    }
 
     return (
         <div className={`flex flex-col gap-2 w-full ${className}`}>
@@ -93,27 +115,27 @@ const DisciplineSelector: FC<Props> = ({ value, onChange, placeholder = "Select 
             {/* Row 2: Code + Specific Discipline */}
             <div className="flex gap-2 w-full">
                 {/* Code Input (Read-only) */}
-                <Input 
-                    value={value || ''} 
-                    readOnly 
+                <Input
+                    value={value || ''}
+                    readOnly
                     className="w-24 shrink-0 bg-gray-50 text-center font-mono disabled:opacity-100 rounded-none"
-                    placeholder="Code" 
+                    placeholder="Code"
                 />
 
                 {/* Specific Discipline Select */}
                 <Select value={value} onValueChange={handleDisciplineChange} disabled={disabled || !selectedGroup}>
                     <SelectTrigger className="flex-1 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900 rounded-none">
-                         <span className="truncate">
+                        <span className="truncate">
                             {value ? (
-                                 (() => {
+                                (() => {
                                     const d = currentDisciplines.find((d: any) => d.code === value);
                                     if (d) return d.desc;
                                     return value;
-                                 })()
+                                })()
                             ) : (
                                 <span className="text-muted-foreground">{placeholder}</span>
                             )}
-                         </span>
+                        </span>
                     </SelectTrigger>
                     <SelectContent className="max-h-[300px] min-w-[300px]">
                         {currentDisciplines.map((item: any) => (

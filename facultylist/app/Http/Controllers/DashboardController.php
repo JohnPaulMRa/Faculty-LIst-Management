@@ -38,7 +38,7 @@ class DashboardController extends Controller
         // 1: Full-time permanent? 
         // We'll fetch the reference map to be sure.
         $ftPtRef = DB::table('e5_ref_full_time_part_time')->pluck('description', 'code');
-        
+
         $fullTimeCount = 0;
         $partTimeCount = 0;
 
@@ -60,7 +60,7 @@ class DashboardController extends Controller
         // Wait, `FacultyController` uses `highestDegree` ref table.
         // Let's check `e5_ref_highest_degree` usage.
         // Faculty model has `degree` field.
-        
+
         // We will group by the `degree` text if it's stored as text, or try to map.
         // Let's use `degree` column from `faculties` table.
         $qualificationStats = Faculty::select('degree', DB::raw('count(*) as count'))
@@ -68,7 +68,7 @@ class DashboardController extends Controller
             ->where('degree', '!=', '')
             ->groupBy('degree')
             ->get();
-            
+
         // Map to standard categories for the UI (Doctorate, Masters, Bachelors)
         $qualifications = [
             ['label' => 'Doctorate', 'count' => 0, 'color' => 'bg-purple-500', 'text' => 'text-purple-600'],
@@ -125,7 +125,7 @@ class DashboardController extends Controller
             ->get();
 
         $years = $trendData->pluck('joined_year')->unique()->values()->all();
-        
+
         // Define Categories and Colors
         $categories = [
             1 => ['label' => 'full-time employee HEI.', 'color' => '#10b981'], // Emerald-500
@@ -164,6 +164,30 @@ class DashboardController extends Controller
             ];
         }
 
+        // 7. Gender Stats
+        $genderCounts = Faculty::select('genderCode', DB::raw('count(*) as count'))
+            ->whereIn('genderCode', ['1', '2'])
+            ->groupBy('genderCode')
+            ->pluck('count', 'genderCode');
+
+        $genderStats = [
+            'male' => $genderCounts['1'] ?? 0,
+            'female' => $genderCounts['2'] ?? 0,
+        ];
+
+        // 8. Status Stats (Updated vs Not Updated)
+        // We check the explicit 'status' column.
+        $statusCounts = Faculty::select('status', DB::raw('count(*) as count'))
+            ->groupBy('status')
+            ->pluck('count', 'status');
+
+        // Normalize keys to lower case for safety if needed, but array access is case sensitive
+        // Based on check_status.php, values are "Updated" and "Not Updated"
+        $statusStats = [
+            'updated' => $statusCounts['Updated'] ?? 0,
+            'notUpdated' => $statusCounts['Not Updated'] ?? 0,
+        ];
+
         return Inertia::render('dashboard', [
             'overview' => [
                 'totalFaculty' => $totalFaculty,
@@ -172,7 +196,9 @@ class DashboardController extends Controller
                     'fullTime' => $fullTimeCount,
                     'partTime' => $partTimeCount,
                 ],
-                'qualifications' => array_values(array_filter($qualifications, fn($q) => $q['count'] > 0)), // Only show relevant
+                'gender' => $genderStats, // New
+                'status' => $statusStats, // New
+                'qualifications' => array_values(array_filter($qualifications, fn($q) => $q['count'] > 0)),
                 'teachingLoad' => [
                     'regular' => $regularLoad,
                     'overload' => $overload,

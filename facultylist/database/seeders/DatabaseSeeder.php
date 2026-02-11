@@ -21,11 +21,13 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $this->call([
+            E5ReferenceDataSeeder::class, // Added to seed E5 reference tables
+            E5FullTimePartTimeSeeder::class, // Added specific seeder for full/part time
             MajorDisciplineSeeder::class,
             DisciplineGroupSeeder::class, // Still needed for other major disciplines
             SpecificDisciplineSeeder::class, // Still needed for other major disciplines
-            
-            // Education Science and Teacher Training
+
+                // Education Science and Teacher Training
             EducationScienceAndTeacherTraining\GeneralTeacherTrainingSeeder::class,
             EducationScienceAndTeacherTraining\TeacherTrainingNonVocationalSubjectSeeder::class,
             EducationScienceAndTeacherTraining\TeacherTrainingPracticalVocationalSeeder::class,
@@ -36,7 +38,7 @@ class DatabaseSeeder extends Seeder
             EducationScienceAndTeacherTraining\OtherEducationScienceTeacherTrainingSeeder::class,
             EducationScienceAndTeacherTraining\OtherEducationScienceTeacherTrainingSeeder::class,
 
-            // Fine and Applied Arts
+                // Fine and Applied Arts
             FineAndAppliedArts\GeneralArtStudiesSeeder::class,
             FineAndAppliedArts\PracticalArtsSeeder::class,
             FineAndAppliedArts\DrawingAndPaintingSeeder::class,
@@ -45,7 +47,7 @@ class DatabaseSeeder extends Seeder
             FineAndAppliedArts\DramaSeeder::class,
             FineAndAppliedArts\OtherFineAndAppliedArtsSeeder::class,
 
-            // Humanities
+                // Humanities
             Humanities\GeneralHumanitiesSeeder::class,
             Humanities\CurrentOrVernacularLanguageAndItsLiteratureSeeder::class,
             Humanities\OtherLivingLanguagesAndTheirLiteratureSeeder::class,
@@ -57,10 +59,10 @@ class DatabaseSeeder extends Seeder
             Humanities\PhilosophySeeder::class,
             Humanities\OtherHumanitiesSeeder::class,
 
-            // Religion and Theology
+                // Religion and Theology
             ReligionAndTheology\ReligionAndTheologySeeder::class,
 
-            // Social and Behavioral Sciences
+                // Social and Behavioral Sciences
             SocialAndBehavioralSciences\GeneralSocialAndBehavioralSciencesSeeder::class,
             SocialAndBehavioralSciences\EconomicsSeeder::class,
             SocialAndBehavioralSciences\PoliticalScienceSeeder::class,
@@ -72,7 +74,7 @@ class DatabaseSeeder extends Seeder
             SocialAndBehavioralSciences\StudiesOfRegionalCulturesSeeder::class,
             SocialAndBehavioralSciences\OtherSocialAndBehavioralScienceSeeder::class,
 
-            // Business Administration and Related
+                // Business Administration and Related
             BusinessAdministrationAndRelated\GeneralBusinessAdministrationSeeder::class,
             BusinessAdministrationAndRelated\SecretarialSeeder::class,
             BusinessAdministrationAndRelated\ElectronicDataProcessingSeeder::class,
@@ -84,7 +86,7 @@ class DatabaseSeeder extends Seeder
             BusinessAdministrationAndRelated\InstitutionalAdministrationManagementSeeder::class,
             BusinessAdministrationAndRelated\OtherAdministrationManagementSeeder::class,
 
-            // Law and Jurisprudence
+                // Law and Jurisprudence
             LawAndJurisprudence\GeneralLawSeeder::class,
             LawAndJurisprudence\JurisprudenceAndHistoryOfLawSeeder::class,
             LawAndJurisprudence\InternationalLawSeeder::class,
@@ -92,7 +94,7 @@ class DatabaseSeeder extends Seeder
             LawAndJurisprudence\MaritimeLawSeeder::class,
             LawAndJurisprudence\OtherLawAndJurisprudenceSeeder::class,
 
-            // Natural Science
+                // Natural Science
             NaturalScience\BiologicalScienceSeeder::class,
             NaturalScience\ChemistrySeeder::class,
             NaturalScience\GeologicalScienceSeeder::class,
@@ -102,16 +104,16 @@ class DatabaseSeeder extends Seeder
             NaturalScience\OceanographySeeder::class,
             NaturalScience\OtherNaturalAppliedScienceSeeder::class,
 
-            // Mathematics
+                // Mathematics
             Mathematics\GeneralMathematicsSeeder::class,
             Mathematics\StatisticsSeeder::class,
             Mathematics\ActuarialScienceSeeder::class,
             Mathematics\OtherMathematicsSeeder::class,
 
-            // IT-Related
+                // IT-Related
             ITRelated\ComputerScienceInformationTechnologySeeder::class,
 
-            // Medical and Allied
+                // Medical and Allied
             MedicalAndAllied\HygieneSeeder::class,
             MedicalAndAllied\MedicineSeeder::class,
             MedicalAndAllied\RehabilitationMedicineSeeder::class,
@@ -125,10 +127,10 @@ class DatabaseSeeder extends Seeder
             MedicalAndAllied\NutritionAndDieteticsSeeder::class,
             MedicalAndAllied\OtherMedicalDiagnosticAndTreatmentSeeder::class,
 
-            // Trade, Craft and Industrial
+                // Trade, Craft and Industrial
             TradeCraftAndIndustrial\ClothingAndRelatedTradesSeeder::class,
 
-            // Engineering
+                // Engineering
             Engineering\AeronauticalEngineeringSeeder::class,
             Engineering\AgriculturalEngineeringSeeder::class,
             Engineering\BasicEngineeringSeeder::class,
@@ -144,13 +146,13 @@ class DatabaseSeeder extends Seeder
             Engineering\OtherEngineeringSeeder::class,
             Engineering\SanitaryEngineeringSeeder::class,
 
-            // Architectural and Town-Planning
+                // Architectural and Town-Planning
             ArchitecturalAndTownPlanning\GeneralArchitectureAndTownPlanningSeeder::class,
             ArchitecturalAndTownPlanning\ArchitecturalDesignSeeder::class,
             ArchitecturalAndTownPlanning\LandscapeArchitectureSeeder::class,
             ArchitecturalAndTownPlanning\TownPlanningSeeder::class,
 
-            // Agricultural, Forestry, and Fisheries
+                // Agricultural, Forestry, and Fisheries
             AgriculturalForestryAndFisheries\AnimalHusbandrySeeder::class,
             AgriculturalForestryAndFisheries\HorticultureSeeder::class,
             AgriculturalForestryAndFisheries\AgronomySeeder::class,
@@ -162,20 +164,20 @@ class DatabaseSeeder extends Seeder
             AgriculturalForestryAndFisheries\ForestrySeeder::class,
             AgriculturalForestryAndFisheries\FisheryScienceAndTechnologySeeder::class,
 
-            // Maritime
+                // Maritime
             Maritime\MarineEngineeringSeeder::class,
             Maritime\NauticalScienceSeeder::class,
 
-            // Home Economics
+                // Home Economics
             HomeEconomics\GeneralHomeEconomicsSeeder::class,
             HomeEconomics\HouseholdAndConsumerFoodResearchSeeder::class,
             HomeEconomics\HouseholdArtsSeeder::class,
             HomeEconomics\OtherHomeEconomicsSeeder::class,
 
-            // Service Trades
+                // Service Trades
             ServiceTrades\ServiceTradesSeeder::class,
 
-            // Mass Communication and Documentation
+                // Mass Communication and Documentation
             MassCommunicationAndDocumentation\GeneralCommunicationArtsSeeder::class,
             MassCommunicationAndDocumentation\JournalismSeeder::class,
             MassCommunicationAndDocumentation\RadioAndTelevisionBroadcastingSeeder::class,
@@ -183,7 +185,7 @@ class DatabaseSeeder extends Seeder
             MassCommunicationAndDocumentation\OtherCommunicationsArtsSeeder::class,
             MassCommunicationAndDocumentation\LibraryScienceSeeder::class,
 
-            // Other Disciplines
+                // Other Disciplines
             OtherDisciplines\CriminologySeeder::class,
             OtherDisciplines\OtherCivilSecurityAndMilitarySeeder::class,
             OtherDisciplines\SocialWelfareSeeder::class,
@@ -193,7 +195,7 @@ class DatabaseSeeder extends Seeder
             OtherDisciplines\WomenDevelopmentSeeder::class,
             OtherDisciplines\OtherEducationNECSeeder::class,
 
-            // General
+                // General
             General\GeneralDisciplinesSeeder::class,
         ]);
     }

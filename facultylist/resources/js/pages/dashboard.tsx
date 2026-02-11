@@ -1,8 +1,8 @@
 import { Head } from '@inertiajs/react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-    Users, 
-    Briefcase, 
+import {
+    Users,
+    Briefcase,
     RefreshCw,
     Calendar
 } from 'lucide-react';
@@ -27,6 +27,14 @@ interface DashboardStats {
     employment: {
         fullTime: number;
         partTime: number;
+    };
+    gender: {
+        male: number;
+        female: number;
+    };
+    status: {
+        updated: number;
+        notUpdated: number;
     };
     qualifications: {
         label: string;
@@ -56,7 +64,7 @@ interface DashboardProps {
 // --- ANIMATED COUNTER COMPONENT ---
 const AnimatedNumber = ({ value }: { value: number }) => {
     const [count, setCount] = useState(0);
-    
+
     useEffect(() => {
         let start = 0;
         const end = value;
@@ -101,7 +109,7 @@ export default function Dashboard({ overview }: DashboardProps) {
         setIsLoading(true);
         // Simulate reload or use Inertia to reload
         setTimeout(() => setIsLoading(false), 800);
-        window.location.reload(); 
+        window.location.reload();
     };
 
     // Derived Calculations
@@ -113,9 +121,9 @@ export default function Dashboard({ overview }: DashboardProps) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
-            
+
             <div className="flex h-full flex-1 flex-col gap-6 p-4 md:px-8 w-full text-[#1b1b18] dark:text-[#EDEDEC] transition-colors duration-300">
-                
+
                 {/* --- HEADER WITH CONTROLS --- */}
                 <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
                     <div>
@@ -130,19 +138,19 @@ export default function Dashboard({ overview }: DashboardProps) {
                     <div className="flex items-center gap-3">
                         {/* Term Switcher with Sliding Background */}
                         <div className="flex items-center gap-2">
-                             <span className="text-sm font-medium text-blue-600 flex items-center gap-1">
+                            <span className="text-sm font-medium text-blue-600 flex items-center gap-1">
                                 <Calendar className="h-4 w-4" />
                                 Academic Year:
-                             </span>
-                             <AcademicYearSelect 
-                                value={selectedYear} 
-                                onValueChange={setSelectedYear} 
+                            </span>
+                            <AcademicYearSelect
+                                value={selectedYear}
+                                onValueChange={setSelectedYear}
                                 className="w-[180px] bg-white dark:bg-[#18181b] border-gray-200 dark:border-gray-800"
-                             />
+                            />
                         </div>
 
                         {/* Refresh Button */}
-                        <button 
+                        <button
                             onClick={handleRefresh}
                             className={`rounded-full p-2 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all ${isLoading ? 'animate-spin text-blue-600' : 'text-gray-500'}`}
                         >
@@ -152,9 +160,9 @@ export default function Dashboard({ overview }: DashboardProps) {
                 </div>
 
                 {/* --- TOP METRICS GRID --- */}
-                <div className="mb-6">
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-3 mb-6">
                     {/* 1. Total Faculty */}
-                    <motion.div 
+                    <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.5 }}
@@ -173,13 +181,89 @@ export default function Dashboard({ overview }: DashboardProps) {
                             </div>
                         </div>
                     </motion.div>
+
+                    {/* Gender Distribution */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.1 }}
+                        className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-all hover:scale-[1.01] hover:shadow-md dark:border-gray-800 dark:bg-[#18181b]"
+                    >
+                        <h3 className="mb-4 text-sm font-medium text-gray-500 dark:text-gray-400">Gender Distribution</h3>
+                        <div className="flex items-end gap-4 h-24">
+                            {/* Male */}
+                            <div className="flex flex-col items-center flex-1 gap-2 group/bar">
+                                <div className="text-xs font-bold text-blue-600 dark:text-blue-400">
+                                    {data.gender.male}
+                                </div>
+                                <div className="w-full bg-gray-100 dark:bg-gray-800 rounded-t-md relative h-full flex items-end overflow-hidden">
+                                    <div
+                                        className="w-full bg-blue-500 rounded-t-md transition-all duration-1000 ease-out min-h-[4px]"
+                                        style={{ height: `${Math.max((data.gender.male / (data.totalFaculty || 1)) * 100, 2)}%` }}
+                                    />
+                                </div>
+                                <span className="text-xs text-gray-600 dark:text-gray-400">Male</span>
+                            </div>
+                            {/* Female */}
+                            <div className="flex flex-col items-center flex-1 gap-2 group/bar">
+                                <div className="text-xs font-bold text-pink-600 dark:text-pink-400">
+                                    {data.gender.female}
+                                </div>
+                                <div className="w-full bg-gray-100 dark:bg-gray-800 rounded-t-md relative h-full flex items-end overflow-hidden">
+                                    <div
+                                        className="w-full bg-pink-500 rounded-t-md transition-all duration-1000 ease-out min-h-[4px]"
+                                        style={{ height: `${Math.max((data.gender.female / (data.totalFaculty || 1)) * 100, 2)}%` }}
+                                    />
+                                </div>
+                                <span className="text-xs text-gray-600 dark:text-gray-400">Female</span>
+                            </div>
+                        </div>
+                    </motion.div>
+
+                    {/* Status Distribution */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.2 }}
+                        className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-all hover:scale-[1.01] hover:shadow-md dark:border-gray-800 dark:bg-[#18181b]"
+                    >
+                        <h3 className="mb-4 text-sm font-medium text-gray-500 dark:text-gray-400">Faculty Status</h3>
+                        <div className="flex items-end gap-4 h-24">
+                            {/* Updated */}
+                            <div className="flex flex-col items-center flex-1 gap-2 group/bar">
+                                <div className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                                    {data.status.updated}
+                                </div>
+                                <div className="w-full bg-gray-100 dark:bg-gray-800 rounded-t-md relative h-full flex items-end overflow-hidden">
+                                    <div
+                                        className="w-full bg-emerald-500 rounded-t-md transition-all duration-1000 ease-out min-h-[4px]"
+                                        style={{ height: `${Math.max((data.status.updated / (data.totalFaculty || 1)) * 100, 2)}%` }}
+                                    />
+                                </div>
+                                <span className="text-xs text-gray-600 dark:text-gray-400">Updated</span>
+                            </div>
+                            {/* Not Updated */}
+                            <div className="flex flex-col items-center flex-1 gap-2 group/bar">
+                                <div className="text-xs font-bold text-amber-600 dark:text-amber-400">
+                                    {data.status.notUpdated}
+                                </div>
+                                <div className="w-full bg-gray-100 dark:bg-gray-800 rounded-t-md relative h-full flex items-end overflow-hidden">
+                                    <div
+                                        className="w-full bg-amber-500 rounded-t-md transition-all duration-1000 ease-out min-h-[4px]"
+                                        style={{ height: `${Math.max((data.status.notUpdated / (data.totalFaculty || 1)) * 100, 2)}%` }}
+                                    />
+                                </div>
+                                <span className="text-xs text-gray-600 dark:text-gray-400">Pending</span>
+                            </div>
+                        </div>
+                    </motion.div>
                 </div>
 
                 {/* --- DETAILED CHARTS GRID --- */}
                 <div className="grid gap-6 grid-cols-1">
 
                     {/* 5. Employment Status Trends (Line Graph) */}
-                    <motion.div 
+                    <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.5, delay: 0.1 }}
@@ -208,7 +292,7 @@ export default function Dashboard({ overview }: DashboardProps) {
                             <div className="relative h-64 w-full" onMouseLeave={() => setHoveredPoint(null)}>
                                 {hasTrends && trends ? (
                                     <svg className="h-full w-full overflow-visible" viewBox="0 0 100 100" preserveAspectRatio="none">
-                                        
+
                                         {/* Definitions for Gradients */}
                                         <defs>
                                             {trends.series.map((series, i) => (
@@ -229,16 +313,16 @@ export default function Dashboard({ overview }: DashboardProps) {
                                             // Calculate points for the line
                                             let lastX = 0;
                                             let firstX = 0;
-                                            
+
                                             const points = series.data.map((val: number, i: number) => {
                                                 const yearsLength = trends.years.length;
                                                 // Center if single point, otherwise distribute properly
                                                 const x = yearsLength === 1 ? 50 : (i / (yearsLength - 1)) * 100;
                                                 const y = 100 - (val / maxVal) * 100;
-                                                
+
                                                 if (i === 0) firstX = x;
                                                 if (i === series.data.length - 1) lastX = x;
-                                                
+
                                                 return `${x},${y}`;
                                             }).join(' ');
 
@@ -248,26 +332,26 @@ export default function Dashboard({ overview }: DashboardProps) {
                                             return (
                                                 <g key={series.name}>
                                                     {/* Area Fill */}
-                                                    <path 
-                                                        d={`M ${areaPoints}`} 
+                                                    <path
+                                                        d={`M ${areaPoints}`}
                                                         fill={`url(#gradient-${sIndex})`}
                                                         className={animateCharts ? 'animate-fade-in' : 'opacity-0'}
                                                         style={{ transition: `opacity 1s ease-out ${sIndex * 0.2}s` }}
                                                     />
                                                     {/* Line */}
-                                                    <path 
-                                                        d={`M ${points}`} 
-                                                        fill="none" 
-                                                        stroke={series.color} 
-                                                        strokeWidth="2" 
-                                                        strokeLinecap="round" 
-                                                        strokeLinejoin="round" 
+                                                    <path
+                                                        d={`M ${points}`}
+                                                        fill="none"
+                                                        stroke={series.color}
+                                                        strokeWidth="2"
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
                                                         vectorEffect="non-scaling-stroke"
                                                         className={animateCharts ? 'animate-draw' : ''}
-                                                        style={{ 
-                                                            strokeDasharray: 1000, 
-                                                            strokeDashoffset: animateCharts ? 0 : 1000, 
-                                                            transition: `stroke-dashoffset 2s ease-out ${sIndex * 0.2}s` 
+                                                        style={{
+                                                            strokeDasharray: 1000,
+                                                            strokeDashoffset: animateCharts ? 0 : 1000,
+                                                            transition: `stroke-dashoffset 2s ease-out ${sIndex * 0.2}s`
                                                         }}
                                                     />
                                                 </g>
@@ -277,7 +361,7 @@ export default function Dashboard({ overview }: DashboardProps) {
                                 ) : (
                                     <div className="flex h-full items-center justify-center text-gray-400 text-sm">No trend data available</div>
                                 )}
-                                
+
                                 {/* HTML Points Overlay */}
                                 {hasTrends && trends!.series.map((series, sIndex) => (
                                     <div key={`points-${series.name}`} className="absolute inset-0 pointer-events-none">
@@ -286,16 +370,16 @@ export default function Dashboard({ overview }: DashboardProps) {
                                             const x = (i / (yearsLength - 1 || 1)) * 100;
                                             const y = 100 - (val / maxVal) * 100;
                                             return (
-                                                <div 
+                                                <div
                                                     key={i}
                                                     className="absolute h-3 w-3 rounded-full border-2 border-white pointer-events-auto cursor-pointer opacity-0 transition-all duration-300 hover:scale-125 hover:opacity-100"
-                                                    style={{ 
-                                                        left: `${x}%`, 
+                                                    style={{
+                                                        left: `${x}%`,
                                                         top: `${y}%`,
                                                         backgroundColor: series.color,
                                                         transform: 'translate(-50%, -50%)',
-                                                        opacity: animateCharts ? 1 : 0, 
-                                                        transitionDelay: `${1 + (sIndex * 0.1) + (i * 0.05)}s` 
+                                                        opacity: animateCharts ? 1 : 0,
+                                                        transitionDelay: `${1 + (sIndex * 0.1) + (i * 0.05)}s`
                                                     }}
                                                     onMouseEnter={() => setHoveredPoint({ x, y, value: val, series: series.name })}
                                                 />
@@ -325,7 +409,7 @@ export default function Dashboard({ overview }: DashboardProps) {
                                         </motion.div>
                                     )}
                                 </AnimatePresence>
-                                
+
                                 {/* X-Axis Labels */}
                                 <div className="absolute inset-x-0 bottom-0 top-[102%] flex justify-between text-[10px] text-gray-400">
                                     {hasTrends && trends!.years.map((year: string, i: number) => (
