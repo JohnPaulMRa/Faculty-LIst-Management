@@ -1,0 +1,48 @@
+<?php
+
+namespace Database\Seeders\NaturalScience;
+
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+
+class GeologicalScienceSeeder extends Seeder
+{
+    public function run(): void
+    {
+        // 4222: Geological Science
+        $this->seedGroup('4222', 'Geological Science', [
+            ['code' => '422201', 'description' => 'Geology'],
+            ['code' => '422202', 'description' => 'Volcanology'],
+            ['code' => '422203', 'description' => 'Geological Techniques'],
+            ['code' => '422204', 'description' => 'Marine Geology'],
+        ]);
+    }
+
+    private function seedGroup(string $groupCode, string $description, array $specifics): void
+    {
+        DB::table('ref_discipline_group')->updateOrInsert(
+            ['code' => $groupCode],
+            [
+                'major_discipline_code' => '42',
+                'description' => $description,
+                'slug' => Str::slug($description, '_'),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]
+        );
+
+        foreach ($specifics as $specific) {
+            DB::table('ref_specific_discipline')->updateOrInsert(
+                ['code' => $specific['code']],
+                [
+                    'major_discipline_code' => '42',
+                    'minor_group' => $description,
+                    'description' => $specific['description'],
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]
+            );
+        }
+    }
+}

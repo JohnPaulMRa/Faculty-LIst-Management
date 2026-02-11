@@ -1,4 +1,5 @@
-import { FC, useEffect, useState } from 'react';
+import type { FC} from 'react';
+import { useEffect, useState } from 'react';
 import { Input } from '@/components/ui/input';
 import {
     Select,

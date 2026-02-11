@@ -1,10 +1,10 @@
-import { FC } from 'react';
+import type { FC } from 'react';
 import {
     Dialog,
     DialogContent,
     DialogTitle,
 } from '@/components/ui/dialog';
-import { Faculty } from '@/types/faculty';
+import type { Faculty } from '@/types/faculty';
 import FacultyFormE2 from './facultyE2/FacultyFormE2';
 import FacultyFormE5 from './facultyE5/FacultyFormE5';
 

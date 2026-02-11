@@ -1,16 +1,13 @@
 import { Head } from '@inertiajs/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
     Users, 
-    Award, 
     Briefcase, 
-    BookOpen, 
-    GraduationCap,
-    TrendingUp,
-    Filter,
-    MoreHorizontal,
-    RefreshCw
+    RefreshCw,
+    Calendar
 } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
+import AcademicYearSelect from '@/components/common/AcademicYearSelect';
 
 import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
@@ -23,31 +20,38 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-// --- MOCK DATA SETS (For Interactivity) ---
-const dataSets = {
-    '1st Sem': {
-        totalFaculty: 3,
-        licensedFaculty: 2,
-        employment: { fullTime: 2, partTime: 1 },
-        qualifications: [
-            { label: 'Doctorate', count: 1, color: 'bg-purple-500', text: 'text-purple-600' },
-            { label: 'Masters', count: 1, color: 'bg-blue-500', text: 'text-blue-600' },
-            { label: 'Bachelors', count: 1, color: 'bg-emerald-500', text: 'text-emerald-600' },
-        ],
-        teachingLoad: { regular: 1, overload: 1, underload: 1 }
-    },
-    '2nd Sem': {
-        totalFaculty: 3,
-        licensedFaculty: 2,
-        employment: { fullTime: 2, partTime: 1 },
-        qualifications: [
-            { label: 'Doctorate', count: 1, color: 'bg-purple-500', text: 'text-purple-600' },
-            { label: 'Masters', count: 1, color: 'bg-blue-500', text: 'text-blue-600' },
-            { label: 'Bachelors', count: 1, color: 'bg-emerald-500', text: 'text-emerald-600' },
-        ],
-        teachingLoad: { regular: 1, overload: 1, underload: 1 }
-    }
-};
+// --- INTERFACES ---
+interface DashboardStats {
+    totalFaculty: number;
+    licensedFaculty: number;
+    employment: {
+        fullTime: number;
+        partTime: number;
+    };
+    qualifications: {
+        label: string;
+        count: number;
+        color: string;
+        text: string;
+    }[];
+    teachingLoad: {
+        regular: number;
+        overload: number;
+        underload: number;
+    };
+    employmentTrends?: {
+        years: string[];
+        series: {
+            name: string;
+            color: string;
+            data: number[];
+        }[];
+    };
+}
+
+interface DashboardProps {
+    overview: DashboardStats;
+}
 
 // --- ANIMATED COUNTER COMPONENT ---
 const AnimatedNumber = ({ value }: { value: number }) => {
@@ -58,14 +62,12 @@ const AnimatedNumber = ({ value }: { value: number }) => {
         const end = value;
         if (start === end) return;
 
-        const totalMilSecDur = 1000;
-        const incrementTime = (totalMilSecDur / end) * 2;
-
         const timer = setInterval(() => {
-            start += 1;
+            start += Math.ceil(end / 100); // Increment by 1% of total or 1
+            if (start > end) start = end;
             setCount(start);
             if (start === end) clearInterval(timer);
-        }, Math.max(incrementTime, 10)); // Prevent infinity
+        }, 10); // Prevent infinity
 
         return () => clearInterval(timer);
     }, [value]);
@@ -73,43 +75,45 @@ const AnimatedNumber = ({ value }: { value: number }) => {
     return React.createElement('span', null, count);
 };
 
-export default function Dashboard() {
-    const [selectedTerm, setSelectedTerm] = useState<'1st Sem' | '2nd Sem'>('1st Sem');
+export default function Dashboard({ overview }: DashboardProps) {
+    // For now, using the same data for both terms since backend filtering isn't implemented per-term yet
+    const [selectedYear, setSelectedYear] = useState<string>('2024-2025');
     const [animateCharts, setAnimateCharts] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [hoveredPoint, setHoveredPoint] = useState<{ x: number, y: number, value: number, series: string } | null>(null);
 
-    const data = dataSets[selectedTerm];
+    // Use the real data from controller
+    const data = overview;
 
-    // Trigger chart animations on load or data change
+    // Trigger chart animations on load or term change
     useEffect(() => {
-        const raf = requestAnimationFrame(() => setAnimateCharts(false));
-        const timer = setTimeout(() => setAnimateCharts(true), 100);
+        // Use timeout to avoid synchronous state update warning
+        const timer1 = setTimeout(() => setAnimateCharts(false), 0);
+        const timer2 = setTimeout(() => setAnimateCharts(true), 100);
         return () => {
-            cancelAnimationFrame(raf);
-            clearTimeout(timer);
+            clearTimeout(timer1);
+            clearTimeout(timer2);
         };
-    }, [selectedTerm]);
+    }, [selectedYear]);
 
-    // Handle Refresh Interaction
+    // Handle Refresh Interaction (In a real app, this might re-fetch data)
     const handleRefresh = () => {
         setIsLoading(true);
+        // Simulate reload or use Inertia to reload
         setTimeout(() => setIsLoading(false), 800);
+        window.location.reload(); 
     };
 
     // Derived Calculations
-    const ftPercentage = Math.round((data.employment.fullTime / data.totalFaculty) * 100);
-    const licensePercentage = Math.round((data.licensedFaculty / data.totalFaculty) * 100);
+    const trends = data.employmentTrends;
+    const hasTrends = trends && trends.years.length > 0;
+    const allValues = hasTrends ? trends!.series.flatMap(s => s.data) : [];
+    const maxVal = Math.max(...allValues, 5);
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
             
-            {/* FIX APPLIED HERE:
-               - Removed "max-w-7xl"
-               - Removed "mx-auto"
-               - Added "w-full"
-               - Adjusted padding to "p-4 md:px-8" to align with full-width headers
-            */}
             <div className="flex h-full flex-1 flex-col gap-6 p-4 md:px-8 w-full text-[#1b1b18] dark:text-[#EDEDEC] transition-colors duration-300">
                 
                 {/* --- HEADER WITH CONTROLS --- */}
@@ -119,26 +123,22 @@ export default function Dashboard() {
                             Faculty Overview
                         </h1>
                         <p className="text-sm text-gray-500 dark:text-gray-400">
-                            Faculty metrics and workload analytics for <span className="font-semibold text-[#003468] dark:text-white">{selectedTerm === '1st Sem' ? '1st Semester 2024-2025' : '2nd Semester 2023-2024'}</span>.
+                            Faculty metrics and workload analytics for <span className="font-semibold text-[#003468] dark:text-white">Academic Year {selectedYear}</span>.
                         </p>
                     </div>
 
                     <div className="flex items-center gap-3">
-                        {/* Term Switcher */}
-                        <div className="relative inline-flex h-9 items-center rounded-lg bg-gray-100 p-1 dark:bg-[#18181b] border border-gray-200 dark:border-gray-800">
-                            {(['1st Sem', '2nd Sem'] as const).map((term) => (
-                                <button
-                                    key={term}
-                                    onClick={() => setSelectedTerm(term)}
-                                    className={`relative z-10 inline-flex h-full items-center justify-center whitespace-nowrap rounded-md px-4 text-xs font-medium transition-all ${
-                                        selectedTerm === term
-                                            ? 'bg-white text-[#003468] shadow-sm dark:bg-gray-800 dark:text-white'
-                                            : 'text-gray-500 hover:text-gray-900 dark:text-gray-400'
-                                    }`}
-                                >
-                                    {term}
-                                </button>
-                            ))}
+                        {/* Term Switcher with Sliding Background */}
+                        <div className="flex items-center gap-2">
+                             <span className="text-sm font-medium text-blue-600 flex items-center gap-1">
+                                <Calendar className="h-4 w-4" />
+                                Academic Year:
+                             </span>
+                             <AcademicYearSelect 
+                                value={selectedYear} 
+                                onValueChange={setSelectedYear} 
+                                className="w-[180px] bg-white dark:bg-[#18181b] border-gray-200 dark:border-gray-800"
+                             />
                         </div>
 
                         {/* Refresh Button */}
@@ -152,10 +152,14 @@ export default function Dashboard() {
                 </div>
 
                 {/* --- TOP METRICS GRID --- */}
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                    
+                <div className="mb-6">
                     {/* 1. Total Faculty */}
-                    <div className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-all hover:scale-[1.02] hover:shadow-md dark:border-gray-800 dark:bg-[#18181b]">
+                    <motion.div 
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5 }}
+                        className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-all hover:scale-[1.01] hover:shadow-md dark:border-gray-800 dark:bg-[#18181b]"
+                    >
                         <div className="absolute -right-4 -top-4 h-24 w-24 rounded-full bg-blue-50 transition-all group-hover:scale-150 dark:bg-blue-900/10"></div>
                         <div className="relative flex items-center gap-4">
                             <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-blue-50 text-blue-600 shadow-sm dark:bg-blue-900/20 dark:text-blue-400">
@@ -168,196 +172,169 @@ export default function Dashboard() {
                                 </h3>
                             </div>
                         </div>
-                    </div>
-
-                    {/* 2. Licensed Faculty */}
-                    <div className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-all hover:scale-[1.02] hover:shadow-md dark:border-gray-800 dark:bg-[#18181b]">
-                        <div className="absolute -right-4 -top-4 h-24 w-24 rounded-full bg-amber-50 transition-all group-hover:scale-150 dark:bg-amber-900/10"></div>
-                        <div className="relative flex items-center gap-4">
-                            <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-amber-50 text-amber-600 shadow-sm dark:bg-amber-900/20 dark:text-amber-400">
-                                <Award className="h-7 w-7" />
-                            </div>
-                            <div>
-                                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Licensed</p>
-                                <div className="flex items-baseline gap-2">
-                                    <h3 className="text-3xl font-bold text-[#003468] dark:text-white">
-                                        <AnimatedNumber value={data.licensedFaculty} />
-                                    </h3>
-                                    <span className="flex items-center text-xs font-medium text-green-600 bg-green-100 px-1.5 py-0.5 rounded-full dark:bg-green-900/30">
-                                        <TrendingUp className="mr-1 h-3 w-3" /> {licensePercentage}%
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* 3. Overloaded Faculty */}
-                    <div className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-all hover:scale-[1.02] hover:shadow-md dark:border-gray-800 dark:bg-[#18181b]">
-                        <div className="absolute -right-4 -top-4 h-24 w-24 rounded-full bg-red-50 transition-all group-hover:scale-150 dark:bg-red-900/10"></div>
-                        <div className="relative flex items-center gap-4">
-                            <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-red-50 text-red-600 shadow-sm dark:bg-red-900/20 dark:text-red-400">
-                                <BookOpen className="h-7 w-7" />
-                            </div>
-                            <div>
-                                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Overloaded</p>
-                                <h3 className="text-3xl font-bold text-red-600 dark:text-red-400">
-                                    <AnimatedNumber value={data.teachingLoad.overload} />
-                                </h3>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* 4. Full-Time Staff */}
-                    <div className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-all hover:scale-[1.02] hover:shadow-md dark:border-gray-800 dark:bg-[#18181b]">
-                        <div className="absolute -right-4 -top-4 h-24 w-24 rounded-full bg-emerald-50 transition-all group-hover:scale-150 dark:bg-emerald-900/10"></div>
-                        <div className="relative flex items-center gap-4">
-                            <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 shadow-sm dark:bg-emerald-900/20 dark:text-emerald-400">
-                                <Briefcase className="h-7 w-7" />
-                            </div>
-                            <div>
-                                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Full-Time</p>
-                                <h3 className="text-3xl font-bold text-[#003468] dark:text-white">
-                                    <AnimatedNumber value={data.employment.fullTime} />
-                                </h3>
-                            </div>
-                        </div>
-                    </div>
+                    </motion.div>
                 </div>
 
                 {/* --- DETAILED CHARTS GRID --- */}
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                <div className="grid gap-6 grid-cols-1">
 
-                    {/* 5. Employment Status (Animated Donut) */}
-                    <div className="flex flex-col rounded-2xl border border-gray-200 bg-white shadow-sm transition-shadow hover:shadow-md dark:border-gray-800 dark:bg-[#18181b]">
+                    {/* 5. Employment Status Trends (Line Graph) */}
+                    <motion.div 
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.1 }}
+                        className="flex flex-col rounded-2xl border border-gray-200 bg-white shadow-sm transition-shadow hover:shadow-md dark:border-gray-800 dark:bg-[#18181b]"
+                    >
                         <div className="flex items-center justify-between border-b border-gray-100 p-5 dark:border-gray-800">
                             <h3 className="flex items-center gap-2 font-semibold text-gray-900 dark:text-white">
                                 <Briefcase className="h-4 w-4 text-gray-500" /> Employment Status
                             </h3>
-                            <button className="text-gray-400 hover:text-gray-600"><MoreHorizontal className="h-4 w-4" /></button>
-                        </div>
-                        <div className="flex flex-1 flex-col items-center justify-center p-6">
-                            <div className="relative flex h-48 w-48 items-center justify-center">
-                                {/* SVG Ring */}
-                                <svg className="h-full w-full -rotate-90 transform" viewBox="0 0 100 100">
-                                    {/* Track */}
-                                    <circle className="text-gray-100 dark:text-gray-800" strokeWidth="10" stroke="currentColor" fill="transparent" r="40" cx="50" cy="50" />
-                                    {/* Full Time Segment */}
-                                    <circle 
-                                        className="text-emerald-500 transition-all duration-1500ms ease-out dark:text-emerald-400" 
-                                        strokeWidth="10" 
-                                        strokeDasharray={animateCharts ? `${ftPercentage * 2.51} 251` : "0 251"} 
-                                        strokeLinecap="round" 
-                                        stroke="currentColor" 
-                                        fill="transparent" 
-                                        r="40" 
-                                        cx="50" 
-                                        cy="50" 
-                                    />
-                                </svg>
-                                <div className="absolute flex flex-col items-center">
-                                    <span className="text-4xl font-bold text-gray-900 dark:text-white">{ftPercentage}%</span>
-                                    <span className="text-xs font-medium uppercase text-gray-400">Regular</span>
-                                </div>
-                            </div>
-                            
-                            <div className="mt-6 grid w-full grid-cols-2 gap-4">
-                                <div className="rounded-xl bg-emerald-50 p-3 text-center dark:bg-emerald-900/10">
-                                    <p className="text-xs font-semibold uppercase text-emerald-600 dark:text-emerald-400">Full-Time</p>
-                                    <p className="text-xl font-bold text-gray-900 dark:text-white"><AnimatedNumber value={data.employment.fullTime} /></p>
-                                </div>
-                                <div className="rounded-xl bg-orange-50 p-3 text-center dark:bg-orange-900/10">
-                                    <p className="text-xs font-semibold uppercase text-orange-600 dark:text-orange-400">Part-Time</p>
-                                    <p className="text-xl font-bold text-gray-900 dark:text-white"><AnimatedNumber value={data.employment.partTime} /></p>
-                                </div>
+                            <div className="flex items-center gap-2 text-xs">
+                                <span className="text-gray-400">Academic Year</span>
                             </div>
                         </div>
-                    </div>
-
-                    {/* 6. Qualification Levels (Animated Bars) */}
-                    <div className="flex flex-col rounded-2xl border border-gray-200 bg-white shadow-sm transition-shadow hover:shadow-md dark:border-gray-800 dark:bg-[#18181b]">
-                        <div className="flex items-center justify-between border-b border-gray-100 p-5 dark:border-gray-800">
-                            <h3 className="flex items-center gap-2 font-semibold text-gray-900 dark:text-white">
-                                <GraduationCap className="h-4 w-4 text-gray-500" /> Qualifications
-                            </h3>
-                            <Filter className="h-4 w-4 text-gray-400 cursor-pointer hover:text-gray-600" />
-                        </div>
-                        <div className="flex flex-1 flex-col justify-center gap-6 p-6">
-                            {data.qualifications.map((qual, index) => (
-                                <div key={qual.label} className="group cursor-pointer">
-                                    <div className="mb-2 flex justify-between text-sm">
-                                        <span className="font-medium text-gray-700 transition-colors group-hover:text-[#003468] dark:text-gray-300 dark:group-hover:text-white">{qual.label}</span>
-                                        <span className={`font-bold ${qual.text}`}>
-                                            <AnimatedNumber value={qual.count} />
-                                        </span>
+                        <div className="flex flex-1 flex-col p-6">
+                            {/* Legend */}
+                            <div className="mb-6 flex flex-wrap gap-4 justify-center">
+                                {hasTrends && trends!.series.map((s) => (
+                                    <div key={s.name} className="flex items-center gap-2 text-xs">
+                                        <div className="h-3 w-3 rounded-full" style={{ backgroundColor: s.color }}></div>
+                                        <span className="text-gray-600 dark:text-gray-400">{s.name}</span>
                                     </div>
-                                    <div className="h-3 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800">
-                                        <div 
-                                            className={`h-full rounded-full ${qual.color} transition-all duration-1200ms ease-out`} 
-                                            style={{ 
-                                                width: animateCharts ? `${(qual.count / data.totalFaculty) * 100}%` : '0%',
-                                                transitionDelay: `${index * 150}ms`
+                                ))}
+                            </div>
+
+                            {/* Line Chart Area */}
+                            <div className="relative h-64 w-full" onMouseLeave={() => setHoveredPoint(null)}>
+                                {hasTrends && trends ? (
+                                    <svg className="h-full w-full overflow-visible" viewBox="0 0 100 100" preserveAspectRatio="none">
+                                        
+                                        {/* Definitions for Gradients */}
+                                        <defs>
+                                            {trends.series.map((series, i) => (
+                                                <linearGradient key={`grad-${i}`} id={`gradient-${i}`} x1="0" x2="0" y1="0" y2="1">
+                                                    <stop offset="0%" stopColor={series.color} stopOpacity="0.2" />
+                                                    <stop offset="100%" stopColor={series.color} stopOpacity="0" />
+                                                </linearGradient>
+                                            ))}
+                                        </defs>
+
+                                        {/* Grid Lines */}
+                                        {[0, 25, 50, 75, 100].map((y) => (
+                                            <line key={y} x1="0" y1={y} x2="100" y2={y} stroke="currentColor" strokeWidth="0.5" className="text-gray-100 dark:text-gray-800" vectorEffect="non-scaling-stroke" />
+                                        ))}
+
+                                        {/* Series Paths and Areas */}
+                                        {trends.series.map((series, sIndex) => {
+                                            // Calculate points for the line
+                                            let lastX = 0;
+                                            let firstX = 0;
+                                            
+                                            const points = series.data.map((val: number, i: number) => {
+                                                const yearsLength = trends.years.length;
+                                                // Center if single point, otherwise distribute properly
+                                                const x = yearsLength === 1 ? 50 : (i / (yearsLength - 1)) * 100;
+                                                const y = 100 - (val / maxVal) * 100;
+                                                
+                                                if (i === 0) firstX = x;
+                                                if (i === series.data.length - 1) lastX = x;
+                                                
+                                                return `${x},${y}`;
+                                            }).join(' ');
+
+                                            // Close the path for area fill: Go down from last point, then across to first point's x, then up
+                                            const areaPoints = `${points} ${lastX},100 ${firstX},100`;
+
+                                            return (
+                                                <g key={series.name}>
+                                                    {/* Area Fill */}
+                                                    <path 
+                                                        d={`M ${areaPoints}`} 
+                                                        fill={`url(#gradient-${sIndex})`}
+                                                        className={animateCharts ? 'animate-fade-in' : 'opacity-0'}
+                                                        style={{ transition: `opacity 1s ease-out ${sIndex * 0.2}s` }}
+                                                    />
+                                                    {/* Line */}
+                                                    <path 
+                                                        d={`M ${points}`} 
+                                                        fill="none" 
+                                                        stroke={series.color} 
+                                                        strokeWidth="2" 
+                                                        strokeLinecap="round" 
+                                                        strokeLinejoin="round" 
+                                                        vectorEffect="non-scaling-stroke"
+                                                        className={animateCharts ? 'animate-draw' : ''}
+                                                        style={{ 
+                                                            strokeDasharray: 1000, 
+                                                            strokeDashoffset: animateCharts ? 0 : 1000, 
+                                                            transition: `stroke-dashoffset 2s ease-out ${sIndex * 0.2}s` 
+                                                        }}
+                                                    />
+                                                </g>
+                                            );
+                                        })}
+                                    </svg>
+                                ) : (
+                                    <div className="flex h-full items-center justify-center text-gray-400 text-sm">No trend data available</div>
+                                )}
+                                
+                                {/* HTML Points Overlay */}
+                                {hasTrends && trends!.series.map((series, sIndex) => (
+                                    <div key={`points-${series.name}`} className="absolute inset-0 pointer-events-none">
+                                        {series.data.map((val: number, i: number) => {
+                                            const yearsLength = trends!.years.length;
+                                            const x = (i / (yearsLength - 1 || 1)) * 100;
+                                            const y = 100 - (val / maxVal) * 100;
+                                            return (
+                                                <div 
+                                                    key={i}
+                                                    className="absolute h-3 w-3 rounded-full border-2 border-white pointer-events-auto cursor-pointer opacity-0 transition-all duration-300 hover:scale-125 hover:opacity-100"
+                                                    style={{ 
+                                                        left: `${x}%`, 
+                                                        top: `${y}%`,
+                                                        backgroundColor: series.color,
+                                                        transform: 'translate(-50%, -50%)',
+                                                        opacity: animateCharts ? 1 : 0, 
+                                                        transitionDelay: `${1 + (sIndex * 0.1) + (i * 0.05)}s` 
+                                                    }}
+                                                    onMouseEnter={() => setHoveredPoint({ x, y, value: val, series: series.name })}
+                                                />
+                                            );
+                                        })}
+                                    </div>
+                                ))}
+
+                                {/* Custom Tooltip */}
+                                <AnimatePresence>
+                                    {hoveredPoint && (
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                                            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                            className="absolute z-10 rounded-lg bg-gray-900 px-3 py-2 text-xs text-white shadow-xl dark:bg-white dark:text-gray-900 pointer-events-none"
+                                            style={{
+                                                left: `${hoveredPoint.x}%`,
+                                                top: `${hoveredPoint.y}%`,
+                                                transform: 'translate(-50%, -150%)',
+                                                marginTop: '-12px'
                                             }}
-                                        />
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* 7. Teaching Load Summary (Status Cards) */}
-                    <div className="flex flex-col rounded-2xl border border-gray-200 bg-white shadow-sm transition-shadow hover:shadow-md dark:border-gray-800 dark:bg-[#18181b]">
-                        <div className="flex items-center justify-between border-b border-gray-100 p-5 dark:border-gray-800">
-                            <h3 className="flex items-center gap-2 font-semibold text-gray-900 dark:text-white">
-                                <BookOpen className="h-4 w-4 text-gray-500" /> Workload Summary
-                            </h3>
-                        </div>
-                        <div className="flex flex-1 flex-col justify-center gap-4 p-6">
-                            {/* Regular Load */}
-                            <div className="relative overflow-hidden rounded-xl border border-green-100 bg-green-50/50 p-4 transition-all hover:bg-green-50 dark:border-green-900/30 dark:bg-green-900/10">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-3">
-                                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-100 text-green-600 dark:bg-green-900/30">
-                                            <Briefcase className="h-4 w-4" />
-                                        </div>
-                                        <span className="font-medium text-gray-900 dark:text-white">Regular Load</span>
-                                    </div>
-                                    <span className="text-lg font-bold text-green-700 dark:text-green-400">
-                                        <AnimatedNumber value={data.teachingLoad.regular} />
-                                    </span>
-                                </div>
-                            </div>
-
-                            {/* Overload */}
-                            <div className="relative overflow-hidden rounded-xl border border-red-100 bg-red-50/50 p-4 transition-all hover:bg-red-50 dark:border-red-900/30 dark:bg-red-900/10">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-3">
-                                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-red-100 text-red-600 dark:bg-red-900/30">
-                                            <TrendingUp className="h-4 w-4" />
-                                        </div>
-                                        <span className="font-medium text-gray-900 dark:text-white">Overload</span>
-                                    </div>
-                                    <span className="text-lg font-bold text-red-600 dark:text-red-400">
-                                        <AnimatedNumber value={data.teachingLoad.overload} />
-                                    </span>
-                                </div>
-                            </div>
-
-                            {/* Underload */}
-                            <div className="relative overflow-hidden rounded-xl border border-amber-100 bg-amber-50/50 p-4 transition-all hover:bg-amber-50 dark:border-amber-900/30 dark:bg-amber-900/10">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-3">
-                                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-100 text-amber-600 dark:bg-amber-900/30">
-                                            <Users className="h-4 w-4" />
-                                        </div>
-                                        <span className="font-medium text-gray-900 dark:text-white">Underload</span>
-                                    </div>
-                                    <span className="text-lg font-bold text-amber-600 dark:text-amber-400">
-                                        <AnimatedNumber value={data.teachingLoad.underload} />
-                                    </span>
+                                        >
+                                            <div className="font-semibold">{hoveredPoint.series}</div>
+                                            <div>{hoveredPoint.value} Faculty</div>
+                                            <div className="absolute bottom-0 left-1/2 -mb-1 h-2 w-2 -translate-x-1/2 rotate-45 bg-gray-900 dark:bg-white"></div>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+                                
+                                {/* X-Axis Labels */}
+                                <div className="absolute inset-x-0 bottom-0 top-[102%] flex justify-between text-[10px] text-gray-400">
+                                    {hasTrends && trends!.years.map((year: string, i: number) => (
+                                        <span key={i}>{year}</span>
+                                    ))}
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </motion.div>
 
                 </div>
             </div>

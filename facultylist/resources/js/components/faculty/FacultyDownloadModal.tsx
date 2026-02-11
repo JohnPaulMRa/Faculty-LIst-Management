@@ -1,4 +1,6 @@
-import { FC } from 'react';
+import { FileSpreadsheet } from 'lucide-react';
+import type { FC } from 'react';
+import { Button } from '@/components/ui/button';
 import {
     Dialog,
     DialogContent,
@@ -6,8 +8,6 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { FileSpreadsheet } from 'lucide-react';
 import { downloadTemplateE2 } from './facultyE2/downloadTemplateE2';
 import { downloadTemplateE5 } from './facultyE5/downloadTemplateE5';
 

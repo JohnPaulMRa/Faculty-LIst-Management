@@ -1,6 +1,6 @@
-import { FC } from 'react';
+import type { FC } from 'react';
 import { Input } from '@/components/ui/input';
-import { Faculty } from '@/types/faculty';
+import type { Faculty } from '@/types/faculty';
 
 type FacultyProfileCardsE2Props = {
     formData: Partial<Faculty>;

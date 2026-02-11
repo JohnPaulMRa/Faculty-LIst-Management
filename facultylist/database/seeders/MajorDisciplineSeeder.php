@@ -13,7 +13,9 @@ class MajorDisciplineSeeder extends Seeder
     public function run(): void
     {
         // Truncate the table to ensure a clean state
+        \Illuminate\Support\Facades\Schema::disableForeignKeyConstraints();
         \Illuminate\Support\Facades\DB::table('ref_major_discipline')->truncate();
+        \Illuminate\Support\Facades\Schema::enableForeignKeyConstraints();
 
         $disciplines = [
             ['code' => '14', 'description' => 'EDUCATION SCIENCE AND TEACHER TRAINING'],

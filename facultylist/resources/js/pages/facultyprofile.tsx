@@ -9,6 +9,11 @@ import {
 import type { FC } from 'react';
 import { useState, useMemo, useEffect } from 'react';
 
+import FacultyDownloadModal from '@/components/faculty/FacultyDownloadModal';
+import FacultyListTableE2 from '@/components/faculty/facultyE2/FacultyListTableE2';
+import FacultyListTableE5 from '@/components/faculty/facultyE5/FacultyListTableE5';
+import FacultyFileDetailsModal from '@/components/faculty/FacultyFileDetailsModal';
+import FacultyImportModal from '@/components/faculty/FacultyImportModal';
 import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,
@@ -22,13 +27,9 @@ import {
 import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/app-layout';
 
-import { Faculty, IMPORT_GROUP_OPTIONS } from '@/types/faculty';
 import { getCurrentAcademicYear } from '@/lib/utils';
-import FacultyFileDetailsModal from '@/components/faculty/FacultyFileDetailsModal';
-import FacultyImportModal from '@/components/faculty/FacultyImportModal';
-import FacultyDownloadModal from '@/components/faculty/FacultyDownloadModal';
-import FacultyListTableE5 from '@/components/faculty/facultyE5/FacultyListTableE5';
-import FacultyListTableE2 from '@/components/faculty/facultyE2/FacultyListTableE2';
+import type { Faculty} from '@/types/faculty';
+import { IMPORT_GROUP_OPTIONS } from '@/types/faculty';
 
 // Basic declaration for Ziggy's route helper
 declare function route(name?: string, params?: any, absolute?: boolean): string;

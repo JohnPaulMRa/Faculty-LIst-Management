@@ -1,10 +1,11 @@
-import React, { FC, useEffect, useState } from 'react';
-import { Faculty } from '@/types/faculty';
 import { ChevronLeft, ChevronRight, Plus, Save, X } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import type { FC} from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { DialogClose } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import type { Faculty } from '@/types/faculty';
 
 const SHEET_TABS = [
     { id: 'A1', label: 'GROUP A1', title: 'GROUP A1: FULL-TIME FACULTY MEMBERS WITH THEIR OWN FACULTY PLANTILLA ITEMS TEACHING AT ELEM, SECONDARY AND TECH/VOC', remarks: 'Every full-time faculty member with his/her own PS item, even if on leave without pay, should be listed here.' },

@@ -1,0 +1,47 @@
+<?php
+
+namespace Database\Seeders\EducationScienceAndTeacherTraining;
+
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+
+class EducationScienceSupportTeachingSeeder extends Seeder
+{
+    public function run(): void
+    {
+        // 1422: Education Science in Support of Teaching
+        $this->seedGroup('1422', 'Education Science in Support of Teaching', [
+            ['code' => '142201', 'description' => 'Special Education'],
+            ['code' => '142202', 'description' => 'Teaching Handicapped Children'],
+            ['code' => '142203', 'description' => 'Applied Deaf  Studies'], // Note: User had extra space in "Deaf  Studies"
+        ]);
+    }
+
+    private function seedGroup(string $groupCode, string $description, array $specifics): void
+    {
+        DB::table('ref_discipline_group')->updateOrInsert(
+            ['code' => $groupCode],
+            [
+                'major_discipline_code' => '14',
+                'description' => $description,
+                'slug' => Str::slug($description, '_'),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]
+        );
+
+        foreach ($specifics as $specific) {
+            DB::table('ref_specific_discipline')->updateOrInsert(
+                ['code' => $specific['code']],
+                [
+                    'major_discipline_code' => '14',
+                    'minor_group' => $description,
+                    'description' => $specific['description'],
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]
+            );
+        }
+    }
+}

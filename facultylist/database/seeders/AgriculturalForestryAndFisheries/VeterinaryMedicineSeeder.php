@@ -1,0 +1,48 @@
+<?php
+
+namespace Database\Seeders\AgriculturalForestryAndFisheries;
+
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+
+class VeterinaryMedicineSeeder extends Seeder
+{
+    public function run(): void
+    {
+        // 6232: Veterinary Medicine
+        $this->seedGroup('6232', 'Veterinary Medicine', [
+            ['code' => '623201', 'description' => 'Veterinary Medicine'],
+            ['code' => '623202', 'description' => 'Veterinary Parasitology'],
+            ['code' => '623203', 'description' => 'Veterinary Pathology'],
+            ['code' => '623204', 'description' => 'Veterinary Technology'],
+        ]);
+    }
+
+    private function seedGroup(string $groupCode, string $description, array $specifics): void
+    {
+        DB::table('ref_discipline_group')->updateOrInsert(
+            ['code' => $groupCode],
+            [
+                'major_discipline_code' => '62',
+                'description' => $description,
+                'slug' => Str::slug($description, '_'),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]
+        );
+
+        foreach ($specifics as $specific) {
+            DB::table('ref_specific_discipline')->updateOrInsert(
+                ['code' => $specific['code']],
+                [
+                    'major_discipline_code' => '62',
+                    'minor_group' => $description,
+                    'description' => $specific['description'],
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]
+            );
+        }
+    }
+}

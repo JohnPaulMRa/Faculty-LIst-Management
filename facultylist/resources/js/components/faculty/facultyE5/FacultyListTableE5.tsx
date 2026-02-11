@@ -2,8 +2,8 @@ import {
     Trash2,
     Eye,
 } from 'lucide-react';
-import { Faculty } from '@/types/faculty';
-import { FC } from 'react';
+import type { FC } from 'react';
+import type { Faculty } from '@/types/faculty';
 
 type Props = {
     facultyList: Faculty[];

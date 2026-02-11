@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import type { FC } from 'react';
 
 const ReferenceTableE2: FC = () => {
     // Data derived from reference image

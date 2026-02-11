@@ -1,3 +1,7 @@
+import { ChevronDown, FileSpreadsheet, UploadCloud } from 'lucide-react';
+import type { FC, ChangeEvent } from 'react';
+import { useRef } from 'react';
+import { Button } from '@/components/ui/button';
 import {
     Dialog,
     DialogContent,
@@ -6,7 +10,7 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
     Select,
@@ -15,10 +19,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { ChevronDown, FileSpreadsheet, UploadCloud } from 'lucide-react';
-import { Input } from '@/components/ui/input';
 import { Faculty, IMPORT_GROUP_OPTIONS } from '@/types/faculty';
-import { FC, useRef, ChangeEvent } from 'react';
 
 
 type Props = {

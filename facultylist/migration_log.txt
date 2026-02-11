@@ -1,0 +1,53 @@
+
+
+   INFO  Preparing database.  
+
+  Creating migration table .... 12.48ms DONE
+
+   INFO  Running migrations.  
+
+  0001_01_01_000000_create_users_table  56.77ms DONE
+  0001_01_01_000001_create_cache_table  37.89ms DONE
+  0001_01_01_000002_create_jobs_table  49.64ms DONE
+  2025_08_26_100418_add_two_factor_columns_to_users_table  10.02ms DONE
+  2026_02_06_030708_create_e5_ref_full_time_part_time_table  19.00ms DONE
+  2026_02_06_030816_create_e5_ref_gender_table  4.37ms DONE
+  2026_02_06_030839_create_e5_ref_highest_degree_table  4.53ms DONE
+  2026_02_06_030849_create_e5_ref_professional_license_table  5.92ms DONE
+  2026_02_06_030854_create_e5_ref_tenure_table  5.50ms DONE
+  2026_02_06_030859_create_e5_ref_faculty_rank_table  6.44ms DONE
+  2026_02_06_030904_create_e5_ref_teaching_load_table  5.97ms DONE
+  2026_02_06_030910_create_e5_ref_annual_salary_table  6.01ms DONE
+  2026_02_06_030942_create_faculty_e5_table  41.56ms DONE
+  2026_02_06_054218_create_faculties_table  6.60ms DONE
+  2026_02_06_054341_add_columns_to_e5_reference_tables  193.53ms DONE
+  2026_02_10_062317_create_ref_major_discipline_table  4.67ms DONE
+  2026_02_10_072414_create_ref_specific_discipline_table  37.56ms DONE
+  2026_02_10_075013_create_ref_discipline_group_table  39.97ms DONE
+
+
+   INFO  Seeding database.  
+
+  Database\Seeders\MajorDisciplineSeeder  RUNNING  
+
+   Illuminate\Database\QueryException 
+
+  SQLSTATE[42000]: Syntax error or access violation: 1701 Cannot truncate a table referenced in a foreign key constraint (`laravel`.`ref_discipline_group`, CONSTRAINT `ref_discipline_group_major_discipline_code_foreign` FOREIGN KEY (`major_discipline_code`) REFERENCES `laravel`.`ref_major_discipline` (`code`)) (Connection: mysql, Host: 127.0.0.1, Port: 3306, Database: laravel, SQL: truncate table `ref_major_discipline`)
+
+  at vendor\laravel\framework\src\Illuminate\Database\Connection.php:838
+    834Γûò             $exceptionType = $this->isUniqueConstraintError($e)
+    835Γûò                 ? UniqueConstraintViolationException::class
+    836Γûò                 : QueryException::class;
+    837Γûò 
+  Γ₧£ 838Γûò             throw new $exceptionType(
+    839Γûò                 $this->getNameWithReadWriteType(),
+    840Γûò                 $query,
+    841Γûò                 $this->prepareBindings($bindings),
+    842Γûò                 $e,
+
+  1   vendor\laravel\framework\src\Illuminate\Database\Connection.php:584
+      PDOException::("SQLSTATE[42000]: Syntax error or access violation: 1701 Cannot truncate a table referenced in a foreign key constraint (`laravel`.`ref_discipline_group`, CONSTRAINT `ref_discipline_group_major_discipline_code_foreign` FOREIGN KEY (`major_discipline_code`) REFERENCES `laravel`.`ref_major_discipline` (`code`))")
+
+  2   vendor\laravel\framework\src\Illuminate\Database\Connection.php:584
+      PDOStatement::execute()
+

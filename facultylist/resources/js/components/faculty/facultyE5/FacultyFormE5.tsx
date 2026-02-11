@@ -1,12 +1,13 @@
-import { FC, useState, useEffect } from 'react';
-import { Faculty } from '@/types/faculty';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 import { Save, X, ChevronLeft, ChevronRight, Plus } from 'lucide-react';
+import type { FC} from 'react';
+import { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
 import { DialogClose } from '@/components/ui/dialog';
-import ReferenceTableE5 from './ReferenceTableE5';
-import { FacultyProfileCardsE5 } from './FacultyProfileCardsE5';
+import { Input } from '@/components/ui/input';
+import type { Faculty } from '@/types/faculty';
 import DisciplineSelector from './DisciplineSelector';
+import { FacultyProfileCardsE5 } from './FacultyProfileCardsE5';
+import ReferenceTableE5 from './ReferenceTableE5';
 
 
 type Props = {
