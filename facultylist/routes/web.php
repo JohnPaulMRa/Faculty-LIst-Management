@@ -1,4 +1,3 @@
-
 <?php
 
 use Illuminate\Support\Facades\Route;
@@ -11,22 +10,32 @@ Route::get('/', function () {
     ]);
 })->name('home');
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified', 'role:Faculty'])->group(function () {
     Route::get('dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
-});
-
-Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('facultyprofile', [\App\Http\Controllers\FacultyController::class, 'index'])->name('facultyprofile');
     Route::post('faculty', [\App\Http\Controllers\FacultyController::class, 'store'])->name('faculty.store');
     Route::put('faculty/{id}', [\App\Http\Controllers\FacultyController::class, 'update'])->name('faculty.update');
     Route::delete('faculty/{id}', [\App\Http\Controllers\FacultyController::class, 'destroy'])->name('faculty.destroy');
     Route::post('faculty/import', [\App\Http\Controllers\FacultyController::class, 'bulkStore'])->name('faculty.import');
     Route::post('faculty/submit', [\App\Http\Controllers\FacultyController::class, 'submit'])->name('faculty.submit');
-    
-    // Admin Routes
+});
+
+Route::middleware(['auth', 'verified', 'role:Admin'])->group(function () {
+    Route::get('/admin', function () {
+        return redirect()->route('admin.dashboard');
+    });
+
     Route::get('/admin/dashboard', function () {
         return Inertia::render('Admin/AdminDashboard');
     })->name('admin.dashboard');
+
+    Route::get('/admin/faculty-list', function () {
+        return Inertia::render('Admin/FacultyList');
+    })->name('admin.faculty-list');
+
+    Route::get('/admin/disciplines', function () {
+        return Inertia::render('Admin/Disciplines');
+    })->name('admin.disciplines');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -35,4 +44,4 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('userprofile');
 });
 
-require __DIR__.'/settings.php';
+require __DIR__ . '/settings.php';

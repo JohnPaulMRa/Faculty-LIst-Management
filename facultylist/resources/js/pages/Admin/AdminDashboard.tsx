@@ -1,9 +1,9 @@
 import { Head } from '@inertiajs/react';
-import { 
-    LayoutDashboard, 
-    Users, 
-    Settings, 
-    Users2, 
+import {
+    LayoutDashboard,
+    Users,
+    Settings,
+    Users2,
     Briefcase,
     GraduationCap,
     TrendingUp,
@@ -15,7 +15,7 @@ import AdminRecentActivity from '@/components/admin/AdminRecentActivity';
 import AdminStatsCard from '@/components/admin/AdminStatsCard';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import AppLayout from '@/layouts/app-layout';
+import AppSidebarLayout from '@/layouts/app/app-sidebar-layout';
 
 
 export default function AdminDashboard() {
@@ -34,9 +34,9 @@ export default function AdminDashboard() {
     ];
 
     return (
-        <AppLayout breadcrumbs={[{ title: 'Admin Dashboard', href: '/admin/dashboard' }]}>
+        <AppSidebarLayout breadcrumbs={[{ title: 'Admin Dashboard', href: '/admin/dashboard' }]}>
             <Head title="Admin Dashboard" />
-            
+
             <div className="flex flex-1 flex-col gap-6 w-full p-4 md:px-8 text-[#1b1b18] dark:text-[#EDEDEC]">
                 {/* Header Section */}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -98,6 +98,6 @@ export default function AdminDashboard() {
                     <AdminRecentActivity activities={recentActivities} />
                 </div>
             </div>
-        </AppLayout>
+        </AppSidebarLayout>
     );
 }

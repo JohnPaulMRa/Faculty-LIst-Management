@@ -103,7 +103,7 @@ const DisciplineSelector: FC<Props> = ({ value, onChange, placeholder = "Select 
                 <SelectTrigger className="w-full shrink-0 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900 rounded-none">
                     <SelectValue placeholder="Select Major Group" />
                 </SelectTrigger>
-                <SelectContent className="max-h-[300px]">
+                <SelectContent className="max-h-[200px] overflow-y-scroll">
                     {groups.map((group: any) => (
                         <SelectItem key={group.code} value={group.code}>
                             {group.desc}
@@ -137,7 +137,7 @@ const DisciplineSelector: FC<Props> = ({ value, onChange, placeholder = "Select 
                             )}
                         </span>
                     </SelectTrigger>
-                    <SelectContent className="max-h-[300px] min-w-[300px]">
+                    <SelectContent className="max-h-[200px] min-w-[300px] overflow-y-scroll">
                         {currentDisciplines.map((item: any) => (
                             <SelectItem key={item.code} value={item.code}>
                                 {item.desc}

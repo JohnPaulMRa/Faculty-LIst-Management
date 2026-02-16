@@ -55,9 +55,9 @@ function SelectContent({
       <SelectPrimitive.Content
         data-slot="select-content"
         className={cn(
-          "bg-popover text-popover-foreground relative z-50 max-h-[300px] min-w-32 overflow-y-auto overflow-x-hidden rounded-md border shadow-md",
+          "bg-popover text-popover-foreground relative z-50 max-h-[200px] min-w-32 overflow-y-scroll overflow-x-hidden rounded-md border shadow-md",
           position === "popper" &&
-            "data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1",
+          "data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1",
           className
         )}
         position={position}
@@ -67,7 +67,7 @@ function SelectContent({
           className={cn(
             "p-1",
             position === "popper" &&
-              "w-full min-w-(--radix-select-trigger-width)"
+            "w-full min-w-(--radix-select-trigger-width)"
           )}
         >
           {children}

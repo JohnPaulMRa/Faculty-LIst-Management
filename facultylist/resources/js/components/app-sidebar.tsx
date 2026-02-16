@@ -1,5 +1,5 @@
-import { Link } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid } from 'lucide-react';
+import { Link, usePage } from '@inertiajs/react';
+import { BookOpen, Folder, LayoutGrid, LayoutDashboard, Users } from 'lucide-react';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
@@ -13,7 +13,8 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { facultyprofile } from '@/routes';
-import type { NavItem } from '@/types';
+import admin from '@/routes/admin';
+import type { NavItem, SharedData } from '@/types';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
@@ -25,11 +26,7 @@ const mainNavItems: NavItem[] = [
 ];
 
 const footerNavItems: NavItem[] = [
-    {
-        title: 'Repository',
-        href: '',
-        icon: Folder,
-    },
+
     {
         title: 'Documentation',
         href: '',
@@ -38,6 +35,29 @@ const footerNavItems: NavItem[] = [
 ];
 
 export function AppSidebar() {
+    const { auth } = usePage<SharedData>().props;
+    const user = auth.user;
+
+    const navItems = user.role === 'Admin'
+        ? [
+            {
+                title: 'Admin Dashboard',
+                href: admin.dashboard(),
+                icon: LayoutDashboard,
+            },
+            {
+                title: 'Faculty List',
+                href: admin.facultyList(),
+                icon: Users,
+            },
+            {
+                title: 'Disciplines',
+                href: admin.disciplines(),
+                icon: BookOpen,
+            },
+        ]
+        : mainNavItems;
+
     return (
         <Sidebar collapsible="icon" variant="inset">
             <SidebarHeader>
@@ -53,7 +73,7 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain items={mainNavItems} />
+                <NavMain items={navItems} />
             </SidebarContent>
 
             <SidebarFooter>
