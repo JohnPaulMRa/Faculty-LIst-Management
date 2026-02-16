@@ -5,7 +5,7 @@ export type Faculty = {
     department: string;
     rank: string;
     degree: string;
-    status: 'Completed' | 'No Submission' | 'Not Yet Completed'; 
+    status: 'Completed' | 'No Submission' | 'Not Yet Completed' | 'Updated' | 'Not Updated'; 
     employment: 'Plantilla' | 'Contract of Service' | 'Part-time';
     avatar_initials: string;
     joined_year: string;

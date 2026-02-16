@@ -6,6 +6,28 @@ use Illuminate\Http\Request;
 
 class FacultyController extends Controller
 {
+    private function getReferenceData()
+    {
+        return [
+            'gender' => \Illuminate\Support\Facades\DB::table('e5_ref_gender')->select('code', 'description as desc')->get(),
+            'fullTimePartTime' => \Illuminate\Support\Facades\DB::table('e5_ref_full_time_part_time')->select('code', 'description as desc')->get(),
+            'highestDegree' => \Illuminate\Support\Facades\DB::table('e5_ref_highest_degree')->select('code', 'description as desc')->get(),
+            'professionalLicense' => \Illuminate\Support\Facades\DB::table('e5_ref_professional_license')->select('code', 'description as desc')->get(),
+            'tenure' => \Illuminate\Support\Facades\DB::table('e5_ref_tenure')->select('code', 'description as desc')->get(),
+            'facultyRank' => \Illuminate\Support\Facades\DB::table('e5_ref_faculty_rank')->select('code', 'description as desc')->get(),
+            'teachingLoad' => \Illuminate\Support\Facades\DB::table('e5_ref_teaching_load')->select('code', 'description as desc')->get(),
+            'annualSalary' => \Illuminate\Support\Facades\DB::table('e5_ref_annual_salary')->select('code', 'description as desc')->get(),
+            'groupDiscipline' => \Illuminate\Support\Facades\DB::table('ref_major_discipline')
+                ->select('code', 'description as desc')
+                ->orderBy('code')
+                ->get(),
+            'disciplines' => \Illuminate\Support\Facades\DB::table('ref_specific_discipline')
+                ->select('major_discipline_code as major_group_code', 'code', 'description as desc')
+                ->orderBy('code')
+                ->get()
+        ];
+    }
+
     public function index(Request $request)
     {
         // Auto-seed logic removed
@@ -29,33 +51,7 @@ class FacultyController extends Controller
         }
 
         // Fetch Reference Data from Database
-        $referenceData = [
-            'gender' => \Illuminate\Support\Facades\DB::table('e5_ref_gender')->select('code', 'description as desc')->get(),
-            'fullTimePartTime' => \Illuminate\Support\Facades\DB::table('e5_ref_full_time_part_time')->select('code', 'description as desc')->get(),
-            'highestDegree' => \Illuminate\Support\Facades\DB::table('e5_ref_highest_degree')->select('code', 'description as desc')->get(),
-            'professionalLicense' => \Illuminate\Support\Facades\DB::table('e5_ref_professional_license')->select('code', 'description as desc')->get(),
-            'tenure' => \Illuminate\Support\Facades\DB::table('e5_ref_tenure')->select('code', 'description as desc')->get(),
-            'facultyRank' => \Illuminate\Support\Facades\DB::table('e5_ref_faculty_rank')->select('code', 'description as desc')->get(),
-            'teachingLoad' => \Illuminate\Support\Facades\DB::table('e5_ref_teaching_load')->select('code', 'description as desc')->get(),
-            'annualSalary' => \Illuminate\Support\Facades\DB::table('e5_ref_annual_salary')->select('code', 'description as desc')->get(),
-
-            // Simplified disciplines for direct controller injection (Static for now as no table exists yet)
-            // Simplified disciplines for direct controller injection (Now Dynamic)
-            'groupDiscipline' => \Illuminate\Support\Facades\DB::table('ref_major_discipline')
-                ->select('code', 'description as desc')
-                ->orderBy('code')
-                ->get(),
-
-            // Dynamic disciplines
-            // 'disciplines' => collect([]), // No sub-disciplines (removed mock)
-
-            'disciplines' => \Illuminate\Support\Facades\DB::table('ref_specific_discipline')
-                // Note: Frontend likely expects `major_group_code`
-                ->select('major_discipline_code as major_group_code', 'code', 'description as desc')
-                ->orderBy('code')
-                ->get()
-            // ->groupBy('major_group_code') // Flattened for easier frontend filtering
-        ];
+        $referenceData = $this->getReferenceData();
 
         $facultyData = $query->get();
 
@@ -71,6 +67,17 @@ class FacultyController extends Controller
             'filters' => $request->only(['search', 'year']),
             'referenceData' => $referenceData,
             'availableYears' => $availableYears
+        ]);
+    }
+
+    public function edit($id)
+    {
+        $faculty = \App\Models\Faculty::findOrFail($id);
+        $referenceData = $this->getReferenceData();
+
+        return \Inertia\Inertia::render('Faculty/Edit', [
+            'faculty' => $faculty,
+            'referenceData' => $referenceData,
         ]);
     }
 

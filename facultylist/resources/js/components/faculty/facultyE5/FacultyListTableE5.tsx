@@ -1,9 +1,11 @@
+import { Link } from '@inertiajs/react';
 import {
     Trash2,
     Eye,
 } from 'lucide-react';
 import type { FC } from 'react';
 import type { Faculty } from '@/types/faculty';
+import { edit } from '@/routes/faculty';
 
 type Props = {
     facultyList: Faculty[];
@@ -32,21 +34,21 @@ const FacultyListTableE5: FC<Props> = ({ facultyList, yearFilter, onFileClick, o
     const getEmploymentStatus = (faculty: Faculty) => {
         // Prefer code lookup if available
         if (faculty.fullTimeCode) {
-           const found = referenceData?.fullTimePartTime?.find((f: any) => f.code == faculty.fullTimeCode);
-           if (found) {
-               // Simplify long descriptions for the table
-               const desc = found.desc.toLowerCase();
-               if (desc.includes('full-time')) return 'Full-Time';
-               if (desc.includes('half-time')) return 'Half-Time';
-               if (desc.includes('student')) return 'Student Employee';
-               if (desc.includes('teaching fellow')) return 'Teaching Fellow';
-               if (desc.includes('lecturer')) return 'Lecturer';
-               if (desc.includes('part-time')) return 'Part-Time';
-               if (desc.includes('not known')) return 'Unknown';
-               
-               // Fallback to full desc for unexpected cases
-               return found.desc;
-           }
+            const found = referenceData?.fullTimePartTime?.find((f: any) => f.code == faculty.fullTimeCode);
+            if (found) {
+                // Simplify long descriptions for the table
+                const desc = found.desc.toLowerCase();
+                if (desc.includes('full-time')) return 'Full-Time';
+                if (desc.includes('half-time')) return 'Half-Time';
+                if (desc.includes('student')) return 'Student Employee';
+                if (desc.includes('teaching fellow')) return 'Teaching Fellow';
+                if (desc.includes('lecturer')) return 'Lecturer';
+                if (desc.includes('part-time')) return 'Part-Time';
+                if (desc.includes('not known')) return 'Unknown';
+
+                // Fallback to full desc for unexpected cases
+                return found.desc;
+            }
         }
         // Fallback to stored text
         return faculty.employment === 'Plantilla' ? 'Full-Time' : faculty.employment;
@@ -73,48 +75,48 @@ const FacultyListTableE5: FC<Props> = ({ facultyList, yearFilter, onFileClick, o
                         </tr>
                     </thead>
                     <tbody className="bg-white text-sm ">
-                    {facultyList.length > 0 ? (
-                        facultyList.map((faculty, index) => (
-                            <tr key={faculty.id} className="border-b border-gray-300 hover:bg-gray-100 transition-colors">
-                                <td className="px-3 py-2 text-center text-black">{index + 1}</td>
-                                <td className="px-3 py-2 text-center text-black">{faculty.joined_year}</td>
-                                <td className="px-3 py-2 text-center font-medium text-black">{faculty.name}</td>
-                                <td className="px-3 py-2 text-center text-black">{getGender(faculty.genderCode)}</td>
-                                <td className="px-3 py-2 text-center text-black">
-                                    {getEmploymentStatus(faculty)}
-                                </td>
-                                <td className="px-3 py-2 text-center">
-                                    <span className={`text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-none font-bold ${getStatusBadge(faculty.status)}`}>
-                                        {faculty.status}
-                                    </span>
-                                </td>
-                                <td className="px-3 py-2 font-bold text-center">
-                                    <div className="flex items-center justify-center gap-2">
-                                        <button 
-                                            onClick={() => onEdit(faculty)}
-                                            className="flex items-center gap-1 text-black-600 hover:text-black transition-colors bg-blue-50 px-2 py-1.5 rounded-none border border-blue-200 text-xs font-semibold"
-                                            title="View Profile"
-                                        >
-                                            <Eye className="h-3 w-3" /> View Profile
-                                        </button>
-                                        <button 
-                                            onClick={() => onDelete(faculty.id)}
-                                            className="flex items-center gap-1 text-red-600 hover:text-red-800 transition-colors bg-red-50 px-2 py-1.5 rounded-none border border-red-200 text-xs font-semibold"
-                                            title="Delete"
-                                        >
-                                            <Trash2 className="h-3 w-3" /> Delete
-                                        </button>
-                                    </div>
+                        {facultyList.length > 0 ? (
+                            facultyList.map((faculty, index) => (
+                                <tr key={faculty.id} className="border-b border-gray-300 hover:bg-gray-100 transition-colors">
+                                    <td className="px-3 py-2 text-center text-black">{index + 1}</td>
+                                    <td className="px-3 py-2 text-center text-black">{faculty.joined_year}</td>
+                                    <td className="px-3 py-2 text-center font-medium text-black">{faculty.name}</td>
+                                    <td className="px-3 py-2 text-center text-black">{getGender(faculty.genderCode)}</td>
+                                    <td className="px-3 py-2 text-center text-black">
+                                        {getEmploymentStatus(faculty)}
+                                    </td>
+                                    <td className="px-3 py-2 text-center">
+                                        <span className={`text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-none font-bold ${getStatusBadge(faculty.status)}`}>
+                                            {faculty.status}
+                                        </span>
+                                    </td>
+                                    <td className="px-3 py-2 font-bold text-center">
+                                        <div className="flex items-center justify-center gap-2">
+                                            <Link
+                                                href={edit({ id: faculty.id }).url}
+                                                className="flex items-center gap-1 text-black-600 hover:text-black transition-colors bg-blue-50 px-2 py-1.5 rounded-none border border-blue-200 text-xs font-semibold"
+                                                title="Edit Profile"
+                                            >
+                                                <Eye className="h-3 w-3" /> Edit Profile
+                                            </Link>
+                                            <button
+                                                onClick={() => onDelete(faculty.id)}
+                                                className="flex items-center gap-1 text-red-600 hover:text-red-800 transition-colors bg-red-50 px-2 py-1.5 rounded-none border border-red-200 text-xs font-semibold"
+                                                title="Delete"
+                                            >
+                                                <Trash2 className="h-3 w-3" /> Delete
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan={7} className="px-6 py-8 text-center text-gray-500 text-sm border border-gray-300 bg-gray-50">
+                                    No records found for {yearFilter}.
                                 </td>
                             </tr>
-                        ))
-                    ) : (
-                        <tr>
-                            <td colSpan={7} className="px-6 py-8 text-center text-gray-500 text-sm border border-gray-300 bg-gray-50">
-                                No records found for {yearFilter}.
-                            </td>
-                        </tr>
-                    )}
+                        )}
                     </tbody>
                 </table>
             </div>

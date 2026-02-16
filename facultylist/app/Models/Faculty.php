@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Faculty extends Model
 {
     protected $fillable = [
+        'school_id',
         'name',
         'email',
         'department',
@@ -34,4 +35,12 @@ class Faculty extends Model
         'loadCode',
         'subjects',
     ];
+
+    /**
+     * Get the school that the faculty belongs to.
+     */
+    public function school()
+    {
+        return $this->belongsTo(School::class);
+    }
 }

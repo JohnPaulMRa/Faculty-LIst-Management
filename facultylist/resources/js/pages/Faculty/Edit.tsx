@@ -1,25 +1,21 @@
-import { Save, X, ChevronLeft, ChevronRight, Plus } from 'lucide-react';
-import type { FC } from 'react';
+import { Head, useForm, router } from '@inertiajs/react';
+import { Save, Loader2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import type { FC } from 'react';
+
+import AppLayout from '@/layouts/app-layout';
 import { Button } from '@/components/ui/button';
-import { DialogClose } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
+import { FacultyProfileCardsE5 } from '@/components/faculty/facultyE5/FacultyProfileCardsE5';
 import type { Faculty } from '@/types/faculty';
-import DisciplineSelector from './DisciplineSelector';
-import { FacultyProfileCardsE5 } from './FacultyProfileCardsE5';
-import ReferenceTableE5 from './ReferenceTableE5';
+import { update } from '@/routes/faculty';
+import { facultyprofile } from '@/routes';
 
-
-type Props = {
-    faculty?: Faculty;
-    onSave?: (data: any) => void;
-    onCancel?: () => void;
+interface EditProps {
+    faculty: Faculty;
     referenceData: any;
-};
+}
 
-const FacultyFormE5: FC<Props> = ({ faculty, onSave, referenceData }) => {
-    const [activeTab, setActiveTab] = useState('DataEntry');
-    // ... (rest of state omitted for brevity, logic remains same)
+const Edit: FC<EditProps> = ({ faculty, referenceData }) => {
     const [formData, setFormData] = useState({
         name: faculty?.name || '',
         fullTimeCode: faculty?.fullTimeCode || '',
@@ -42,30 +38,27 @@ const FacultyFormE5: FC<Props> = ({ faculty, onSave, referenceData }) => {
         status: faculty?.status || ''
     });
 
-    // Helper to normalize code/description values
+    const [processing, setProcessing] = useState(false);
+
+    // Helper to normalize code/description values (copied from FormE5)
     const normalizeCode = (list: { code: string, desc: string }[], value?: string) => {
         if (!value || !list) return value || '';
-
-        // precise match for code
         if (list.some(item => item.code === value)) return value;
-
-        // fallback: try to find by description (case-insensitive, trimmed)
         const found = list.find(item => item.desc.trim().toLowerCase() === value.trim().toLowerCase());
-
         return found ? found.code : value;
     };
 
-    // Update form data when faculty prop changes
+    // Initialize/Normalize data
     useEffect(() => {
         if (faculty) {
             setFormData({
                 name: faculty.name || '',
                 fullTimeCode: normalizeCode(referenceData?.fullTimePartTime, faculty.fullTimeCode),
                 genderCode: normalizeCode(referenceData?.gender, faculty.genderCode),
-                disciplineCode: faculty.disciplineCode || '', // Discipline is distinct, keeping as is
+                disciplineCode: faculty.disciplineCode || '',
                 degree: normalizeCode(referenceData?.highestDegree, faculty.degree),
                 bachelors: faculty.bachelors || '',
-                bachelorsCode: faculty.bachelorsCode || '', // Discipline codes are complex, skipping simple normalization
+                bachelorsCode: faculty.bachelorsCode || '',
                 masters: faculty.masters || '',
                 mastersCode: faculty.mastersCode || '',
                 doctorate: faculty.doctorate || '',
@@ -86,7 +79,7 @@ const FacultyFormE5: FC<Props> = ({ faculty, onSave, referenceData }) => {
         setFormData(prev => ({ ...prev, [field]: value }));
     };
 
-    // Auto-calculate status based on form completion
+    // Auto-calculate status
     useEffect(() => {
         const requiredFields = [
             formData.name,
@@ -102,7 +95,6 @@ const FacultyFormE5: FC<Props> = ({ faculty, onSave, referenceData }) => {
             formData.subjects
         ];
 
-        // Check if all required fields are truthy and not empty strings
         const isComplete = requiredFields.every(field => field && field.trim() !== '');
         const newStatus = isComplete ? 'Updated' : 'Not Updated';
 
@@ -124,40 +116,13 @@ const FacultyFormE5: FC<Props> = ({ faculty, onSave, referenceData }) => {
     ]);
 
     const handleSave = () => {
-        // If status is manually set (and valid), use it.
-        // Otherwise, fallback to auto-calculation logic (or keep as is if we want strict manual control now)
-        // Let's defer to user selection if present.
-
-        let finalStatus = formData.status;
-
-        // If no status is selected/set, we can try to auto-calculate or default to "Not Updated"
-        if (!finalStatus) {
-            // Required fields based on "Form E5" completeness
-            const requiredFields = [
-                formData.name,
-                formData.fullTimeCode,
-                formData.genderCode,
-                formData.disciplineCode, // Primary Discipline
-                // formData.degree, // Not strictly a code, but maybe required
-                formData.licenseCode,
-                formData.tenureCode,
-                formData.rankCode,
-                formData.loadCode,
-                formData.salaryCode,
-                formData.subjects
-            ];
-
-            // Check if all required fields are truthy and not empty strings
-            const isComplete = requiredFields.every(field => field && field.trim() !== '');
-            finalStatus = isComplete ? 'Updated' : 'Not Updated';
-        }
+        setProcessing(true);
 
         // Helper to get description for syncing legacy string fields
         const getDesc = (list: { code: string, desc: string }[], code?: string) => {
             return list?.find(item => item.code === code)?.desc || '';
         };
 
-        // Helper for discipline descriptions (from flat list)
         const getDisciplineDesc = (code?: string) => {
             const disciplines = referenceData?.disciplines as { code: string, desc: string }[];
             return disciplines?.find(item => item.code === code)?.desc || '';
@@ -168,62 +133,59 @@ const FacultyFormE5: FC<Props> = ({ faculty, onSave, referenceData }) => {
             ...formData,
             rank: getDesc(referenceData?.facultyRank, formData.rankCode) || faculty?.rank || '',
             employment: getDesc(referenceData?.fullTimePartTime, formData.fullTimeCode) || faculty?.employment || '',
-
-            // Sync Degree Strings
             bachelors: getDisciplineDesc(formData.bachelorsCode) || faculty?.bachelors || '',
             masters: getDisciplineDesc(formData.mastersCode) || faculty?.masters || '',
             doctorate: getDisciplineDesc(formData.doctorateCode) || faculty?.doctorate || ''
         };
 
-        onSave?.({
-            ...faculty,
-            ...syncedData,
-            status: finalStatus,
-            activeTab
-        } as any);
+        router.put(update({ id: faculty.id }).url, syncedData, {
+            onSuccess: () => {
+                setProcessing(false);
+                // Redirect back to Faculty Profile page
+                router.visit(facultyprofile().url);
+            },
+            onError: () => {
+                setProcessing(false);
+                alert("Failed to update faculty.");
+            }
+        });
     };
 
+    const breadcrumbs = [
+        { title: 'Faculty Profile', href: facultyprofile().url },
+        { title: 'Edit Faculty', href: '#' },
+    ];
+
     return (
-        <div className="flex flex-col h-full w-full bg-gray-50">
-            {/* Header */}
-            <div className="bg-white text-gray-900 px-6 py-4 flex justify-between items-center border-b border-gray-200 shrink-0">
-                <h2 className="text-lg font-bold uppercase tracking-tight">Faculty Details</h2>
-                <div className="flex items-center gap-2">
-                    <DialogClose className="h-8 w-8 flex items-center justify-center text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-none transition-colors">
-                        <X className="h-5 w-5" />
-                    </DialogClose>
+        <AppLayout breadcrumbs={breadcrumbs}>
+            <Head title={`Edit Faculty - ${faculty.name}`} />
+
+            <div className="flex flex-1 flex-col gap-4 w-full p-4 md:px-8 max-w-7xl mx-auto">
+                <div className="flex justify-between items-center">
+                    <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-100">
+                        Edit Faculty Details
+                    </h1>
+                    <Button
+                        onClick={handleSave}
+                        disabled={processing}
+                        className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                    >
+                        {processing ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
+                        Save Changes
+                    </Button>
+                </div>
+
+                <div className="bg-white dark:bg-zinc-900 border shadow-sm p-6">
+                    <FacultyProfileCardsE5
+                        formData={formData}
+                        handleChange={handleChange}
+                        referenceData={referenceData}
+                        readOnly={false}
+                    />
                 </div>
             </div>
-
-
-
-            <div className="flex-1 overflow-hidden relative">
-                {activeTab === 'Reference' ? (
-                    <ReferenceTableE5 referenceData={referenceData} />
-                ) : (
-                    <div className="h-full overflow-auto p-4 bg-gray-50">
-                        <FacultyProfileCardsE5
-                            formData={formData}
-                            handleChange={handleChange}
-                            readOnly={false}
-                            referenceData={referenceData}
-                        />
-                    </div>
-                )}
-            </div>
-
-            {/* Footer */}
-            <div className="bg-white p-4 border-t border-gray-200 flex justify-end shrink-0">
-                <Button
-                    size="sm"
-                    className="h-9 px-6 bg-emerald-600 hover:bg-emerald-700 text-white border-0 rounded-none font-semibold flex items-center gap-2 shadow-sm transition-all"
-                    onClick={handleSave}
-                >
-                    <Save className="h-4 w-4" /> Update
-                </Button>
-            </div>
-        </div>
+        </AppLayout>
     );
 };
 
-export default FacultyFormE5;
+export default Edit;

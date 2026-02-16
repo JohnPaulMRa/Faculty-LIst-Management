@@ -41,8 +41,8 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
     };
 
     const cardClass = readOnly
-        ? "space-y-3"
-        : "bg-white p-4 border border-gray-200 shadow-sm space-y-3";
+        ? "space-y-4"
+        : "bg-white p-5 border border-gray-200 shadow-sm space-y-4";
 
     return (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
@@ -83,7 +83,7 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                                         {formData.fullTimeCode ? getDesc(referenceData.fullTimePartTime, formData.fullTimeCode) : <span className="text-muted-foreground">Select Status</span>}
                                     </span>
                                 </SelectTrigger>
-                                <SelectContent className="max-h-[200px] overflow-y-scroll">
+                                <SelectContent className="max-h-[200px]">
                                     {referenceData.fullTimePartTime.map((item: any) => (
                                         <SelectItem key={item.code} value={item.code} className="whitespace-normal">
                                             {item.desc}
@@ -113,7 +113,7 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                                         {formData.genderCode ? getDesc(referenceData.gender, formData.genderCode) : <span className="text-muted-foreground">Select Gender</span>}
                                     </span>
                                 </SelectTrigger>
-                                <SelectContent className="max-h-[200px] overflow-y-scroll">
+                                <SelectContent className="max-h-[200px]">
                                     {referenceData.gender.map((item: any) => (
                                         <SelectItem key={item.code} value={item.code}>
                                             {item.desc}
@@ -131,6 +131,7 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                             disabled={readOnly}
                             className="opacity-100 disabled:opacity-100 disabled:bg-white text-gray-900 rounded-none"
                             referenceData={referenceData}
+                            showGroup={false}
                         />
                     </div>
                 </div>
@@ -160,7 +161,7 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                                         {formData.degree ? getDesc(referenceData.highestDegree, formData.degree) : <span className="text-muted-foreground">Select Degree</span>}
                                     </span>
                                 </SelectTrigger>
-                                <SelectContent className="max-h-[200px] overflow-y-scroll">
+                                <SelectContent className="max-h-[200px]">
                                     {referenceData.highestDegree.map((item: any) => (
                                         <SelectItem key={item.code} value={item.code}>
                                             {item.desc}
@@ -181,6 +182,7 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                             disabled={readOnly}
                             className="opacity-100 disabled:opacity-100 disabled:bg-white text-gray-900 rounded-none"
                             referenceData={referenceData}
+                            showGroup={false}
                         />
                     </div>
                     <div className="grid gap-1 col-span-2">
@@ -194,6 +196,7 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                             disabled={readOnly}
                             className="opacity-100 disabled:opacity-100 disabled:bg-white text-gray-900 rounded-none"
                             referenceData={referenceData}
+                            showGroup={false}
                         />
                     </div>
                     <div className="grid gap-1 col-span-2">
@@ -207,6 +210,7 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                             disabled={readOnly}
                             className="opacity-100 disabled:opacity-100 disabled:bg-white text-gray-900 rounded-none"
                             referenceData={referenceData}
+                            showGroup={false}
                         />
                     </div>
                 </div>
@@ -236,7 +240,7 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                                         {formData.licenseCode ? getDesc(referenceData.professionalLicense, formData.licenseCode) : <span className="text-muted-foreground">Select License</span>}
                                     </span>
                                 </SelectTrigger>
-                                <SelectContent className="max-h-[200px] overflow-y-scroll">
+                                <SelectContent className="max-h-[200px]">
                                     {referenceData.professionalLicense.map((item: any) => (
                                         <SelectItem key={item.code} value={item.code}>
                                             {item.desc}
@@ -267,7 +271,7 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                                         {formData.rankCode ? getDesc(referenceData.facultyRank, formData.rankCode) : <span className="text-muted-foreground">Select Rank</span>}
                                     </span>
                                 </SelectTrigger>
-                                <SelectContent className="max-h-[200px] overflow-y-scroll">
+                                <SelectContent className="max-h-[200px]">
                                     {referenceData.facultyRank.map((item: any) => (
                                         <SelectItem key={item.code} value={item.code}>
                                             {item.desc}
@@ -299,7 +303,7 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                                         {formData.loadCode ? getDesc(referenceData.teachingLoad, formData.loadCode) : <span className="text-muted-foreground">Select Load</span>}
                                     </span>
                                 </SelectTrigger>
-                                <SelectContent className="max-h-[200px] overflow-y-scroll">
+                                <SelectContent className="max-h-[200px]">
                                     {referenceData.teachingLoad.map((item: any) => (
                                         <SelectItem key={item.code} value={item.code}>
                                             {item.desc}
@@ -329,7 +333,7 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                                         {formData.salaryCode ? getDesc(referenceData.annualSalary, formData.salaryCode) : <span className="text-muted-foreground">Select Salary</span>}
                                     </span>
                                 </SelectTrigger>
-                                <SelectContent className="max-h-[200px] overflow-y-scroll">
+                                <SelectContent className="max-h-[200px]">
                                     {referenceData.annualSalary.map((item: any) => (
                                         <SelectItem key={item.code} value={item.code}>
                                             {item.desc}
@@ -361,7 +365,7 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                                         {formData.tenureCode ? getDesc(referenceData.tenure, formData.tenureCode) : <span className="text-muted-foreground">Select Tenure</span>}
                                     </span>
                                 </SelectTrigger>
-                                <SelectContent className="max-h-[200px] overflow-y-scroll">
+                                <SelectContent className="max-h-[200px]">
                                     {referenceData.tenure.map((item: any) => (
                                         <SelectItem key={item.code} value={item.code}>
                                             {item.desc}

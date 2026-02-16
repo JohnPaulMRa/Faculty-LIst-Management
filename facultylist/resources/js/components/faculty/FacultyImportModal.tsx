@@ -34,11 +34,11 @@ type Props = {
     onFileImport: (file: File) => void;
 };
 
-const FacultyImportModal: FC<Props> = ({ 
-    isOpen, 
-    onOpenChange, 
-    importType, 
-    setImportType, 
+const FacultyImportModal: FC<Props> = ({
+    isOpen,
+    onOpenChange,
+    importType,
+    setImportType,
     importGroup,
     setImportGroup,
     importYear,
@@ -51,7 +51,7 @@ const FacultyImportModal: FC<Props> = ({
         const file = event.target.files?.[0];
         if (file) {
             onFileImport(file);
-            event.target.value = ''; 
+            event.target.value = '';
         }
     };
 
@@ -73,25 +73,25 @@ const FacultyImportModal: FC<Props> = ({
                         <Select value={importType} onValueChange={(val: any) => setImportType(val)}>
                             <SelectTrigger><SelectValue placeholder="Select Form" /></SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="E5">FORM E-5: Private / LUC</SelectItem>
-                                <SelectItem value="E2">FORM E-2: Public / SUC</SelectItem>
+                                <SelectItem value="E5">FORM E5: Private / LUC</SelectItem>
+                                <SelectItem value="E2">FORM E2: SUC</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
 
                     <div className="space-y-2">
-                            <Label>Academic Year</Label>
-                            <div className="relative">
-                                <Input 
-                                    value={importYear} 
-                                    readOnly 
-                                    disabled
-                                    className="bg-gray-100 text-gray-500 cursor-not-allowed border-gray-200" 
-                                />
-                            </div>
-                            <p className="text-xs text-gray-500">Records will be tagged with this academic year.</p>
+                        <Label>Academic Year</Label>
+                        <div className="relative">
+                            <Input
+                                value={importYear}
+                                readOnly
+                                disabled
+                                className="bg-gray-100 text-gray-500 cursor-not-allowed border-gray-200"
+                            />
                         </div>
-                    
+                        <p className="text-xs text-gray-500">Records will be tagged with this academic year.</p>
+                    </div>
+
                     {/* Group Selection - ONLY for E2 */}
                     {importType === 'E2' && (
                         <div className="space-y-2">

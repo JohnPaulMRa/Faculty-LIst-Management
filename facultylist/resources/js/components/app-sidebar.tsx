@@ -27,11 +27,6 @@ const mainNavItems: NavItem[] = [
 
 const footerNavItems: NavItem[] = [
 
-    {
-        title: 'Documentation',
-        href: '',
-        icon: BookOpen,
-    },
 ];
 
 export function AppSidebar() {

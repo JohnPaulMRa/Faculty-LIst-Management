@@ -21,10 +21,19 @@ type Props = {
     placeholder?: string;
     className?: string;
     disabled?: boolean;
-    referenceData?: any; // Made optional to avoid breaking if not passed immediately, but generally required
+    referenceData?: any;
+    showGroup?: boolean;
 };
 
-const DisciplineSelector: FC<Props> = ({ value, onChange, placeholder = "Select Discipline", className, disabled, referenceData }) => {
+const DisciplineSelector: FC<Props> = ({
+    value,
+    onChange,
+    placeholder = "Select Discipline",
+    className,
+    disabled,
+    referenceData,
+    showGroup = true
+}) => {
     const [selectedGroup, setSelectedGroup] = useState<string>("");
 
     // Safe access to reference data
@@ -57,17 +66,12 @@ const DisciplineSelector: FC<Props> = ({ value, onChange, placeholder = "Select 
         // Debug logging to verify data reception
         if (!referenceData) {
             console.warn("DisciplineSelector: No referenceData provided");
-        } else {
-            console.log("DisciplineSelector: Loaded groups:", groups.length);
-            console.log("DisciplineSelector: Loaded total disciplines:", allDisciplines.length);
         }
 
         if (value && referenceData) {
             const group = findDisciplineGroup(value);
             if (group) {
                 setSelectedGroup(group);
-            } else {
-                console.warn("DisciplineSelector: Could not find group for value:", value);
             }
         }
     }, [value, referenceData]);
@@ -86,7 +90,9 @@ const DisciplineSelector: FC<Props> = ({ value, onChange, placeholder = "Select 
     };
 
     // Filter disciplines for the selected group
-    const currentDisciplines = allDisciplines.filter(d => d.major_group_code === selectedGroup);
+    const currentDisciplines = showGroup
+        ? allDisciplines.filter(d => d.major_group_code === selectedGroup)
+        : allDisciplines;
 
     if (groups.length === 0) {
         return (
@@ -98,19 +104,21 @@ const DisciplineSelector: FC<Props> = ({ value, onChange, placeholder = "Select 
 
     return (
         <div className={`flex flex-col gap-2 w-full ${className}`}>
-            {/* Row 1: Major Group Select (Full Width) */}
-            <Select value={selectedGroup} onValueChange={handleGroupChange} disabled={disabled}>
-                <SelectTrigger className="w-full shrink-0 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900 rounded-none">
-                    <SelectValue placeholder="Select Major Group" />
-                </SelectTrigger>
-                <SelectContent className="max-h-[200px] overflow-y-scroll">
-                    {groups.map((group: any) => (
-                        <SelectItem key={group.code} value={group.code}>
-                            {group.desc}
-                        </SelectItem>
-                    ))}
-                </SelectContent>
-            </Select>
+            {/* Row 1: Major Group Select (Conditional) */}
+            {showGroup && (
+                <Select value={selectedGroup} onValueChange={handleGroupChange} disabled={disabled}>
+                    <SelectTrigger className="w-full shrink-0 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900 rounded-none">
+                        <SelectValue placeholder="Select Major Group" />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-[200px]">
+                        {groups.map((group: any) => (
+                            <SelectItem key={group.code} value={group.code}>
+                                {group.desc}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            )}
 
             {/* Row 2: Code + Specific Discipline */}
             <div className="flex gap-2 w-full">
@@ -123,21 +131,24 @@ const DisciplineSelector: FC<Props> = ({ value, onChange, placeholder = "Select 
                 />
 
                 {/* Specific Discipline Select */}
-                <Select value={value} onValueChange={handleDisciplineChange} disabled={disabled || !selectedGroup}>
+                <Select value={value} onValueChange={handleDisciplineChange} disabled={disabled || (showGroup && !selectedGroup)}>
                     <SelectTrigger className="flex-1 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900 rounded-none">
                         <span className="truncate">
                             {value ? (
                                 (() => {
                                     const d = currentDisciplines.find((d: any) => d.code === value);
                                     if (d) return d.desc;
-                                    return value;
+                                    // Fallback if not in filtered list (e.g. if group changed but value stuck, though typical flow clears it)
+                                    // OR if showGroup is false and we need to look in allDisciplines (which currentDisciplines is)
+                                    const anyD = allDisciplines.find(ad => ad.code === value);
+                                    return anyD ? anyD.desc : value;
                                 })()
                             ) : (
                                 <span className="text-muted-foreground">{placeholder}</span>
                             )}
                         </span>
                     </SelectTrigger>
-                    <SelectContent className="max-h-[200px] min-w-[300px] overflow-y-scroll">
+                    <SelectContent className="max-h-[200px] min-w-[300px]">
                         {currentDisciplines.map((item: any) => (
                             <SelectItem key={item.code} value={item.code}>
                                 {item.desc}
