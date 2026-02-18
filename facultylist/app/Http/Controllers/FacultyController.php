@@ -44,10 +44,10 @@ class FacultyController extends Controller
             });
         }
 
-        // Year Filter
-        if ($request->filled('year') && $request->input('year') !== 'All Years') {
-            // Using LIKE/trim to be robust against "2024-2025 " vs "2024-2025"
-            $query->where('joined_year', 'like', '%' . trim($request->input('year')) . '%');
+        // Year Filter - only apply if a specific year is provided (not empty / "All Years")
+        if ($request->filled('year')) {
+            $year = trim($request->input('year'));
+            $query->where('joined_year', '=', $year);
         }
 
         // Fetch Reference Data from Database
@@ -66,7 +66,8 @@ class FacultyController extends Controller
             'initialFacultyData' => $facultyData,
             'filters' => $request->only(['search', 'year']),
             'referenceData' => $referenceData,
-            'availableYears' => $availableYears
+            'availableYears' => $availableYears,
+            'schoolName' => \App\Models\School::where('is_active', true)->value('name') ?? 'School Name',
         ]);
     }
 
@@ -109,7 +110,10 @@ class FacultyController extends Controller
             // Use updateOrCreate to avoid duplicates if name exists, or just create
             // For now, strict create or basic updateOrCreate on email/name
             \App\Models\Faculty::updateOrCreate(
-                ['name' => $record['name']], // Unique key check
+                [
+                    'name' => $record['name'],
+                    'joined_year' => $record['joined_year'] ?? null // Scope by year
+                ],
                 $record
             );
         }

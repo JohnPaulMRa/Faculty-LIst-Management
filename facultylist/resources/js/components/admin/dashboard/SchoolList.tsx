@@ -3,15 +3,18 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { ChevronRight, Building2 } from 'lucide-react';
 
-const SchoolList: FC = () => {
-    // Mock data for display
-    const schools = [
-        { name: "College of Arts and Sciences", faculty: 45, status: "Active" },
-        { name: "School of Engineering", faculty: 32, status: "Active" },
-        { name: "College of Nursing", faculty: 28, status: "Pending" },
-        { name: "School of Business", faculty: 23, status: "Active" },
-    ];
+interface School {
+    id: number;
+    name: string;
+    faculty: number;
+    status: string;
+}
 
+interface SchoolListProps {
+    schools?: School[];
+}
+
+const SchoolList: FC<SchoolListProps> = ({ schools = [] }) => {
     return (
         <Card className="h-full shadow-none border border-gray-200 rounded-none bg-white flex flex-col">
             <CardHeader className="pb-3 border-b border-gray-100">
@@ -32,8 +35,8 @@ const SchoolList: FC = () => {
             </CardHeader>
             <CardContent className="p-0 flex-1">
                 <div className="divide-y divide-gray-100">
-                    {schools.map((school, index) => (
-                        <div key={index} className="p-4 flex items-center justify-between hover:bg-gray-50 transition-colors cursor-pointer group">
+                    {schools.map((school) => (
+                        <div key={school.id} className="p-4 flex items-center justify-between hover:bg-gray-50 transition-colors cursor-pointer group">
                             <div>
                                 <h4 className="text-sm font-semibold text-gray-900 group-hover:text-blue-700 transition-colors">
                                     {school.name}
@@ -43,8 +46,8 @@ const SchoolList: FC = () => {
                                 </p>
                             </div>
                             <div className={`text-[10px] px-2 py-0.5 rounded-full border ${school.status === 'Active'
-                                    ? 'bg-green-50 text-green-700 border-green-200'
-                                    : 'bg-amber-50 text-amber-700 border-amber-200'
+                                ? 'bg-green-50 text-green-700 border-green-200'
+                                : 'bg-amber-50 text-amber-700 border-amber-200'
                                 }`}>
                                 {school.status}
                             </div>

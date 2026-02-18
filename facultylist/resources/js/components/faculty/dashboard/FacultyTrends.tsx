@@ -78,7 +78,7 @@ const FacultyTrends: FC<FacultyTrendsProps> = ({ trends }) => {
                             {trends.years.map((year, index) => (
                                 <Line
                                     key={year}
-                                    type="monotone"
+                                    type="linear"
                                     dataKey={year}
                                     stroke={YEAR_COLORS[index % YEAR_COLORS.length]}
                                     strokeWidth={3}

@@ -160,9 +160,9 @@ const Edit: FC<EditProps> = ({ faculty, referenceData }) => {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={`Edit Faculty - ${faculty.name}`} />
 
-            <div className="flex flex-1 flex-col gap-4 w-full p-4 md:px-8 max-w-7xl mx-auto">
+            <div className="flex flex-1 flex-col gap-15 w-full p-4 md:px-20 max-w-8xl mx-auto">
                 <div className="flex justify-between items-center">
-                    <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-100">
+                    <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-100">
                         Edit Faculty Details
                     </h1>
                     <Button
@@ -175,7 +175,7 @@ const Edit: FC<EditProps> = ({ faculty, referenceData }) => {
                     </Button>
                 </div>
 
-                <div className="bg-white dark:bg-zinc-900 border shadow-sm p-6">
+                <div className="bg-white dark:bg-zinc-900 border shadow-lg p-2">
                     <FacultyProfileCardsE5
                         formData={formData}
                         handleChange={handleChange}

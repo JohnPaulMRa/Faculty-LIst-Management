@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             E5ReferenceDataSeeder::class, // Added to seed E5 reference tables
+            AcademicYearSeeder::class,
             E5FullTimePartTimeSeeder::class, // Added specific seeder for full/part time
             MajorDisciplineSeeder::class,
             DisciplineGroupSeeder::class, // Still needed for other major disciplines

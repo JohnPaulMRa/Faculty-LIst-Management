@@ -9,42 +9,49 @@ use Inertia\Inertia;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // 1. Total Faculty
-        $totalFaculty = Faculty::count();
+        // Get years that actually have faculty data
+        $availableYears = Faculty::select('joined_year')
+            ->whereNotNull('joined_year')
+            ->where('joined_year', '!=', '')
+            ->distinct()
+            ->orderBy('joined_year', 'desc')
+            ->pluck('joined_year');
 
-        // 2. Licensed Faculty (Assuming licenseCode is used, or check logical rule)
-        // Check if `licenseCode` is not null or empty/zero if that's the rule
-        // Or check `professional_license` string if that's used.
-        // Based on FacultyController reference data, `e5_ref_professional_license` exists.
-        // We'll count where licenseCode is NOT null or empty.
-        $licensedFaculty = Faculty::whereNotNull('licenseCode')
+        // Default to the most recent year with actual faculty data
+        $defaultYear = $availableYears->first() ?? 'All Years';
+        $selectedYear = $request->input('year', $defaultYear);
+
+        // Base Query Scope
+        $filter = function ($query) use ($selectedYear) {
+            if ($selectedYear && $selectedYear !== 'All Years') {
+                $query->where('joined_year', $selectedYear);
+            }
+        };
+
+        // 1. Total Faculty
+        $totalFaculty = Faculty::where($filter)->count();
+
+        // 2. Licensed Faculty
+        $licensedFaculty = Faculty::where($filter)
+            ->whereNotNull('licenseCode')
             ->where('licenseCode', '!=', '')
             ->count();
 
         // 3. Employment Status
-        // Group by `fullTimeCode`.
-        // Codes usually: 1=Full Time, 2=Part Time (Need to verify mapping)
-        // E5FullTimePartTimeSeeder typically has codes.
-        // We'll group by code and map to labels.
-        $employmentStats = Faculty::select('fullTimeCode', DB::raw('count(*) as count'))
+        $employmentStats = Faculty::where($filter)
+            ->select('fullTimeCode', DB::raw('count(*) as count'))
             ->groupBy('fullTimeCode')
             ->pluck('count', 'fullTimeCode');
 
-        // Map codes to simplistic "Full Time" vs "Part Time" for the chart
-        // Assuming '1' is Full Time, others are Part Time/Contractual
-        // For accurate mapping, we should query the reference table, but for now:
-        // 1: Full-time permanent? 
-        // We'll fetch the reference map to be sure.
+        // Map codes
         $ftPtRef = DB::table('e5_ref_full_time_part_time')->pluck('description', 'code');
-
         $fullTimeCount = 0;
         $partTimeCount = 0;
 
         foreach ($employmentStats as $code => $count) {
             $desc = $ftPtRef[$code] ?? '';
-            // Simple heuristic based on known seeding or description
             if (stripos($desc, 'full-time') !== false) {
                 $fullTimeCount += $count;
             } else {
@@ -52,24 +59,14 @@ class DashboardController extends Controller
             }
         }
 
-        // 4. Qualifications (Highest Degree)
-        // Group by `highestDegree` (or dictionary code `degreeCode`?)
-        // Faculty model has `degree` (string) and maybe `degreeCode`? 
-        // Step 990 showed `degree` and `bachelorsCode`, `mastersCode`, `doctorateCode`.
-        // It didn't show `input_degree_code` unless `degree` IS the code?
-        // Wait, `FacultyController` uses `highestDegree` ref table.
-        // Let's check `e5_ref_highest_degree` usage.
-        // Faculty model has `degree` field.
-
-        // We will group by the `degree` text if it's stored as text, or try to map.
-        // Let's use `degree` column from `faculties` table.
-        $qualificationStats = Faculty::select('degree', DB::raw('count(*) as count'))
+        // 4. Qualifications
+        $qualificationStats = Faculty::where($filter)
+            ->select('degree', DB::raw('count(*) as count'))
             ->whereNotNull('degree')
             ->where('degree', '!=', '')
             ->groupBy('degree')
             ->get();
 
-        // Map to standard categories for the UI (Doctorate, Masters, Bachelors)
         $qualifications = [
             ['label' => 'Doctorate', 'count' => 0, 'color' => 'bg-purple-500', 'text' => 'text-purple-600'],
             ['label' => 'Masters', 'count' => 0, 'color' => 'bg-blue-500', 'text' => 'text-blue-600'],
@@ -91,12 +88,9 @@ class DashboardController extends Controller
         }
 
         // 5. Teaching Load
-        // Group by `loadCode` or `teachingLoad` status?
-        // Verify Faculty model fields: `loadCode`.
-        // Mapping: 1=Regular, 2=Overload, 3=Underload (Hypothetical, need to check Seeder)
-        // Let's fetch the reference map.
         $loadRef = DB::table('e5_ref_teaching_load')->pluck('description', 'code');
-        $loadStats = Faculty::select('loadCode', DB::raw('count(*) as count'))
+        $loadStats = Faculty::where($filter)
+            ->select('loadCode', DB::raw('count(*) as count'))
             ->groupBy('loadCode')
             ->pluck('count', 'loadCode');
 
@@ -105,19 +99,29 @@ class DashboardController extends Controller
         $underload = 0;
 
         foreach ($loadStats as $code => $count) {
-            $desc = $loadRef[$code] ?? ''; // e.g. "Full Load", "Overload"
+            $desc = $loadRef[$code] ?? '';
             if (stripos($desc, 'overload') !== false) {
                 $overload += $count;
             } elseif (stripos($desc, 'regular') !== false || stripos($desc, 'normal') !== false || stripos($desc, 'full') !== false) {
                 $regularLoad += $count;
             } else {
-                // Assume underload or checking description
                 $underload += $count;
             }
         }
 
         // 6. Employment Trends (Line Graph)
-        // Group by `joined_year` and `fullTimeCode`
+        // Trends are usually historical, but if we filter by a specific year, a trend line might be boring (single point).
+        // However, usually dashboards show trends *up to* the selected year or for the selected year's context.
+        // User request: "fix function on academicYear... get real data".
+        // If I filter trends by ONE year, line graph becomes a dot.
+        // Maybe trends should ignore the filter OR filter *up to* the year?
+        // Or maybe display filtering is only for the "Cards" and "Donuts".
+        // Let's filter the MAIN stats by year.
+        // For trends, let's keep it ALL years to show context, OR maybe filter if requested.
+        // Usually dashboards show "Current Status" (Filtered) vs "Trends" (Historical).
+        // I will keep trends UNFILTERED for now as it makes more sense for a "Trend" graph,
+        // unless filtered by a range.
+
         $trendData = Faculty::select('joined_year', 'fullTimeCode', DB::raw('count(*) as count'))
             ->whereNotNull('joined_year')
             ->groupBy('joined_year', 'fullTimeCode')
@@ -126,34 +130,31 @@ class DashboardController extends Controller
 
         $years = $trendData->pluck('joined_year')->unique()->values()->all();
 
-        // Define Categories and Colors
         $categories = [
-            1 => ['label' => 'full-time employee HEI.', 'color' => '#10b981'], // Emerald-500
-            2 => ['label' => 'half-time employee HEI.', 'color' => '#3b82f6'], // Blue-500
-            3 => ['label' => 'Student employee', 'color' => '#f59e0b'],       // Amber-500
-            4 => ['label' => 'Teaching Fellow', 'color' => '#8b5cf6'],        // Violet-500
-            5 => ['label' => 'part-time', 'color' => '#ef4444'],              // Red-500
-            9 => ['label' => 'Not known', 'color' => '#6b7280'],              // Gray-500
+            1 => ['label' => 'full-time employee HEI.', 'color' => '#10b981'],
+            2 => ['label' => 'half-time employee HEI.', 'color' => '#3b82f6'],
+            3 => ['label' => 'Student employee', 'color' => '#f59e0b'],
+            4 => ['label' => 'Teaching Fellow', 'color' => '#8b5cf6'],
+            5 => ['label' => 'part-time', 'color' => '#ef4444'],
+            9 => ['label' => 'Not known', 'color' => '#6b7280'],
         ];
 
-        // Calculate Total Faculty per Year
         $totalSeriesData = [];
         foreach ($years as $year) {
             $count = $trendData->where('joined_year', $year)->sum('count');
             $totalSeriesData[] = $count;
         }
 
-        // Add Total Faculty Series
+        $series = [];
         $series[] = [
             'name' => 'Total Faculty',
-            'color' => '#000000', // Black for visibility
+            'color' => '#000000',
             'data' => $totalSeriesData
         ];
 
         foreach ($categories as $code => $meta) {
             $dataPoints = [];
             foreach ($years as $year) {
-                // Find count for this year and code
                 $record = $trendData->where('joined_year', $year)->where('fullTimeCode', $code)->first();
                 $dataPoints[] = $record ? $record->count : 0;
             }
@@ -165,7 +166,8 @@ class DashboardController extends Controller
         }
 
         // 7. Gender Stats
-        $genderCounts = Faculty::select('genderCode', DB::raw('count(*) as count'))
+        $genderCounts = Faculty::where($filter)
+            ->select('genderCode', DB::raw('count(*) as count'))
             ->whereIn('genderCode', ['1', '2'])
             ->groupBy('genderCode')
             ->pluck('count', 'genderCode');
@@ -175,14 +177,12 @@ class DashboardController extends Controller
             'female' => $genderCounts['2'] ?? 0,
         ];
 
-        // 8. Status Stats (Updated vs Not Updated)
-        // We check the explicit 'status' column.
-        $statusCounts = Faculty::select('status', DB::raw('count(*) as count'))
+        // 8. Status Stats
+        $statusCounts = Faculty::where($filter)
+            ->select('status', DB::raw('count(*) as count'))
             ->groupBy('status')
             ->pluck('count', 'status');
 
-        // Normalize keys to lower case for safety if needed, but array access is case sensitive
-        // Based on check_status.php, values are "Updated" and "Not Updated"
         $statusStats = [
             'updated' => $statusCounts['Updated'] ?? 0,
             'notUpdated' => $statusCounts['Not Updated'] ?? 0,
@@ -196,8 +196,8 @@ class DashboardController extends Controller
                     'fullTime' => $fullTimeCount,
                     'partTime' => $partTimeCount,
                 ],
-                'gender' => $genderStats, // New
-                'status' => $statusStats, // New
+                'gender' => $genderStats,
+                'status' => $statusStats,
                 'qualifications' => array_values(array_filter($qualifications, fn($q) => $q['count'] > 0)),
                 'teachingLoad' => [
                     'regular' => $regularLoad,
@@ -209,10 +209,8 @@ class DashboardController extends Controller
                     'series' => $series
                 ]
             ],
-            // Pass raw 'dataSets' structure if we want to keep term switching logic, 
-            // but normally we query by term. 
-            // For now, we'll populate '1st Sem' with real data and '2nd Sem' with zeros/mock or same.
-            // Responsive to user request "utilize all on the Faculty on make connection data base".
+            'selectedYear' => $selectedYear, // Pass back to UI
+            'availableYears' => $availableYears,
         ]);
     }
 }

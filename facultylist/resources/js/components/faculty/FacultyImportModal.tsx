@@ -20,6 +20,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { Faculty, IMPORT_GROUP_OPTIONS } from '@/types/faculty';
+import AcademicYearSelect from '@/components/common/AcademicYearSelect';
 
 
 type Props = {
@@ -81,14 +82,7 @@ const FacultyImportModal: FC<Props> = ({
 
                     <div className="space-y-2">
                         <Label>Academic Year</Label>
-                        <div className="relative">
-                            <Input
-                                value={importYear}
-                                readOnly
-                                disabled
-                                className="bg-gray-100 text-gray-500 cursor-not-allowed border-gray-200"
-                            />
-                        </div>
+                        <AcademicYearSelect value={importYear} onValueChange={setImportYear} />
                         <p className="text-xs text-gray-500">Records will be tagged with this academic year.</p>
                     </div>
 

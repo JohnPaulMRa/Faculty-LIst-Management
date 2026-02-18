@@ -8,7 +8,14 @@ import SystemActivity from '@/components/admin/dashboard/SystemActivity';
 import AnalyticsOverview from '@/components/admin/dashboard/AnalyticsOverview';
 
 
-export default function AdminDashboard() {
+interface School {
+    id: number;
+    name: string;
+    faculty: number;
+    status: string;
+}
+
+export default function AdminDashboard({ schools = [] }: { schools: School[] }) {
     const stats = [
         { title: "Total Faculty", value: "128", trend: "+12%" },
         { title: "Total School", value: "128", trend: "+12%" },
@@ -46,7 +53,7 @@ export default function AdminDashboard() {
 
                         {/* School List */}
                         <div className="flex-1 min-h-[300px]">
-                            <SchoolList />
+                            <SchoolList schools={schools} />
                         </div>
                     </div>
 

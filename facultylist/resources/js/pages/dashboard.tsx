@@ -1,5 +1,5 @@
-import { Head } from '@inertiajs/react';
-import React, { useState } from 'react';
+import { Head, router } from '@inertiajs/react';
+import React, { useState, useEffect } from 'react';
 import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
@@ -53,20 +53,38 @@ interface DashboardStats {
 
 interface DashboardProps {
     overview: DashboardStats;
+    selectedYear: string;
+    availableYears: string[];
 }
 
-export default function Dashboard({ overview }: DashboardProps) {
-    const [selectedYear, setSelectedYear] = useState<string>('2024-2025');
+export default function Dashboard({ overview, selectedYear: initialYear, availableYears = [] }: DashboardProps) {
+    const [selectedYear, setSelectedYear] = useState<string>(initialYear);
     const [isLoading, setIsLoading] = useState(false);
+
+    // Sync selectedYear when server sends a new value (after navigation)
+    useEffect(() => {
+        setSelectedYear(initialYear);
+    }, [initialYear]);
 
     // Use the real data from controller
     const data = overview;
 
     const handleRefresh = () => {
         setIsLoading(true);
-        // Simulate reload or use Inertia to reload
-        setTimeout(() => setIsLoading(false), 800);
-        window.location.reload();
+        router.reload({
+            only: ['overview', 'selectedYear'],
+            onFinish: () => setIsLoading(false),
+        });
+    };
+
+    const handleYearChange = (year: string) => {
+        setSelectedYear(year);
+        setIsLoading(true);
+        router.visit(dashboard().url, {
+            data: { year: year === 'All Years' ? '' : year },
+            preserveScroll: true,
+            onFinish: () => setIsLoading(false),
+        });
     };
 
     return (
@@ -77,9 +95,10 @@ export default function Dashboard({ overview }: DashboardProps) {
 
                 <FacultyOverview
                     selectedYear={selectedYear}
-                    onYearChange={setSelectedYear}
+                    onYearChange={handleYearChange}
                     onRefresh={handleRefresh}
                     isLoading={isLoading}
+                    availableYears={availableYears}
                 />
 
                 <FacultyStats stats={data} />

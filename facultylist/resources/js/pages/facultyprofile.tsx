@@ -1,4 +1,5 @@
-import { Head, router } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
+import AlertModal from '@/components/common/AlertModal';
 import {
     ScrollText,
     Calendar,
@@ -46,16 +47,35 @@ interface FacultyProfileProps {
     };
     referenceData: any;
     availableYears?: string[];
+    schoolName?: string;
 }
 
-const FacultyProfile: FC<FacultyProfileProps> = ({ initialFacultyData = [], filters = {}, referenceData, availableYears = [] }) => {
-    const [facultyList, setFacultyList] = useState<Faculty[]>(initialFacultyData);
+const FacultyProfile: FC<FacultyProfileProps> = ({ initialFacultyData = [], filters = {}, referenceData, availableYears = [], schoolName = 'School Name' }) => {
+    const { academicYears } = usePage<any>().props;
     const [searchQuery, setSearchQuery] = useState<string>(filters.search || '');
     const [yearFilter, setYearFilter] = useState<string>(filters.year || 'All Years');
 
-    useEffect(() => {
-        setFacultyList(initialFacultyData);
-    }, [initialFacultyData]);
+    // Client-side filtered list based on yearFilter and searchQuery
+    const filteredFacultyList = useMemo(() => {
+        let list = initialFacultyData;
+
+        // Filter by year
+        if (yearFilter && yearFilter !== 'All Years') {
+            list = list.filter(f => f.joined_year === yearFilter);
+        }
+
+        // Filter by search query (name, degree, rank)
+        if (searchQuery.trim()) {
+            const q = searchQuery.toLowerCase();
+            list = list.filter(f =>
+                (f.name && f.name.toLowerCase().includes(q)) ||
+                (f.degree && f.degree.toLowerCase().includes(q)) ||
+                (f.rank && f.rank.toLowerCase().includes(q))
+            );
+        }
+
+        return list;
+    }, [initialFacultyData, yearFilter, searchQuery]);
 
     // --- STATE ---
     const [isImportModalOpen, setIsImportModalOpen] = useState<boolean>(false);
@@ -66,10 +86,27 @@ const FacultyProfile: FC<FacultyProfileProps> = ({ initialFacultyData = [], filt
     const [selectedFile, setSelectedFile] = useState<Faculty | null>(null);
     const [isFileModalOpen, setIsFileModalOpen] = useState<boolean>(false);
 
+    // Alert/Confirm modal state
+    const [alertModal, setAlertModal] = useState<{
+        open: boolean;
+        title?: string;
+        message: string;
+        type: 'info' | 'success' | 'error' | 'confirm';
+        onConfirm?: () => void;
+    }>({ open: false, message: '', type: 'info' });
+
+    const showAlert = (message: string, type: 'info' | 'success' | 'error' = 'info', title?: string) => {
+        setAlertModal({ open: true, message, type, title });
+    };
+
+    const showConfirm = (message: string, onConfirm: () => void, title?: string) => {
+        setAlertModal({ open: true, message, type: 'confirm', onConfirm, title });
+    };
+
     const handleRetrieval = () => {
         router.get(route('facultyprofile'), {
             search: searchQuery,
-            year: yearFilter
+            year: yearFilter === 'All Years' ? '' : yearFilter
         }, {
             preserveState: true,
             preserveScroll: true,
@@ -79,20 +116,24 @@ const FacultyProfile: FC<FacultyProfileProps> = ({ initialFacultyData = [], filt
 
     const handleSubmit = () => {
         if (yearFilter === 'All Years') {
-            alert("Please select a specific Academic Year before submitting.");
+            showAlert('Please select a specific Academic Year before submitting.', 'info', 'Notice');
             return;
         }
 
-        if (confirm(`Are you sure you want to SUBMIT the faculty list for ${yearFilter}? This will mark records as Completed.`)) {
-            router.post(route('faculty.submit'), {
-                year: yearFilter
-            }, {
-                preserveState: true,
-                preserveScroll: true,
-                onSuccess: () => alert("Faculty list submitted successfully!"),
-                onError: () => alert("Failed to submit faculty list.")
-            });
-        }
+        showConfirm(
+            `Are you sure you want to SUBMIT the faculty list for ${yearFilter}? This will mark records as Completed.`,
+            () => {
+                router.post(route('faculty.submit'), {
+                    year: yearFilter
+                }, {
+                    preserveState: true,
+                    preserveScroll: true,
+                    onSuccess: () => showAlert('Faculty list submitted successfully!', 'success'),
+                    onError: () => showAlert('Failed to submit faculty list.', 'error'),
+                });
+            },
+            'Submit Faculty List'
+        );
     };
 
     const handleFileImport = async (file: File): Promise<void> => {
@@ -101,7 +142,7 @@ const FacultyProfile: FC<FacultyProfileProps> = ({ initialFacultyData = [], filt
 
         // Validation for E2: require group
         if (importType === 'E2' && !detectedGroup) {
-            alert("Please select a Group for Form E2 import.");
+            showAlert('Please select a Group for Form E2 import.', 'info', 'Notice');
             return;
         }
 
@@ -129,7 +170,7 @@ const FacultyProfile: FC<FacultyProfileProps> = ({ initialFacultyData = [], filt
             const rows = jsonData.slice(startIndex) as any[];
 
             if (rows.length === 0) {
-                alert("File appears to be empty.");
+                showAlert('File appears to be empty.', 'error', 'Import Error');
                 return;
             }
 
@@ -182,43 +223,57 @@ const FacultyProfile: FC<FacultyProfileProps> = ({ initialFacultyData = [], filt
             }).filter(item => item.name); // Filter empty rows
 
             if (mappedData.length === 0) {
-                alert("No valid records found in the uploaded file. Please check the template provided.");
+                showAlert('No valid records found in the uploaded file. Please check the template provided.', 'error', 'Import Error');
                 return;
             }
 
-            if (confirm(`Ready to import ${mappedData.length} records into Academic Year: ${importYear}?`)) {
-                try {
-                    // Using hardcoded path to bypass named route cache issues with Wayfinder/Ziggy
-                    router.post('/faculty/import', { faculty: mappedData }, {
-                        onSuccess: () => {
-                            setIsImportModalOpen(false);
-                            setImportGroup('');
-                            alert("Faculty imported successfully.");
-                        },
-                        onError: (errors) => {
-                            console.error("Import failed:", errors);
-                            alert("Failed to import faculty. Check console for details.");
-                        }
-                    });
-                } catch (err: any) {
-                    console.error("Route Error:", err);
-                    alert("System error: Could not find import route. Please refresh the page and try again.");
-                }
-            }
+            showConfirm(
+                `Ready to import ${mappedData.length} records into Academic Year: ${importYear}?`,
+                () => {
+                    try {
+                        router.post('/faculty/import', { faculty: mappedData }, {
+                            onSuccess: () => {
+                                setIsImportModalOpen(false);
+                                setImportGroup('');
+                                showAlert('Faculty imported successfully.', 'success');
+
+                                setYearFilter(importYear);
+                                router.get(route('facultyprofile'), {
+                                    search: searchQuery,
+                                    year: importYear
+                                }, {
+                                    preserveState: true,
+                                    preserveScroll: true,
+                                    replace: true
+                                });
+                            },
+                            onError: (errors) => {
+                                console.error('Import failed:', errors);
+                                showAlert('Failed to import faculty. Check console for details.', 'error');
+                            }
+                        });
+                    } catch (err: any) {
+                        console.error('Route Error:', err);
+                        showAlert('System error: Could not find import route. Please refresh the page and try again.', 'error');
+                    }
+                },
+                'Confirm Import'
+            );
         };
         reader.readAsBinaryString(file);
     };
 
     const handleDelete = (id: string): void => {
-        if (confirm("Delete this record? This action cannot be undone.")) {
-            // Using hardcoded path to bypass caching issues
-            router.delete(`/faculty/${id}`, {
-                onSuccess: () => {
-                    // Success handled globally/by Inertia reload
-                },
-                onError: () => alert("Failed to delete faculty. Please check connection.")
-            });
-        }
+        showConfirm(
+            'Delete this record? This action cannot be undone.',
+            () => {
+                router.delete(`/faculty/${id}`, {
+                    onSuccess: () => { },
+                    onError: () => showAlert('Failed to delete faculty. Please check connection.', 'error'),
+                });
+            },
+            'Delete Record'
+        );
     };
 
     const handleFileClick = (faculty: Faculty): void => {
@@ -227,22 +282,30 @@ const FacultyProfile: FC<FacultyProfileProps> = ({ initialFacultyData = [], filt
     };
 
     const handleUpdateFaculty = (updatedFaculty: Faculty) => {
-        // Using hardcoded path to bypass caching issues
         router.put(`/faculty/${updatedFaculty.id}`, updatedFaculty, {
             onSuccess: () => {
-                alert("Faculty details updated successfully.");
+                showAlert('Faculty details updated successfully.', 'success');
                 setIsFileModalOpen(false);
                 setSelectedFile(updatedFaculty);
             },
             onError: (errors) => {
-                console.error("Update failed:", errors);
-                alert("Failed to update faculty details.");
+                console.error('Update failed:', errors);
+                showAlert('Failed to update faculty details.', 'error');
             }
         });
     };
 
     return (
         <>
+            <AlertModal
+                open={alertModal.open}
+                message={alertModal.message}
+                type={alertModal.type}
+                title={alertModal.title}
+                onClose={() => setAlertModal(prev => ({ ...prev, open: false }))}
+                onConfirm={alertModal.onConfirm}
+                confirmLabel="Confirm"
+            />
             <FacultyFileDetailsModal
                 isOpen={isFileModalOpen}
                 onOpenChange={setIsFileModalOpen}
@@ -264,7 +327,7 @@ const FacultyProfile: FC<FacultyProfileProps> = ({ initialFacultyData = [], filt
                     <div className="flex flex-col justify-between gap-4 p-2 lg:flex-row lg:items-center">
                         {/* LEFT: School Name */}
                         <div>
-                            <h2 className="text-4xl font-bold text-[#6366f1]">School name</h2>
+                            <h2 className="text-4xl font-bold text-[#6366f1]">{schoolName}</h2>
                         </div>
 
                         {/* RIGHT: Buttons */}
@@ -322,12 +385,12 @@ const FacultyProfile: FC<FacultyProfileProps> = ({ initialFacultyData = [], filt
                                             checked={yearFilter === 'All Years'}
                                             onCheckedChange={() => {
                                                 setYearFilter('All Years');
-                                                // Auto-submit on change
-                                                router.get(route('facultyprofile'), { search: searchQuery, year: 'All Years' }, { preserveState: true, preserveScroll: true, replace: true });
+                                                router.get(route('facultyprofile'), { search: searchQuery, year: '' }, { preserveScroll: true });
                                             }}
                                         >
                                             All Years
                                         </DropdownMenuCheckboxItem>
+                                        <DropdownMenuSeparator />
                                         {availableYears && availableYears.length > 0 ? (
                                             availableYears.map((yearString) => (
                                                 <DropdownMenuCheckboxItem
@@ -335,15 +398,14 @@ const FacultyProfile: FC<FacultyProfileProps> = ({ initialFacultyData = [], filt
                                                     checked={yearFilter === yearString}
                                                     onCheckedChange={() => {
                                                         setYearFilter(yearString);
-                                                        // Auto-submit on change
-                                                        router.get(route('facultyprofile'), { search: searchQuery, year: yearString }, { preserveState: true, preserveScroll: true, replace: true });
+                                                        router.get(route('facultyprofile'), { search: searchQuery, year: yearString }, { preserveScroll: true });
                                                     }}
                                                 >
                                                     {yearString}
                                                 </DropdownMenuCheckboxItem>
                                             ))
                                         ) : (
-                                            <DropdownMenuLabel className="font-normal text-xs text-muted-foreground p-2">No academic years found</DropdownMenuLabel>
+                                            <DropdownMenuLabel className="font-normal text-xs text-muted-foreground p-2">No data found</DropdownMenuLabel>
                                         )}
                                     </DropdownMenuContent>
                                 </DropdownMenu>
@@ -357,7 +419,7 @@ const FacultyProfile: FC<FacultyProfileProps> = ({ initialFacultyData = [], filt
                         </div>
 
                         <FacultyListTableE5
-                            facultyList={facultyList}
+                            facultyList={filteredFacultyList}
                             yearFilter={yearFilter}
                             onFileClick={handleFileClick}
                             onDelete={handleDelete}

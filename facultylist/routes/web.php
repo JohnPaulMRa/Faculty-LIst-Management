@@ -27,7 +27,19 @@ Route::middleware(['auth', 'verified', 'role:Admin'])->group(function () {
     });
 
     Route::get('/admin/dashboard', function () {
-        return Inertia::render('Admin/AdminDashboard');
+        $schools = \App\Models\School::withCount('faculties')
+            ->orderBy('name')
+            ->get()
+            ->map(fn($s) => [
+                'id' => $s->id,
+                'name' => $s->name,
+                'faculty' => $s->faculties_count,
+                'status' => $s->is_active ? 'Active' : 'Inactive',
+            ]);
+
+        return \Inertia\Inertia::render('Admin/AdminDashboard', [
+            'schools' => $schools,
+        ]);
     })->name('admin.dashboard');
 
     Route::get('/admin/faculty-list', function () {

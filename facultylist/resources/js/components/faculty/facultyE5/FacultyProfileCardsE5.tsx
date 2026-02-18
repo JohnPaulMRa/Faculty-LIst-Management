@@ -42,17 +42,17 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
 
     const cardClass = readOnly
         ? "space-y-4"
-        : "bg-white p-5 border border-gray-200 shadow-sm space-y-4";
+        : "bg-white p-8 border border-gray-200 shadow-sm space-y-3";
 
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-1 items-start">
 
             {/* Faculty Details Card */}
             <div className={cardClass}>
 
                 <div className="flex flex-col gap-3">
                     <div className="grid gap-3">
-                        <label className="text-xs font-semibold text-gray-600">Faculty Name (LN, FN, MI)</label>
+                        <label className="text-lg font-bold text-gray-900">Faculty Name (LN, FN, MI)</label>
                         <Input
                             value={formData.name || ''}
                             onChange={(e) => onErrorSafeChange('name', e.target.value)}
@@ -217,8 +217,8 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
             </div>
 
             {/* Employment & Teaching Details Card */}
-            <div className={`${cardClass} lg:col-span-2 mt-4`}>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-3">
+            <div className={`${cardClass} lg:col-span-2 mt-2`}>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-5">
                     {/* Row 1 */}
                     <div className="grid gap-3">
                         <label className="text-xs font-semibold text-gray-600">Professional License</label>

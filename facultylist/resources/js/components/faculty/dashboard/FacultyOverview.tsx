@@ -1,15 +1,24 @@
 import { FC } from 'react';
 import { Calendar } from 'lucide-react';
-import AcademicYearSelect from '@/components/common/AcademicYearSelect';
+import { Button } from '@/components/ui/button';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuCheckboxItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 interface FacultyOverviewProps {
     selectedYear: string;
     onYearChange: (year: string) => void;
     onRefresh: () => void;
     isLoading: boolean;
+    availableYears?: string[];
 }
 
-const FacultyOverview: FC<FacultyOverviewProps> = ({ selectedYear, onYearChange, onRefresh, isLoading }) => {
+const FacultyOverview: FC<FacultyOverviewProps> = ({ selectedYear, onYearChange, onRefresh, isLoading, availableYears = [] }) => {
     return (
         <div className="flex flex-col gap-6 md:flex-row md:items-center justify-between mb-8">
             <div>
@@ -20,18 +29,38 @@ const FacultyOverview: FC<FacultyOverviewProps> = ({ selectedYear, onYearChange,
             </div>
 
             <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-gray-600 flex items-center gap-1">
-                        <Calendar className="h-4 w-4" />
-                        Academic Year:
-                    </span>
-                    <AcademicYearSelect
-                        value={selectedYear}
-                        onValueChange={onYearChange}
-                        className="w-[180px] bg-white border-gray-300 rounded-none focus:ring-gray-400"
-                    />
-                </div>
-                {/* Refresh button can be added here if needed, or kept simple */}
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm" className="gap-2 text-gray-600 font-semibold">
+                            <Calendar className="h-4 w-4" />
+                            Academic Year : <span className="text-blue-600 ml-1 font-bold">{selectedYear === 'All Years' ? 'All' : selectedYear}</span>
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-48">
+                        <DropdownMenuLabel>Select Academic Year</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuCheckboxItem
+                            checked={selectedYear === 'All Years'}
+                            onCheckedChange={() => onYearChange('All Years')}
+                        >
+                            All Years
+                        </DropdownMenuCheckboxItem>
+                        <DropdownMenuSeparator />
+                        {availableYears.length > 0 ? (
+                            availableYears.map((year) => (
+                                <DropdownMenuCheckboxItem
+                                    key={year}
+                                    checked={selectedYear === year}
+                                    onCheckedChange={() => onYearChange(year)}
+                                >
+                                    {year}
+                                </DropdownMenuCheckboxItem>
+                            ))
+                        ) : (
+                            <DropdownMenuLabel className="font-normal text-xs text-muted-foreground p-2">No data found</DropdownMenuLabel>
+                        )}
+                    </DropdownMenuContent>
+                </DropdownMenu>
             </div>
         </div>
     );
