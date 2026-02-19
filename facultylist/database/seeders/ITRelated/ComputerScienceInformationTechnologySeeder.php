@@ -27,7 +27,7 @@ class ComputerScienceInformationTechnologySeeder extends Seeder
         DB::table('ref_discipline_group')->updateOrInsert(
             ['code' => $groupCode],
             [
-                'major_discipline_code' => '46', // Assuming 46 based on previous seeder logic for IT
+                'major_discipline_code' => '47', // Corrected to 47 for IT-RELATED
                 'description' => $description,
                 'slug' => Str::slug($description, '_'),
                 'created_at' => now(),
@@ -39,7 +39,7 @@ class ComputerScienceInformationTechnologySeeder extends Seeder
             DB::table('ref_specific_discipline')->updateOrInsert(
                 ['code' => $specific['code']],
                 [
-                    'major_discipline_code' => '46',
+                    'major_discipline_code' => '47',
                     'minor_group' => $description,
                     'description' => $specific['description'],
                     'created_at' => now(),

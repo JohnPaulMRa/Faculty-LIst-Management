@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Faculty;
+use App\Models\FacultyE5;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -11,62 +12,84 @@ class DashboardController extends Controller
 {
     public function index(Request $request)
     {
-        // Get years that actually have faculty data
-        $availableYears = Faculty::select('joined_year')
-            ->whereNotNull('joined_year')
-            ->where('joined_year', '!=', '')
-            ->distinct()
-            ->orderBy('joined_year', 'desc')
-            ->pluck('joined_year');
+        // Get years that actually have faculty data from both tables
+        $yearsE2 = Faculty::select('joined_year')->whereNotNull('joined_year')->distinct()->pluck('joined_year');
+        $yearsE5 = FacultyE5::select('joined_year')->whereNotNull('joined_year')->distinct()->pluck('joined_year');
+
+        $availableYears = $yearsE2->concat($yearsE5)
+            ->unique()
+            ->sortDesc()
+            ->values();
 
         // Default to the most recent year with actual faculty data
         $defaultYear = $availableYears->first() ?? 'All Years';
         $selectedYear = $request->input('year', $defaultYear);
 
-        // Base Query Scope
-        $filter = function ($query) use ($selectedYear) {
+        // Base Query Scopes
+        $filterE2 = function ($query) use ($selectedYear) {
+            if ($selectedYear && $selectedYear !== 'All Years') {
+                $query->where('joined_year', $selectedYear);
+            }
+        };
+
+        $filterE5 = function ($query) use ($selectedYear) {
             if ($selectedYear && $selectedYear !== 'All Years') {
                 $query->where('joined_year', $selectedYear);
             }
         };
 
         // 1. Total Faculty
-        $totalFaculty = Faculty::where($filter)->count();
+        $totalE2 = Faculty::where($filterE2)->count();
+        $totalE5 = FacultyE5::where($filterE5)->count();
+        $totalFaculty = $totalE2 + $totalE5;
 
-        // 2. Licensed Faculty
-        $licensedFaculty = Faculty::where($filter)
-            ->whereNotNull('licenseCode')
-            ->where('licenseCode', '!=', '')
+        // 2. Licensed Faculty (Only E5 reliably has license_code)
+        // E2 doesn't have license column anymore. Assume 0 or check if 'degree' implies license? No.
+        $licensedFaculty = FacultyE5::where($filterE5)
+            ->whereNotNull('license_code')
+            ->where('license_code', '!=', '')
             ->count();
 
         // 3. Employment Status
-        $employmentStats = Faculty::where($filter)
-            ->select('fullTimeCode', DB::raw('count(*) as count'))
-            ->groupBy('fullTimeCode')
-            ->pluck('count', 'fullTimeCode');
+        // E2: 'employment' (Part-time, Full-time string)
+        // E5: 'ft_pt_code' (Code) -> Map to Full/Part
 
-        // Map codes
-        $ftPtRef = DB::table('e5_ref_full_time_part_time')->pluck('description', 'code');
         $fullTimeCount = 0;
         $partTimeCount = 0;
 
-        foreach ($employmentStats as $code => $count) {
+        // E2 Stats
+        $e2Employment = Faculty::where($filterE2)
+            ->select('employment', DB::raw('count(*) as count'))
+            ->groupBy('employment')
+            ->pluck('count', 'employment');
+
+        foreach ($e2Employment as $type => $count) {
+            if (stripos($type ?? '', 'full') !== false)
+                $fullTimeCount += $count;
+            else
+                $partTimeCount += $count; // Catches all others including null
+        }
+
+        // E5 Stats
+        $e5Employment = FacultyE5::where($filterE5)
+            ->select('ft_pt_code', DB::raw('count(*) as count'))
+            ->groupBy('ft_pt_code')
+            ->pluck('count', 'ft_pt_code');
+
+        $ftPtRef = DB::table('e5_ref_full_time_part_time')->pluck('description', 'code');
+
+        foreach ($e5Employment as $code => $count) {
             $desc = $ftPtRef[$code] ?? '';
             if (stripos($desc, 'full-time') !== false) {
                 $fullTimeCount += $count;
             } else {
-                $partTimeCount += $count;
+                $partTimeCount += $count; // Catches unknowns
             }
         }
 
         // 4. Qualifications
-        $qualificationStats = Faculty::where($filter)
-            ->select('degree', DB::raw('count(*) as count'))
-            ->whereNotNull('degree')
-            ->where('degree', '!=', '')
-            ->groupBy('degree')
-            ->get();
-
+        // E2: degree (string)
+        // E5: highest_degree_code (code)
         $qualifications = [
             ['label' => 'Doctorate', 'count' => 0, 'color' => 'bg-purple-500', 'text' => 'text-purple-600'],
             ['label' => 'Masters', 'count' => 0, 'color' => 'bg-blue-500', 'text' => 'text-blue-600'],
@@ -74,25 +97,52 @@ class DashboardController extends Controller
             ['label' => 'Others', 'count' => 0, 'color' => 'bg-gray-500', 'text' => 'text-gray-600'],
         ];
 
-        foreach ($qualificationStats as $stat) {
-            $desc = strtolower($stat->degree);
-            if (str_contains($desc, 'doctor') || str_contains($desc, 'phd')) {
+        // E2 - Include NULLs
+        $e2Quals = Faculty::where($filterE2)
+            ->select('degree', DB::raw('count(*) as count'))
+            ->groupBy('degree')
+            ->get();
+
+        foreach ($e2Quals as $stat) {
+            $desc = strtolower($stat->degree ?? '');
+            if (str_contains($desc, 'doctor') || str_contains($desc, 'phd'))
                 $qualifications[0]['count'] += $stat->count;
-            } elseif (str_contains($desc, 'master') || str_contains($desc, 'ma') || str_contains($desc, 'ms')) {
+            elseif (str_contains($desc, 'master') || str_contains($desc, 'ma') || str_contains($desc, 'ms'))
                 $qualifications[1]['count'] += $stat->count;
-            } elseif (str_contains($desc, 'bachelor') || str_contains($desc, 'bs') || str_contains($desc, 'ba')) {
+            elseif (str_contains($desc, 'bachelor') || str_contains($desc, 'bs') || str_contains($desc, 'ba'))
                 $qualifications[2]['count'] += $stat->count;
-            } else {
+            else
                 $qualifications[3]['count'] += $stat->count;
-            }
         }
 
-        // 5. Teaching Load
+        // E5 - Include NULLs
+        $e5Quals = FacultyE5::where($filterE5)
+            ->select('highest_degree_code', DB::raw('count(*) as count'))
+            ->groupBy('highest_degree_code')
+            ->get();
+
+        $degreeRef = DB::table('e5_ref_highest_degree')->pluck('description', 'code');
+
+        foreach ($e5Quals as $stat) {
+            $desc = strtolower($degreeRef[$stat->highest_degree_code] ?? '');
+            if (str_contains($desc, 'doctor') || str_contains($desc, 'phd'))
+                $qualifications[0]['count'] += $stat->count;
+            elseif (str_contains($desc, 'master') || str_contains($desc, 'ma') || str_contains($desc, 'ms'))
+                $qualifications[1]['count'] += $stat->count;
+            elseif (str_contains($desc, 'bachelor') || str_contains($desc, 'bs') || str_contains($desc, 'ba'))
+                $qualifications[2]['count'] += $stat->count;
+            else
+                $qualifications[3]['count'] += $stat->count;
+        }
+
+        // 5. Teaching Load (E5 Only mostly)
+        // E2 doesn't have load info distinctively mapped to overload/regular easily unless in 'employment' which is vague
+        // So rely on E5 for now, or just 0 for E2.
         $loadRef = DB::table('e5_ref_teaching_load')->pluck('description', 'code');
-        $loadStats = Faculty::where($filter)
-            ->select('loadCode', DB::raw('count(*) as count'))
-            ->groupBy('loadCode')
-            ->pluck('count', 'loadCode');
+        $loadStats = FacultyE5::where($filterE5)
+            ->select('teaching_load_code', DB::raw('count(*) as count'))
+            ->groupBy('teaching_load_code')
+            ->pluck('count', 'teaching_load_code');
 
         $regularLoad = 0;
         $overload = 0;
@@ -109,27 +159,24 @@ class DashboardController extends Controller
             }
         }
 
-        // 6. Employment Trends (Line Graph)
-        // Trends are usually historical, but if we filter by a specific year, a trend line might be boring (single point).
-        // However, usually dashboards show trends *up to* the selected year or for the selected year's context.
-        // User request: "fix function on academicYear... get real data".
-        // If I filter trends by ONE year, line graph becomes a dot.
-        // Maybe trends should ignore the filter OR filter *up to* the year?
-        // Or maybe display filtering is only for the "Cards" and "Donuts".
-        // Let's filter the MAIN stats by year.
-        // For trends, let's keep it ALL years to show context, OR maybe filter if requested.
-        // Usually dashboards show "Current Status" (Filtered) vs "Trends" (Historical).
-        // I will keep trends UNFILTERED for now as it makes more sense for a "Trend" graph,
-        // unless filtered by a range.
+        // 6. Employment Trends
+        // Aggregate E2 + E5 by year and full-time/part-time status
+        // E2: Map 'Full-time' -> Code 1, 'Part-time' -> Code 5, Others -> 9
+        // E5: Use ft_pt_code directly
 
-        $trendData = Faculty::select('joined_year', 'fullTimeCode', DB::raw('count(*) as count'))
+        $trendDataE2 = Faculty::select('joined_year', 'employment', DB::raw('count(*) as count'))
             ->whereNotNull('joined_year')
-            ->groupBy('joined_year', 'fullTimeCode')
-            ->orderBy('joined_year')
+            ->groupBy('joined_year', 'employment')
             ->get();
 
-        $years = $trendData->pluck('joined_year')->unique()->values()->all();
+        $trendDataE5 = FacultyE5::select('joined_year', 'ft_pt_code', DB::raw('count(*) as count'))
+            ->whereNotNull('joined_year')
+            ->groupBy('joined_year', 'ft_pt_code')
+            ->get();
 
+        $years = $trendDataE2->pluck('joined_year')->merge($trendDataE5->pluck('joined_year'))->unique()->sort()->values()->all();
+
+        // Prepare Data Structure
         $categories = [
             1 => ['label' => 'full-time employee HEI.', 'color' => '#10b981'],
             2 => ['label' => 'half-time employee HEI.', 'color' => '#3b82f6'],
@@ -141,8 +188,9 @@ class DashboardController extends Controller
 
         $totalSeriesData = [];
         foreach ($years as $year) {
-            $count = $trendData->where('joined_year', $year)->sum('count');
-            $totalSeriesData[] = $count;
+            $countE2 = $trendDataE2->where('joined_year', $year)->sum('count');
+            $countE5 = $trendDataE5->where('joined_year', $year)->sum('count');
+            $totalSeriesData[] = $countE2 + $countE5;
         }
 
         $series = [];
@@ -155,8 +203,31 @@ class DashboardController extends Controller
         foreach ($categories as $code => $meta) {
             $dataPoints = [];
             foreach ($years as $year) {
-                $record = $trendData->where('joined_year', $year)->where('fullTimeCode', $code)->first();
-                $dataPoints[] = $record ? $record->count : 0;
+                // E5 Count
+                $e5Count = $trendDataE5->where('joined_year', $year)->where('ft_pt_code', $code)->sum('count');
+
+                // E2 Count (Map strings to code)
+                $e2Count = 0;
+                // E2 types mapping:
+                // Code 1 (Full Time) matches 'Full-time'
+                // Code 5 (Part Time) matches 'Part-time'
+                // Code 9 (Unknown) matches others
+
+                $e2Records = $trendDataE2->where('joined_year', $year);
+                foreach ($e2Records as $rec) {
+                    $emp = strtolower($rec->employment);
+                    $mappedCode = 9;
+                    if (str_contains($emp, 'full'))
+                        $mappedCode = 1;
+                    elseif (str_contains($emp, 'part'))
+                        $mappedCode = 5;
+
+                    if ($mappedCode === $code) {
+                        $e2Count += $rec->count;
+                    }
+                }
+
+                $dataPoints[] = $e5Count + $e2Count;
             }
             $series[] = [
                 'name' => $meta['label'],
@@ -165,27 +236,37 @@ class DashboardController extends Controller
             ];
         }
 
-        // 7. Gender Stats
-        $genderCounts = Faculty::where($filter)
-            ->select('genderCode', DB::raw('count(*) as count'))
-            ->whereIn('genderCode', ['1', '2'])
-            ->groupBy('genderCode')
-            ->pluck('count', 'genderCode');
+        // 7. Gender Stats (E5 Only for now as E2 has no gender column)
+        $genderCounts = FacultyE5::where($filterE5)
+            ->select('gender_code', DB::raw('count(*) as count'))
+            ->groupBy('gender_code')
+            ->pluck('count', 'gender_code');
+
+        $male = $genderCounts['1'] ?? 0;
+        $female = $genderCounts['2'] ?? 0;
+        $unknownGender = $totalFaculty - ($male + $female); // Calculate unknown by subtracting known genders from Total
 
         $genderStats = [
-            'male' => $genderCounts['1'] ?? 0,
-            'female' => $genderCounts['2'] ?? 0,
+            'male' => $male,
+            'female' => $female,
+            'unknown' => max(0, $unknownGender),
         ];
 
         // 8. Status Stats
-        $statusCounts = Faculty::where($filter)
-            ->select('status', DB::raw('count(*) as count'))
-            ->groupBy('status')
-            ->pluck('count', 'status');
+        // Calculate Completed/Updated explicitly
+        // Count 'Updated' status. Treat EVERYTHING else (including NULL) as Not Updated.
+
+        $completedE2 = Faculty::where($filterE2)->where('status', 'Updated')->count();
+        $completedE5 = FacultyE5::where($filterE5)->where('status', 'Updated')->count();
+
+        $completed = $completedE2 + $completedE5;
+
+        // Not Updated is simply Total - Completed
+        $notUpdated = $totalFaculty - $completed;
 
         $statusStats = [
-            'updated' => $statusCounts['Updated'] ?? 0,
-            'notUpdated' => $statusCounts['Not Updated'] ?? 0,
+            'updated' => $completed,
+            'notUpdated' => max(0, $notUpdated),
         ];
 
         return Inertia::render('dashboard', [

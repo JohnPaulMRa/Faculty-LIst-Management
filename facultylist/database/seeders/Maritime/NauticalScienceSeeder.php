@@ -21,7 +21,7 @@ class NauticalScienceSeeder extends Seeder
     private function seedGroup(string $groupCode, string $description, array $specifics): void
     {
         // Seed Group
-        $majorCode = substr($groupCode, 0, 2);
+        $majorCode = '90'; // Hardcoded to 90 for MARITIME as requested
 
         DB::table('ref_discipline_group')->updateOrInsert(
             ['code' => $groupCode],
@@ -36,11 +36,10 @@ class NauticalScienceSeeder extends Seeder
 
         // Seed Specifics
         foreach ($specifics as $specific) {
-            $specificMajorCode = substr($specific['code'], 0, 2);
             DB::table('ref_specific_discipline')->updateOrInsert(
                 ['code' => $specific['code']],
                 [
-                    'major_discipline_code' => $specificMajorCode,
+                    'major_discipline_code' => '90', // Hardcoded to 90 for MARITIME as requested
                     'minor_group' => $description,
                     'description' => $specific['description'],
                     'created_at' => now(),

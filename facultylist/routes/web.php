@@ -13,11 +13,20 @@ Route::get('/', function () {
 Route::middleware(['auth', 'verified', 'role:Faculty'])->group(function () {
     Route::get('dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
     Route::get('facultyprofile', [\App\Http\Controllers\FacultyController::class, 'index'])->name('facultyprofile');
+});
+
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('userprofile', function () {
+        return Inertia::render('userprofile');
+    })->name('userprofile');
+
+    // Faculty Management Routes (accessible to Faculty & Admin)
     Route::get('faculty/{id}/edit', [\App\Http\Controllers\FacultyController::class, 'edit'])->name('faculty.edit');
     Route::post('faculty', [\App\Http\Controllers\FacultyController::class, 'store'])->name('faculty.store');
     Route::put('faculty/{id}', [\App\Http\Controllers\FacultyController::class, 'update'])->name('faculty.update');
     Route::delete('faculty/{id}', [\App\Http\Controllers\FacultyController::class, 'destroy'])->name('faculty.destroy');
     Route::post('faculty/import', [\App\Http\Controllers\FacultyController::class, 'bulkStore'])->name('faculty.import');
+    Route::post('faculty/import-e5', [\App\Http\Controllers\FacultyController::class, 'bulkStoreE5'])->name('faculty.importE5');
     Route::post('faculty/submit', [\App\Http\Controllers\FacultyController::class, 'submit'])->name('faculty.submit');
 });
 
@@ -26,35 +35,13 @@ Route::middleware(['auth', 'verified', 'role:Admin'])->group(function () {
         return redirect()->route('admin.dashboard');
     });
 
-    Route::get('/admin/dashboard', function () {
-        $schools = \App\Models\School::withCount('faculties')
-            ->orderBy('name')
-            ->get()
-            ->map(fn($s) => [
-                'id' => $s->id,
-                'name' => $s->name,
-                'faculty' => $s->faculties_count,
-                'status' => $s->is_active ? 'Active' : 'Inactive',
-            ]);
+    Route::get('/admin/dashboard', [\App\Http\Controllers\AdminController::class, 'dashboard'])->name('admin.dashboard');
 
-        return \Inertia\Inertia::render('Admin/AdminDashboard', [
-            'schools' => $schools,
-        ]);
-    })->name('admin.dashboard');
+    Route::get('/admin/faculty-list', [\App\Http\Controllers\AdminController::class, 'facultyList'])->name('admin.faculty-list');
 
-    Route::get('/admin/faculty-list', function () {
-        return Inertia::render('Admin/FacultyList');
-    })->name('admin.faculty-list');
-
-    Route::get('/admin/disciplines', function () {
-        return Inertia::render('Admin/Disciplines');
-    })->name('admin.disciplines');
-});
-
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('userprofile', function () {
-        return Inertia::render('userprofile');
-    })->name('userprofile');
+    Route::get('/admin/disciplines', [\App\Http\Controllers\AdminController::class, 'disciplines'])->name('admin.disciplines');
+    Route::post('/admin/disciplines', [\App\Http\Controllers\AdminController::class, 'storeDiscipline'])->name('admin.disciplines.store');
+    Route::delete('/admin/disciplines/{code}', [\App\Http\Controllers\AdminController::class, 'destroyDiscipline'])->name('admin.disciplines.destroy');
 });
 
 require __DIR__ . '/settings.php';

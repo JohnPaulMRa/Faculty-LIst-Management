@@ -15,6 +15,20 @@ import FacultyListTableE2 from '@/components/faculty/facultyE2/FacultyListTableE
 import FacultyListTableE5 from '@/components/faculty/facultyE5/FacultyListTableE5';
 import FacultyFileDetailsModal from '@/components/faculty/FacultyFileDetailsModal';
 import FacultyImportModal from '@/components/faculty/FacultyImportModal';
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogFooter,
+} from '@/components/ui/dialog';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,
@@ -83,6 +97,8 @@ const FacultyProfile: FC<FacultyProfileProps> = ({ initialFacultyData = [], filt
     const [importType, setImportType] = useState<'E2' | 'E5'>('E5');
     const [importGroup, setImportGroup] = useState<string>('');
     const [importYear, setImportYear] = useState<string>(getCurrentAcademicYear());
+    const [submitYear, setSubmitYear] = useState<string>(getCurrentAcademicYear());
+    const [isSubmitModalOpen, setIsSubmitModalOpen] = useState<boolean>(false);
     const [selectedFile, setSelectedFile] = useState<Faculty | null>(null);
     const [isFileModalOpen, setIsFileModalOpen] = useState<boolean>(false);
 
@@ -115,21 +131,34 @@ const FacultyProfile: FC<FacultyProfileProps> = ({ initialFacultyData = [], filt
     };
 
     const handleSubmit = () => {
-        if (yearFilter === 'All Years') {
+        setSubmitYear('');
+        setIsSubmitModalOpen(true);
+    };
+
+    const confirmSubmit = () => {
+        if (!submitYear) {
             showAlert('Please select a specific Academic Year before submitting.', 'info', 'Notice');
             return;
         }
-
+        setIsSubmitModalOpen(false);
         showConfirm(
-            `Are you sure you want to SUBMIT the faculty list for ${yearFilter}? This will mark records as Completed.`,
+            `Are you sure you want to SUBMIT the faculty list for ${submitYear}? This will mark records as Completed.`,
             () => {
+                console.log('facultyprofile: Sending submit request for year:', submitYear);
                 router.post(route('faculty.submit'), {
-                    year: yearFilter
+                    year: submitYear
                 }, {
                     preserveState: true,
                     preserveScroll: true,
-                    onSuccess: () => showAlert('Faculty list submitted successfully!', 'success'),
-                    onError: () => showAlert('Failed to submit faculty list.', 'error'),
+                    onSuccess: () => {
+                        console.log('facultyprofile: Submit success');
+                        showAlert('Faculty list submitted successfully!', 'success');
+                    },
+                    onError: (errors) => {
+                        console.error('facultyprofile: Submit failed', errors);
+                        showAlert('Failed to submit faculty list.', 'error');
+                    },
+                    onFinish: () => console.log('facultyprofile: Submit request finished'),
                 });
             },
             'Submit Faculty List'
@@ -156,17 +185,25 @@ const FacultyProfile: FC<FacultyProfileProps> = ({ initialFacultyData = [], filt
             const worksheet = workbook.Sheets[sheetName];
             const jsonData = utils.sheet_to_json(worksheet, { header: 1 });
 
-            // Find header row index by looking for "Name of Faculty" or "Faculty Name"
-            const headerRowIndex = jsonData.findIndex((row: any) =>
+            // Find title row ("Name of Faculty") then check for sub-header row ("Last Name")
+            const titleRowIndex = jsonData.findIndex((row: any) =>
                 row.some((cell: any) =>
-                    cell && (
-                        cell.toString().toLowerCase().includes("name of faculty") ||
-                        cell.toString().toLowerCase().includes("faculty name")
-                    )
+                    cell &&
+                    (cell.toString().toLowerCase().includes("name of faculty") ||
+                        cell.toString().toLowerCase().includes("faculty name"))
                 )
             );
 
-            const startIndex = headerRowIndex !== -1 ? headerRowIndex + 1 : 1;
+            // Check if the row after the title is a sub-header row (contains "last name")
+            let startIndex = 1;
+            if (titleRowIndex !== -1) {
+                const nextRow: any = jsonData[titleRowIndex + 1];
+                const isSubHeaderRow = nextRow && nextRow.some((cell: any) =>
+                    cell && cell.toString().toLowerCase().includes("last name")
+                );
+                startIndex = isSubHeaderRow ? titleRowIndex + 2 : titleRowIndex + 1;
+            }
+
             const rows = jsonData.slice(startIndex) as any[];
 
             if (rows.length === 0) {
@@ -177,34 +214,46 @@ const FacultyProfile: FC<FacultyProfileProps> = ({ initialFacultyData = [], filt
             // Map data based on type
             const mappedData = rows.map((row: any) => {
                 if (importType === 'E5') {
-                    // Mapping based on "Form E5 Private" structure (roughly based on headers)
-                    // Row index: 0=Name, 1=FullTimeCode, 2=GenderCode, etc.
+                    // Template columns (Row 2 sub-headers):
+                    // A(0)=Last Name, B(1)=First Name, C(2)=Middle Name, D(3)=blank
+                    // E(4)=Gender, F(5)=Full-Time/Part-Time, G(6)=Discipline Code
+                    // H(7)=Degree, I(8)=Rank
+                    // J(9)=Bachelors, K(10)=Masters, L(11)=Doctorate
+                    // M(12)=License, N(13)=Tenure, O(14)=Salary Grade, P(15)=Load, Q(16)=Subjects
+
+                    const lastName = row[0]?.toString().trim() || '';
+                    const firstName = row[1]?.toString().trim() || '';
+                    const middleName = row[2]?.toString().trim() || '';
+                    const fullName = [lastName, firstName, middleName].filter(Boolean).join(', ');
+
+                    const fullTimeCode = row[5]?.toString();
+
                     return {
-                        name: row[0],
-                        fullTimeCode: row[1]?.toString(),
-                        genderCode: row[2]?.toString(),
-                        disciplineCode: row[3]?.toString(),
-                        degree: row[4]?.toString(),
+                        name: fullName,
+                        fullTimeCode: fullTimeCode,
+                        genderCode: row[4]?.toString(),
+                        disciplineCode: row[6]?.toString(),
+                        degree: row[7]?.toString(),
 
                         // Education Specifics
-                        bachelorsCode: row[6]?.toString(),
-                        mastersCode: row[8]?.toString(),
-                        doctorateCode: row[10]?.toString(),
+                        bachelorsCode: row[9]?.toString(),
+                        mastersCode: row[10]?.toString(),
+                        doctorateCode: row[11]?.toString(),
 
-                        licenseCode: row[11]?.toString(),
-                        tenureCode: row[12]?.toString(),
-                        rankCode: row[13]?.toString(),
+                        licenseCode: row[12]?.toString(),
+                        tenureCode: row[13]?.toString(),
+                        rankCode: row[8]?.toString(),
                         salaryCode: row[14]?.toString(),
                         loadCode: row[15]?.toString(),
                         subjects: row[16]?.toString() || '',
 
                         // Default required fields for DB
-                        email: `imported.${Date.now()}.${Math.floor(Math.random() * 1000)}@placeholder.com`, // Placeholder email
+                        email: `imported.${Date.now()}.${Math.floor(Math.random() * 1000)}@placeholder.com`,
                         form_type: 'E5',
-                        joined_year: importYear, // Use selected import year
+                        joined_year: importYear,
                         status: 'Not Updated',
-                        employment: row[1] == '1' ? 'Plantilla' : 'Part-time', // Check FullTime code (row[1])
-                        avatar_initials: row[0]?.substring(0, 2).toUpperCase() || 'NA'
+                        employment: fullTimeCode == '1' ? 'Plantilla' : 'Part-time',
+                        avatar_initials: (lastName.substring(0, 1) + firstName.substring(0, 1)).toUpperCase() || 'NA'
                     };
                 } else {
                     // E2 Mapping
@@ -231,7 +280,8 @@ const FacultyProfile: FC<FacultyProfileProps> = ({ initialFacultyData = [], filt
                 `Ready to import ${mappedData.length} records into Academic Year: ${importYear}?`,
                 () => {
                     try {
-                        router.post('/faculty/import', { faculty: mappedData }, {
+                        const importRoute = importType === 'E5' ? '/faculty/import-e5' : '/faculty/import';
+                        router.post(importRoute, { faculty: mappedData }, {
                             onSuccess: () => {
                                 setIsImportModalOpen(false);
                                 setImportGroup('');
@@ -306,6 +356,46 @@ const FacultyProfile: FC<FacultyProfileProps> = ({ initialFacultyData = [], filt
                 onConfirm={alertModal.onConfirm}
                 confirmLabel="Confirm"
             />
+
+            {/* Submit Faculty List Modal */}
+            <Dialog open={isSubmitModalOpen} onOpenChange={setIsSubmitModalOpen}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle className="text-[#003468]">Submit Faculty List</DialogTitle>
+                    </DialogHeader>
+                    <div className="flex flex-col gap-3 py-2">
+                        <p className="text-sm text-gray-600">Select the Academic Year you want to submit the faculty list for:</p>
+                        <Select value={submitYear} onValueChange={setSubmitYear}>
+                            <SelectTrigger className="w-full">
+                                <SelectValue placeholder="Select Academic Year" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {availableYears && availableYears.length > 0 ? (
+                                    availableYears.map((year) => (
+                                        <SelectItem key={year} value={year}>
+                                            {year}
+                                        </SelectItem>
+                                    ))
+                                ) : (
+                                    <div className="px-3 py-2 text-xs text-muted-foreground">No academic years found</div>
+                                )}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <DialogFooter className="gap-2">
+                        <Button variant="outline" onClick={() => setIsSubmitModalOpen(false)}>
+                            Cancel
+                        </Button>
+                        <Button
+                            onClick={confirmSubmit}
+                            disabled={!submitYear}
+                            className="bg-[#003468] text-white hover:bg-[#002a54]"
+                        >
+                            Submit
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
             <FacultyFileDetailsModal
                 isOpen={isFileModalOpen}
                 onOpenChange={setIsFileModalOpen}

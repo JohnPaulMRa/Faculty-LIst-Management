@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Faculty extends Model
 {
+    protected $table = 'faculty_e2';
+
     protected $fillable = [
         'school_id',
         'name',
@@ -19,21 +21,6 @@ class Faculty extends Model
         'joined_year',
         'form_type',
         'import_group',
-        'fullTimeCode',
-        'genderCode',
-        'disciplineCode',
-        'bachelorsCode',
-        'bachelors',
-        'mastersCode',
-        'masters',
-        'doctorateCode',
-        'doctorate',
-        'licenseCode',
-        'tenureCode',
-        'rankCode',
-        'salaryCode',
-        'loadCode',
-        'subjects',
     ];
 
     /**

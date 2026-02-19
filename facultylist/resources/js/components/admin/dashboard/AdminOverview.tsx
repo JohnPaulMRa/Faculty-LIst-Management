@@ -5,7 +5,7 @@ const AdminOverview: FC = () => {
         <div className="flex flex-col gap-2 mb-8">
             <h1 className="text-3xl font-bold tracking-tight text-gray-900">Admin Dashboard</h1>
             <p className="text-muted-foreground text-sm">
-                Welcome back, Admin. Here's an overview of the system status and recent activities.
+                Welcome back, Admin. Overview of the system status and recent activities.
             </p>
         </div>
     );

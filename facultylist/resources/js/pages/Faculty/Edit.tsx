@@ -140,13 +140,18 @@ const Edit: FC<EditProps> = ({ faculty, referenceData }) => {
 
         router.put(update({ id: faculty.id }).url, syncedData, {
             onSuccess: () => {
-                setProcessing(false);
-                // Redirect back to Faculty Profile page
+                // Processing handled by onFinish or page visit
                 router.visit(facultyprofile().url);
             },
-            onError: () => {
+            onError: (errors) => {
+                let msg = "Failed to update faculty.";
+                if (Object.keys(errors).length > 0) {
+                    msg += "\n" + Object.values(errors).join("\n");
+                }
+                alert(msg);
+            },
+            onFinish: () => {
                 setProcessing(false);
-                alert("Failed to update faculty.");
             }
         });
     };

@@ -5,7 +5,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend, BarChart, Ba
 
 interface DashboardStats {
     totalFaculty: number;
-    gender: { male: number; female: number };
+    gender: { male: number; female: number; unknown?: number };
     status: { updated: number; notUpdated: number };
 }
 
@@ -18,8 +18,11 @@ const FacultyStats: FC<FacultyStatsProps> = ({ stats }) => {
     const [hoveredStatus, setHoveredStatus] = useState<any>(null);
 
     const genderData = [
-        { name: 'Male', value: stats.gender.male, color: '#3b82f6', depthColor: '#1d4ed8' }, // blue-500, blue-700
-        { name: 'Female', value: stats.gender.female, color: '#ec4899', depthColor: '#be185d' }, // pink-500, pink-700
+        { name: 'Male', value: stats.gender.male, color: '#3b82f6', depthColor: '#1d4ed8' },
+        { name: 'Female', value: stats.gender.female, color: '#ec4899', depthColor: '#be185d' },
+        ...(stats.gender.unknown && stats.gender.unknown > 0
+            ? [{ name: 'Unknown', value: stats.gender.unknown, color: '#9ca3af', depthColor: '#6b7280' }]
+            : []),
     ];
 
     const statusData = [
@@ -115,7 +118,7 @@ const FacultyStats: FC<FacultyStatsProps> = ({ stats }) => {
                             {hoveredGender ? hoveredGender.name : 'Total'}
                         </span>
                         <span className="text-2xl font-black text-gray-800">
-                            {hoveredGender ? hoveredGender.value : (stats.gender.male + stats.gender.female)}
+                            {hoveredGender ? hoveredGender.value : genderData.reduce((sum, d) => sum + d.value, 0)}
                         </span>
                     </div>
 

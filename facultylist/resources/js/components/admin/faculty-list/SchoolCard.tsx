@@ -5,7 +5,7 @@ import { University, Users } from "lucide-react";
 interface SchoolCardProps {
     name: string;
     totalFaculty: number;
-    type: 'public' | 'private';
+    type: string; // Changed from enum to string for flexibility
     isActive?: boolean;
     onClick?: () => void;
 }

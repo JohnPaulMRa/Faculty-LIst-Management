@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 interface FacultyMember {
-    id: number;
+    id: string | number;
     name: string;
     sex: string;
     type: string;
@@ -59,8 +59,8 @@ export default function AdminFacultyTable({ faculty }: AdminFacultyTableProps) {
                             <TableCell>
                                 <Badge
                                     className={`rounded-none font-normal ${member.submissionStatus === 'submitted'
-                                            ? 'bg-green-50 text-green-700 hover:bg-green-100 border border-green-200 shadow-none'
-                                            : 'bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200 shadow-none'
+                                        ? 'bg-green-50 text-green-700 hover:bg-green-100 border border-green-200 shadow-none'
+                                        : 'bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200 shadow-none'
                                         }`}
                                 >
                                     {member.submissionStatus}

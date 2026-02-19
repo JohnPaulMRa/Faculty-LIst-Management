@@ -1,30 +1,68 @@
-import { useState } from 'react';
-import { Search, Plus, Filter, LayoutGrid } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { Search, Plus, Filter, X } from 'lucide-react';
+import { router } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from '@/components/ui/badge';
 import DisciplineTable from './DisciplineTable';
 import DisciplineFormModal from './DisciplineFormModal';
 
-// Mock Data
-const mockDisciplines = [
-    { id: 1, code: "140101", group: "14", majorDiscipline: "Education Science", specificDiscipline: "General Education" },
-    { id: 2, code: "140102", group: "14", majorDiscipline: "Education Science", specificDiscipline: "Curriculum Development" },
-    { id: 3, code: "140201", group: "14", majorDiscipline: "Teacher Training", specificDiscipline: "Early Childhood Education" },
-    { id: 4, code: "140202", group: "14", majorDiscipline: "Teacher Training", specificDiscipline: "Elementary Education" },
-    { id: 5, code: "010101", group: "01", majorDiscipline: "Agriculture", specificDiscipline: "Agricultural Economics" },
-];
+interface SpecificDiscipline {
+    code: string;
+    description: string;
+}
 
-export default function AdminDisciplineModule() {
+interface DisciplineGroup {
+    code: string;
+    description: string;
+    specifics: SpecificDiscipline[];
+}
+
+interface MajorDiscipline {
+    code: string;
+    description: string;
+    groups: DisciplineGroup[];
+}
+
+interface AdminDisciplineModuleProps {
+    disciplines: MajorDiscipline[];
+}
+
+export default function AdminDisciplineModule({ disciplines = [] }: AdminDisciplineModuleProps) {
     const [searchQuery, setSearchQuery] = useState("");
+    const [selectedMajor, setSelectedMajor] = useState<string | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingItem, setEditingItem] = useState<any>(null);
-    const [disciplines, setDisciplines] = useState(mockDisciplines);
 
-    const filteredDisciplines = disciplines.filter(d =>
-        d.specificDiscipline.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        d.majorDiscipline.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        d.code.includes(searchQuery)
-    );
+    // Filtering logic
+    const filteredDisciplines = useMemo(() => {
+        return disciplines
+            .filter(major => !selectedMajor || major.code === selectedMajor)
+            .map(major => ({
+                ...major,
+                groups: major.groups.map(group => ({
+                    ...group,
+                    specifics: group.specifics.filter(s =>
+                        s.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        s.code.includes(searchQuery) ||
+                        group.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        major.description.toLowerCase().includes(searchQuery.toLowerCase())
+                    )
+                })).filter(group => group.specifics.length > 0 || group.description.toLowerCase().includes(searchQuery.toLowerCase()))
+            }))
+            .filter(major => major.groups.length > 0 || major.description.toLowerCase().includes(searchQuery.toLowerCase()));
+    }, [disciplines, searchQuery, selectedMajor]);
+
+    const activeMajorName = disciplines.find(m => m.code === selectedMajor)?.description;
 
     const handleAdd = () => {
         setEditingItem(null);
@@ -36,23 +74,29 @@ export default function AdminDisciplineModule() {
         setIsModalOpen(true);
     };
 
-    const handleDelete = (id: number) => {
+    const handleDelete = (id: string) => {
         if (confirm('Are you sure you want to delete this discipline?')) {
-            setDisciplines(disciplines.filter(d => d.id !== id));
+            router.delete(route('admin.disciplines.destroy', id), {
+                onSuccess: () => {
+                    // Success toast
+                }
+            });
         }
     };
 
     const handleSubmit = (data: any) => {
-        if (editingItem) {
-            setDisciplines(disciplines.map(d => d.id === editingItem.id ? { ...d, ...data } : d));
-        } else {
-            setDisciplines([...disciplines, { id: Math.max(...disciplines.map(d => d.id), 0) + 1, ...data }]);
-        }
-        setIsModalOpen(false);
+        router.post(route('admin.disciplines.store'), data, {
+            onSuccess: () => {
+                setIsModalOpen(false);
+            },
+            onError: (errors) => {
+                console.error(errors);
+            }
+        });
     };
 
     return (
-        <div className="flex flex-col gap-8 w-full">
+        <div className="flex flex-col gap-8 w-full text-foreground bg-background">
             {/* Header Section */}
             <div className="flex flex-col gap-6">
                 <div>
@@ -64,7 +108,7 @@ export default function AdminDisciplineModule() {
 
                 <div className="bg-white p-6 border border-gray-200 shadow-none rounded-none">
                     {/* Search and Actions */}
-                    <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
+                    <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-4">
                         <div className="relative w-full md:w-96">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                             <Input
@@ -76,10 +120,36 @@ export default function AdminDisciplineModule() {
                         </div>
 
                         <div className="flex items-center gap-2 w-full md:w-auto">
-                            <Button variant="outline" className="rounded-none border-gray-300 gap-2 h-10 hidden md:flex">
-                                <Filter className="h-4 w-4" />
-                                Filter
-                            </Button>
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button variant="outline" className={`rounded-none border-gray-300 gap-2 h-10 md:flex ${selectedMajor ? 'bg-gray-100 border-gray-900' : ''}`}>
+                                        <Filter className="h-4 w-4" />
+                                        {selectedMajor ? 'Filtering' : 'Filter'}
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" className="w-[300px] rounded-none p-0">
+                                    <DropdownMenuLabel className="sticky top-0 bg-white z-10 border-b border-gray-100 py-3">Filter by Major Discipline</DropdownMenuLabel>
+                                    <DropdownMenuSeparator className="m-0" />
+                                    <ScrollArea className="h-[300px] w-full">
+                                        <div className="py-1">
+                                            <DropdownMenuItem onClick={() => setSelectedMajor(null)} className="rounded-none cursor-pointer py-2 px-3 hover:bg-gray-50">
+                                                All Disciplines
+                                            </DropdownMenuItem>
+                                            {disciplines.map((major) => (
+                                                <DropdownMenuItem
+                                                    key={major.code}
+                                                    onClick={() => setSelectedMajor(major.code)}
+                                                    className="rounded-none cursor-pointer text-xs py-2 px-3 hover:bg-gray-50 flex flex-col items-start gap-1"
+                                                >
+                                                    <span className="font-bold text-gray-400">CODE {major.code}</span>
+                                                    <span className="text-gray-900">{major.description}</span>
+                                                </DropdownMenuItem>
+                                            ))}
+                                        </div>
+                                    </ScrollArea>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+
                             <Button
                                 onClick={handleAdd}
                                 className="w-full md:w-auto bg-gray-900 text-white hover:bg-gray-800 rounded-none h-10 gap-2"
@@ -90,16 +160,42 @@ export default function AdminDisciplineModule() {
                         </div>
                     </div>
 
-                    {/* Table */}
-                    <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
-                        <DisciplineTable
-                            disciplines={filteredDisciplines}
-                            onEdit={handleEdit}
-                            onDelete={handleDelete}
-                        />
+                    {/* Active Filters */}
+                    {selectedMajor && (
+                        <div className="flex items-center gap-2 mb-6 animate-in fade-in slide-in-from-left-2">
+                            <Badge variant="secondary" className="rounded-none bg-gray-900 text-white pl-2 pr-1 py-1 gap-1 font-normal">
+                                Major: {activeMajorName}
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-4 w-4 p-0 hover:bg-gray-700 text-white rounded-none"
+                                    onClick={() => setSelectedMajor(null)}
+                                >
+                                    <X className="h-3 w-3" />
+                                </Button>
+                            </Badge>
+                            <Button
+                                variant="link"
+                                className="text-xs text-gray-500 h-auto p-0"
+                                onClick={() => setSelectedMajor(null)}
+                            >
+                                Clear all
+                            </Button>
+                        </div>
+                    )}
+
+                    {/* Hierarchy Display */}
+                    <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 flex flex-col gap-8">
+                        {filteredDisciplines.map((major) => (
+                            <DisciplineTable
+                                key={major.code}
+                                major={major}
+                                onEdit={handleEdit}
+                                onDelete={handleDelete}
+                            />
+                        ))}
                         {filteredDisciplines.length === 0 && (
-                            <div className="py-12 text-center bg-gray-50 border border-t-0 border-dashed border-gray-300 rounded-none rounded-b-none">
-                                <LayoutGrid className="h-10 w-10 text-gray-300 mx-auto mb-3" />
+                            <div className="py-12 text-center bg-gray-50 border border-dashed border-gray-300 rounded-none">
                                 <p className="text-gray-500 text-sm font-medium">No disciplines found matching "{searchQuery}"</p>
                             </div>
                         )}
@@ -113,6 +209,7 @@ export default function AdminDisciplineModule() {
                 onClose={() => setIsModalOpen(false)}
                 onSubmit={handleSubmit}
                 initialData={editingItem}
+                majors={disciplines}
             />
         </div>
     );

@@ -1,95 +1,96 @@
-import { utils, writeFile } from 'xlsx';
+import * as XLSX from "xlsx-js-style";
 
 export const downloadTemplateE5 = (): void => {
-    // 1. Sheet 1: Faculty Data Entry Form
-    // ------------------------------------
-    const headers = [
-        "Name of Faculty (LN, FN MI)",
-        "Full-Time/ Part-Time (use Code)",
-        "Gender (use Code)"
-    ];
 
-    const dataSheet1 = [
-        headers
-    ];
+  /* =========================
+     SHEET 1 – MAIN TEMPLATE
+  ========================= */
 
-    const ws1 = utils.aoa_to_sheet(dataSheet1);
+  const mainData = [
+    ["Name of Faculty", "", "", "", ""],
+    ["Last Name", "First Name", "Middle Name", "", "Gender (use Code)"],
+  ];
 
-    // 2. Sheet 2: Reference
-    // ------------------------------------
-    const refHeaders = ["No.", "Full-Time / Part-Time", "No.", "Gender"];
-    
-    const refData = [
-        // Headers
-        refHeaders,
-        // Rows
-        [1, "The person is a full-time employee of the HEI.", 1, "Male"],
-        [2, "The person is a half-time employee of the HEI.", 2, "Female"],
-        [3, "Student employee such as Student Assistant or Graduate Assistant"],
-        [4, "Teaching Fellow, Associate or Assistant."],
-        [5, "None of the above and therefore part-time. This includes: lecturers (all \nranks), adjunct or affiliate faculty, visiting professors, professors \nemeriti, Physicians on call, lawyers or accountants on retainer basis, etc."],
-        [9, "Not known or not indicated."]
-    ];
+  const ws1 = XLSX.utils.aoa_to_sheet(mainData);
 
-    const ws2 = utils.aoa_to_sheet(refData);
+  // Merge A1:E1
+  ws1["!merges"] = [
+    { s: { r: 0, c: 0 }, e: { r: 0, c: 4 } }
+  ];
 
-    // 4. Set Column Widths (Sheet 1)
-    ws1['!cols'] = [
-        { wch: 30 }, // A: Name (Wide)
-        { wch: 25 }, // B: FT/PT (Medium)
-        { wch: 15 }  // C: Gender (Narrower)
-    ];
+  // Column widths
+  ws1["!cols"] = [
+    { wch: 20 },
+    { wch: 20 },
+    { wch: 18 },
+    { wch: 5 },
+    { wch: 22 }
+  ];
 
-    // 5. Data Validation (Sheet 1)
-    // Note: This uses the '!dataValidation' property which is supported by some SheetJS versions/formats.
-    // If not supported, it will just be ignored but won't break the file.
-    // We target rows 2 to 1000 for data entry.
-    ws1['!dataValidation'] = [
-        {
-            sqref: "B2:B1000",
-            formula1: "=Reference!$A$2:$A$7",
-            type: "list",
-            operator: "equal",
-            showDropDown: true
-        },
-        {
-            sqref: "C2:C1000",
-            formula1: "=Reference!$C$2:$C$3",
-            type: "list",
-            operator: "equal",
-            showDropDown: true
-        }
-    ];
-    
-    // Since basic SheetJS write often strips validation, we rely on the Reference sheet being present.
-    // However, if the environment supports it, we try adding it.
-    
-    // Set Row Heights (especially for Row 6 - Code 5)
-    ws2['!rows'] = [
-        { hpt: 20 }, // Header
-        { hpt: 20 }, // Row 2
-        { hpt: 20 }, // Row 3
-        { hpt: 20 }, // Row 4
-        { hpt: 20 }, // Row 5
-        { hpt: 60 }, // Row 6 (Code 5 - Taller for wrapped text)
-        { hpt: 20 }, // Row 7
-        { hpt: 20 }, // Row 8
-        { hpt: 20 }  // Row 9
-    ];
+  // Title style
+  ws1["A1"].s = {
+    font: { bold: true, size: 17, color: { rgb: "FFFFFF" } },
+    fill: { fgColor: { rgb: "000000" } },
+    alignment: { horizontal: "center", vertical: "center" }
+  };
 
-    // 6. Set Column Widths (Sheet 2: Reference)
-    ws2['!cols'] = [
-        { wch: 5 },  // A: No.
-        { wch: 60 }, // B: Description (Even Wider for wrapped text)
-        { wch: 5 },  // C: No.
-        { wch: 10 }  // D: Gender
-    ];
+  ["B1","C1","D1","E1"].forEach(cell => {
+    ws1[cell] = { t: "s", v: "", s: { fill: { fgColor: { rgb: "000000" } } } };
+  });
 
-    // 7. Create Workbook
-    const workbook = utils.book_new();
-    utils.book_append_sheet(workbook, ws1, "Faculty Data Entry Form");
-    utils.book_append_sheet(workbook, ws2, "Reference");
+  // Blue headers
+  ["A2","B2","C2"].forEach(cell => {
+    ws1[cell].s = {
+      font: { bold: true, color: { rgb: "FFFFFF" } },
+      fill: { fgColor: { rgb: "1F4E78" } },
+      alignment: { horizontal: "center", vertical: "center" }
+    };
+  });
 
-    // 8. Download
-    writeFile(workbook, "CHED FORM E5.xlsx");
+  // Yellow Gender header
+  ws1["E2"].s = {
+    font: { bold: true },
+    fill: { fgColor: { rgb: "FFFF00" } },
+    alignment: { horizontal: "center", vertical: "center" }
+  };
+
+  /* =========================
+     SHEET 2 – REFERENCE
+  ========================= */
+
+  const refData = [
+    ["Gender Code", "Description"],
+    ["1", "Male"],
+    ["2", "Female"]
+  ];
+
+  const ws2 = XLSX.utils.aoa_to_sheet(refData);
+
+  ws2["!cols"] = [
+    { wch: 15 },
+    { wch: 15 }
+  ];
+
+  /* =========================
+     DATA VALIDATION (Dropdown)
+  ========================= */
+
+  ws1["!dataValidation"] = [
+    {
+      sqref: "E3:E1000",
+      type: "list",
+      formula1: '"1 - Male,2 - Female"',
+      showDropDown: true
+    }
+  ];
+
+  /* =========================
+     CREATE WORKBOOK
+  ========================= */
+
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws1, "Faculty Data Entry Form");
+  XLSX.utils.book_append_sheet(wb, ws2, "Reference");
+
+  XLSX.writeFile(wb, "CHED_FORM_E5.xlsx");
 };

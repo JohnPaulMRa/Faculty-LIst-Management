@@ -2,19 +2,21 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { BarChart3, PieChart as PieChartIcon } from 'lucide-react';
 
-const schoolData = [
-    { name: 'Arts & Sci', count: 45 },
-    { name: 'Engineering', count: 32 },
-    { name: 'Nursing', count: 28 },
-    { name: 'Business', count: 23 },
-    { name: 'Education', count: 18 },
-];
+interface DistributionItem {
+    name: string;
+    count: number;
+}
 
-const statusData = [
-    { name: 'Active', value: 85, color: '#16a34a' }, // green-600
-    { name: 'Pending', value: 12, color: '#d97706' }, // amber-600
-    { name: 'Inactive', value: 8, color: '#9ca3af' }, // gray-400
-];
+interface StatusItem {
+    name: string;
+    value: number;
+    color: string;
+}
+
+interface AnalyticsOverviewProps {
+    distributionData: DistributionItem[];
+    statusData: StatusItem[];
+}
 
 const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
@@ -30,7 +32,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
     return null;
 };
 
-export default function AnalyticsOverview() {
+export default function AnalyticsOverview({ distributionData = [], statusData = [] }: AnalyticsOverviewProps) {
     return (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Bar Chart: Faculty by School */}
@@ -47,7 +49,7 @@ export default function AnalyticsOverview() {
                 <CardContent className="p-4 pl-0">
                     <div className="h-[250px] w-full">
                         <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={schoolData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                            <BarChart data={distributionData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
                                 <XAxis
                                     dataKey="name"
@@ -77,7 +79,7 @@ export default function AnalyticsOverview() {
                         Status Overview
                     </CardTitle>
                     <CardDescription className="text-xs text-gray-500">
-                        Current status of all faculty accounts
+                        Current status of all schools
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="p-4">

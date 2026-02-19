@@ -2,6 +2,7 @@ import { createInertiaApp } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+import { route } from 'ziggy-js';
 import '../css/app.css';
 import { initializeTheme } from './hooks/use-appearance';
 
@@ -15,6 +16,11 @@ createInertiaApp({
             import.meta.glob('./pages/**/*.tsx'),
         ),
     setup({ el, App, props }) {
+        // @ts-ignore
+        window.route = (name, params, absolute, config = props.initialPage.props.ziggy) =>
+            // @ts-ignore
+            route(name, params, absolute, config);
+
         const root = createRoot(el);
 
         root.render(

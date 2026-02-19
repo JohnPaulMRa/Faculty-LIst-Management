@@ -1,35 +1,68 @@
-import { useState } from 'react';
-import { Search, Plus, Filter, LayoutGrid } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { Search, Plus, Filter, LayoutGrid, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import SchoolCard from './SchoolCard';
 import AdminFacultyTable from './AdminFacultyTable';
+import { router } from '@inertiajs/react';
+import { useDebounce } from '@/hooks/use-debounce';
 
-// Mock Data
-const mockSchools = [
-    { id: 1, name: "College of Arts and Sciences", faculty: 45, type: 'private' as const, status: 'Active' },
-    { id: 2, name: "School of Engineering", faculty: 32, type: 'public' as const, status: 'Active' },
-    { id: 3, name: "College of Nursing", faculty: 28, type: 'private' as const, status: 'Pending' },
-    { id: 4, name: "School of Business", faculty: 23, type: 'public' as const, status: 'Active' },
-    { id: 5, name: "College of Education", faculty: 18, type: 'public' as const, status: 'Inactive' },
-];
+interface School {
+    id: number;
+    name: string;
+    faculty: number;
+    type: 'public' | 'private';
+    status: string;
+}
 
-const mockFaculty = [
-    { id: 1, name: "Dr. John Doe", sex: "Male", type: "Full-Time", submissionStatus: 'submitted' as const, schoolYear: "2025-2026" },
-    { id: 2, name: "Prof. Jane Smith", sex: "Female", type: "Part-Time", submissionStatus: 'pending' as const, schoolYear: "2025-2026" },
-    { id: 3, name: "Dr. Emily Davis", sex: "Female", type: "Full-Time", submissionStatus: 'submitted' as const, schoolYear: "2025-2026" },
-    { id: 4, name: "Mr. Robert Wilson", sex: "Male", type: "Part-Time", submissionStatus: 'submitted' as const, schoolYear: "2025-2026" },
-];
+interface FacultyMember {
+    id: string | number;
+    name: string;
+    sex: string;
+    type: string;
+    submissionStatus: 'submitted' | 'pending';
+    schoolYear: string;
+}
 
-export default function AdminFacultyListModule() {
-    const [searchQuery, setSearchQuery] = useState("");
-    const [selectedSchool, setSelectedSchool] = useState<number | null>(null);
+interface AdminFacultyListModuleProps {
+    schools: School[];
+    faculty: FacultyMember[];
+    filters: { school_id?: string; search?: string };
+}
 
-    const filteredSchools = mockSchools.filter(school =>
-        school.name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+export default function AdminFacultyListModule({ schools = [], faculty = [], filters = {} }: AdminFacultyListModuleProps) {
+    const [searchQuery, setSearchQuery] = useState(filters.search || "");
+    const debouncedSearch = useDebounce(searchQuery, 500);
+    const selectedSchoolId = filters.school_id ? parseInt(filters.school_id) : null;
 
-    const activeSchoolTitle = mockSchools.find(s => s.id === selectedSchool)?.name;
+    const activeSchoolTitle = schools.find(s => s.id === selectedSchoolId)?.name;
+
+    const handleSearch = useCallback((value: string) => {
+        router.get(
+            route('admin.faculty-list'),
+            { ...filters, search: value },
+            { preserveState: true, preserveScroll: true, only: ['schools', 'faculty', 'filters'] }
+        );
+    }, [filters]);
+
+    useEffect(() => {
+        if (debouncedSearch !== (filters.search || "")) {
+            handleSearch(debouncedSearch);
+        }
+    }, [debouncedSearch, handleSearch, filters.search]);
+
+    const handleSchoolClick = (schoolId: number) => {
+        router.get(
+            route('admin.faculty-list'),
+            { ...filters, school_id: schoolId },
+            { preserveState: true, preserveScroll: true, only: ['faculty', 'filters'] }
+        );
+    };
+
+    const clearSearch = () => {
+        setSearchQuery("");
+        handleSearch("");
+    };
 
     return (
         <div className="flex flex-col gap-8 w-full">
@@ -47,11 +80,19 @@ export default function AdminFacultyListModule() {
                         <div className="relative w-full md:w-96">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                             <Input
-                                placeholder="Search schools..."
-                                className="pl-9 bg-gray-50 border-gray-300 rounded-none focus-visible:ring-1 focus-visible:ring-gray-400 h-10"
+                                placeholder="Search schools or faculty..."
+                                className="pl-9 pr-9 bg-gray-50 border-gray-300 rounded-none focus-visible:ring-1 focus-visible:ring-gray-400 h-10"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                             />
+                            {searchQuery && (
+                                <button
+                                    onClick={clearSearch}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                                >
+                                    <X className="h-4 w-4" />
+                                </button>
+                            )}
                         </div>
 
                         <div className="flex items-center gap-2 w-full md:w-auto">
@@ -68,19 +109,19 @@ export default function AdminFacultyListModule() {
 
                     {/* School Cards Grid */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                        {filteredSchools.map((school) => (
-                            <div key={school.id} onClick={() => setSelectedSchool(school.id)} className="cursor-pointer group">
+                        {schools.map((school) => (
+                            <div key={school.id} onClick={() => handleSchoolClick(school.id)} className="cursor-pointer group">
                                 <SchoolCard
                                     name={school.name}
                                     totalFaculty={school.faculty}
                                     type={school.type}
-                                    isActive={selectedSchool === school.id}
+                                    isActive={selectedSchoolId === school.id}
                                 />
                             </div>
                         ))}
                     </div>
 
-                    {filteredSchools.length === 0 && (
+                    {schools.length === 0 && (
                         <div className="py-12 text-center bg-gray-50 border border-dashed border-gray-300 rounded-none">
                             <LayoutGrid className="h-10 w-10 text-gray-300 mx-auto mb-3" />
                             <p className="text-gray-500 text-sm font-medium">No schools found matching "{searchQuery}"</p>
@@ -90,7 +131,7 @@ export default function AdminFacultyListModule() {
             </div>
 
             {/* Faculty List Table Section */}
-            {selectedSchool ? (
+            {selectedSchoolId ? (
                 <div className="bg-white p-6 border border-gray-200 shadow-none rounded-none animate-in fade-in slide-in-from-bottom-2 duration-300">
                     <div className="flex items-center justify-between mb-6">
                         <div>
@@ -105,7 +146,7 @@ export default function AdminFacultyListModule() {
                         </Button>
                     </div>
 
-                    <AdminFacultyTable faculty={mockFaculty} />
+                    <AdminFacultyTable faculty={faculty} />
                 </div>
             ) : (
                 <div className="bg-gray-50 border border-dashed border-gray-300 p-12 text-center text-gray-500 rounded-none flex flex-col items-center justify-center">

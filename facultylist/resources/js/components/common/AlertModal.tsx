@@ -68,9 +68,16 @@ const AlertModal: FC<AlertModalProps> = ({
                         </Button>
                     )}
                     <Button
+                        type="button"
                         className={`rounded-none ${type === 'error' ? 'bg-red-600 hover:bg-red-700' : type === 'success' ? 'bg-emerald-600 hover:bg-emerald-700' : type === 'confirm' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-blue-600 hover:bg-blue-700'} text-white`}
-                        onClick={() => {
-                            if (isConfirm && onConfirm) onConfirm();
+                        onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            console.log('AlertModal: Button clicked', { isConfirm, hasOnConfirm: !!onConfirm });
+                            if (isConfirm && onConfirm) {
+                                console.log('AlertModal: Executing onConfirm');
+                                onConfirm();
+                            }
                             onClose();
                         }}
                     >

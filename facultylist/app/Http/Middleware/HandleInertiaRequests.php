@@ -43,6 +43,10 @@ class HandleInertiaRequests extends Middleware
             ],
             'sidebarOpen' => !$request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
             'academicYears' => \App\Models\AcademicYear::where('is_active', true)->orderBy('name', 'desc')->get(),
+            'ziggy' => fn() => [
+                ...(new \Tighten\Ziggy\Ziggy)->toArray(),
+                'location' => $request->url(),
+            ],
         ];
     }
 }
