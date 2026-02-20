@@ -14,7 +14,7 @@ class DisciplineGroupSeeder extends Seeder
     {
         // Truncate generic discipline groups to ensure clean state
         \Illuminate\Support\Facades\Schema::disableForeignKeyConstraints();
-        \Illuminate\Support\Facades\DB::table('ref_discipline_group')->truncate();
+        \Illuminate\Support\Facades\DB::table('ref_major_discipline')->truncate();
         \Illuminate\Support\Facades\Schema::enableForeignKeyConstraints();
 
         // 14: EDUCATION SCIENCE AND TEACHER TRAINING - Moved to EducationScience/* seeders

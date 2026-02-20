@@ -4,44 +4,54 @@ import { University, Users } from "lucide-react";
 
 interface SchoolCardProps {
     name: string;
+    code: string | null;
     totalFaculty: number;
-    type: string; // Changed from enum to string for flexibility
+    type: string;
     isActive?: boolean;
     onClick?: () => void;
 }
 
-export default function SchoolCard({ name, totalFaculty, type, isActive, onClick }: SchoolCardProps) {
+export default function SchoolCard({ name, code, totalFaculty, type, isActive, onClick }: SchoolCardProps) {
     return (
         <Card
             className={`
-                h-full transition-all duration-200 rounded-none shadow-none border 
+                transition-all duration-200 rounded-lg shadow-sm border 
                 ${isActive
-                    ? 'border-gray-900 bg-gray-50 ring-1 ring-gray-900'
-                    : 'border-gray-200 bg-white hover:border-gray-400 hover:shadow-sm'
+                    ? 'bg-blue-50 border-blue-200 ring-1 ring-blue-200'
+                    : 'bg-white border-gray-200 hover:border-gray-300 hover:shadow-md'
                 }
             `}
             onClick={onClick}
         >
-            <CardHeader className="p-4 pb-2 space-y-0">
-                <div className="flex justify-between items-start gap-2">
-                    <div className={`p-2 rounded-none ${isActive ? 'bg-gray-200' : 'bg-gray-50'}`}>
-                        <University className="h-5 w-5 text-gray-700" />
+            <div className="flex items-center p-3 gap-3">
+                <div className={`p-2 shrink-0 rounded-md transition-colors ${isActive ? 'bg-blue-100 text-blue-600 shadow-sm' : 'bg-gray-100 text-gray-500'}`}>
+                    <University className="h-4 w-4" />
+                </div>
+
+                <div className="flex-1 min-w-0 grid gap-1">
+                    <div className="flex items-center gap-2">
+                        <h3 className={`text-sm font-semibold truncate leading-none transition-colors ${isActive ? 'text-blue-900' : 'text-gray-900'}`}>
+                            {name}
+                        </h3>
+                        {code && (
+                            <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded-sm border transition-colors ${isActive ? 'bg-blue-100/50 text-blue-700 border-blue-200' : 'bg-gray-100 text-gray-500 border-gray-200'}`}>
+                                {code}
+                            </span>
+                        )}
                     </div>
-                    <Badge variant="outline" className={`rounded-none font-normal text-[10px] px-2 py-0.5 border ${type === 'private' ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-blue-50 text-blue-700 border-blue-200'}`}>
+                </div>
+
+                <div className="flex items-center gap-4 shrink-0">
+                    <Badge variant="outline" className={`rounded-full font-medium text-[10px] px-2.5 py-0.5 border ${type?.toLowerCase() === 'private' ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-blue-50 text-blue-700 border-blue-200'}`}>
                         {type}
                     </Badge>
-                </div>
-            </CardHeader>
-            <CardContent className="p-4 pt-3">
-                <CardTitle className="text-sm font-bold text-gray-900 line-clamp-2 min-h-[40px] leading-tight mb-4" title={name}>
-                    {name}
-                </CardTitle>
 
-                <div className="flex items-center text-xs text-gray-600 font-medium">
-                    <Users className="h-3.5 w-3.5 mr-1.5 text-gray-400" />
-                    <span>{totalFaculty} Faculty Members</span>
+                    <div className={`flex items-center text-xs font-medium w-[100px] justify-end gap-1.5 transition-colors ${isActive ? 'text-blue-700' : 'text-gray-500'}`}>
+                        <Users className="h-3.5 w-3.5" />
+                        <span>{totalFaculty} Faculty</span>
+                    </div>
                 </div>
-            </CardContent>
+            </div>
         </Card>
     );
 }

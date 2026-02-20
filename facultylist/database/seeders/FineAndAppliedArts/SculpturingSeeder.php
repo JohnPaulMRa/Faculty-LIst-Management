@@ -12,16 +12,16 @@ class SculpturingSeeder extends Seeder
     {
         // 1808: Sculpturing
         $this->seedGroup('1808', 'Sculpturing', [
-            ['code' => '180800', 'description' => 'Sculpturing'],
+            ['code' => '180800', 'description' => ''],
         ]);
     }
 
     private function seedGroup(string $groupCode, string $description, array $specifics): void
     {
-        DB::table('ref_discipline_group')->updateOrInsert(
+        DB::table('ref_major_discipline')->updateOrInsert(
             ['code' => $groupCode],
             [
-                'major_discipline_code' => '18',
+                'discipline_group_code' => '18',
                 'description' => $description,
                 'slug' => Str::slug($description, '_'),
                 'created_at' => now(),
@@ -33,7 +33,7 @@ class SculpturingSeeder extends Seeder
             DB::table('ref_specific_discipline')->updateOrInsert(
                 ['code' => $specific['code']],
                 [
-                    'major_discipline_code' => '18',
+                    'major_discipline_code' => $groupCode,
                     'minor_group' => $description,
                     'description' => $specific['description'],
                     'created_at' => now(),

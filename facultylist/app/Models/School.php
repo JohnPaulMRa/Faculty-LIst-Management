@@ -13,6 +13,7 @@ class School extends Model
         'contact_number',
         'email',
         'is_active',
+        'type',
     ];
 
     protected $casts = [
@@ -25,5 +26,10 @@ class School extends Model
     public function faculties()
     {
         return $this->hasMany(Faculty::class);
+    }
+
+    public function facultiesE5()
+    {
+        return $this->hasMany(FacultyE5::class);
     }
 }

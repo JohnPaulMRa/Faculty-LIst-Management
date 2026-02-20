@@ -45,21 +45,51 @@ export default function AdminDisciplineModule({ disciplines = [] }: AdminDiscipl
 
     // Filtering logic
     const filteredDisciplines = useMemo(() => {
-        return disciplines
-            .filter(major => !selectedMajor || major.code === selectedMajor)
-            .map(major => ({
-                ...major,
-                groups: major.groups.map(group => ({
-                    ...group,
-                    specifics: group.specifics.filter(s =>
-                        s.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                        s.code.includes(searchQuery) ||
-                        group.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                        major.description.toLowerCase().includes(searchQuery.toLowerCase())
-                    )
-                })).filter(group => group.specifics.length > 0 || group.description.toLowerCase().includes(searchQuery.toLowerCase()))
-            }))
-            .filter(major => major.groups.length > 0 || major.description.toLowerCase().includes(searchQuery.toLowerCase()));
+        const allPrograms: any[] = [];
+
+        disciplines.forEach(major => {
+            // Apply major filter if selected
+            if (selectedMajor && major.code !== selectedMajor) return;
+
+            major.groups.forEach(group => {
+                group.specifics.forEach(specific => {
+                    // Search filter
+                    if (searchQuery) {
+                        const q = searchQuery.toLowerCase();
+                        const matches =
+                            (specific.description || "").toLowerCase().includes(q) ||
+                            (specific.code || "").includes(q) ||
+                            (group.description || "").toLowerCase().includes(q) ||
+                            (major.description || "").toLowerCase().includes(q);
+
+                        if (!matches) return;
+                    }
+
+                    allPrograms.push({
+                        id: specific.code,
+                        code: specific.code,
+                        name: specific.description, // Program Name
+                        major: major.description,   // Major Name
+                        disciplineGroup: major.description, // Discipline Group (Major)
+                        specificMajor: group.description, // Specific Major (Group)
+                        specificGroup: group.description, // Specific Group (Group - or potentially mapped elsewhere)
+                        originalData: {
+                            code: specific.code,
+                            group: group.code,
+                            majorDiscipline: major.description,
+                            specificDiscipline: specific.description,
+                            type: 'specific'
+                        }
+                    });
+                });
+            });
+        });
+
+        // Search text check for metadata if not filtered by specifics? 
+        // The above loop covers explicit searching within items. 
+        // If we want to return empty if no matches, we are good.
+
+        return allPrograms;
     }, [disciplines, searchQuery, selectedMajor]);
 
     const activeMajorName = disciplines.find(m => m.code === selectedMajor)?.description;
@@ -112,7 +142,7 @@ export default function AdminDisciplineModule({ disciplines = [] }: AdminDiscipl
                         <div className="relative w-full md:w-96">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                             <Input
-                                placeholder="Search by code, major, or specific discipline..."
+                                placeholder="Search by code, group, major, or specific..."
                                 className="pl-9 bg-gray-50 border-gray-300 rounded-none focus-visible:ring-1 focus-visible:ring-gray-400 h-10"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -128,7 +158,7 @@ export default function AdminDisciplineModule({ disciplines = [] }: AdminDiscipl
                                     </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end" className="w-[300px] rounded-none p-0">
-                                    <DropdownMenuLabel className="sticky top-0 bg-white z-10 border-b border-gray-100 py-3">Filter by Major Discipline</DropdownMenuLabel>
+                                    <DropdownMenuLabel className="sticky top-0 bg-white z-10 border-b border-gray-100 py-3">Filter by Discipline Group</DropdownMenuLabel>
                                     <DropdownMenuSeparator className="m-0" />
                                     <ScrollArea className="h-[300px] w-full">
                                         <div className="py-1">
@@ -164,7 +194,7 @@ export default function AdminDisciplineModule({ disciplines = [] }: AdminDiscipl
                     {selectedMajor && (
                         <div className="flex items-center gap-2 mb-6 animate-in fade-in slide-in-from-left-2">
                             <Badge variant="secondary" className="rounded-none bg-gray-900 text-white pl-2 pr-1 py-1 gap-1 font-normal">
-                                Major: {activeMajorName}
+                                Group: {activeMajorName}
                                 <Button
                                     variant="ghost"
                                     size="icon"
@@ -186,19 +216,11 @@ export default function AdminDisciplineModule({ disciplines = [] }: AdminDiscipl
 
                     {/* Hierarchy Display */}
                     <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 flex flex-col gap-8">
-                        {filteredDisciplines.map((major) => (
-                            <DisciplineTable
-                                key={major.code}
-                                major={major}
-                                onEdit={handleEdit}
-                                onDelete={handleDelete}
-                            />
-                        ))}
-                        {filteredDisciplines.length === 0 && (
-                            <div className="py-12 text-center bg-gray-50 border border-dashed border-gray-300 rounded-none">
-                                <p className="text-gray-500 text-sm font-medium">No disciplines found matching "{searchQuery}"</p>
-                            </div>
-                        )}
+                        <DisciplineTable
+                            programs={filteredDisciplines}
+                            onEdit={handleEdit}
+                            onDelete={handleDelete}
+                        />
                     </div>
                 </div>
             </div>

@@ -17,7 +17,7 @@ interface Props {
     isOpen: boolean;
     onOpenChange: (open: boolean) => void;
     school: School | null;
-    onSave: (school: School) => void;
+    onSave?: (school: School) => void;
 }
 
 const SchoolNameModal: FC<Props> = ({ isOpen, onOpenChange, school, onSave }) => {
@@ -28,6 +28,7 @@ const SchoolNameModal: FC<Props> = ({ isOpen, onOpenChange, school, onSave }) =>
         contact_number: '',
         email: '',
         is_active: true,
+        type: 'Private' as 'Public' | 'Private',
     });
 
     useEffect(() => {
@@ -39,6 +40,7 @@ const SchoolNameModal: FC<Props> = ({ isOpen, onOpenChange, school, onSave }) =>
                 contact_number: school.contact_number || '',
                 email: school.email || '',
                 is_active: school.is_active,
+                type: school.type || 'Private',
             });
         } else {
             reset();
@@ -48,15 +50,22 @@ const SchoolNameModal: FC<Props> = ({ isOpen, onOpenChange, school, onSave }) =>
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
-        const schoolData = {
-            id: school?.id || 0, // 0 or placeholder for new
-            ...data,
-            created_at: school?.created_at || new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-        } as School;
-
-        onSave(schoolData);
-        onOpenChange(false);
+        if (school) {
+            put(route('schools.update', school.id), {
+                onSuccess: () => {
+                    onSave?.({ ...school, ...data } as School); // Keep for compatibility if needed, or remove
+                    onOpenChange(false);
+                },
+            });
+        } else {
+            post(route('admin.schools.store'), {
+                onSuccess: () => {
+                    // onSave is no longer strictly needed for the create flow if we rely on Inertia reload, 
+                    // but we keep the signature or just close.
+                    onOpenChange(false);
+                },
+            });
+        }
     };
 
     return (
@@ -119,6 +128,34 @@ const SchoolNameModal: FC<Props> = ({ isOpen, onOpenChange, school, onSave }) =>
                                 onChange={(e) => setData('email', e.target.value)}
                                 placeholder="school@example.com"
                             />
+                        </div>
+                    </div>
+
+                    <div className="grid gap-2">
+                        <Label>School Type</Label>
+                        <div className="flex gap-4">
+                            <label className="flex items-center space-x-2 cursor-pointer">
+                                <input
+                                    type="radio"
+                                    name="type"
+                                    value="Public"
+                                    checked={data.type === 'Public'}
+                                    onChange={(e) => setData('type', e.target.value as 'Public' | 'Private')}
+                                    className="accent-black h-4 w-4"
+                                />
+                                <span>Public</span>
+                            </label>
+                            <label className="flex items-center space-x-2 cursor-pointer">
+                                <input
+                                    type="radio"
+                                    name="type"
+                                    value="Private"
+                                    checked={data.type === 'Private'}
+                                    onChange={(e) => setData('type', e.target.value as 'Public' | 'Private')}
+                                    className="accent-black h-4 w-4"
+                                />
+                                <span>Private</span>
+                            </label>
                         </div>
                     </div>
 

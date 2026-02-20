@@ -23,10 +23,10 @@ class MarineEngineeringSeeder extends Seeder
         // Seed Group
         $majorCode = '90'; // Hardcoded to 90 for MARITIME as requested
 
-        DB::table('ref_discipline_group')->updateOrInsert(
+        DB::table('ref_major_discipline')->updateOrInsert(
             ['code' => $groupCode],
             [
-                'major_discipline_code' => $majorCode,
+                'discipline_group_code' => $majorCode,
                 'description' => $description,
                 'slug' => Str::slug($description, '_'),
                 'created_at' => now(),
@@ -39,7 +39,7 @@ class MarineEngineeringSeeder extends Seeder
             DB::table('ref_specific_discipline')->updateOrInsert(
                 ['code' => $specific['code']],
                 [
-                    'major_discipline_code' => '90', // Hardcoded to 90 for MARITIME as requested
+                    'major_discipline_code' => $groupCode, // Hardcoded to 90 for MARITIME as requested
                     'minor_group' => $description,
                     'description' => $specific['description'],
                     'created_at' => now(),

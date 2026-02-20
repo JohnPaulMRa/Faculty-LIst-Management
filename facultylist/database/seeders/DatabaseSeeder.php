@@ -15,10 +15,35 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        \App\Models\School::firstOrCreate(
+            ['id' => 1],
+            [
+                'name' => 'Test School',
+                'code' => 'TS001',
+                'is_active' => true,
+                'type' => 'Private', // or Public
+            ]
+        );
+
+        User::firstOrCreate(
+            ['email' => 'test@example.com'],
+            [
+                'name' => 'Test User',
+                'school_id' => 1,
+                'password' => bcrypt('password'), // Ensure password is set if creating
+                'role' => 'Faculty',
+            ]
+        );
+
+        User::firstOrCreate(
+            ['email' => 'admin@example.com'],
+            [
+                'name' => 'Admin User',
+                'school_id' => 1,
+                'password' => bcrypt('password'),
+                'role' => 'Admin',
+            ]
+        );
 
         $this->call([
             E5ReferenceDataSeeder::class, // Added to seed E5 reference tables

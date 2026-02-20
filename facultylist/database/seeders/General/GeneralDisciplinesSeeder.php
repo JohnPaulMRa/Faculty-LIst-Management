@@ -12,7 +12,7 @@ class GeneralDisciplinesSeeder extends Seeder
     {
         // 0010: General
         // User list uses 0010xx. Group 0010.
-        $this->seedGroup('0010', 'General', [
+        $this->seedGroup('0010', '', [
             ['code' => '001001', 'description' => 'Pre-School/Elementary'],
             ['code' => '001002', 'description' => 'Secondary'],
             ['code' => '001003', 'description' => 'Arts'],
@@ -27,10 +27,10 @@ class GeneralDisciplinesSeeder extends Seeder
     private function seedGroup(string $groupCode, string $description, array $specifics): void
     {
         // Seed Group
-        DB::table('ref_discipline_group')->updateOrInsert(
+        DB::table('ref_major_discipline')->updateOrInsert(
             ['code' => $groupCode],
             [
-                'major_discipline_code' => '00', // Assuming 00 for General
+                'discipline_group_code' => '00', // Assuming 00 for General
                 'description' => $description,
                 'slug' => Str::slug($description, '_'),
                 'created_at' => now(),
@@ -43,7 +43,7 @@ class GeneralDisciplinesSeeder extends Seeder
             DB::table('ref_specific_discipline')->updateOrInsert(
                 ['code' => $specific['code']],
                 [
-                    'major_discipline_code' => '00',
+                    'major_discipline_code' => $groupCode,
                     'minor_group' => $description,
                     'description' => $specific['description'],
                     'created_at' => now(),

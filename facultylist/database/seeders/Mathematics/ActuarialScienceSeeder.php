@@ -12,16 +12,16 @@ class ActuarialScienceSeeder extends Seeder
     {
         // 4621: Actuarial Science
         $this->seedGroup('4621', 'Actuarial Science', [
-            ['code' => '462100', 'description' => 'Actuarial Science'],
+            ['code' => '462100', 'description' => ''],
         ]);
     }
 
     private function seedGroup(string $groupCode, string $description, array $specifics): void
     {
-        DB::table('ref_discipline_group')->updateOrInsert(
+        DB::table('ref_major_discipline')->updateOrInsert(
             ['code' => $groupCode],
             [
-                'major_discipline_code' => '46',
+                'discipline_group_code' => '46',
                 'description' => $description,
                 'slug' => Str::slug($description, '_'),
                 'created_at' => now(),
@@ -33,7 +33,7 @@ class ActuarialScienceSeeder extends Seeder
             DB::table('ref_specific_discipline')->updateOrInsert(
                 ['code' => $specific['code']],
                 [
-                    'major_discipline_code' => '46',
+                    'major_discipline_code' => $groupCode,
                     'minor_group' => $description,
                     'description' => $specific['description'],
                     'created_at' => now(),

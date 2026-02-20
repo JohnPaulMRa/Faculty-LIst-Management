@@ -10,10 +10,16 @@ class SchoolSubmission extends Model
     use HasFactory;
 
     protected $fillable = [
+        'school_id',
         'school_name',
         'academic_year',
         'submitted_by',
         'total_faculty',
         'status',
     ];
+
+    public function school()
+    {
+        return $this->belongsTo(School::class);
+    }
 }

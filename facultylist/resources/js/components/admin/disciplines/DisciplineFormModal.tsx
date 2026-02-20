@@ -139,7 +139,7 @@ export default function DisciplineFormModal({ isOpen, onClose, onSubmit, initial
                                 </label>
                                 <label className="flex items-center gap-2 cursor-pointer">
                                     <input type="radio" name="addType" checked={addType === 'group'} onChange={() => setAddType('group')} className="accent-black" />
-                                    <span className="text-sm">Discipline Group</span>
+                                    <span className="text-sm">Major Discipline</span>
                                 </label>
                             </div>
                         </div>
@@ -148,11 +148,11 @@ export default function DisciplineFormModal({ isOpen, onClose, onSubmit, initial
                     {/* ADD MODE: Major Dropdown */}
                     {!initialData && (
                         <div className="grid grid-cols-4 items-center gap-4">
-                            <Label className="text-right">Major Disc.</Label>
+                            <Label className="text-right">Disc. Group</Label>
                             <div className="col-span-3">
                                 <Select value={selectedMajorCode} onValueChange={handleMajorChange}>
                                     <SelectTrigger className="rounded-none">
-                                        <SelectValue placeholder="Select Major Discipline" />
+                                        <SelectValue placeholder="Select Discipline Group" />
                                     </SelectTrigger>
                                     <SelectContent className="max-h-[200px]">
                                         {majors.map((m: any) => (
@@ -170,7 +170,7 @@ export default function DisciplineFormModal({ isOpen, onClose, onSubmit, initial
                     {/* EDIT MODE: Major Input (Read-onlyish) */}
                     {initialData && (
                         <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="major" className="text-right">Major Disc.</Label>
+                            <Label htmlFor="major" className="text-right">Disc. Group</Label>
                             <Input id="major" value={formData.majorDiscipline} readOnly className="col-span-3 rounded-none bg-gray-50" />
                         </div>
                     )}
@@ -178,11 +178,11 @@ export default function DisciplineFormModal({ isOpen, onClose, onSubmit, initial
                     {/* ADD MODE: Group Dropdown (If Specific Type selected) */}
                     {!initialData && addType === 'specific' && (
                         <div className="grid grid-cols-4 items-center gap-4">
-                            <Label className="text-right">Group</Label>
+                            <Label className="text-right">Major Disc.</Label>
                             <div className="col-span-3">
                                 <Select value={selectedGroupCode} onValueChange={handleGroupChange} disabled={!selectedMajorCode}>
                                     <SelectTrigger className="rounded-none">
-                                        <SelectValue placeholder="Select Group" />
+                                        <SelectValue placeholder="Select Major Discipline" />
                                     </SelectTrigger>
                                     <SelectContent className="max-h-[200px]">
                                         {activeGroups.map((g: any) => (
@@ -200,7 +200,7 @@ export default function DisciplineFormModal({ isOpen, onClose, onSubmit, initial
                     {/* ADD MODE: Group Code Display */}
                     {!initialData && selectedGroupCode && addType === 'specific' && (
                         <div className="grid grid-cols-4 items-center gap-4">
-                            <Label className="text-right">Group Code</Label>
+                            <Label className="text-right">Major Code</Label>
                             <div className="col-span-3 font-mono text-sm font-bold pl-3 py-2 bg-gray-50 border border-gray-100">
                                 {selectedGroupCode}
                             </div>
@@ -212,7 +212,7 @@ export default function DisciplineFormModal({ isOpen, onClose, onSubmit, initial
                     {!initialData && addType === 'group' && (
                         <>
                             <div className="grid grid-cols-4 items-center gap-4">
-                                <Label htmlFor="newGroupCode" className="text-right">New Group Code</Label>
+                                <Label htmlFor="newGroupCode" className="text-right">New Major Code</Label>
                                 <div className="col-span-3 flex items-center gap-2">
                                     <span className="font-mono bg-gray-100 px-2 py-2 text-sm">{selectedMajorCode || 'XX'}</span>
                                     <Input
@@ -226,7 +226,7 @@ export default function DisciplineFormModal({ isOpen, onClose, onSubmit, initial
                                 </div>
                             </div>
                             <div className="grid grid-cols-4 items-center gap-4">
-                                <Label htmlFor="groupDesc" className="text-right">Group Name</Label>
+                                <Label htmlFor="groupDesc" className="text-right">Major Name</Label>
                                 <Input
                                     id="groupDesc"
                                     value={formData.groupDescription}
@@ -311,7 +311,7 @@ export default function DisciplineFormModal({ isOpen, onClose, onSubmit, initial
                             Cancel
                         </Button>
                         <Button type="submit" className="rounded-none bg-black text-white hover:bg-gray-800">
-                            {initialData ? (effectiveIsGroup ? 'Save Group' : 'Save Specific') : (effectiveIsGroup ? 'Create Group' : 'Create Specific')}
+                            {initialData ? (effectiveIsGroup ? 'Save Major' : 'Save Specific') : (effectiveIsGroup ? 'Create Major' : 'Create Specific')}
                         </Button>
                     </DialogFooter>
                 </form>

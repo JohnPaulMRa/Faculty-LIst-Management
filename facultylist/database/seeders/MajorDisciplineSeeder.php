@@ -14,7 +14,7 @@ class MajorDisciplineSeeder extends Seeder
     {
         // Truncate the table to ensure a clean state
         \Illuminate\Support\Facades\Schema::disableForeignKeyConstraints();
-        \Illuminate\Support\Facades\DB::table('ref_major_discipline')->truncate();
+        \Illuminate\Support\Facades\DB::table('ref_discipline_group')->truncate();
         \Illuminate\Support\Facades\Schema::enableForeignKeyConstraints();
 
         $disciplines = [
@@ -42,7 +42,7 @@ class MajorDisciplineSeeder extends Seeder
         ];
 
         foreach ($disciplines as $discipline) {
-            \Illuminate\Support\Facades\DB::table('ref_major_discipline')->insert(
+            \Illuminate\Support\Facades\DB::table('ref_discipline_group')->insert(
                 [
                     'code' => $discipline['code'],
                     'description' => $discipline['description'],

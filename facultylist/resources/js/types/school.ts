@@ -6,6 +6,7 @@ export interface School {
     contact_number: string | null;
     email: string | null;
     is_active: boolean;
+    type: 'Public' | 'Private';
     created_at: string;
     updated_at: string;
 }

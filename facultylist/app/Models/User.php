@@ -23,6 +23,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'school_id',
     ];
 
     const ROLE_ADMIN = 'Admin';
@@ -39,6 +40,11 @@ class User extends Authenticatable
         'two_factor_recovery_codes',
         'remember_token',
     ];
+
+    public function school()
+    {
+        return $this->belongsTo(School::class);
+    }
 
     /**
      * Get the attributes that should be cast.

@@ -13,7 +13,7 @@ class EconomicsSeeder extends Seeder
         // 3012: Economics
         $this->seedGroup('3012', 'Economics', [
             ['code' => '301201', 'description' => 'Applied Economics'],
-            ['code' => '301202', 'description' => 'Economics'],
+            ['code' => '301202', 'description' => ''],
             ['code' => '301205', 'description' => 'Business Economics'],
             ['code' => '301206', 'description' => 'Development Economics'],
             ['code' => '301207', 'description' => 'Management Economics'],
@@ -24,10 +24,10 @@ class EconomicsSeeder extends Seeder
 
     private function seedGroup(string $groupCode, string $description, array $specifics): void
     {
-        DB::table('ref_discipline_group')->updateOrInsert(
+        DB::table('ref_major_discipline')->updateOrInsert(
             ['code' => $groupCode],
             [
-                'major_discipline_code' => '30',
+                'discipline_group_code' => '30',
                 'description' => $description,
                 'slug' => Str::slug($description, '_'),
                 'created_at' => now(),
@@ -39,7 +39,7 @@ class EconomicsSeeder extends Seeder
             DB::table('ref_specific_discipline')->updateOrInsert(
                 ['code' => $specific['code']],
                 [
-                    'major_discipline_code' => '30',
+                    'major_discipline_code' => $groupCode,
                     'minor_group' => $description,
                     'description' => $specific['description'],
                     'created_at' => now(),

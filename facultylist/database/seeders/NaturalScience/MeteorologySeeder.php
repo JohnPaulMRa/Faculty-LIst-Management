@@ -12,16 +12,16 @@ class MeteorologySeeder extends Seeder
     {
         // 4252: Meteorology
         $this->seedGroup('4252', 'Meteorology', [
-            ['code' => '425200', 'description' => 'Meteorology'],
+            ['code' => '425200', 'description' => ''],
         ]);
     }
 
     private function seedGroup(string $groupCode, string $description, array $specifics): void
     {
-        DB::table('ref_discipline_group')->updateOrInsert(
+        DB::table('ref_major_discipline')->updateOrInsert(
             ['code' => $groupCode],
             [
-                'major_discipline_code' => '42',
+                'discipline_group_code' => '42',
                 'description' => $description,
                 'slug' => Str::slug($description, '_'),
                 'created_at' => now(),
@@ -33,7 +33,7 @@ class MeteorologySeeder extends Seeder
             DB::table('ref_specific_discipline')->updateOrInsert(
                 ['code' => $specific['code']],
                 [
-                    'major_discipline_code' => '42',
+                    'major_discipline_code' => $groupCode,
                     'minor_group' => $description,
                     'description' => $specific['description'],
                     'created_at' => now(),

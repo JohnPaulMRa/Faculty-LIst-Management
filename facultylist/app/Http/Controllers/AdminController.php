@@ -12,10 +12,34 @@ use Inertia\Inertia;
 
 class AdminController extends Controller
 {
+    public function storeSchool(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'code' => 'nullable|string|max:50|unique:schools,code',
+            'address' => 'nullable|string|max:255',
+            'contact_number' => 'nullable|string|max:20',
+            'email' => 'nullable|email|max:255',
+            'is_active' => 'boolean',
+            'type' => 'required|in:Public,Private',
+        ]);
+
+        // Convert empty strings to null to avoid unique constraint violations on 'code'
+        $data = $validated;
+        $data['code'] = $data['code'] ?: null;
+        $data['address'] = $data['address'] ?: null;
+        $data['contact_number'] = $data['contact_number'] ?: null;
+        $data['email'] = $data['email'] ?: null;
+
+        School::create($data);
+
+        return redirect()->back()->with('success', 'School created successfully.');
+    }
+
     public function dashboard(Request $request)
     {
         // 1. Schools List with Faculty Count
-        $schoolsQuery = School::withCount('faculties')
+        $schoolsQuery = School::withCount(['faculties', 'facultiesE5'])
             ->orderBy('name')
             ->get();
 
@@ -23,7 +47,7 @@ class AdminController extends Controller
             return [
                 'id' => (int) $s->id,
                 'name' => $s->name,
-                'faculty' => $s->faculties_count,
+                'faculty' => $s->faculties_count + $s->faculties_e5_count,
                 'status' => $s->is_active ? 'Active' : 'Inactive',
             ];
         });
@@ -51,7 +75,7 @@ class AdminController extends Controller
         $distributionData = $schoolsQuery->map(function ($s) {
             return [
                 'name' => $s->name,
-                'count' => (int) $s->faculties_count,
+                'count' => (int) ($s->faculties_count + $s->faculties_e5_count),
             ];
         })->values();
 
@@ -89,9 +113,32 @@ class AdminController extends Controller
             'disciplineUpdates' => $disciplineUpdates
         ]);
     }
+    private function getReferenceData()
+    {
+        return [
+            'gender' => \Illuminate\Support\Facades\DB::table('e5_ref_gender')->select('code', 'description as desc')->get(),
+            'fullTimePartTime' => \Illuminate\Support\Facades\DB::table('e5_ref_full_time_part_time')->select('code', 'description as desc')->get(),
+            'highestDegree' => \Illuminate\Support\Facades\DB::table('e5_ref_highest_degree')->select('code', 'description as desc')->get(),
+            'professionalLicense' => \Illuminate\Support\Facades\DB::table('e5_ref_professional_license')->select('code', 'description as desc')->get(),
+            'tenure' => \Illuminate\Support\Facades\DB::table('e5_ref_tenure')->select('code', 'description as desc')->get(),
+            'facultyRank' => \Illuminate\Support\Facades\DB::table('e5_ref_faculty_rank')->select('code', 'description as desc')->get(),
+            'teachingLoad' => \Illuminate\Support\Facades\DB::table('e5_ref_teaching_load')->select('code', 'description as desc')->get(),
+            'annualSalary' => \Illuminate\Support\Facades\DB::table('e5_ref_annual_salary')->select('code', 'description as desc')->get(),
+            'groupDiscipline' => \Illuminate\Support\Facades\DB::table('ref_major_discipline')
+                ->select('code', 'description as desc')
+                ->orderBy('code')
+                ->get(),
+            'disciplines' => \Illuminate\Support\Facades\DB::table('ref_specific_discipline')
+                ->select('major_discipline_code as major_group_code', 'code', 'description as desc')
+                ->orderBy('code')
+                ->get()
+        ];
+    }
+
     public function facultyList(Request $request)
     {
         $schools = $this->getSchools($request);
+        $referenceData = $this->getReferenceData();
 
         $faculty = [];
         if ($request->has('school_id') && $request->school_id) {
@@ -105,35 +152,37 @@ class AdminController extends Controller
         return Inertia::render('Admin/FacultyList', [
             'schools' => $schools,
             'faculty' => $faculty,
+            'referenceData' => $referenceData,
             'filters' => $request->only(['school_id', 'search']),
         ]);
     }
+
     public function disciplines(Request $request)
     {
-        $majors = \App\Models\RefMajorDiscipline::orderBy('code')->get();
         $groups = \App\Models\RefDisciplineGroup::orderBy('code')->get();
+        $majors = \App\Models\RefMajorDiscipline::orderBy('code')->get();
         $specifics = \App\Models\RefSpecificDiscipline::orderBy('code')->get();
 
-        $disciplines = $majors->map(function ($major) use ($groups, $specifics) {
-            $majorGroups = $groups->filter(fn($g) => $g->major_discipline_code === $major->code)
-                ->map(function ($group) use ($specifics) {
-                    $groupSpecifics = $specifics->filter(fn($s) => str_starts_with($s->code, $group->code))
+        $disciplines = $groups->map(function ($group) use ($majors, $specifics) {
+            $groupMajors = $majors->filter(fn($m) => $m->discipline_group_code === $group->code)
+                ->map(function ($major) use ($specifics) {
+                    $majorSpecifics = $specifics->filter(fn($s) => str_starts_with($s->code, $major->code))
                         ->map(fn($s) => [
                             'code' => $s->code,
                             'description' => $s->description,
                         ])->values();
 
                     return [
-                        'code' => $group->code,
-                        'description' => $group->description,
-                        'specifics' => $groupSpecifics,
+                        'code' => $major->code,
+                        'description' => $major->description,
+                        'specifics' => $majorSpecifics,
                     ];
                 })->values();
 
             return [
-                'code' => $major->code,
-                'description' => $major->description,
-                'groups' => $majorGroups,
+                'code' => $group->code,
+                'description' => $group->description,
+                'groups' => $groupMajors,
             ];
         })->values();
 
@@ -145,49 +194,49 @@ class AdminController extends Controller
     {
         $validated = $request->validate([
             'code' => 'required|string|min:4|max:6',
-            'group' => 'required|string|min:2|max:4', // Major code or Group code
-            'majorDiscipline' => 'required|string',
+            'group' => 'nullable|string',
+            'majorDiscipline' => 'nullable|string',
             'specificDiscipline' => 'nullable|string',
             'groupDescription' => 'nullable|string',
         ]);
 
-        $codeLen = strlen($validated['code']);
-        $majorCode = substr($validated['code'], 0, 2);
+        $code = $validated['code'];
+        $len = strlen($code);
 
-        // 1. Ensure Major exists
-        \App\Models\RefMajorDiscipline::updateOrCreate(
-            ['code' => $majorCode],
-            ['description' => $validated['majorDiscipline']]
-        );
+        // Case A: Major Discipline (4 digits) - "Group" mode in frontend
+        if ($len === 4) {
+            $parentGroupCode = substr($code, 0, 2);
+            // In 'group' mode (Major), the name is sent as groupDescription
+            $description = $validated['groupDescription'];
 
-        // 2. Ensure Group exists
-        if ($codeLen >= 4) {
-            $groupCode = substr($validated['code'], 0, 4);
-            $groupDesc = $validated['groupDescription'] ?? ('Group for ' . $validated['majorDiscipline']);
+            if (!$description) {
+                return redirect()->back()->with('error', 'Major Discipline description is required.');
+            }
 
-            \App\Models\RefDisciplineGroup::updateOrCreate(
-                ['code' => $groupCode],
+            \App\Models\RefMajorDiscipline::updateOrCreate(
+                ['code' => $code],
                 [
-                    'major_discipline_code' => $majorCode,
-                    'description' => $groupDesc
+                    'discipline_group_code' => $parentGroupCode,
+                    'description' => $description,
+                    'slug' => \Illuminate\Support\Str::slug($description, '_')
                 ]
             );
         }
+        // Case B: Specific Discipline (6 digits) - "Specific" mode in frontend
+        elseif ($len === 6) {
+            $parentMajorCode = substr($code, 0, 4);
+            $description = $validated['specificDiscipline'];
 
-        // 3. Create/Update Specific Discipline (Only if code is full specific code)
-        if ($codeLen === 6) {
-            if (empty($validated['specificDiscipline'])) {
+            if (!$description) {
                 return redirect()->back()->with('error', 'Specific Discipline description is required.');
             }
 
-            $groupCode = substr($validated['code'], 0, 4);
-
             \App\Models\RefSpecificDiscipline::updateOrCreate(
-                ['code' => $validated['code']],
+                ['code' => $code],
                 [
-                    'major_discipline_code' => $majorCode,
-                    'description' => $validated['specificDiscipline'],
-                    'minor_group' => 'Group ' . $groupCode
+                    'major_discipline_code' => $parentMajorCode,
+                    'description' => $description,
+                    'minor_group' => $validated['groupDescription'] ?? '' // Fallback/Legacy
                 ]
             );
         }
@@ -211,7 +260,7 @@ class AdminController extends Controller
     private function getSchools(Request $request)
     {
         $search = $request->input('search');
-        $schoolsQuery = School::withCount('faculties')
+        $schoolsQuery = School::withCount(['faculties', 'facultiesE5'])
             ->when($search, function ($query, $search) {
                 return $query->where('name', 'like', '%' . $search . '%');
             })
@@ -222,8 +271,9 @@ class AdminController extends Controller
             return [
                 'id' => (int) $s->id,
                 'name' => $s->name,
-                'faculty' => $s->faculties_count,
-                'type' => 'public', // Hardcoded for now
+                'code' => $s->code,
+                'faculty' => $s->faculties_count + $s->faculties_e5_count,
+                'type' => $s->type,
                 'status' => $s->is_active ? 'Active' : 'Inactive',
             ];
         });
@@ -239,11 +289,22 @@ class AdminController extends Controller
             ->map(function ($f) {
                 return [
                     'id' => 'e2-' . $f->id,
+                    'original_id' => $f->id,
                     'name' => $f->name,
-                    'sex' => 'N/A',
+                    'email' => $f->email,
+                    'sex' => 'N/A', // For display compatibility
+                    'genderCode' => null,
                     'type' => $f->employment ?? 'Full-time',
+                    'employment' => $f->employment ?? 'Full-time',
                     'submissionStatus' => 'pending',
+                    'status' => 'Not Updated', // Default
                     'schoolYear' => $f->joined_year ?? 'N/A',
+                    'joined_year' => $f->joined_year,
+                    'form_type' => 'E2',
+                    'department' => $f->department ?? '',
+                    'degree' => $f->degree ?? '',
+                    'rank' => $f->rank ?? '',
+                    'avatar_initials' => $f->avatar_initials ?? '?',
                 ];
             });
     }
@@ -258,12 +319,46 @@ class AdminController extends Controller
             ->map(function ($f) {
                 return [
                     'id' => 'e5-' . $f->id,
+                    'original_id' => $f->id,
                     'name' => $f->name,
+                    'email' => $f->email,
                     'sex' => $f->gender_code === '1' ? 'Male' : ($f->gender_code === '2' ? 'Female' : 'N/A'),
+                    'genderCode' => $f->gender_code,
+                    'fullTimeCode' => $f->ft_pt_code,
+                    'disciplineCode' => $f->discipline_code,
                     'type' => $f->employment ?? 'Full-time',
+                    'employment' => $f->employment ?? 'Full-time',
                     'submissionStatus' => 'submitted',
+                    'status' => $f->status ?? 'Not Updated',
                     'schoolYear' => $f->joined_year ?? 'N/A',
+                    'joined_year' => $f->joined_year,
+                    'form_type' => 'E5',
+                    'department' => '', // E5 might not have dept column readily available or mapped
+                    'degree' => $f->highest_degree_code ?? '', // use code or lookup if needed
+                    'rank' => $f->rank_code ?? '',
+                    'avatar_initials' => $f->avatar_initials ?? '?',
                 ];
             });
+    }
+
+    public function createFacultyAccount(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|confirmed|min:8',
+            'school_id' => 'required|exists:schools,id',
+        ]);
+
+        $user = \App\Models\User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => \Illuminate\Support\Facades\Hash::make($validated['password']),
+            // 'role' => 'faculty', // Default is Faculty per migration or handle here if needed
+            'role' => 'Faculty',
+            'school_id' => $validated['school_id'],
+        ]);
+
+        return redirect()->back()->with('success', 'Faculty account created successfully.');
     }
 }

@@ -11,7 +11,12 @@ class RefMajorDiscipline extends Model
     public $incrementing = false;
     protected $keyType = 'string';
 
-    protected $fillable = ['code', 'description'];
+    protected $fillable = ['code', 'discipline_group_code', 'description', 'slug'];
+
+    public function disciplineGroup()
+    {
+        return $this->belongsTo(RefDisciplineGroup::class, 'discipline_group_code', 'code');
+    }
 
     public function specificDisciplines()
     {

@@ -13,20 +13,25 @@ class AcademicYearSeeder extends Seeder
     public function run(): void
     {
         $currentYear = date('Y');
-        $years = [];
+        $years = [
+            '2021-2022',
+            '2022-2023',
+            '2023-2024',
+            '2024-2025',
+            '2025-2026',
+            '2026-2027',
+            '2027-2028',
+            '2028-2029',
+            '2029-2030',
+            '2030-2031',
+            '2031-2032'
+        ];
 
-        // Generate 5 years back and 5 years forward
-        for ($i = -5; $i <= 5; $i++) {
-            $startYear = $currentYear + $i;
-            $name = $startYear . '-' . ($startYear + 1);
-            $years[] = [
-                'name' => $name,
-                'is_active' => true,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ];
+        foreach ($years as $year) {
+            \App\Models\AcademicYear::firstOrCreate(
+                ['name' => $year],
+                ['is_active' => true]
+            );
         }
-
-        \App\Models\AcademicYear::insert($years);
     }
 }

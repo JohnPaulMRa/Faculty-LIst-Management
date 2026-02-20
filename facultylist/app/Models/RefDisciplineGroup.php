@@ -11,10 +11,10 @@ class RefDisciplineGroup extends Model
     public $incrementing = false;
     protected $keyType = 'string';
 
-    protected $fillable = ['code', 'major_discipline_code', 'description', 'slug'];
+    protected $fillable = ['code', 'description', 'slug'];
 
-    public function majorDiscipline()
+    public function majorDisciplines()
     {
-        return $this->belongsTo(RefMajorDiscipline::class, 'major_discipline_code', 'code');
+        return $this->hasMany(RefMajorDiscipline::class, 'discipline_group_code', 'code');
     }
 }

@@ -1,0 +1,20 @@
+--- Debugging Ghost Submissions ---
+
+1. Schools:
+ID: 1 | Name: Notre Dame of Marbel University | Active: Yes
+
+2. Users:
+ID: 4 | Name: admin-test | Email: admin-test@gmail.com | School ID: NULL
+ID: 5 | Name: Administrator | Email: admin@admin.com | School ID: NULL
+ID: 8 | Name: userfaculty | Email: userfaculty@gmail.com | School ID: NULL
+ID: 9 | Name: testNdmu | Email: ndmufaculty@gmail.com | School ID: NULL
+
+3. Faculty Counts (E2):
+School 'Notre Dame of Marbel University' (ID 1): 0 E2 records
+Faculty with NULL school_id: 0
+
+3b. Faculty Counts (E5):
+School 'Notre Dame of Marbel University' (ID 1): 0 E5 records
+Faculty (E5) with NULL school_id: 0
+
+4. Recent School Submissions:

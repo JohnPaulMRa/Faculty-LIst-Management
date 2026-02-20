@@ -42,6 +42,12 @@ Route::middleware(['auth', 'verified', 'role:Admin'])->group(function () {
     Route::get('/admin/disciplines', [\App\Http\Controllers\AdminController::class, 'disciplines'])->name('admin.disciplines');
     Route::post('/admin/disciplines', [\App\Http\Controllers\AdminController::class, 'storeDiscipline'])->name('admin.disciplines.store');
     Route::delete('/admin/disciplines/{code}', [\App\Http\Controllers\AdminController::class, 'destroyDiscipline'])->name('admin.disciplines.destroy');
+
+    // School Management
+    Route::post('/admin/schools', [\App\Http\Controllers\AdminController::class, 'storeSchool'])->name('admin.schools.store');
+
+    // User Management
+    Route::post('/admin/faculty/create-account', [\App\Http\Controllers\AdminController::class, 'createFacultyAccount'])->name('admin.faculty.create-account');
 });
 
 require __DIR__ . '/settings.php';
