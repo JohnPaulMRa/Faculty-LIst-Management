@@ -12,9 +12,28 @@ class DashboardController extends Controller
 {
     public function index(Request $request)
     {
+        $user = \Illuminate\Support\Facades\Auth::user();
+        if (!$user || !$user->school_id) {
+            return Inertia::render('dashboard', [
+                'overview' => [
+                    'totalFaculty' => 0,
+                    'licensedFaculty' => 0,
+                    'employment' => ['fullTime' => 0, 'partTime' => 0],
+                    'gender' => ['male' => 0, 'female' => 0, 'unknown' => 0],
+                    'status' => ['updated' => 0, 'notUpdated' => 0],
+                    'qualifications' => [],
+                    'teachingLoad' => ['regular' => 0, 'overload' => 0, 'underload' => 0],
+                    'employmentTrends' => ['years' => [], 'series' => []]
+                ],
+                'selectedYear' => 'All Years',
+                'availableYears' => collect([]),
+            ]);
+        }
+        $schoolId = $user->school_id;
+
         // Get years that actually have faculty data from both tables
-        $yearsE2 = Faculty::select('joined_year')->whereNotNull('joined_year')->distinct()->pluck('joined_year');
-        $yearsE5 = FacultyE5::select('joined_year')->whereNotNull('joined_year')->distinct()->pluck('joined_year');
+        $yearsE2 = Faculty::select('joined_year')->where('school_id', $schoolId)->whereNotNull('joined_year')->distinct()->pluck('joined_year');
+        $yearsE5 = FacultyE5::select('joined_year')->where('school_id', $schoolId)->whereNotNull('joined_year')->distinct()->pluck('joined_year');
 
         $availableYears = $yearsE2->concat($yearsE5)
             ->unique()
@@ -26,13 +45,15 @@ class DashboardController extends Controller
         $selectedYear = $request->input('year', $defaultYear);
 
         // Base Query Scopes
-        $filterE2 = function ($query) use ($selectedYear) {
+        $filterE2 = function ($query) use ($selectedYear, $schoolId) {
+            $query->where('school_id', $schoolId);
             if ($selectedYear && $selectedYear !== 'All Years') {
                 $query->where('joined_year', $selectedYear);
             }
         };
 
-        $filterE5 = function ($query) use ($selectedYear) {
+        $filterE5 = function ($query) use ($selectedYear, $schoolId) {
+            $query->where('school_id', $schoolId);
             if ($selectedYear && $selectedYear !== 'All Years') {
                 $query->where('joined_year', $selectedYear);
             }
@@ -161,15 +182,15 @@ class DashboardController extends Controller
 
         // 6. Employment Trends
         // Aggregate E2 + E5 by year and full-time/part-time status
-        // E2: Map 'Full-time' -> Code 1, 'Part-time' -> Code 5, Others -> 9
-        // E5: Use ft_pt_code directly
 
-        $trendDataE2 = Faculty::select('joined_year', 'employment', DB::raw('count(*) as count'))
+        $trendDataE2 = Faculty::where('school_id', $schoolId)
+            ->select('joined_year', 'employment', DB::raw('count(*) as count'))
             ->whereNotNull('joined_year')
             ->groupBy('joined_year', 'employment')
             ->get();
 
-        $trendDataE5 = FacultyE5::select('joined_year', 'ft_pt_code', DB::raw('count(*) as count'))
+        $trendDataE5 = FacultyE5::where('school_id', $schoolId)
+            ->select('joined_year', 'ft_pt_code', DB::raw('count(*) as count'))
             ->whereNotNull('joined_year')
             ->groupBy('joined_year', 'ft_pt_code')
             ->get();

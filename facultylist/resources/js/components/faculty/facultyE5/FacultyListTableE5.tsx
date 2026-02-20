@@ -57,7 +57,11 @@ const FacultyListTableE5: FC<Props> = ({ facultyList, yearFilter, onFileClick, o
                 return found.desc;
             }
         }
-        return faculty.employment === 'Plantilla' ? 'Full-Time' : faculty.employment;
+        if (faculty.employment) {
+            return faculty.employment === 'Plantilla' ? 'Full-Time' : faculty.employment;
+        }
+
+        return ''; // Return empty string so "on the table have no data"
     };
 
     return (
@@ -83,10 +87,10 @@ const FacultyListTableE5: FC<Props> = ({ facultyList, yearFilter, onFileClick, o
                     FACULTY DATA RECORDS
                 </div>
 
-                <table className="w-full border-collapse text-xl whitespace-nowrap font-sans">
+                <table className="w-full border-collapse text-sm whitespace-nowrap font-sans">
                     <thead>
                         <tr className="bg-blue-500 text-white border-b border-gray-300">
-                            <th className="px-3 py-2 font-bold text-center">No.</th>
+                            <th className="px-3 py-2 font-bold text-center">#</th>
                             <th className="px-3 py-2 font-bold text-center">Academic Year</th>
                             <th className="px-3 py-2 font-bold text-center">Faculty Name</th>
                             <th className="px-3 py-2 font-bold text-center">Gender</th>

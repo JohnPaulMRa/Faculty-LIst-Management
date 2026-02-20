@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Search, Plus, Filter, LayoutGrid, X } from 'lucide-react';
+import { Search, Plus, Filter, LayoutGrid, X, University, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import SchoolCard from './SchoolCard';
@@ -139,19 +139,60 @@ export default function AdminFacultyListModule({ schools = [], faculty = [], fil
                         </div>
                     </div>
 
-                    {/* School Cards List */}
-                    <div className="flex flex-col space-y-2">
-                        {schools.map((school) => (
-                            <div key={school.id} onClick={() => handleSchoolClick(school.id)} className="cursor-pointer group">
-                                <SchoolCard
-                                    name={school.name}
-                                    code={school.code}
-                                    totalFaculty={school.faculty}
-                                    type={school.type}
-                                    isActive={selectedSchoolId === school.id}
-                                />
-                            </div>
-                        ))}
+                    {/* School List Table */}
+                    <div className="border border-gray-200 rounded-md overflow-hidden">
+                        <table className="w-full text-sm text-left text-gray-500">
+                            <thead className="text-xs text-gray-700 uppercase bg-gray-50">
+                                <tr>
+                                    <th scope="col" className="px-6 py-3">School Name</th>
+                                    <th scope="col" className="px-6 py-3">Code</th>
+                                    <th scope="col" className="px-6 py-3">Type</th>
+                                    <th scope="col" className="px-6 py-3 text-right">Faculty Count</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {schools.map((school) => (
+                                    <tr
+                                        key={school.id}
+                                        onClick={() => handleSchoolClick(school.id)}
+                                        className={`cursor-pointer hover:bg-gray-50 transition-colors border-b last:border-0 ${selectedSchoolId === school.id ? 'bg-blue-50/50' : 'bg-white'
+                                            }`}
+                                    >
+                                        <td className="px-6 py-4 align-middle">
+                                            <div className="flex items-center gap-3 font-medium text-gray-900">
+                                                <div className={`p-2 rounded-md shrink-0 ${selectedSchoolId === school.id ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-500'}`}>
+                                                    <University className="h-4 w-4" />
+                                                </div>
+                                                <span>{school.name}</span>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 align-middle">
+                                            {school.code ? (
+                                                <span className="font-mono text-xs px-2 py-1 bg-gray-100 rounded-md border border-gray-200">
+                                                    {school.code}
+                                                </span>
+                                            ) : (
+                                                <span className="text-gray-400 italic">None</span>
+                                            )}
+                                        </td>
+                                        <td className="px-6 py-4 align-middle">
+                                            <span className={`inline-flex items-center px-2.5 py-1 text-xs font-medium rounded-full border ${school.type?.toLowerCase() === 'private'
+                                                ? 'bg-amber-50 text-amber-700 border-amber-200'
+                                                : 'bg-blue-50 text-blue-700 border-blue-200'
+                                                }`}>
+                                                {school.type}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 align-middle text-right">
+                                            <div className="flex items-center justify-end gap-2 text-gray-500">
+                                                <Users className="h-4 w-4" />
+                                                <span>{school.faculty}</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
                     </div>
 
                     {schools.length === 0 && (

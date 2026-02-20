@@ -150,9 +150,13 @@ const FacultyProfile: FC<FacultyProfileProps> = ({ initialFacultyData = [], filt
                 }, {
                     preserveState: true,
                     preserveScroll: true,
-                    onSuccess: () => {
-                        console.log('facultyprofile: Submit success');
-                        showAlert('Faculty list submitted successfully!', 'success');
+                    onSuccess: (page: any) => {
+                        console.log('facultyprofile: Submit responded');
+                        if (page.props.flash?.error) {
+                            showAlert(page.props.flash.error, 'error');
+                            return;
+                        }
+                        showAlert(page.props.flash?.success || 'Faculty list submitted successfully!', 'success');
                     },
                     onError: (errors) => {
                         console.error('facultyprofile: Submit failed', errors);
@@ -252,7 +256,7 @@ const FacultyProfile: FC<FacultyProfileProps> = ({ initialFacultyData = [], filt
                         form_type: 'E5',
                         joined_year: importYear,
                         status: 'Not Updated',
-                        employment: fullTimeCode == '1' ? 'Plantilla' : 'Part-time',
+                        employment: null,
                         avatar_initials: (lastName.substring(0, 1) + firstName.substring(0, 1)).toUpperCase() || 'NA'
                     };
                 } else {
@@ -282,10 +286,14 @@ const FacultyProfile: FC<FacultyProfileProps> = ({ initialFacultyData = [], filt
                     try {
                         const importRoute = importType === 'E5' ? '/faculty/import-e5' : '/faculty/import';
                         router.post(importRoute, { faculty: mappedData }, {
-                            onSuccess: () => {
+                            onSuccess: (page: any) => {
+                                if (page.props.flash?.error) {
+                                    showAlert(page.props.flash.error, 'error', 'Import Failed');
+                                    return;
+                                }
                                 setIsImportModalOpen(false);
                                 setImportGroup('');
-                                showAlert('Faculty imported successfully.', 'success');
+                                showAlert(page.props.flash?.success || 'Faculty imported successfully.', 'success');
 
                                 setYearFilter(importYear);
                                 router.get(route('facultyprofile'), {
@@ -318,7 +326,13 @@ const FacultyProfile: FC<FacultyProfileProps> = ({ initialFacultyData = [], filt
             'Delete this record? This action cannot be undone.',
             () => {
                 router.delete(`/faculty/${id}`, {
-                    onSuccess: () => { },
+                    onSuccess: (page: any) => {
+                        if (page.props.flash?.error) {
+                            showAlert(page.props.flash.error, 'error', 'Delete Failed');
+                        } else {
+                            showAlert(page.props.flash?.success || 'Record deleted successfully.', 'success');
+                        }
+                    },
                     onError: () => showAlert('Failed to delete faculty. Please check connection.', 'error'),
                 });
             },
@@ -333,8 +347,12 @@ const FacultyProfile: FC<FacultyProfileProps> = ({ initialFacultyData = [], filt
 
     const handleUpdateFaculty = (updatedFaculty: Faculty) => {
         router.put(`/faculty/${updatedFaculty.id}`, updatedFaculty, {
-            onSuccess: () => {
-                showAlert('Faculty details updated successfully.', 'success');
+            onSuccess: (page: any) => {
+                if (page.props.flash?.error) {
+                    showAlert(page.props.flash.error, 'error', 'Update Failed');
+                    return;
+                }
+                showAlert(page.props.flash?.success || 'Faculty details updated successfully.', 'success');
                 setIsFileModalOpen(false);
                 setSelectedFile(updatedFaculty);
             },

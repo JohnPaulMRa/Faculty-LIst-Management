@@ -180,14 +180,12 @@ const Edit: FC<EditProps> = ({ faculty, referenceData }) => {
                     </Button>
                 </div>
 
-                <div className="bg-white dark:bg-zinc-900 border shadow-lg p-2">
-                    <FacultyProfileCardsE5
-                        formData={formData}
-                        handleChange={handleChange}
-                        referenceData={referenceData}
-                        readOnly={false}
-                    />
-                </div>
+                <FacultyProfileCardsE5
+                    formData={formData}
+                    handleChange={handleChange}
+                    referenceData={referenceData}
+                    readOnly={false}
+                />
             </div>
         </AppLayout>
     );
