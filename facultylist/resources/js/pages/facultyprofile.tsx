@@ -15,6 +15,7 @@ import FacultyListTableE2 from '@/components/faculty/facultyE2/FacultyListTableE
 import FacultyListTableE5 from '@/components/faculty/facultyE5/FacultyListTableE5';
 import FacultyFileDetailsModal from '@/components/faculty/FacultyFileDetailsModal';
 import FacultyImportModal from '@/components/faculty/FacultyImportModal';
+import { FacultyCopyDataModal } from '@/components/faculty/FacultyCopyDataModal';
 import {
     Dialog,
     DialogContent,
@@ -101,6 +102,7 @@ const FacultyProfile: FC<FacultyProfileProps> = ({ initialFacultyData = [], filt
     const [isSubmitModalOpen, setIsSubmitModalOpen] = useState<boolean>(false);
     const [selectedFile, setSelectedFile] = useState<Faculty | null>(null);
     const [isFileModalOpen, setIsFileModalOpen] = useState<boolean>(false);
+    const [isCopyModalOpen, setIsCopyModalOpen] = useState<boolean>(false);
 
     // Alert/Confirm modal state
     const [alertModal, setAlertModal] = useState<{
@@ -120,14 +122,7 @@ const FacultyProfile: FC<FacultyProfileProps> = ({ initialFacultyData = [], filt
     };
 
     const handleRetrieval = () => {
-        router.get(route('facultyprofile'), {
-            search: searchQuery,
-            year: yearFilter === 'All Years' ? '' : yearFilter
-        }, {
-            preserveState: true,
-            preserveScroll: true,
-            replace: true
-        });
+        setIsCopyModalOpen(true);
     };
 
     const handleSubmit = () => {
@@ -377,7 +372,12 @@ const FacultyProfile: FC<FacultyProfileProps> = ({ initialFacultyData = [], filt
 
             {/* Submit Faculty List Modal */}
             <Dialog open={isSubmitModalOpen} onOpenChange={setIsSubmitModalOpen}>
-                <DialogContent className="sm:max-w-md">
+                <DialogContent
+                    className="sm:max-w-4xl rounded-none"
+                    onInteractOutside={(e) => {
+                        e.preventDefault();
+                    }}
+                >
                     <DialogHeader>
                         <DialogTitle className="text-[#003468]">Submit Faculty List</DialogTitle>
                     </DialogHeader>
@@ -401,7 +401,7 @@ const FacultyProfile: FC<FacultyProfileProps> = ({ initialFacultyData = [], filt
                         </Select>
                     </div>
                     <DialogFooter className="gap-2">
-                        <Button variant="outline" onClick={() => setIsSubmitModalOpen(false)}>
+                        <Button variant="outline" onClick={() => setIsSubmitModalOpen(false)} className="text-[#003468] border-[#003468] hover:bg-gray-100 shadow-sm">
                             Cancel
                         </Button>
                         <Button
@@ -427,6 +427,16 @@ const FacultyProfile: FC<FacultyProfileProps> = ({ initialFacultyData = [], filt
                 onOpenChange={setIsDownloadModalOpen}
             />
 
+            <FacultyCopyDataModal
+                isOpen={isCopyModalOpen}
+                onOpenChange={setIsCopyModalOpen}
+                availableYears={availableYears}
+                onSuccess={() => {
+                    showAlert('Successfully copied faculty data. Reloading page...', 'success');
+                    router.reload({ only: ['initialFacultyData', 'availableYears'] });
+                }}
+            />
+
             <AppLayout breadcrumbs={breadcrumbs}>
                 <Head title="Faculty List Profile - CHED XII" />
 
@@ -435,7 +445,7 @@ const FacultyProfile: FC<FacultyProfileProps> = ({ initialFacultyData = [], filt
                     <div className="flex flex-col justify-between gap-4 p-2 lg:flex-row lg:items-center">
                         {/* LEFT: School Name */}
                         <div>
-                            <h2 className="text-4xl font-bold text-[#6366f1]">{schoolName}</h2>
+                            <h2 className="text-3xl font-bold text-[#202020]">{schoolName}</h2>
                         </div>
 
                         {/* RIGHT: Buttons */}
@@ -467,7 +477,7 @@ const FacultyProfile: FC<FacultyProfileProps> = ({ initialFacultyData = [], filt
 
 
                     {/* DATA TABLE - COMPACT SPREADSHEET VIEW */}
-                    <div className="flex flex-col rounded-lg border border-gray-300 bg-white shadow-sm overflow-hidden">
+                    <div className="flex flex-col rounded-none border border-gray-300 bg-white shadow-sm overflow-hidden">
                         <div className="flex items-center justify-between border-b border-gray-300 bg-gray-50 px-4 py-3">
                             <div className="relative w-full max-w-md">
                                 <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -483,22 +493,11 @@ const FacultyProfile: FC<FacultyProfileProps> = ({ initialFacultyData = [], filt
                                     <DropdownMenuTrigger asChild>
                                         <Button variant="ghost" size="sm" className="gap-2 text-gray-600 font-semibold">
                                             <Calendar className="h-4 w-4" />
-                                            Academic Year : <span className="text-blue-600 ml-1 font-bold">{yearFilter === 'All Years' ? 'All' : yearFilter}</span>
+                                            Academic Year : <span className="text-blue-600 ml-1 font-bold">{yearFilter}</span>
                                         </Button>
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent align="end" className="w-48">
-                                        <DropdownMenuLabel>Select Academic Year</DropdownMenuLabel>
-                                        <DropdownMenuSeparator />
-                                        <DropdownMenuCheckboxItem
-                                            checked={yearFilter === 'All Years'}
-                                            onCheckedChange={() => {
-                                                setYearFilter('All Years');
-                                                router.get(route('facultyprofile'), { search: searchQuery, year: '' }, { preserveScroll: true });
-                                            }}
-                                        >
-                                            All Years
-                                        </DropdownMenuCheckboxItem>
-                                        <DropdownMenuSeparator />
+
                                         {availableYears && availableYears.length > 0 ? (
                                             availableYears.map((yearString) => (
                                                 <DropdownMenuCheckboxItem
@@ -518,7 +517,7 @@ const FacultyProfile: FC<FacultyProfileProps> = ({ initialFacultyData = [], filt
                                     </DropdownMenuContent>
                                 </DropdownMenu>
                                 <Button size="sm" onClick={handleRetrieval} variant="outline" className="text-[#003468] border-[#003468] hover:bg-gray-100 shadow-sm mr-2">
-                                    Retrieval
+                                    Copy Data
                                 </Button>
                                 <Button size="sm" onClick={handleSubmit} className="bg-[#003468] text-white hover:bg-[#002a54] shadow-sm">
                                     Submit

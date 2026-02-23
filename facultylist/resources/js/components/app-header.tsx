@@ -136,13 +136,13 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
                                             key={item.title}
                                             href={item.href}
                                             className={cn(
-                                                "flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-all",
+                                                "flex items-center gap-2 rounded-md px-4 py-2 text-[15px] font-medium transition-all",
                                                 active
-                                                    ? "text-[#001aff] bg-blue-50 font-semibold dark:bg-blue-900/20 dark:text-blue-100"
-                                                    : "text-gray-600 hover:text-[#0300ca] hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800"
+                                                    ? "text-blue-600 bg-blue-100 dark:bg-blue-900/40 dark:text-blue-300"
+                                                    : "text-gray-800 hover:text-blue-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
                                             )}
                                         >
-                                            {item.icon && <item.icon className={cn("h-4 w-4", active ? "text-[#003468]" : "text-gray-400")} />}
+                                            {item.icon && <item.icon className={cn("h-4.5 w-4.5 md:h-[18px] md:w-[18px]", active ? "text-blue-600" : "text-gray-500")} />}
                                             {item.title}
                                         </Link>
                                     );

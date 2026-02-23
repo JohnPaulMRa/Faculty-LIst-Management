@@ -28,6 +28,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('faculty/import', [\App\Http\Controllers\FacultyController::class, 'bulkStore'])->name('faculty.import');
     Route::post('faculty/import-e5', [\App\Http\Controllers\FacultyController::class, 'bulkStoreE5'])->name('faculty.importE5');
     Route::post('faculty/submit', [\App\Http\Controllers\FacultyController::class, 'submit'])->name('faculty.submit');
+    Route::post('faculty/copy-data', [\App\Http\Controllers\FacultyController::class, 'copyData'])->name('faculty.copyData');
 });
 
 Route::middleware(['auth', 'verified', 'role:Admin'])->group(function () {

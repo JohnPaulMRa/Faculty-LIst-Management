@@ -383,4 +383,80 @@ class FacultyController extends Controller
 
         return redirect()->back()->with('error', "No records found to submit for {$year}.");
     }
+
+    public function copyData(Request $request)
+    {
+        $request->validate([
+            'source_year' => 'required|string',
+            'target_year' => 'required|string',
+        ]);
+
+        $user = \Illuminate\Support\Facades\Auth::user();
+        if (!$user || !$user->school_id) {
+            return redirect()->back()->with('error', 'You must be associated with a school to copy data.');
+        }
+
+        $sourceYear = $request->input('source_year');
+        $targetYear = $request->input('target_year');
+
+        if ($sourceYear === $targetYear) {
+            return redirect()->back()->with('error', 'Source and target years cannot be the same.');
+        }
+
+        // Copy E2 Faculty
+        $e2Faculty = \App\Models\Faculty::where('school_id', $user->school_id)
+            ->where('joined_year', $sourceYear)
+            ->get();
+
+        $e2Count = 0;
+        foreach ($e2Faculty as $faculty) {
+            /** @var \App\Models\Faculty $faculty */
+            $newFaculty = $faculty->replicate();
+            $newFaculty->joined_year = $targetYear;
+            $newFaculty->status = 'Not Updated';
+
+            // Check if it already exists for target year to prevent duplicates
+            $exists = \App\Models\Faculty::where('school_id', $user->school_id)
+                ->where('joined_year', $targetYear)
+                ->where('name', $faculty->name)
+                ->exists();
+
+            if (!$exists) {
+                $newFaculty->save();
+                $e2Count++;
+            }
+        }
+
+        // Copy E5 Faculty
+        $e5Faculty = \App\Models\FacultyE5::where('school_id', $user->school_id)
+            ->where('joined_year', $sourceYear)
+            ->get();
+
+        $e5Count = 0;
+        foreach ($e5Faculty as $faculty) {
+            /** @var \App\Models\FacultyE5 $faculty */
+            $newFaculty = $faculty->replicate();
+            $newFaculty->joined_year = $targetYear;
+            $newFaculty->status = 'Not Updated';
+
+            // Check if it already exists for target year
+            $exists = \App\Models\FacultyE5::where('school_id', $user->school_id)
+                ->where('joined_year', $targetYear)
+                ->where('name', $faculty->name)
+                ->exists();
+
+            if (!$exists) {
+                $newFaculty->save();
+                $e5Count++;
+            }
+        }
+
+        $totalCopied = $e2Count + $e5Count;
+
+        if ($totalCopied > 0) {
+            return redirect()->back()->with('success', "Successfully copied {$totalCopied} faculty records from {$sourceYear} to {$targetYear}.");
+        }
+
+        return redirect()->back()->with('info', "No new records were copied. They might already exist in {$targetYear} or the source year was empty.");
+    }
 }

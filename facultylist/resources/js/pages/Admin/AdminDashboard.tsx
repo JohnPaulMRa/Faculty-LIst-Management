@@ -5,7 +5,7 @@ import AdminStatsCard from '@/components/admin/dashboard/AdminStatsCard';
 import SchoolList from '@/components/admin/dashboard/SchoolList';
 import RecentFacultyUpdates from '@/components/admin/dashboard/RecentFacultyUpdates';
 import SystemActivity from '@/components/admin/dashboard/SystemActivity';
-import AnalyticsOverview from '@/components/admin/dashboard/AnalyticsOverview';
+import { AnalyticsOverview, StatusOverview } from '@/components/admin/dashboard/AnalyticsOverview';
 
 interface DashboardSchool {
     id: number;
@@ -70,17 +70,9 @@ export default function AdminDashboard({
                 {/* Header Section */}
                 <AdminOverview />
 
-                {/* Analytics Section */}
-                <div className="mb-8">
-                    <AnalyticsOverview
-                        distributionData={distributionData}
-                        statusData={statusData}
-                    />
-                </div>
-
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* Column 1: Stats & School List */}
-                    <div className="flex flex-col gap-8">
+                    {/* Stats & School List */}
+                    <div className="lg:col-span-2 flex flex-col gap-8">
                         {/* Stats Grid */}
                         <div className="grid grid-cols-2 gap-4">
                             {stats.map((stat, index) => (
@@ -94,15 +86,17 @@ export default function AdminDashboard({
                         </div>
                     </div>
 
-                    {/* Column 2: Recent Faculty Updates */}
+                    {/* Status Overview */}
                     <div className="flex flex-col">
-                        <RecentFacultyUpdates updates={disciplineUpdates} />
+                        <StatusOverview statusData={statusData} />
                     </div>
+                </div>
 
-                    {/* Column 3: System Activity */}
-                    <div className="flex flex-col">
-                        <SystemActivity activities={recentActivities} />
-                    </div>
+                {/* Analytics Section */}
+                <div className="mt-8">
+                    <AnalyticsOverview
+                        distributionData={distributionData}
+                    />
                 </div>
             </div>
         </AppSidebarLayout>

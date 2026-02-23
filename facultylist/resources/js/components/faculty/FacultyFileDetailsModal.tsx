@@ -31,24 +31,24 @@ const FacultyFileDetailsModal: FC<Props> = ({ isOpen, onOpenChange, faculty, onS
             <DialogContent className="sm:max-w-[95vw] w-[95vw] max-h-[95vh] flex flex-col p-0 gap-0 border-none outline-none bg-white [&>button]:hidden rounded-none overflow-hidden">
                 <div className="flex justify-end p-0 absolute top-0 right-0 z-50">
                     <DialogTitle className="sr-only">Faculty File Details</DialogTitle>
-                     {/* Close button is automatically added by DialogContent usually, but we might need to style it or ensure z-index */}
+                    {/* Close button is automatically added by DialogContent usually, but we might need to style it or ensure z-index */}
                 </div>
-                
+
                 {faculty && (
                     <div className="flex-1 overflow-hidden p-0 bg-white relative">
                         {(faculty.form_type === 'E2') ? (
                             <div className="h-full w-full overflow-hidden">
-                                <FacultyFormE2 
-                                    faculty={faculty} 
+                                <FacultyFormE2
+                                    faculty={faculty}
                                     onSave={(data) => onSave({ ...faculty, ...data } as Faculty)}
-                                    referenceData={referenceData} 
+                                    referenceData={referenceData}
                                 />
                             </div>
                         ) : (
                             // Default to E5 if E5 or null/undefined
                             <div className="h-full w-full overflow-hidden">
-                                <FacultyFormE5 
-                                    faculty={faculty} 
+                                <FacultyFormE5
+                                    faculty={faculty}
                                     onSave={(data) => onSave({ ...faculty, ...data } as Faculty)}
                                     referenceData={referenceData}
                                 />

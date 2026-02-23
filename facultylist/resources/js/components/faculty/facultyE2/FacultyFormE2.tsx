@@ -1,5 +1,5 @@
 import { ChevronLeft, ChevronRight, Plus, Save, X } from 'lucide-react';
-import type { FC} from 'react';
+import type { FC } from 'react';
 import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { DialogClose } from '@/components/ui/dialog';
@@ -55,9 +55,9 @@ const FacultyFormE2: FC<Props> = ({ faculty, onSave, referenceData }) => {
             <div className="bg-white text-black px-2 py-1 text-xl font-bold uppercase border border-black shrink-0 flex justify-between items-center">
                 <span>FORM E-2: PROFILE OF EACH TERTIARY FACULTY IN AN SUC CAMPUS, as of [CD]</span>
                 <div className="flex items-center gap-2">
-                    <Button 
-                        size="sm" 
-                        className="h-6 px-3 bg-green-500 hover:bg-green-400 text-black border border-black rounded-none text-[15px] uppercase tracking-wider font-bold flex items-center gap-1" 
+                    <Button
+                        size="sm"
+                        className="h-6 px-3 bg-[#003468] hover:bg-[#002a54] text-white border border-black rounded-none text-[15px] uppercase tracking-wider font-bold flex items-center gap-1"
                         onClick={handleSave}
                     >
                         <Save className="h-3 w-3" /> Save
@@ -67,7 +67,7 @@ const FacultyFormE2: FC<Props> = ({ faculty, onSave, referenceData }) => {
                     </DialogClose>
                 </div>
             </div>
-            
+
             {/* Dynamic Header Moved to Table Thead */}
 
             <div className="flex-1 overflow-auto border border-black bg-white relative">
@@ -123,7 +123,7 @@ const FacultyFormE2: FC<Props> = ({ faculty, onSave, referenceData }) => {
                                 <th className="border-r border-white/30 w-20 text-center">E6</th>
                                 <th className="border-r border-white/30 w-20 text-center">E7</th>
                             </tr>
-    
+
                             {/* HEADERS */}
                             <tr className="align-bottom h-24">
                                 <th className="border border-white/30 px-2 text-left align-middle wrap-break-word whitespace-normal">NAME OF FACULTY (Last name, first name, middle initial)</th>
@@ -145,7 +145,7 @@ const FacultyFormE2: FC<Props> = ({ faculty, onSave, referenceData }) => {
                                 <th className="border border-white/30 px-1 align-middle whitespace-normal">SPECIFIC DISCIPLINE OF DOCTORATE</th>
                                 <th className="border border-white/30 px-1 align-middle whitespace-normal">MASTERS DEGREE WITH THESIS?</th>
                                 <th className="border border-white/30 px-1 align-middle whitespace-normal">DOCTORATE WITH DISSERTATION?</th>
-                                
+
                                 {/* C Headers */}
                                 <th className="border border-white/30 px-1 align-middle whitespace-normal">LAB CREDIT UNITS TEACHING Undergrad</th>
                                 <th className="border border-white/30 px-1 align-middle whitespace-normal">LECTURE CREDIT UNITS TEACHING Undergrad</th>
@@ -156,7 +156,7 @@ const FacultyFormE2: FC<Props> = ({ faculty, onSave, referenceData }) => {
                                 <th className="border border-white/30 px-1 align-middle whitespace-normal">Student Contact Hours Lab Undergrad</th>
                                 <th className="border border-white/30 px-1 align-middle whitespace-normal">Student Contact Hours Lecture Undergrad</th>
                                 <th className="border border-white/30 px-1 align-middle whitespace-normal">STUDENT CONTACT-HOURS Undergrad (Lab+Lect)</th>
-    
+
                                 {/* D Headers */}
                                 <th className="border border-white/30 px-1 align-middle whitespace-normal">LAB CREDIT UNITS TEACHING Graduate Level</th>
                                 <th className="border border-white/30 px-1 align-middle whitespace-normal">LECTURE CREDIT UNITS TEACHING Graduate Level</th>
@@ -164,7 +164,7 @@ const FacultyFormE2: FC<Props> = ({ faculty, onSave, referenceData }) => {
                                 <th className="border border-white/30 px-1 align-middle whitespace-normal">Student ContactHrs LAB Graduate level</th>
                                 <th className="border border-white/30 px-1 align-middle whitespace-normal">Student ContactHrs LECTURE Graduate level</th>
                                 <th className="border border-white/30 px-1 align-middle whitespace-normal">Student ContactHrs GRADUATE Level (Lab+Lect)</th>
-    
+
                                 {/* E Headers */}
                                 <th className="border border-white/30 px-1 align-middle whitespace-normal">OFFICIAL RESEARCH LOAD</th>
                                 <th className="border border-white/30 px-1 align-middle whitespace-normal">OFFICIAL EXTENSION SERVICES LOAD</th>
@@ -174,43 +174,43 @@ const FacultyFormE2: FC<Props> = ({ faculty, onSave, referenceData }) => {
                                 <th className="border border-white/30 px-1 align-middle whitespace-normal">OTHER OFFICIAL LOAD CREDITS</th>
                                 <th className="border border-white/30 px-1 align-middle whitespace-normal">TOTAL WORK LOAD</th>
                             </tr>
-                            
+
                             {/* SUB HEADERS */}
                             <tr className="bg-black text-[9px] h-6">
                                 <th className="border border-white/30 px-1 uppercase align-middle">Elem/ Secondary/ Tech Voc</th>
                                 <th className="border border-white/30 px-1 align-middle">Use code.</th>
                                 <th colSpan={6} className="border border-white/30 px-1 align-middle">Use code.</th>
-                                
+
                                 <th className="border border-white/30 px-1 align-middle">Use 3-digit code.</th>
                                 <th className="border border-white/30 px-1 align-middle">Use code.</th>
                                 <th colSpan={5} className="border border-white/30 px-1 align-middle">Use 6-digit code.</th>
-                                
+
                                 <th className="border border-white/30 px-1 align-middle">Use code.</th>
                                 <th className="border border-white/30 px-1 bg-black"></th>
-    
+
                                 <th colSpan={3} className="border border-white/30 px-1 align-middle">CREDIT UNITS</th>
                                 <th colSpan={3} className="border border-white/30 px-1 align-middle">HOURS PER WEEK TEACHING</th>
                                 <th colSpan={3} className="border border-white/30 px-1 align-middle">CONTACT-HOURS</th>
-                                
+
                                 <th colSpan={3} className="border border-white/30 px-1 align-middle">CREDIT UNITS</th>
                                 <th colSpan={3} className="border border-white/30 px-1 align-middle">CONTACT-HOURS</th>
-    
+
                                 <th colSpan={7} className="border border-white/30 px-1 align-middle">CREDIT UNITS</th>
                             </tr>
                             {/* DYNAMIC GROUP TITLE ROW */}
                             <tr className="bg-white border-b border-black">
                                 <th colSpan={41} className="p-0 border border-black text-left">
-                                     <div className="bg-white text-black text-left flex flex-col">
-                                         <div className="px-2 py-1 text-[15px] font-bold italic whitespace-normal">
-                                             {currentGroup.title}
-                                         </div>
-                                         <div className="px-2 pb-1 text-[11px] italic whitespace-normal">
-                                             <span className="font-bold">REMARKS:</span> {currentGroup.remarks}
-                                         </div>
-                                         <div className="bg-black text-white text-[11px] font-bold px-2 w-full mt-1">
-                                             START BELOW THIS ROW
-                                         </div>
-                                     </div>
+                                    <div className="bg-white text-black text-left flex flex-col">
+                                        <div className="px-2 py-1 text-[15px] font-bold italic whitespace-normal">
+                                            {currentGroup.title}
+                                        </div>
+                                        <div className="px-2 pb-1 text-[11px] italic whitespace-normal">
+                                            <span className="font-bold">REMARKS:</span> {currentGroup.remarks}
+                                        </div>
+                                        <div className="bg-black text-white text-[11px] font-bold px-2 w-full mt-1">
+                                            START BELOW THIS ROW
+                                        </div>
+                                    </div>
                                 </th>
                             </tr>
                         </thead>
@@ -219,26 +219,26 @@ const FacultyFormE2: FC<Props> = ({ faculty, onSave, referenceData }) => {
                             <tr className="bg-white hover:bg-gray-100">
                                 {/* A Columns */}
                                 <td className="border border-black p-0 h-8 font-bold">
-                                    <Input 
-                                        className="h-full w-full border-none rounded-none bg-transparent px-2 text-left text-[11px] focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-black" 
-                                        value={formData.name || ''} 
+                                    <Input
+                                        className="h-full w-full border-none rounded-none bg-transparent px-2 text-left text-[11px] focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-black"
+                                        value={formData.name || ''}
                                         onChange={(e) => handleChange('name', e.target.value)}
                                         placeholder="Name"
                                     />
                                 </td>
                                 <td className="border border-black p-0">
-                                    <Input 
-                                        className="h-full w-full border-none rounded-none bg-transparent px-1 text-left text-[11px] focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-black" 
-                                        value={formData.rank || ''} 
+                                    <Input
+                                        className="h-full w-full border-none rounded-none bg-transparent px-1 text-left text-[11px] focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-black"
+                                        value={formData.rank || ''}
                                         onChange={(e) => handleChange('rank', e.target.value)}
                                         placeholder="Code"
                                     />
                                 </td>
                                 <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-left text-[11px]" defaultValue="CAS" /></td>
                                 <td className="border border-black p-0">
-                                    <Input 
-                                        className="h-full w-full border-none rounded-none bg-transparent px-1 text-left text-[11px] focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-black" 
-                                        value={formData.department || ''} 
+                                    <Input
+                                        className="h-full w-full border-none rounded-none bg-transparent px-1 text-left text-[11px] focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-black"
+                                        value={formData.department || ''}
                                         onChange={(e) => handleChange('department', e.target.value)}
                                     />
                                 </td>
@@ -248,39 +248,39 @@ const FacultyFormE2: FC<Props> = ({ faculty, onSave, referenceData }) => {
                                 <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" defaultValue="N" /></td>
                                 <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" defaultValue="1.0" /></td>
                                 <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" defaultValue="1" placeholder="Code" /></td>
-                                
+
                                 {/* B Columns */}
                                 <td className="border border-black p-0">
-                                    <Input 
-                                        className="h-full w-full border-none rounded-none bg-transparent px-1 text-left text-[11px] focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-black" 
-                                        value={formData.degree || ''} 
+                                    <Input
+                                        className="h-full w-full border-none rounded-none bg-transparent px-1 text-left text-[11px] focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-black"
+                                        value={formData.degree || ''}
                                         onChange={(e) => handleChange('degree', e.target.value)}
                                         placeholder="Code"
                                     />
                                 </td>
                                 <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" defaultValue="2" placeholder="Code" /></td>
                                 {[...Array(5)].map((_, i) => (
-                                    <td key={`B${3+i}`} className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-[11px]" /></td>
+                                    <td key={`B${3 + i}`} className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-[11px]" /></td>
                                 ))}
                                 <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" defaultValue="1" placeholder="Code" /></td>
                                 <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" defaultValue="1" placeholder="Code" /></td>
-    
+
                                 {/* C Columns - Zeros */}
                                 {[...Array(9)].map((_, i) => (
-                                    <td key={`C${1+i}`} className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" defaultValue="0" /></td>
+                                    <td key={`C${1 + i}`} className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" defaultValue="0" /></td>
                                 ))}
-    
+
                                 {/* D Columns - Zeros */}
                                 {[...Array(6)].map((_, i) => (
-                                    <td key={`D${1+i}`} className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" defaultValue="0" /></td>
+                                    <td key={`D${1 + i}`} className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" defaultValue="0" /></td>
                                 ))}
-    
+
                                 {/* E Columns - Zeros */}
                                 {[...Array(7)].map((_, i) => (
-                                    <td key={`E${1+i}`} className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" defaultValue="0" /></td>
+                                    <td key={`E${1 + i}`} className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" defaultValue="0" /></td>
                                 ))}
                             </tr>
-                            
+
                             {/* EMPTY ROWS */}
                             {[...Array(8)].map((_, r) => (
                                 <tr key={r} className="hover:bg-gray-100">
@@ -292,31 +292,31 @@ const FacultyFormE2: FC<Props> = ({ faculty, onSave, referenceData }) => {
                             ))}
                         </tbody>
                     </table>
-                    
+
                 )}
             </div>
 
             {/* SHEET TABS */}
             <div className="flex items-center bg-[#f0f0f0] border-t border-gray-300 px-1 gap-1 h-8 shrink-0 overflow-x-auto">
                 <div className="flex items-center space-x-2 mr-4 text-gray-500">
-                     <div className="flex gap-1">
+                    <div className="flex gap-1">
                         <button className="hover:bg-gray-200 p-0.5 rounded-none"><ChevronLeft className="h-3 w-3" /></button>
                         <button className="hover:bg-gray-200 p-0.5 rounded-none"><ChevronRight className="h-3 w-3" /></button>
-                     </div>
+                    </div>
                 </div>
                 {SHEET_TABS.map((tab) => (
-                     <button
+                    <button
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id)}
                         className={`
                             px-4 py-1 text-[11px] font-medium transition-colors border-r border-black h-full relative top-px whitespace-nowrap
-                            ${activeTab === tab.id 
-                                ? 'bg-black text-white border-t-2 border-t-black border-b-black shadow-sm' 
+                            ${activeTab === tab.id
+                                ? 'bg-black text-white border-t-2 border-t-black border-b-black shadow-sm'
                                 : 'bg-[#f0f0f0] text-gray-600 hover:bg-gray-200'}
                         `}
-                     >
+                    >
                         {tab.label}
-                     </button>
+                    </button>
                 ))}
                 <button className="px-2 py-1 text-gray-500 hover:bg-gray-200 rounded-none ml-1">
                     <Plus className="h-4 w-4" />

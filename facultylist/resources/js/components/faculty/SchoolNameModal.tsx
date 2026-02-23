@@ -70,7 +70,7 @@ const SchoolNameModal: FC<Props> = ({ isOpen, onOpenChange, school, onSave }) =>
 
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[500px]">
+            <DialogContent className="sm:max-w-2xl rounded-none">
                 <DialogHeader>
                     <DialogTitle>{school ? 'Edit School' : 'Add School'}</DialogTitle>
                 </DialogHeader>

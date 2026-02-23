@@ -44,6 +44,10 @@ export function AppSidebar() {
                 title: 'Faculty List',
                 href: admin.facultyList(),
                 icon: Users,
+                items: [
+                    { title: 'Private Schools', href: `${admin.facultyList().url}?type=Private` },
+                    { title: 'Public Schools', href: `${admin.facultyList().url}?type=Public` }
+                ]
             },
             {
                 title: 'Disciplines',

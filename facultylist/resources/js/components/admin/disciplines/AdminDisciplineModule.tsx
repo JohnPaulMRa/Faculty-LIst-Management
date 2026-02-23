@@ -42,6 +42,15 @@ export default function AdminDisciplineModule({ disciplines = [] }: AdminDiscipl
     const [selectedMajor, setSelectedMajor] = useState<string | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingItem, setEditingItem] = useState<any>(null);
+    const [sortConfig, setSortConfig] = useState<{ key: string, direction: 'asc' | 'desc' } | null>(null);
+
+    const handleSort = (key: string) => {
+        let direction: 'asc' | 'desc' = 'asc';
+        if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
+            direction = 'desc';
+        }
+        setSortConfig({ key, direction });
+    };
 
     // Filtering logic
     const filteredDisciplines = useMemo(() => {
@@ -89,8 +98,24 @@ export default function AdminDisciplineModule({ disciplines = [] }: AdminDiscipl
         // The above loop covers explicit searching within items. 
         // If we want to return empty if no matches, we are good.
 
+        // Apply sorting
+        if (sortConfig) {
+            allPrograms.sort((a, b) => {
+                const aValue = a[sortConfig.key] || "";
+                const bValue = b[sortConfig.key] || "";
+
+                if (aValue < bValue) {
+                    return sortConfig.direction === 'asc' ? -1 : 1;
+                }
+                if (aValue > bValue) {
+                    return sortConfig.direction === 'asc' ? 1 : -1;
+                }
+                return 0;
+            });
+        }
+
         return allPrograms;
-    }, [disciplines, searchQuery, selectedMajor]);
+    }, [disciplines, searchQuery, selectedMajor, sortConfig]);
 
     const activeMajorName = disciplines.find(m => m.code === selectedMajor)?.description;
 
@@ -136,7 +161,7 @@ export default function AdminDisciplineModule({ disciplines = [] }: AdminDiscipl
                     </p>
                 </div>
 
-                <div className="bg-white p-6 border border-gray-200 shadow-none rounded-none">
+                <div className="flex flex-col w-full">
                     {/* Search and Actions */}
                     <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-4">
                         <div className="relative w-full md:w-96">
@@ -220,6 +245,8 @@ export default function AdminDisciplineModule({ disciplines = [] }: AdminDiscipl
                             programs={filteredDisciplines}
                             onEdit={handleEdit}
                             onDelete={handleDelete}
+                            onSort={handleSort}
+                            sortConfig={sortConfig}
                         />
                     </div>
                 </div>

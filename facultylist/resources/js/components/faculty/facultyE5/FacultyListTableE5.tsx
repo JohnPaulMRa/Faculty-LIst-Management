@@ -1,7 +1,7 @@
 import { Link } from '@inertiajs/react';
-import { Trash2, Eye } from 'lucide-react';
+import { Trash2, Eye, ArrowUpDown } from 'lucide-react';
 import type { FC } from 'react';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import type { Faculty } from '@/types/faculty';
 import { edit } from '@/routes/faculty';
 
@@ -19,9 +19,15 @@ const PAGE_SIZE_OPTIONS = [10, 15, 25, 50];
 const FacultyListTableE5: FC<Props> = ({ facultyList, yearFilter, onFileClick, onDelete, onEdit, referenceData }) => {
     const [pageSize, setPageSize] = useState(25);
     const [currentPage, setCurrentPage] = useState(1);
+    const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
 
-    const totalPages = Math.ceil(facultyList.length / pageSize);
-    const paginated = facultyList.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+    const handleSort = (key: string) => {
+        let direction: 'asc' | 'desc' = 'asc';
+        if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
+            direction = 'desc';
+        }
+        setSortConfig({ key, direction });
+    };
 
     const handlePageSizeChange = (size: number) => {
         setPageSize(size);
@@ -30,10 +36,10 @@ const FacultyListTableE5: FC<Props> = ({ facultyList, yearFilter, onFileClick, o
 
     const getStatusBadge = (status: string): string => {
         const styles: Record<string, string> = {
-            'Updated': 'bg-emerald-100 text-emerald-700 border border-emerald-200',
-            'Not Updated': 'bg-red-100 text-red-700 border border-red-200',
+            'Updated': 'bg-green-400 text-white border-green-600 shadow-sm',
+            'Not Updated': 'bg-red-400 text-white border-red-600 shadow-sm',
         };
-        return styles[status] || 'bg-gray-100 text-gray-700 border border-gray-200';
+        return styles[status] || 'bg-gray-100 text-gray-800 border border-gray-300 shadow-sm';
     };
 
     const getGender = (code?: string) => {
@@ -46,14 +52,6 @@ const FacultyListTableE5: FC<Props> = ({ facultyList, yearFilter, onFileClick, o
         if (faculty.fullTimeCode) {
             const found = referenceData?.fullTimePartTime?.find((f: any) => f.code == faculty.fullTimeCode);
             if (found) {
-                const desc = found.desc.toLowerCase();
-                if (desc.includes('full-time')) return 'Full-Time';
-                if (desc.includes('half-time')) return 'Half-Time';
-                if (desc.includes('student')) return 'Student Employee';
-                if (desc.includes('teaching fellow')) return 'Teaching Fellow';
-                if (desc.includes('lecturer')) return 'Lecturer';
-                if (desc.includes('part-time')) return 'Part-Time';
-                if (desc.includes('not known')) return 'Unknown';
                 return found.desc;
             }
         }
@@ -61,42 +59,96 @@ const FacultyListTableE5: FC<Props> = ({ facultyList, yearFilter, onFileClick, o
             return faculty.employment === 'Plantilla' ? 'Full-Time' : faculty.employment;
         }
 
-        return ''; // Return empty string so "on the table have no data"
+        return '';
     };
 
+    const sortedFacultyList = useMemo(() => {
+        if (!sortConfig) return facultyList;
+
+        return [...facultyList].sort((a: any, b: any) => {
+            let aValue = a[sortConfig.key];
+            let bValue = b[sortConfig.key];
+
+            if (sortConfig.key === 'joined_year') {
+                aValue = a.joined_year || '';
+                bValue = b.joined_year || '';
+            } else if (sortConfig.key === 'gender') {
+                aValue = getGender(a.genderCode);
+                bValue = getGender(b.genderCode);
+            } else if (sortConfig.key === 'employment') {
+                aValue = getEmploymentStatus(a);
+                bValue = getEmploymentStatus(b);
+            }
+
+            if (aValue === null || aValue === undefined) aValue = '';
+            if (bValue === null || bValue === undefined) bValue = '';
+
+            const aStr = String(aValue).toLowerCase();
+            const bStr = String(bValue).toLowerCase();
+
+            if (aStr < bStr) return sortConfig.direction === 'asc' ? -1 : 1;
+            if (aStr > bStr) return sortConfig.direction === 'asc' ? 1 : -1;
+            return 0;
+        });
+    }, [facultyList, sortConfig, referenceData]);
+
+    const totalPages = Math.ceil(sortedFacultyList.length / pageSize);
+    const paginated = sortedFacultyList.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
     return (
-        <div className="flex flex-col border border-gray-300 bg-white shadow-none overflow-hidden rounded-none m-4">
+        <div className="flex flex-col bg-white shadow-none overflow-hidden rounded-none">
+            {/* SPREADSHEET HEADER */}
+            <div className="bg-gray-50 text-black px-4 py-3 text-sm font-bold uppercase tracking-wide border-b border-gray-300">
+                FACULTY DATA RECORDS
+            </div>
+
             {/* Show entries control */}
-            <div className="flex items-center gap-2 px-4 py-2 border-b border-gray-200 bg-gray-50">
+            <div className="flex items-center gap-1 px-4 py-2 border-b border-gray-200 bg-white">
                 <span className="text-sm text-gray-600">Show</span>
                 <select
                     value={pageSize}
                     onChange={(e) => handlePageSizeChange(Number(e.target.value))}
-                    className="border border-gray-300 rounded-none text-sm px-2 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-gray-400"
+                    className="border border-gray-300 rounded-none text-xs px-2 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-gray-400"
                 >
                     {PAGE_SIZE_OPTIONS.map(opt => (
                         <option key={opt} value={opt}>{opt}</option>
                     ))}
                 </select>
-                <span className="text-sm text-gray-600">entries</span>
+                <span className="text-xs text-gray-600">entries</span>
             </div>
 
             <div className="overflow-x-auto">
-                {/* SPREADSHEET HEADER */}
-                <div className="bg-gray-50 text-black px-4 py-3 text-sm font-bold uppercase tracking-wide border-b border-gray-300">
-                    FACULTY DATA RECORDS
-                </div>
 
                 <table className="w-full border-collapse text-sm whitespace-nowrap font-sans">
                     <thead>
                         <tr className="bg-blue-500 text-white border-b border-gray-300">
-                            <th className="px-3 py-2 font-bold text-center">#</th>
-                            <th className="px-3 py-2 font-bold text-center">Academic Year</th>
-                            <th className="px-3 py-2 font-bold text-center">Faculty Name</th>
-                            <th className="px-3 py-2 font-bold text-center">Gender</th>
-                            <th className="px-3 py-2 font-bold text-center">Full-Time / Part-Time</th>
-                            <th className="px-3 py-2 font-bold text-center">Status</th>
-                            <th className="px-3 py-2 font-bold text-center">Action</th>
+                            <th className="px-3 py-2 font-bold text-center w-[5%]">#</th>
+                            <th className="px-3 py-2 font-bold w-[15%]">
+                                <div className="flex items-center justify-center gap-1 cursor-pointer hover:text-gray-200" onClick={() => handleSort('joined_year')}>
+                                    Academic Year <ArrowUpDown className="h-4 w-4" />
+                                </div>
+                            </th>
+                            <th className="px-3 py-2 font-bold w-[10%]">
+                                <div className="flex items-center justify-start gap-1 cursor-pointer hover:text-gray-200" onClick={() => handleSort('name')}>
+                                    Faculty Name <ArrowUpDown className="h-4 w-4" />
+                                </div>
+                            </th>
+                            <th className="px-3 py-2 font-bold w-[5%]">
+                                <div className="flex items-center justify-center gap-1 cursor-pointer hover:text-gray-200" onClick={() => handleSort('gender')}>
+                                    Gender <ArrowUpDown className="h-4 w-4" />
+                                </div>
+                            </th>
+                            <th className="px-3 py-2 font-bold w-[27%]">
+                                <div className="flex items-center justify-center gap-1 cursor-pointer hover:text-gray-200" onClick={() => handleSort('employment')}>
+                                    Full-Time / Part-Time <ArrowUpDown className="h-4 w-4" />
+                                </div>
+                            </th>
+                            <th className="px-3 py-2 font-bold w-[15%]">
+                                <div className="flex items-center justify-center gap-1 cursor-pointer hover:text-gray-200" onClick={() => handleSort('status')}>
+                                    Status <ArrowUpDown className="h-4 w-4" />
+                                </div>
+                            </th>
+                            <th className="px-3 py-2 font-bold text-center w-[10%]">Action</th>
                         </tr>
                     </thead>
                     <tbody className="bg-white text-sm">
@@ -105,10 +157,15 @@ const FacultyListTableE5: FC<Props> = ({ facultyList, yearFilter, onFileClick, o
                                 <tr key={faculty.id} className="border-b border-gray-300 hover:bg-gray-100 transition-colors">
                                     <td className="px-3 py-2 text-center text-black">{(currentPage - 1) * pageSize + index + 1}</td>
                                     <td className="px-3 py-2 text-center text-black">{faculty.joined_year}</td>
-                                    <td className="px-3 py-2 text-center font-medium text-black">{faculty.name}</td>
+                                    <td className="px-3 py-2 text-left font-semibold text-gray-900">{faculty.name}</td>
                                     <td className="px-3 py-2 text-center text-black">{getGender(faculty.genderCode)}</td>
                                     <td className="px-3 py-2 text-center text-black">
-                                        {getEmploymentStatus(faculty)}
+                                        <div
+                                            className="truncate max-w-[250px] mx-auto text-sm"
+                                            title={getEmploymentStatus(faculty)}
+                                        >
+                                            {getEmploymentStatus(faculty)}
+                                        </div>
                                     </td>
                                     <td className="px-3 py-2 text-center">
                                         <span className={`text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-none font-bold ${getStatusBadge(faculty.status)}`}>
@@ -119,14 +176,14 @@ const FacultyListTableE5: FC<Props> = ({ facultyList, yearFilter, onFileClick, o
                                         <div className="flex items-center justify-center gap-2">
                                             <Link
                                                 href={edit({ id: faculty.id }).url}
-                                                className="flex items-center gap-1 text-white-600 hover:text-blue-500 transition-colors bg-blue-200 px-2 py-1.5 rounded-none border border-blue-200 text-xs font-semibold"
+                                                className="flex items-center gap-1 black-[#ffffff] hover:text-white transition-colors bg-[#ffbb00]/50 hover:bg-[#ffbb00] px-3 py-1.5 rounded-sm border border-[#ffbb00]/30 shadow-sm text-xs font-semibold"
                                                 title="Edit Profile"
                                             >
                                                 <Eye className="h-3 w-3" /> Edit Profile
                                             </Link>
                                             <button
                                                 onClick={() => onDelete(faculty.id)}
-                                                className="flex items-center gap-1 text-white-600 hover:text-red-500 transition-colors bg-red-200 px-2 py-1.5 rounded-none border border-red-200 text-xs font-semibold"
+                                                className="flex items-center gap-1 text-red-700 hover:text-white transition-colors bg-red-50 hover:bg-red-600 px-3 py-1.5 rounded-sm border border-red-200 shadow-sm text-xs font-semibold"
                                                 title="Delete"
                                             >
                                                 <Trash2 className="h-3 w-3" /> Delete
@@ -148,7 +205,7 @@ const FacultyListTableE5: FC<Props> = ({ facultyList, yearFilter, onFileClick, o
 
             {/* Pagination footer */}
             {facultyList.length > 0 && (
-                <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200 bg-white text-sm text-gray-600">
+                <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200 bg-white text-sm text-gray-600 rounded-none">
                     <span>
                         Showing {Math.min((currentPage - 1) * pageSize + 1, facultyList.length)}–{Math.min(currentPage * pageSize, facultyList.length)} of {facultyList.length} entries
                     </span>

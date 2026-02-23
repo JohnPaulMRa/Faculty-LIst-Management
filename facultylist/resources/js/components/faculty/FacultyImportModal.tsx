@@ -59,30 +59,35 @@ const FacultyImportModal: FC<Props> = ({
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
             <DialogTrigger asChild>
-                <Button variant="outline" className="gap-2 text-green-700 hover:text-green-800 hover:bg-green-50 border-green-200">
+                <Button variant="outline" className="text-[#003468] border-[#003468] hover:bg-gray-100 shadow-sm gap-2">
                     <FileSpreadsheet className="h-4 w-4" /> Import Excel
                 </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-2xl">
+            <DialogContent className="sm:max-w-2xl rounded-none">
                 <DialogHeader>
                     <DialogTitle>Import Faculty Data</DialogTitle>
                     <DialogDescription>Select form template, academic year, and upload file.</DialogDescription>
                 </DialogHeader>
-                <div className="grid gap-4 py-4">
+                <div className="grid gap-5 py-8">
                     <div className="space-y-2">
                         <Label>Select Form Template</Label>
                         <Select value={importType} onValueChange={(val: any) => setImportType(val)}>
                             <SelectTrigger><SelectValue placeholder="Select Form" /></SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="E5">FORM E5: Private / LUC</SelectItem>
-                                <SelectItem value="E2">FORM E2: SUC</SelectItem>
+                                <SelectItem value="E5">Private: FORM E5</SelectItem>
+                                <SelectItem value="E2">Public: FORM E2</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
 
                     <div className="space-y-2">
                         <Label>Academic Year</Label>
-                        <AcademicYearSelect value={importYear} onValueChange={setImportYear} />
+                        <Input
+                            value={importYear}
+                            onChange={(e) => setImportYear(e.target.value)}
+                            placeholder="e.g., 2025-2026"
+                            className="rounded-none w-full"
+                        />
                         <p className="text-xs text-gray-500">Records will be tagged with this academic year.</p>
                     </div>
 

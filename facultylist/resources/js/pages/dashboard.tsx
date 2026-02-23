@@ -91,7 +91,7 @@ export default function Dashboard({ overview, selectedYear: initialYear, availab
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
 
-            <div className="flex h-full flex-1 flex-col gap-6 p-6 md:px-10 w-full bg-gray-50 text-[#1b1b18] dark:text-[#EDEDEC] transition-colors duration-300 min-h-screen">
+            <div className="flex h-full flex-1 flex-col gap-6 p-6 md:px-10 w-full  text-[#1b1b18] dark:text-[#EDEDEC] transition-colors duration-300 min-h-screen">
 
                 <FacultyOverview
                     selectedYear={selectedYear}

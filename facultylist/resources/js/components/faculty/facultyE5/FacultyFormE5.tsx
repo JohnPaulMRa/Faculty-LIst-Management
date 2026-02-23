@@ -216,7 +216,7 @@ const FacultyFormE5: FC<Props> = ({ faculty, onSave, referenceData }) => {
             <div className="bg-white p-4 border-t border-gray-200 flex justify-end shrink-0">
                 <Button
                     size="sm"
-                    className="h-9 px-6 bg-emerald-600 hover:bg-emerald-700 text-white border-0 rounded-none font-semibold flex items-center gap-2 shadow-sm transition-all"
+                    className="bg-[#003468] hover:bg-[#002a54] text-white h-9 px-6 border-0 rounded-none font-semibold flex items-center gap-2 shadow-sm transition-all"
                     onClick={handleSave}
                 >
                     <Save className="h-4 w-4" /> Update

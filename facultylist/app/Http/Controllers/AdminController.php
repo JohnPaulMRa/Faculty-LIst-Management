@@ -71,11 +71,24 @@ class AdminController extends Controller
                 ];
             });
 
-        // 4. Analytics Data
-        $distributionData = $schoolsQuery->map(function ($s) {
+        // 4. Analytics Data - Discipline counts per group (hierarchical)
+        $disciplineGroups = \App\Models\RefDisciplineGroup::with(['majorDisciplines.specificDisciplines'])->withCount('specificDisciplines')->get();
+        $distributionData = $disciplineGroups->map(function ($g) {
             return [
-                'name' => $s->name,
-                'count' => (int) ($s->faculties_count + $s->faculties_e5_count),
+                'name' => $g->description,
+                'count' => (int) $g->specific_disciplines_count,
+                'children' => $g->majorDisciplines->map(function ($m) {
+                    return [
+                        'name' => $m->description,
+                        'count' => $m->specificDisciplines->count(),
+                        'children' => $m->specificDisciplines->map(function ($s) {
+                            return [
+                                'name' => $s->description,
+                                'count' => 1,
+                            ];
+                        })->values()
+                    ];
+                })->values()
             ];
         })->values();
 
@@ -153,7 +166,7 @@ class AdminController extends Controller
             'schools' => $schools,
             'faculty' => $faculty,
             'referenceData' => $referenceData,
-            'filters' => $request->only(['school_id', 'search']),
+            'filters' => $request->only(['school_id', 'search', 'type']),
         ]);
     }
 

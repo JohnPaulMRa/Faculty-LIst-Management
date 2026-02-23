@@ -1,13 +1,7 @@
 import type { FC } from 'react';
 import { useEffect, useState } from 'react';
 import { Input } from '@/components/ui/input';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
+import { Combobox } from "@/components/ui/combobox";
 
 type Discipline = {
     code: string;
@@ -43,18 +37,18 @@ const DisciplineSelector: FC<Props> = ({
         ? referenceData.disciplines
         : [];
 
-    const findDisciplineGroup = (code: string) => {
+    const findDisciplineGroup = (code: string | number) => {
         if (!code) return "";
 
         // Find by checking the flat list for the code
-        const found = allDisciplines.find(d => d.code === code);
+        const found = allDisciplines.find(d => String(d.code) === String(code));
         if (found && found.major_group_code) {
-            return found.major_group_code;
+            return String(found.major_group_code);
         }
 
         // Fallback to prefix matching
-        const prefix = code.substring(0, 2);
-        if (groups.find((g: any) => g.code === prefix)) {
+        const prefix = String(code).substring(0, 2);
+        if (groups.find((g: any) => String(g.code) === prefix)) {
             return prefix;
         }
 
@@ -83,9 +77,11 @@ const DisciplineSelector: FC<Props> = ({
 
     const handleDisciplineChange = (code: string) => {
         // Find from flat list
-        const discipline = allDisciplines.find((d) => d.code === code);
+        const discipline = allDisciplines.find((d) => String(d.code) === String(code));
         if (discipline) {
-            onChange(discipline.code, discipline.desc);
+            onChange(String(discipline.code), discipline.desc);
+        } else {
+            onChange("", "");
         }
     };
 
@@ -102,22 +98,23 @@ const DisciplineSelector: FC<Props> = ({
         );
     }
 
+    const mapToOptions = (list: any[]) => {
+        return (list || []).map(item => ({ label: item.desc, value: item.code }));
+    };
+
     return (
         <div className={`flex flex-col gap-2 w-full ${className}`}>
             {/* Row 1: Major Group Select (Conditional) */}
             {showGroup && (
-                <Select value={selectedGroup} onValueChange={handleGroupChange} disabled={disabled}>
-                    <SelectTrigger className="w-full shrink-0 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900 rounded-none">
-                        <SelectValue placeholder="Select Major Group" />
-                    </SelectTrigger>
-                    <SelectContent className="max-h-[200px]">
-                        {groups.map((group: any) => (
-                            <SelectItem key={group.code} value={group.code}>
-                                {group.desc}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
+                <Combobox
+                    options={mapToOptions(groups)}
+                    value={selectedGroup}
+                    onChange={handleGroupChange}
+                    disabled={disabled}
+                    placeholder="Select Major Group"
+                    searchPlaceholder="Search groups..."
+                    className="w-full shrink-0 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900 rounded-none h-auto min-h-[40px] whitespace-normal text-left"
+                />
             )}
 
             {/* Row 2: Code + Specific Discipline */}
@@ -126,39 +123,24 @@ const DisciplineSelector: FC<Props> = ({
                 <Input
                     value={value || ''}
                     readOnly
-                    className="w-24 shrink-0 bg-gray-50 text-center font-mono disabled:opacity-100 rounded-none"
+                    className="w-24 shrink-0 bg-gray-50 text-center font-mono disabled:opacity-100 rounded-none h-auto"
                     placeholder="Code"
                 />
 
                 {/* Specific Discipline Select */}
-                <Select value={value} onValueChange={handleDisciplineChange} disabled={disabled || (showGroup && !selectedGroup)}>
-                    <SelectTrigger className="flex-1 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900 rounded-none">
-                        <span className="truncate">
-                            {value ? (
-                                (() => {
-                                    const d = currentDisciplines.find((d: any) => d.code === value);
-                                    if (d) return d.desc;
-                                    // Fallback if not in filtered list (e.g. if group changed but value stuck, though typical flow clears it)
-                                    // OR if showGroup is false and we need to look in allDisciplines (which currentDisciplines is)
-                                    const anyD = allDisciplines.find(ad => ad.code === value);
-                                    return anyD ? anyD.desc : value;
-                                })()
-                            ) : (
-                                <span className="text-muted-foreground">{placeholder}</span>
-                            )}
-                        </span>
-                    </SelectTrigger>
-                    <SelectContent className="max-h-[200px] min-w-[300px]">
-                        {currentDisciplines.map((item: any) => (
-                            <SelectItem key={item.code} value={item.code}>
-                                {item.desc}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
+                <Combobox
+                    options={mapToOptions(currentDisciplines)}
+                    value={value}
+                    onChange={handleDisciplineChange}
+                    disabled={disabled || (showGroup && !selectedGroup)}
+                    placeholder={placeholder}
+                    searchPlaceholder="Search disciplines..."
+                    className="flex-1 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900 rounded-none h-auto min-h-[40px] whitespace-normal text-left"
+                />
             </div>
         </div>
     );
 };
 
 export default DisciplineSelector;
+

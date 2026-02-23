@@ -2,13 +2,14 @@ import { useState, useEffect, useCallback } from 'react';
 import { Search, Plus, Filter, LayoutGrid, X, University, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import SchoolCard from './SchoolCard';
-import AdminFacultyTable from './AdminFacultyTable';
 import SchoolNameModal from '@/components/faculty/SchoolNameModal';
 import { router } from '@inertiajs/react';
 import { useDebounce } from '@/hooks/use-debounce';
-import FacultyListTableE5 from '@/components/faculty/facultyE5/FacultyListTableE5';
+import { PrivateSchoolView } from '@/components/admin/faculty-list/private-HEI/PrivateSchoolView';
+import { PublicSchoolView } from '@/components/admin/faculty-list/public-HEI/PublicSchoolView';
 import CreateFacultyAccountModal from './CreateFacultyAccountModal';
+import { AdminFacultySidebar } from './AdminFacultySidebar';
+import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 
 interface School {
     id: number;
@@ -32,7 +33,7 @@ interface FacultyMember {
 interface AdminFacultyListModuleProps {
     schools: School[];
     faculty: FacultyMember[];
-    filters: { school_id?: string; search?: string };
+    filters: { school_id?: string; search?: string; type?: string };
     referenceData?: any;
 }
 
@@ -86,165 +87,63 @@ export default function AdminFacultyListModule({ schools = [], faculty = [], fil
     };
 
     return (
-        <div className="flex flex-col gap-8 w-full">
-            {/* Header / Search Area */}
-            <div className="flex flex-col gap-6">
-                <div className="flex justify-between items-start">
-                    <div>
-                        <h1 className="text-3xl font-bold tracking-tight text-gray-900">Faculty Management</h1>
-                        <p className="text-muted-foreground text-sm mt-1">
-                            Manage schools and faculty members. Select a school to view details.
-                        </p>
-                    </div>
-                    <Button
-                        onClick={() => setIsCreateAccountModalOpen(true)}
-                        className="bg-gray-900 text-white hover:bg-gray-800 rounded-md h-10 gap-2"
-                    >
-                        Create Faculty  Account
-                    </Button>
-                </div>
+        <SidebarProvider className="min-h-0 h-full overflow-hidden rounded-xl border border-gray-200 shadow-sm bg-white">
+            <AdminFacultySidebar
+                schools={schools}
+                selectedSchoolId={selectedSchoolId}
+                onSchoolSelect={handleSchoolClick}
+                typeFilter={filters.type as string | undefined}
+            />
 
-                <div className="bg-white p-6 border border-gray-200 shadow-sm rounded-xl">
-                    <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
-                        <div className="relative w-full md:w-96">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                            <Input
-                                placeholder="Search schools or faculty..."
-                                className="pl-9 pr-9 bg-gray-50 border-gray-300 rounded-md focus-visible:ring-1 focus-visible:ring-gray-400 h-10"
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                            />
-                            {searchQuery && (
-                                <button
-                                    onClick={clearSearch}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                                >
-                                    <X className="h-4 w-4" />
-                                </button>
-                            )}
+            <SidebarInset className="flex flex-col w-full h-full bg-gray-50/30 overflow-hidden relative">
+                <div className="flex-1 overflow-y-auto p-6 md:p-8">
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+                        <div>
+                            <h1 className="text-3xl font-bold tracking-tight text-gray-900">Faculty Management</h1>
+                            <p className="text-muted-foreground text-sm mt-1">
+                                Manage schools and faculty members. Select a school from the sidebar to view details.
+                            </p>
                         </div>
-
-                        <div className="flex items-center gap-2 w-full md:w-auto">
-                            <Button variant="outline" className="rounded-md border-gray-300 gap-2 h-10 hidden md:flex">
-                                <Filter className="h-4 w-4" />
-                                Filter
-                            </Button>
+                        <div className="flex items-center gap-3 w-full md:w-auto">
                             <Button
                                 onClick={handleAddSchool}
+                                variant="outline"
+                                className="w-full md:w-auto rounded-md h-10 gap-2 border-gray-300"
+                            >
+                                <Plus className="h-4 w-4" /> Add School
+                            </Button>
+                            <Button
+                                onClick={() => setIsCreateAccountModalOpen(true)}
                                 className="w-full md:w-auto bg-gray-900 text-white hover:bg-gray-800 rounded-md h-10 gap-2"
                             >
-                                <Plus className="h-4 w-4" />
-                                Add School
+                                <Plus className="h-4 w-4" /> Create Account
                             </Button>
                         </div>
                     </div>
 
-                    {/* School List Table */}
-                    <div className="border border-gray-200 rounded-md overflow-hidden">
-                        <table className="w-full text-sm text-left text-gray-500">
-                            <thead className="text-xs text-gray-700 uppercase bg-gray-50">
-                                <tr>
-                                    <th scope="col" className="px-6 py-3">School Name</th>
-                                    <th scope="col" className="px-6 py-3">Code</th>
-                                    <th scope="col" className="px-6 py-3">Type</th>
-                                    <th scope="col" className="px-6 py-3 text-right">Faculty Count</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {schools.map((school) => (
-                                    <tr
-                                        key={school.id}
-                                        onClick={() => handleSchoolClick(school.id)}
-                                        className={`cursor-pointer hover:bg-gray-50 transition-colors border-b last:border-0 ${selectedSchoolId === school.id ? 'bg-blue-50/50' : 'bg-white'
-                                            }`}
-                                    >
-                                        <td className="px-6 py-4 align-middle">
-                                            <div className="flex items-center gap-3 font-medium text-gray-900">
-                                                <div className={`p-2 rounded-md shrink-0 ${selectedSchoolId === school.id ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-500'}`}>
-                                                    <University className="h-4 w-4" />
-                                                </div>
-                                                <span>{school.name}</span>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4 align-middle">
-                                            {school.code ? (
-                                                <span className="font-mono text-xs px-2 py-1 bg-gray-100 rounded-md border border-gray-200">
-                                                    {school.code}
-                                                </span>
-                                            ) : (
-                                                <span className="text-gray-400 italic">None</span>
-                                            )}
-                                        </td>
-                                        <td className="px-6 py-4 align-middle">
-                                            <span className={`inline-flex items-center px-2.5 py-1 text-xs font-medium rounded-full border ${school.type?.toLowerCase() === 'private'
-                                                ? 'bg-amber-50 text-amber-700 border-amber-200'
-                                                : 'bg-blue-50 text-blue-700 border-blue-200'
-                                                }`}>
-                                                {school.type}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4 align-middle text-right">
-                                            <div className="flex items-center justify-end gap-2 text-gray-500">
-                                                <Users className="h-4 w-4" />
-                                                <span>{school.faculty}</span>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-
-                    {schools.length === 0 && (
-                        <div className="py-12 text-center bg-gray-50 border border-dashed border-gray-300 rounded-lg">
-                            <LayoutGrid className="h-10 w-10 text-gray-300 mx-auto mb-3" />
-                            <p className="text-gray-500 text-sm font-medium">No schools found matching "{searchQuery}"</p>
-                        </div>
-                    )}
-                </div>
-            </div>
-
-            {/* Faculty List Table Section */}
-            {selectedSchoolId ? (
-                <div className="bg-white p-6 border border-gray-200 shadow-sm rounded-xl animate-in fade-in slide-in-from-bottom-2 duration-300">
-                    <div className="flex items-center justify-between mb-6">
-                        <div>
-                            <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                                <span className="text-gray-400 font-normal">Faculty List:</span>
-                                {activeSchoolTitle}
-                            </h2>
-                            <p className="text-xs text-gray-500 mt-1">Viewing all faculty members for this school.</p>
-                        </div>
-                        <Button variant="outline" size="sm" className="rounded-md border-gray-300">
-                            Download Report
-                        </Button>
-                    </div>
-
-                    {schools.find(s => s.id === selectedSchoolId)?.type === 'Private' ? (
-                        <FacultyListTableE5
-                            facultyList={faculty as any} // Cast to any or Faculty[] if types align
-                            yearFilter="All Years"
-                            referenceData={referenceData}
-                            onFileClick={(f) => console.log('File click', f)}
-                            onDelete={(id) => {
-                                if (confirm('Are you sure you want to delete this faculty member?')) {
-                                    router.delete(route('admin.faculty.destroy', id)); // Ensure this route exists or update to correct one
-                                }
-                            }}
-                            // For edit, we might need to redirect to admin edit page or similar
-                            onEdit={(f) => console.log('Edit', f)}
-                        />
+                    {/* Faculty List Table Section */}
+                    {selectedSchoolId ? (
+                        schools.find(s => s.id === selectedSchoolId)?.type === 'Private' ? (
+                            <PrivateSchoolView
+                                schoolName={activeSchoolTitle || ''}
+                                faculty={faculty as any}
+                                referenceData={referenceData}
+                            />
+                        ) : (
+                            <PublicSchoolView
+                                schoolName={activeSchoolTitle || ''}
+                                faculty={faculty as any}
+                            />
+                        )
                     ) : (
-                        <AdminFacultyTable faculty={faculty} />
+                        <div className="flex flex-col items-center justify-center p-12 text-center text-gray-500 h-[50vh]">
+                            <LayoutGrid className="h-16 w-16 text-gray-200 mb-6" />
+                            <h3 className="text-xl font-medium text-gray-900 mb-2">No School Selected</h3>
+                            <p className="text-sm max-w-sm">Select a school from the sidebar to view and manage its faculty list.</p>
+                        </div>
                     )}
                 </div>
-            ) : (
-                <div className="bg-gray-50 border border-dashed border-gray-300 p-12 text-center text-gray-500 rounded-xl flex flex-col items-center justify-center">
-                    <LayoutGrid className="h-12 w-12 text-gray-300 mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900 mb-1">No School Selected</h3>
-                    <p className="text-sm">Select a school from the grid above to view its faculty list.</p>
-                </div>
-            )}
+            </SidebarInset>
 
             <SchoolNameModal
                 isOpen={isSchoolModalOpen}
@@ -257,6 +156,6 @@ export default function AdminFacultyListModule({ schools = [], faculty = [], fil
                 onOpenChange={setIsCreateAccountModalOpen}
                 schools={schools}
             />
-        </div>
+        </SidebarProvider>
     );
 }

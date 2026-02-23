@@ -165,7 +165,7 @@ const Edit: FC<EditProps> = ({ faculty, referenceData }) => {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={`Edit Faculty - ${faculty.name}`} />
 
-            <div className="flex flex-1 flex-col gap-15 w-full p-4 md:px-20 max-w-8xl mx-auto">
+            <div className="flex flex-1 flex-col gap-6 w-full py-30 px-4 md:px-20 max-w-8xl mx-auto">
                 <div className="flex justify-between items-center">
                     <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-100">
                         Edit Faculty Details
@@ -173,7 +173,7 @@ const Edit: FC<EditProps> = ({ faculty, referenceData }) => {
                     <Button
                         onClick={handleSave}
                         disabled={processing}
-                        className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                        className="bg-green-800 hover:bg-green-600 text-white"
                     >
                         {processing ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
                         Save Changes

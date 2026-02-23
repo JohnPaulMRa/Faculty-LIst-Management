@@ -27,8 +27,13 @@ export function useCurrentUrl(): UseCurrentUrlReturn {
         urlToCheck: NonNullable<InertiaLinkProps['href']>,
         currentUrl?: string,
     ) => {
-        const urlToCompare = currentUrl ?? currentUrlPath;
         const urlString = toUrl(urlToCheck);
+        
+        // If the URL being checked has query parameters, we should compare against the full URL (page.url)
+        // Otherwise, compare against strictly the path part.
+        const hasQueryParams = urlString.includes('?');
+        const defaultCompareUrl = hasQueryParams ? page.url : currentUrlPath;
+        const urlToCompare = currentUrl ?? defaultCompareUrl;
 
         if (!urlString.startsWith('http')) {
             return urlString === urlToCompare;
@@ -36,6 +41,9 @@ export function useCurrentUrl(): UseCurrentUrlReturn {
 
         try {
             const absoluteUrl = new URL(urlString);
+            if (hasQueryParams) {
+                return absoluteUrl.pathname + absoluteUrl.search === urlToCompare;
+            }
             return absoluteUrl.pathname === urlToCompare;
         } catch {
             return false;

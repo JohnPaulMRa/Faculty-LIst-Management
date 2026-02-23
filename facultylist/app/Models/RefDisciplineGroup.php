@@ -17,4 +17,16 @@ class RefDisciplineGroup extends Model
     {
         return $this->hasMany(RefMajorDiscipline::class, 'discipline_group_code', 'code');
     }
+
+    public function specificDisciplines()
+    {
+        return $this->hasManyThrough(
+            RefSpecificDiscipline::class,
+            RefMajorDiscipline::class,
+            'discipline_group_code', // Foreign key on RefMajorDiscipline table
+            'major_discipline_code', // Foreign key on RefSpecificDiscipline table
+            'code', // Local key on RefDisciplineGroup table
+            'code' // Local key on RefMajorDiscipline table
+        );
+    }
 }
