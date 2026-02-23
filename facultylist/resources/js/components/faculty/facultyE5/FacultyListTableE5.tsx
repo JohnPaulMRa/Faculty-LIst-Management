@@ -205,7 +205,7 @@ const FacultyListTableE5: FC<Props> = ({ facultyList, yearFilter, onFileClick, o
 
             {/* Pagination footer */}
             {facultyList.length > 0 && (
-                <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200 bg-white text-sm text-gray-600 rounded-none">
+                <div className="flex items-center justify-between px-2 py-0 border-t border-gray-200 bg-white text-sm text-gray-600 rounded-none">
                     <span>
                         Showing {Math.min((currentPage - 1) * pageSize + 1, facultyList.length)}–{Math.min(currentPage * pageSize, facultyList.length)} of {facultyList.length} entries
                     </span>
@@ -231,7 +231,7 @@ const FacultyListTableE5: FC<Props> = ({ facultyList, yearFilter, onFileClick, o
                         <button
                             onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                             disabled={currentPage === totalPages || totalPages === 0}
-                            className="px-3 py-1.5 border border-gray-300 rounded-none text-sm disabled:opacity-40 hover:bg-gray-100 font-medium"
+                            className="px-2 py-1.5 border border-gray-300 rounded-none text-sm disabled:opacity-40 hover:bg-gray-100 font-medium"
                         >Next</button>
                     </div>
                 </div>

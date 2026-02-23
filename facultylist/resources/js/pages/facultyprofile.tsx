@@ -68,14 +68,15 @@ interface FacultyProfileProps {
 const FacultyProfile: FC<FacultyProfileProps> = ({ initialFacultyData = [], filters = {}, referenceData, availableYears = [], schoolName = 'School Name' }) => {
     const { academicYears } = usePage<any>().props;
     const [searchQuery, setSearchQuery] = useState<string>(filters.search || '');
-    const [yearFilter, setYearFilter] = useState<string>(filters.year || 'All Years');
+    const initialYear = filters.year || (availableYears && availableYears.length > 0 ? availableYears[0] : getCurrentAcademicYear());
+    const [yearFilter, setYearFilter] = useState<string>(initialYear);
 
     // Client-side filtered list based on yearFilter and searchQuery
     const filteredFacultyList = useMemo(() => {
         let list = initialFacultyData;
 
         // Filter by year
-        if (yearFilter && yearFilter !== 'All Years') {
+        if (yearFilter) {
             list = list.filter(f => f.joined_year === yearFilter);
         }
 

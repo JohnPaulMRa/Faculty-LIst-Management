@@ -40,7 +40,9 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
 
     // Reusable formatter for reference lists
     const mapToOptions = (list: { code: string, desc: string }[]) => {
-        return (list || []).map(item => ({ label: item.desc, value: item.code }));
+        return (list || [])
+            .filter(item => item && item.desc && item.desc.trim() !== "")
+            .map(item => ({ label: item.desc, value: item.code }));
     };
 
     return (
@@ -49,7 +51,7 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
             {/* Faculty Details Card */}
             <div className={cardClass}>
 
-                <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-4">
                     <div className="grid gap-3">
                         <label className="text-sm font-semibold text-gray-600">Faculty Name (LN, FN, MI)</label>
                         <Input

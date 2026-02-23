@@ -32,10 +32,24 @@ const DisciplineSelector: FC<Props> = ({
 
     // Safe access to reference data
     const groups = referenceData?.groupDiscipline || [];
-    // Flattened disciplines from controller
-    const allDisciplines: Discipline[] = Array.isArray(referenceData?.disciplines)
-        ? referenceData.disciplines
-        : [];
+    // Flattened disciplines from controller, augmenting with leaf major groups
+    const allDisciplines: Discipline[] = (() => {
+        const specs = Array.isArray(referenceData?.disciplines) ? [...referenceData.disciplines] : [];
+        if (groups && groups.length > 0) {
+            groups.forEach((g: any) => {
+                const hasSpecific = specs.some((d: Discipline) => String(d.major_group_code) === String(g.code));
+                if (!hasSpecific) {
+                    // Inject the major group as a specific discipline if it has no children
+                    specs.push({
+                        code: String(g.code),
+                        desc: g.desc,
+                        major_group_code: String(g.code)
+                    });
+                }
+            });
+        }
+        return specs;
+    })();
 
     const findDisciplineGroup = (code: string | number) => {
         if (!code) return "";
@@ -72,6 +86,14 @@ const DisciplineSelector: FC<Props> = ({
 
     const handleGroupChange = (groupCode: string) => {
         setSelectedGroup(groupCode);
+
+        // Auto-select if the group has no specific disciplines (meaning it's the only option, which is the group itself)
+        const specificForGroup = allDisciplines.filter(d => String(d.major_group_code) === String(groupCode));
+        if (specificForGroup.length === 1 && String(specificForGroup[0].code) === String(groupCode)) {
+            onChange(String(specificForGroup[0].code), specificForGroup[0].desc);
+            return;
+        }
+
         onChange("", "");
     };
 
@@ -99,7 +121,9 @@ const DisciplineSelector: FC<Props> = ({
     }
 
     const mapToOptions = (list: any[]) => {
-        return (list || []).map(item => ({ label: item.desc, value: item.code }));
+        return (list || [])
+            .filter(item => item && item.desc && item.desc.trim() !== "")
+            .map(item => ({ label: item.desc, value: item.code }));
     };
 
     return (

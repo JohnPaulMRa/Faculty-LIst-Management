@@ -13,8 +13,8 @@ import {
 import {
     Popover,
     PopoverContent,
-    PopoverTrigger,
 } from "@/components/ui/popover"
+import * as PopoverPrimitive from "@radix-ui/react-popover"
 
 interface ComboboxProps {
     options: { label: string; value: string | number }[]
@@ -57,7 +57,7 @@ export function Combobox({
     return (
         <Command shouldFilter={true} className="overflow-visible bg-transparent">
             <Popover open={open} onOpenChange={setOpen}>
-                <PopoverTrigger asChild>
+                <PopoverPrimitive.Anchor asChild>
                     <div
                         className={cn(
                             "flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors focus-within:ring-1 focus-within:ring-ring disabled:cursor-not-allowed disabled:opacity-50",
@@ -71,17 +71,22 @@ export function Combobox({
                             onValueChange={(val) => {
                                 setInputValue(val)
                                 if (!open) setOpen(true)
-                                // If input is cleared, clear the selection
-                                if (val === '') {
+                                // Only explicitly clear the selection if the user deletes all text
+                                if (val === '' && value) {
                                     onChange('')
                                 }
                             }}
-                            onBlur={() => {
-                                // Revert to selected option text if lost focus
-                                if (selectedOption) {
-                                    setInputValue(selectedOption.label)
-                                } else {
-                                    setInputValue("")
+                            onBlur={(e) => {
+                                // Important: We check relatedTarget to see if we're clicking an item inside the dropdown
+                                // If we are clicking inside the popover, we DO NOT revert the text yet so onSelect can fire
+                                const isClickingDropdown = e.relatedTarget?.closest('[data-radix-popper-content-wrapper]');
+
+                                if (!isClickingDropdown) {
+                                    if (selectedOption) {
+                                        setInputValue(selectedOption.label)
+                                    } else {
+                                        setInputValue("")
+                                    }
                                 }
                             }}
                             onFocus={() => !disabled && setOpen(true)}
@@ -89,9 +94,15 @@ export function Combobox({
                             disabled={disabled}
                             className="flex-1 bg-transparent outline-none placeholder:text-muted-foreground min-w-0"
                         />
-                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        <ChevronsUpDown
+                            className="ml-2 h-4 w-4 shrink-0 opacity-50 cursor-pointer hover:opacity-100"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                if (!disabled) setOpen(!open);
+                            }}
+                        />
                     </div>
-                </PopoverTrigger>
+                </PopoverPrimitive.Anchor>
                 <PopoverContent
                     className="p-0"
                     style={{ width: "var(--radix-popover-trigger-width)" }}

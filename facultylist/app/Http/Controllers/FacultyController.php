@@ -144,6 +144,15 @@ class FacultyController extends Controller
                 $data['fullTimeCode'] = $faculty->ft_pt_code;
                 $data['genderCode'] = $faculty->gender_code;
                 $data['disciplineCode'] = $faculty->discipline_code;
+                $data['degree'] = $faculty->highest_degree_code;
+                $data['rankCode'] = $faculty->rank_code;
+                $data['bachelorsCode'] = $faculty->bachelors_code;
+                $data['mastersCode'] = $faculty->masters_code;
+                $data['doctorateCode'] = $faculty->doctorate_code;
+                $data['licenseCode'] = $faculty->license_code;
+                $data['tenureCode'] = $faculty->tenure_code;
+                $data['salaryCode'] = $faculty->salary_range_code;
+                $data['loadCode'] = $faculty->teaching_load_code;
                 $data['id'] = $id; // "e5_..."
 
                 $faculty = (object) $data;

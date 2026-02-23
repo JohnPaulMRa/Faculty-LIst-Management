@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { Monitor, Menu, BookOpen, User, UserCog } from 'lucide-react';
+import { Monitor, Menu, BookOpen, User, UserCog, LogOut } from 'lucide-react';
 import { Breadcrumbs } from '@/components/breadcrumbs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -19,7 +19,7 @@ import { UserMenuContent } from '@/components/user-menu-content';
 import { useCurrentUrl } from '@/hooks/use-current-url';
 import { useInitials } from '@/hooks/use-initials';
 import { cn } from '@/lib/utils';
-import { dashboard, facultyprofile } from '@/routes';
+import { dashboard, facultyprofile, logout } from '@/routes';
 import type { BreadcrumbItem, NavItem, SharedData } from '@/types';
 import AppLogoIcon from './app-logo-icon';
 
@@ -153,31 +153,26 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
 
                     {/* RIGHT: Tools & User Dropdown */}
                     <div className="flex items-center gap-4">
-                        {/* Static User Manual Link */}
+                        {/* Static User Manual Link
                         <a href="#" className="hidden items-center gap-2 text-sm font-medium text-gray-500 hover:text-[#003468] md:flex">
                             <BookOpen className="h-4 w-4" />
                             <span>User Guide</span>
                         </a>
+                         */}
 
                         {/* Divider */}
                         <div className="hidden h-5 w-px bg-gray-300 md:block" />
 
                         {/* Avatar / Logout Menu */}
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" className="h-9 w-9 rounded-full p-0 border border-gray-200 hover:bg-gray-100">
-                                    <Avatar className="h-8 w-8">
-                                        <AvatarImage src={auth.user.avatar} alt={auth.user.name} />
-                                        <AvatarFallback className="bg-[#003468] text-white text-xs">
-                                            {getInitials(auth.user.name)}
-                                        </AvatarFallback>
-                                    </Avatar>
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-56">
-                                <UserMenuContent user={auth.user} />
-                            </DropdownMenuContent>
-                        </DropdownMenu>
+                        <Link
+                            href={logout()}
+                            method="post"
+                            as="button"
+                            className="flex items-center gap-2 rounded-md bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-200"
+                        >
+                            <LogOut className="h-4 w-4" />
+                            Log out
+                        </Link>
                     </div>
                 </div>
             </div>
