@@ -26,10 +26,8 @@ class SpecificDisciplineSeeder extends Seeder
             \Illuminate\Support\Facades\DB::table('ref_specific_discipline')->insert(
                 [
                     'code' => $discipline['code'],
-                    'major_discipline_code' => $discipline['major_discipline_code'],
-                    // 'discipline_group_code' removed as per request
-                    'minor_group' => $discipline['minor_group'],
                     'description' => $discipline['description'],
+                    'slug' => \Illuminate\Support\Str::slug($discipline['description'], '_'),
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]

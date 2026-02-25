@@ -1,0 +1,100 @@
+#19 C:/Users/Acer/Desktop/Faculty-LIst-Management/facultylist/artisan(16): Illuminate/Foundation/Application->handleCommand(Object(Symfony/Component/Console/Input/ArgvInput))
+#20 {main}
+"} 
+[2026-02-24 04:59:09] local.ERROR: The process "C:\xampp\php\php.exe artisan queue:work --once --name=default --queue=default --backoff=0 --memory=128 --sleep=3 --tries=1" exceeded the timeout of 60 seconds. {"exception":"[object] (Symfony\\Component\\Process\\Exception\\ProcessTimedOutException(code: 0): The process \"C:\\xampp\\php\\php.exe artisan queue:work --once --name=default --queue=default --backoff=0 --memory=128 --sleep=3 --tries=1\" exceeded the timeout of 60 seconds. at C:/Users/Acer/Desktop/Faculty-LIst-Management/facultylist/vendor/symfony/process/Process.php:1191)
+[stacktrace]
+#0 C:/Users/Acer/Desktop/Faculty-LIst-Management/facultylist/vendor/symfony/process/Process.php(457): Symfony/Component/Process/Process->checkTimeout()
+#1 C:/Users/Acer/Desktop/Faculty-LIst-Management/facultylist/vendor/symfony/process/Process.php(254): Symfony/Component/Process/Process->wait()
+#2 C:/Users/Acer/Desktop/Faculty-LIst-Management/facultylist/vendor/laravel/framework/src/Illuminate/Queue/Listener.php(180): Symfony/Component/Process/Process->run(Object(Closure))
+#3 C:/Users/Acer/Desktop/Faculty-LIst-Management/facultylist/vendor/laravel/framework/src/Illuminate/Queue/Listener.php(91): Illuminate/Queue/Listener->runProcess(Object(Symfony/Component/Process/Process), '128')
+#4 C:/Users/Acer/Desktop/Faculty-LIst-Management/facultylist/vendor/laravel/framework/src/Illuminate/Queue/Console/ListenCommand.php(74): Illuminate/Queue/Listener->listen(NULL, 'default', Object(Illuminate/Queue/ListenerOptions))
+#5 C:/Users/Acer/Desktop/Faculty-LIst-Management/facultylist/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Illuminate/Queue/Console/ListenCommand->handle()
+#6 C:/Users/Acer/Desktop/Faculty-LIst-Management/facultylist/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate/Container/BoundMethod::Illuminate/Container/{closure}()
+#7 C:/Users/Acer/Desktop/Faculty-LIst-Management/facultylist/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(96): Illuminate/Container/Util::unwrapIfClosure(Object(Closure))
+#8 C:/Users/Acer/Desktop/Faculty-LIst-Management/facultylist/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate/Container/BoundMethod::callBoundMethod(Object(Illuminate/Foundation/Application), Array, Object(Closure))
+#9 C:/Users/Acer/Desktop/Faculty-LIst-Management/facultylist/vendor/laravel/framework/src/Illuminate/Container/Container.php(799): Illuminate/Container/BoundMethod::call(Object(Illuminate/Foundation/Application), Array, Array, NULL)
+#10 C:/Users/Acer/Desktop/Faculty-LIst-Management/facultylist/vendor/laravel/framework/src/Illuminate/Console/Command.php(211): Illuminate/Container/Container->call(Array)
+#11 C:/Users/Acer/Desktop/Faculty-LIst-Management/facultylist/vendor/symfony/console/Command/Command.php(341): Illuminate/Console/Command->execute(Object(Symfony/Component/Console/Input/ArgvInput), Object(Illuminate/Console/OutputStyle))
+#12 C:/Users/Acer/Desktop/Faculty-LIst-Management/facultylist/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony/Component/Console/Command/Command->run(Object(Symfony/Component/Console/Input/ArgvInput), Object(Illuminate/Console/OutputStyle))
+#13 C:/Users/Acer/Desktop/Faculty-LIst-Management/facultylist/vendor/symfony/console/Application.php(1102): Illuminate/Console/Command->run(Object(Symfony/Component/Console/Input/ArgvInput), Object(Symfony/Component/Console/Output/ConsoleOutput))
+#14 C:/Users/Acer/Desktop/Faculty-LIst-Management/facultylist/vendor/symfony/console/Application.php(356): Symfony/Component/Console/Application->doRunCommand(Object(Illuminate/Queue/Console/ListenCommand), Object(Symfony/Component/Console/Input/ArgvInput), Object(Symfony/Component/Console/Output/ConsoleOutput))
+#15 C:/Users/Acer/Desktop/Faculty-LIst-Management/facultylist/vendor/symfony/console/Application.php(195): Symfony/Component/Console/Application->doRun(Object(Symfony/Component/Console/Input/ArgvInput), Object(Symfony/Component/Console/Output/ConsoleOutput))
+#16 C:/Users/Acer/Desktop/Faculty-LIst-Management/facultylist/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(198): Symfony/Component/Console/Application->run(Object(Symfony/Component/Console/Input/ArgvInput), Object(Symfony/Component/Console/Output/ConsoleOutput))
+#17 C:/Users/Acer/Desktop/Faculty-LIst-Management/facultylist/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1235): Illuminate/Foundation/Console/Kernel->handle(Object(Symfony/Component/Console/Input/ArgvInput), Object(Symfony/Component/Console/Output/ConsoleOutput))
+#18 C:/Users/Acer/Desktop/Faculty-LIst-Management/facultylist/artisan(16): Illuminate/Foundation/Application->handleCommand(Object(Symfony/Component/Console/Input/ArgvInput))
+#19 {main}
+"} 
+[2026-02-24 05:35:07] local.ERROR: Command "schema:show" is not defined.
+
+Did you mean one of these?
+    config:show
+    db:show
+    model:show
+    schema:dump {"exception":"[object] (Symfony\\Component\\Console\\Exception\\CommandNotFoundException(code: 0): Command \"schema:show\" is not defined.
+
+Did you mean one of these?
+    config:show
+    db:show
+    model:show
+    schema:dump at C:/Users/Acer/Desktop/Faculty-LIst-Management/facultylist/vendor/symfony/console/Application.php:759)
+[stacktrace]
+#0 C:/Users/Acer/Desktop/Faculty-LIst-Management/facultylist/vendor/symfony/console/Application.php(298): Symfony/Component/Console/Application->find('schema:show')
+#1 C:/Users/Acer/Desktop/Faculty-LIst-Management/facultylist/vendor/symfony/console/Application.php(195): Symfony/Component/Console/Application->doRun(Object(Symfony/Component/Console/Input/ArgvInput), Object(Symfony/Component/Console/Output/ConsoleOutput))
+#2 C:/Users/Acer/Desktop/Faculty-LIst-Management/facultylist/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(198): Symfony/Component/Console/Application->run(Object(Symfony/Component/Console/Input/ArgvInput), Object(Symfony/Component/Console/Output/ConsoleOutput))
+#3 C:/Users/Acer/Desktop/Faculty-LIst-Management/facultylist/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1235): Illuminate/Foundation/Console/Kernel->handle(Object(Symfony/Component/Console/Input/ArgvInput), Object(Symfony/Component/Console/Output/ConsoleOutput))
+#4 C:/Users/Acer/Desktop/Faculty-LIst-Management/facultylist/artisan(16): Illuminate/Foundation/Application->handleCommand(Object(Symfony/Component/Console/Input/ArgvInput))
+#5 {main}
+"} 
+[2026-02-24 05:35:52] local.ERROR: Command "schema:show" is not defined.
+
+Did you mean one of these?
+    config:show
+    db:show
+    model:show
+    schema:dump {"exception":"[object] (Symfony\\Component\\Console\\Exception\\CommandNotFoundException(code: 0): Command \"schema:show\" is not defined.
+
+Did you mean one of these?
+    config:show
+    db:show
+    model:show
+    schema:dump at C:/Users/Acer/Desktop/Faculty-LIst-Management/facultylist/vendor/symfony/console/Application.php:759)
+[stacktrace]
+#0 C:/Users/Acer/Desktop/Faculty-LIst-Management/facultylist/vendor/symfony/console/Application.php(298): Symfony/Component/Console/Application->find('schema:show')
+#1 C:/Users/Acer/Desktop/Faculty-LIst-Management/facultylist/vendor/symfony/console/Application.php(195): Symfony/Component/Console/Application->doRun(Object(Symfony/Component/Console/Input/ArgvInput), Object(Symfony/Component/Console/Output/ConsoleOutput))
+#2 C:/Users/Acer/Desktop/Faculty-LIst-Management/facultylist/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(198): Symfony/Component/Console/Application->run(Object(Symfony/Component/Console/Input/ArgvInput), Object(Symfony/Component/Console/Output/ConsoleOutput))
+#3 C:/Users/Acer/Desktop/Faculty-LIst-Management/facultylist/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1235): Illuminate/Foundation/Console/Kernel->handle(Object(Symfony/Component/Console/Input/ArgvInput), Object(Symfony/Component/Console/Output/ConsoleOutput))
+#4 C:/Users/Acer/Desktop/Faculty-LIst-Management/facultylist/artisan(16): Illuminate/Foundation/Application->handleCommand(Object(Symfony/Component/Console/Input/ArgvInput))
+#5 {main}
+"} 
+[2026-02-24 05:38:02] local.ERROR: The "--table" option does not exist. {"exception":"[object] (Symfony\\Component\\Console\\Exception\\RuntimeException(code: 0): The \"--table\" option does not exist. at C:/Users/Acer/Desktop/Faculty-LIst-Management/facultylist/vendor/symfony/console/Input/ArgvInput.php:226)
+[stacktrace]
+#0 C:/Users/Acer/Desktop/Faculty-LIst-Management/facultylist/vendor/symfony/console/Input/ArgvInput.php(153): Symfony/Component/Console/Input/ArgvInput->addLongOption('table', 'ref_major_disci...')
+#1 C:/Users/Acer/Desktop/Faculty-LIst-Management/facultylist/vendor/symfony/console/Input/ArgvInput.php(88): Symfony/Component/Console/Input/ArgvInput->parseLongOption('--table=ref_maj...')
+#2 C:/Users/Acer/Desktop/Faculty-LIst-Management/facultylist/vendor/symfony/console/Input/ArgvInput.php(77): Symfony/Component/Console/Input/ArgvInput->parseToken('--table=ref_maj...', true)
+#3 C:/Users/Acer/Desktop/Faculty-LIst-Management/facultylist/vendor/symfony/console/Input/Input.php(53): Symfony/Component/Console/Input/ArgvInput->parse()
+#4 C:/Users/Acer/Desktop/Faculty-LIst-Management/facultylist/vendor/symfony/console/Command/Command.php(295): Symfony/Component/Console/Input/Input->bind(Object(Symfony/Component/Console/Input/InputDefinition))
+#5 C:/Users/Acer/Desktop/Faculty-LIst-Management/facultylist/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony/Component/Console/Command/Command->run(Object(Symfony/Component/Console/Input/ArgvInput), Object(Illuminate/Console/OutputStyle))
+#6 C:/Users/Acer/Desktop/Faculty-LIst-Management/facultylist/vendor/symfony/console/Application.php(1102): Illuminate/Console/Command->run(Object(Symfony/Component/Console/Input/ArgvInput), Object(Symfony/Component/Console/Output/ConsoleOutput))
+#7 C:/Users/Acer/Desktop/Faculty-LIst-Management/facultylist/vendor/symfony/console/Application.php(356): Symfony/Component/Console/Application->doRunCommand(Object(Illuminate/Database/Console/ShowCommand), Object(Symfony/Component/Console/Input/ArgvInput), Object(Symfony/Component/Console/Output/ConsoleOutput))
+#8 C:/Users/Acer/Desktop/Faculty-LIst-Management/facultylist/vendor/symfony/console/Application.php(195): Symfony/Component/Console/Application->doRun(Object(Symfony/Component/Console/Input/ArgvInput), Object(Symfony/Component/Console/Output/ConsoleOutput))
+#9 C:/Users/Acer/Desktop/Faculty-LIst-Management/facultylist/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(198): Symfony/Component/Console/Application->run(Object(Symfony/Component/Console/Input/ArgvInput), Object(Symfony/Component/Console/Output/ConsoleOutput))
+#10 C:/Users/Acer/Desktop/Faculty-LIst-Management/facultylist/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1235): Illuminate/Foundation/Console/Kernel->handle(Object(Symfony/Component/Console/Input/ArgvInput), Object(Symfony/Component/Console/Output/ConsoleOutput))
+#11 C:/Users/Acer/Desktop/Faculty-LIst-Management/facultylist/artisan(16): Illuminate/Foundation/Application->handleCommand(Object(Symfony/Component/Console/Input/ArgvInput))
+#12 {main}
+"} 
+[2026-02-24 05:38:55] local.ERROR: The "--table" option does not exist. {"exception":"[object] (Symfony\\Component\\Console\\Exception\\RuntimeException(code: 0): The \"--table\" option does not exist. at C:/Users/Acer/Desktop/Faculty-LIst-Management/facultylist/vendor/symfony/console/Input/ArgvInput.php:226)
+[stacktrace]
+#0 C:/Users/Acer/Desktop/Faculty-LIst-Management/facultylist/vendor/symfony/console/Input/ArgvInput.php(153): Symfony/Component/Console/Input/ArgvInput->addLongOption('table', 'ref_specific_di...')
+#1 C:/Users/Acer/Desktop/Faculty-LIst-Management/facultylist/vendor/symfony/console/Input/ArgvInput.php(88): Symfony/Component/Console/Input/ArgvInput->parseLongOption('--table=ref_spe...')
+#2 C:/Users/Acer/Desktop/Faculty-LIst-Management/facultylist/vendor/symfony/console/Input/ArgvInput.php(77): Symfony/Component/Console/Input/ArgvInput->parseToken('--table=ref_spe...', true)
+#3 C:/Users/Acer/Desktop/Faculty-LIst-Management/facultylist/vendor/symfony/console/Input/Input.php(53): Symfony/Component/Console/Input/ArgvInput->parse()
+#4 C:/Users/Acer/Desktop/Faculty-LIst-Management/facultylist/vendor/symfony/console/Command/Command.php(295): Symfony/Component/Console/Input/Input->bind(Object(Symfony/Component/Console/Input/InputDefinition))
+#5 C:/Users/Acer/Desktop/Faculty-LIst-Management/facultylist/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony/Component/Console/Command/Command->run(Object(Symfony/Component/Console/Input/ArgvInput), Object(Illuminate/Console/OutputStyle))
+#6 C:/Users/Acer/Desktop/Faculty-LIst-Management/facultylist/vendor/symfony/console/Application.php(1102): Illuminate/Console/Command->run(Object(Symfony/Component/Console/Input/ArgvInput), Object(Symfony/Component/Console/Output/ConsoleOutput))
+#7 C:/Users/Acer/Desktop/Faculty-LIst-Management/facultylist/vendor/symfony/console/Application.php(356): Symfony/Component/Console/Application->doRunCommand(Object(Illuminate/Database/Console/ShowCommand), Object(Symfony/Component/Console/Input/ArgvInput), Object(Symfony/Component/Console/Output/ConsoleOutput))
+#8 C:/Users/Acer/Desktop/Faculty-LIst-Management/facultylist/vendor/symfony/console/Application.php(195): Symfony/Component/Console/Application->doRun(Object(Symfony/Component/Console/Input/ArgvInput), Object(Symfony/Component/Console/Output/ConsoleOutput))
+#9 C:/Users/Acer/Desktop/Faculty-LIst-Management/facultylist/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(198): Symfony/Component/Console/Application->run(Object(Symfony/Component/Console/Input/ArgvInput), Object(Symfony/Component/Console/Output/ConsoleOutput))
+#10 C:/Users/Acer/Desktop/Faculty-LIst-Management/facultylist/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1235): Illuminate/Foundation/Console/Kernel->handle(Object(Symfony/Component/Console/Input/ArgvInput), Object(Symfony/Component/Console/Output/ConsoleOutput))
+#11 C:/Users/Acer/Desktop/Faculty-LIst-Management/facultylist/artisan(16): Illuminate/Foundation/Application->handleCommand(Object(Symfony/Component/Console/Input/ArgvInput))
+#12 {main}
+"} 

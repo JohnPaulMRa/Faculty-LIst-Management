@@ -43,7 +43,7 @@ export function AdminFacultySidebar({ schools, selectedSchoolId, onSchoolSelect,
     const publicSchools = (!typeFilter || typeFilter === 'Public') ? filteredSchools.filter(s => s.type === 'Public') : [];
 
     return (
-        <Sidebar className="border-r border-gray-200" collapsible="none">
+        <Sidebar className="" collapsible="none">
             <SidebarContent>
                 <SidebarGroup className="py-2">
                     <SidebarGroupLabel>Find School</SidebarGroupLabel>

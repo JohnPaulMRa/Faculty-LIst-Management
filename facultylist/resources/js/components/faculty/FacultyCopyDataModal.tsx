@@ -77,9 +77,12 @@ export function FacultyCopyDataModal({ isOpen, onOpenChange, availableYears, onS
                             </SelectTrigger>
                             <SelectContent>
                                 {availableYears.length > 0 ? (
-                                    availableYears.map(year => (
-                                        <SelectItem key={year} value={year}>{year}</SelectItem>
-                                    ))
+                                    // Show only the latest academic year as source
+                                    (() => {
+                                        const sorted = [...availableYears].sort((a, b) => (a > b ? -1 : 1));
+                                        const latestYear = sorted[0];
+                                        return <SelectItem key={latestYear} value={latestYear}>{latestYear}</SelectItem>;
+                                    })()
                                 ) : (
                                     <SelectItem value="none" disabled>No years available</SelectItem>
                                 )}

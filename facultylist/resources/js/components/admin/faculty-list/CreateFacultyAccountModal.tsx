@@ -25,7 +25,6 @@ interface Props {
 
 const CreateFacultyAccountModal: FC<Props> = ({ isOpen, onOpenChange, schools }) => {
     const { data, setData, post, processing, errors, reset } = useForm({
-        name: '',
         email: '',
         password: '',
         password_confirmation: '',
@@ -58,18 +57,6 @@ const CreateFacultyAccountModal: FC<Props> = ({ isOpen, onOpenChange, schools })
                 </DialogHeader>
 
                 <form onSubmit={handleSubmit} className="space-y-4 py-4">
-                    <div className="grid gap-2">
-                        <Label htmlFor="name">Full Name</Label>
-                        <Input
-                            id="name"
-                            value={data.name}
-                            onChange={(e) => setData('name', e.target.value)}
-                            placeholder="e.g. John Doe"
-                            required
-                        />
-                        {errors.name && <p className="text-sm text-red-500">{errors.name}</p>}
-                    </div>
-
                     <div className="grid gap-2">
                         <Label htmlFor="email">Email Address</Label>
                         <Input

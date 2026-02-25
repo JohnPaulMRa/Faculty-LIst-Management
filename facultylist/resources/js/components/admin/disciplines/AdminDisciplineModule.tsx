@@ -14,7 +14,8 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from '@/components/ui/badge';
 import DisciplineTable from './DisciplineTable';
-import DisciplineFormModal from './DisciplineFormModal';
+import AddDisciplineModal from './AddDisciplineModal';
+import EditDisciplineModal from './EditDisciplineModal';
 
 interface SpecificDiscipline {
     code: string;
@@ -40,9 +41,24 @@ interface AdminDisciplineModuleProps {
 export default function AdminDisciplineModule({ disciplines = [] }: AdminDisciplineModuleProps) {
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedMajor, setSelectedMajor] = useState<string | null>(null);
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    // New state for filtering by discipline group
+    const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
+
+    // Compute flat list of all groups for the filter dropdown
+    const allGroups = useMemo(() => {
+        const groups: { code: string; description: string }[] = [];
+        disciplines.forEach((major) => {
+            major.groups.forEach((g) => {
+                groups.push({ code: g.code, description: g.description });
+            });
+        });
+        return groups;
+    }, [disciplines]);
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [editingItem, setEditingItem] = useState<any>(null);
     const [sortConfig, setSortConfig] = useState<{ key: string, direction: 'asc' | 'desc' } | null>(null);
+    const [processing, setProcessing] = useState(false);
 
     const handleSort = (key: string) => {
         let direction: 'asc' | 'desc' = 'asc';
@@ -54,37 +70,59 @@ export default function AdminDisciplineModule({ disciplines = [] }: AdminDiscipl
 
     // Filtering logic
     const filteredDisciplines = useMemo(() => {
-        const allPrograms: any[] = [];
+        if (!Array.isArray(disciplines)) return [];
 
+        let allPrograms: any[] = [];
+
+        // Flatten all groups, majors, and specifics into a single array first
         disciplines.forEach(major => {
-            // Apply major filter if selected
-            if (selectedMajor && major.code !== selectedMajor) return;
+            const groups = Array.isArray(major.groups) ? major.groups : [];
 
-            major.groups.forEach(group => {
-                group.specifics.forEach(specific => {
-                    // Search filter
-                    if (searchQuery) {
-                        const q = searchQuery.toLowerCase();
-                        const matches =
-                            (specific.description || "").toLowerCase().includes(q) ||
-                            (specific.code || "").includes(q) ||
-                            (group.description || "").toLowerCase().includes(q) ||
-                            (major.description || "").toLowerCase().includes(q);
+            groups.forEach(group => {
+                const specifics = Array.isArray(group.specifics) ? group.specifics : [];
 
-                        if (!matches) return;
-                    }
-
+                if (specifics.length === 0) {
                     allPrograms.push({
-                        id: specific.code,
-                        code: specific.code,
-                        name: specific.description, // Program Name
-                        major: major.description,   // Major Name
-                        disciplineGroup: major.description, // Discipline Group (Major)
-                        specificMajor: group.description, // Specific Major (Group)
-                        specificGroup: group.description, // Specific Group (Group - or potentially mapped elsewhere)
+                        id: String(group.code),
+                        code: String(group.code),
+                        name: '',
+                        major: String(major.description || ''),
+                        disciplineGroup: String(major.description || ''),
+                        specificMajor: String(group.description || ''),
+                        specificGroup: String(group.description || ''),
+                        originalData: {
+                            code: group.code,
+                            group: group.code,
+                            groupCode: major.code,
+                            groupName: major.description,
+                            majorCode: group.code,
+                            majorName: group.description,
+                            majorDiscipline: major.description,
+                            specificDiscipline: '',
+                            groupDescription: group.description,
+                            type: 'major'
+                        }
+                    });
+                    return;
+                }
+
+                specifics.forEach(specific => {
+                    const isOrphan = String(group.code).endsWith('_orphan');
+                    allPrograms.push({
+                        id: String(specific.code),
+                        code: String(specific.code),
+                        name: String(specific.description || ''),
+                        major: String(major.description || ''),
+                        disciplineGroup: String(major.description || ''),
+                        specificMajor: isOrphan ? '' : String(group.description || ''),
+                        specificGroup: isOrphan ? '' : String(group.description || ''),
                         originalData: {
                             code: specific.code,
                             group: group.code,
+                            groupCode: major.code,
+                            groupName: major.description,
+                            majorCode: group.code,
+                            majorName: isOrphan ? '' : group.description,
                             majorDiscipline: major.description,
                             specificDiscipline: specific.description,
                             type: 'specific'
@@ -94,15 +132,33 @@ export default function AdminDisciplineModule({ disciplines = [] }: AdminDiscipl
             });
         });
 
-        // Search text check for metadata if not filtered by specifics? 
-        // The above loop covers explicit searching within items. 
-        // If we want to return empty if no matches, we are good.
+        const q = (searchQuery || "").toLowerCase().trim();
+
+        // Apply filters on the flattened array
+        let result = allPrograms;
+
+        if (selectedMajor) {
+            // "The first two codes are the same"
+            // Reverting back to native `.startsWith` on the `program.code` string since this is the only reliable way to filter accurately by prefix
+            // when backend `groupCode` relationships might be missing for orphan specific disciplines or empty major groups.
+            result = result.filter(program => String(program.code).startsWith(String(selectedMajor)));
+        }
+
+        if (q) {
+            result = result.filter(program =>
+                String(program.name).toLowerCase().includes(q) ||
+                String(program.code).toLowerCase().includes(q) ||
+                String(program.disciplineGroup).toLowerCase().includes(q) ||
+                String(program.specificMajor).toLowerCase().includes(q) ||
+                String(program.originalData?.groupCode || "").toLowerCase().includes(q)
+            );
+        }
 
         // Apply sorting
         if (sortConfig) {
-            allPrograms.sort((a, b) => {
-                const aValue = a[sortConfig.key] || "";
-                const bValue = b[sortConfig.key] || "";
+            result.sort((a, b) => {
+                const aValue = String(a[sortConfig.key] || "").toLowerCase();
+                const bValue = String(b[sortConfig.key] || "").toLowerCase();
 
                 if (aValue < bValue) {
                     return sortConfig.direction === 'asc' ? -1 : 1;
@@ -114,19 +170,19 @@ export default function AdminDisciplineModule({ disciplines = [] }: AdminDiscipl
             });
         }
 
-        return allPrograms;
+        return result;
     }, [disciplines, searchQuery, selectedMajor, sortConfig]);
 
     const activeMajorName = disciplines.find(m => m.code === selectedMajor)?.description;
 
     const handleAdd = () => {
         setEditingItem(null);
-        setIsModalOpen(true);
+        setIsAddModalOpen(true);
     };
 
     const handleEdit = (item: any) => {
         setEditingItem(item);
-        setIsModalOpen(true);
+        setIsEditModalOpen(true);
     };
 
     const handleDelete = (id: string) => {
@@ -139,14 +195,55 @@ export default function AdminDisciplineModule({ disciplines = [] }: AdminDiscipl
         }
     };
 
-    const handleSubmit = (data: any) => {
+    const handleAddSubmit = (data: any) => {
+        setProcessing(true);
         router.post(route('admin.disciplines.store'), data, {
-            onSuccess: () => {
-                setIsModalOpen(false);
+            onSuccess: (page: any) => {
+                setProcessing(false);
+                const flash = (page.props as any).flash;
+                if (flash?.error) {
+                    alert('Error: ' + flash.error);
+                } else {
+                    setIsAddModalOpen(false);
+                }
             },
             onError: (errors) => {
+                setProcessing(false);
+                const messages = Object.values(errors).join('\n');
+                alert('Validation error:\n' + messages);
                 console.error(errors);
-            }
+            },
+            onFinish: () => setProcessing(false),
+        });
+    };
+
+    const handleEditSubmit = (data: any) => {
+        if (!editingItem) return;
+        setProcessing(true);
+        // Determine type: 'specific' or 'major' based on originalData
+        const type = editingItem.type === 'specific' ? 'specific' : 'major';
+        const description = data.specificDiscipline || data.majorName || data.groupDescription || '';
+        const newCode = data.code || editingItem.code;
+
+        router.put(route('admin.disciplines.update', editingItem.code), {
+            type,
+            description,
+            newCode: newCode !== editingItem.code ? newCode : undefined,
+        }, {
+            onSuccess: (page: any) => {
+                setProcessing(false);
+                const flash = (page.props as any).flash;
+                if (flash?.error) {
+                    alert('Error: ' + flash.error);
+                } else {
+                    setIsEditModalOpen(false);
+                }
+            },
+            onError: (errors) => {
+                setProcessing(false);
+                const messages = Object.values(errors).join('\n');
+                alert('Validation error:\n' + messages);
+            },
         });
     };
 
@@ -187,13 +284,18 @@ export default function AdminDisciplineModule({ disciplines = [] }: AdminDiscipl
                                     <DropdownMenuSeparator className="m-0" />
                                     <ScrollArea className="h-[300px] w-full">
                                         <div className="py-1">
-                                            <DropdownMenuItem onClick={() => setSelectedMajor(null)} className="rounded-none cursor-pointer py-2 px-3 hover:bg-gray-50">
+                                            <DropdownMenuItem
+                                                onSelect={(e) => { e.preventDefault(); setSelectedMajor(null); }}
+                                                onClick={() => setSelectedMajor(null)}
+                                                className="rounded-none cursor-pointer py-2 px-3 hover:bg-gray-50"
+                                            >
                                                 All Disciplines
                                             </DropdownMenuItem>
                                             {disciplines.map((major) => (
                                                 <DropdownMenuItem
                                                     key={major.code}
-                                                    onClick={() => setSelectedMajor(major.code)}
+                                                    onSelect={(e) => { e.preventDefault(); setSelectedMajor(String(major.code)); }}
+                                                    onClick={() => setSelectedMajor(String(major.code))}
                                                     className="rounded-none cursor-pointer text-xs py-2 px-3 hover:bg-gray-50 flex flex-col items-start gap-1"
                                                 >
                                                     <span className="font-bold text-gray-400">CODE {major.code}</span>
@@ -252,13 +354,21 @@ export default function AdminDisciplineModule({ disciplines = [] }: AdminDiscipl
                 </div>
             </div>
 
-            {/* Modal */}
-            <DisciplineFormModal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                onSubmit={handleSubmit}
-                initialData={editingItem}
+            {/* Modals */}
+            <AddDisciplineModal
+                isOpen={isAddModalOpen}
+                onClose={() => { if (!processing) setIsAddModalOpen(false); }}
+                onSubmit={handleAddSubmit}
                 majors={disciplines}
+                processing={processing}
+            />
+
+            <EditDisciplineModal
+                isOpen={isEditModalOpen}
+                onClose={() => { if (!processing) setIsEditModalOpen(false); }}
+                onSubmit={handleEditSubmit}
+                initialData={editingItem}
+                processing={processing}
             />
         </div>
     );

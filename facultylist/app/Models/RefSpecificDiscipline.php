@@ -11,10 +11,7 @@ class RefSpecificDiscipline extends Model
     public $incrementing = false;
     protected $keyType = 'string';
 
-    protected $fillable = ['code', 'major_discipline_code', 'minor_group', 'description'];
-
-    public function majorDiscipline()
-    {
-        return $this->belongsTo(RefMajorDiscipline::class, 'major_discipline_code', 'code');
-    }
+    // major_discipline_code and minor_group columns were dropped via migration.
+    // Grouping is now done via code-prefix matching in the controller.
+    protected $fillable = ['code', 'description', 'slug'];
 }

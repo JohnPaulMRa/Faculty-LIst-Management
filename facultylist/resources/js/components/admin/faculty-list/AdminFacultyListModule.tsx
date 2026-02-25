@@ -87,7 +87,7 @@ export default function AdminFacultyListModule({ schools = [], faculty = [], fil
     };
 
     return (
-        <SidebarProvider className="min-h-0 h-full overflow-hidden rounded-xl border border-gray-200 shadow-sm bg-white">
+        <SidebarProvider className="min-h-0 h-full overflow-hidden rounded-xl shadow-sm bg-white">
             <AdminFacultySidebar
                 schools={schools}
                 selectedSchoolId={selectedSchoolId}
@@ -95,7 +95,7 @@ export default function AdminFacultyListModule({ schools = [], faculty = [], fil
                 typeFilter={filters.type as string | undefined}
             />
 
-            <SidebarInset className="flex flex-col w-full h-full bg-gray-50/30 overflow-hidden relative">
+            <SidebarInset className="flex flex-col w-full h-full bg-white overflow-hidden relative">
                 <div className="flex-1 overflow-y-auto p-6 md:p-8">
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
                         <div>

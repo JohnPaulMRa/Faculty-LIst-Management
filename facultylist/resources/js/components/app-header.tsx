@@ -72,8 +72,8 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
                         </div>
                     </div>
 
-                    {/* RIGHT: Username (Just Text, like the reference) */}
-                    <div className="hidden text-sm font-medium md:block opacity-90">
+                    <div className="hidden items-center text-sm font-medium md:flex opacity-90 gap-2">
+                        <User className="h-4 w-4" />
                         {auth.user.name}
                     </div>
                 </div>

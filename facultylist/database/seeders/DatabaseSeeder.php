@@ -46,13 +46,12 @@ class DatabaseSeeder extends Seeder
         );
 
         $this->call([
-            E5ReferenceDataSeeder::class, // Added to seed E5 reference tables
+            E5ReferenceDataSeeder::class,       // E5 reference tables (gender, degree, etc.)
             AcademicYearSeeder::class,
-            E5FullTimePartTimeSeeder::class, // Added specific seeder for full/part time
-            MajorDisciplineSeeder::class,
-            DisciplineGroupSeeder::class, // Still needed for other major disciplines
-            SpecificDisciplineSeeder::class, // Still needed for other major disciplines
-            MissingDisciplinesSeeder::class, // Injects missing Specific & Isolated Major disciplines
+            E5FullTimePartTimeSeeder::class,
+            DisciplineGroupSeeder::class,       // 1. Populate ref_discipline_group
+            SpecificDisciplineSeeder::class,    // 2. Truncate ref_specific_discipline (clean slate)
+            MajorDisciplineSeeder::class,       // 3. Truncate ref_major_discipline + insert GENERAL & isolated majors into both tables
         ]);
     }
 }

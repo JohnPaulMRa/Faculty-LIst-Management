@@ -2,52 +2,137 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class MajorDisciplineSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
-    public function run(): void
+    public function run()
     {
-        // Truncate the table to ensure a clean state
         \Illuminate\Support\Facades\Schema::disableForeignKeyConstraints();
-        \Illuminate\Support\Facades\DB::table('ref_discipline_group')->truncate();
+        DB::table('ref_major_discipline')->truncate();
         \Illuminate\Support\Facades\Schema::enableForeignKeyConstraints();
 
-        $disciplines = [
-            ['code' => '14', 'description' => 'EDUCATION SCIENCE AND TEACHER TRAINING'],
-            ['code' => '18', 'description' => 'FINE AND APPLIED ARTS'],
-            ['code' => '22', 'description' => 'HUMANITIES'],
-            ['code' => '26', 'description' => 'RELIGION AND THEOLOGY'],
-            ['code' => '30', 'description' => 'SOCIAL AND BEHAVIORAL SCIENCES'],
-            ['code' => '34', 'description' => 'BUSINESS ADMINISTRATION AND RELATED'],
-            ['code' => '38', 'description' => 'LAW AND JURISPRUDENCE'],
-            ['code' => '42', 'description' => 'NATURAL SCIENCE'],
-            ['code' => '46', 'description' => 'MATHEMATICS'],
-            ['code' => '47', 'description' => 'IT-RELATED'],
-            ['code' => '50', 'description' => 'MEDICAL AND ALLIED'],
-            ['code' => '52', 'description' => 'TRADE, CRAFT AND INDUSTRIAL'],
-            ['code' => '54', 'description' => 'ENGINEERING'],
-            ['code' => '58', 'description' => 'ARCHITECTURAL AND TOWN-PLANNING'],
-            ['code' => '62', 'description' => 'AGRICULTURAL, FORESTRY, AND FISHERIES'],
-            ['code' => '66', 'description' => 'HOME ECONOMICS'],
-            ['code' => '78', 'description' => 'SERVICE TRADES'],
-            ['code' => '84', 'description' => 'MASS COMMUNICATION AND DOCUMENTATION'],
-            ['code' => '89', 'description' => 'OTHER DISCIPLINES'], // Assumed 89 based on previous context, user list had duplicate 84
-            ['code' => '90', 'description' => 'MARITIME'],
-            ['code' => '00', 'description' => 'GENERAL'],
+        // ---------------------------------------------------
+        // CASE 1: NO-MAJOR DISCIPLINE (Group-GENERAL)
+        // Group: GENERAL (00) -> Major: GENERAL (0000) -> Specifics
+        // ---------------------------------------------------
+        DB::table('ref_major_discipline')->updateOrInsert(
+            ['code' => '0000'],
+            ['description' => 'GENERAL', 'slug' => 'general', 'created_at' => now(), 'updated_at' => now()]
+        );
+
+        $generalSpecifics = [
+            ['code' => '001001', 'desc' => 'Pre-School/Elementary'],
+            ['code' => '001002', 'desc' => 'Secondary'],
+            ['code' => '001003', 'desc' => 'Arts'],
+            ['code' => '001004', 'desc' => 'Science'],
+            ['code' => '001005', 'desc' => 'Liberal Arts-Liacom'],
+            ['code' => '001006', 'desc' => 'Pre-Dental'],
+            ['code' => '001007', 'desc' => 'Letters'],
+            ['code' => '001008', 'desc' => 'Professional Studies'],
         ];
 
-        foreach ($disciplines as $discipline) {
-            \Illuminate\Support\Facades\DB::table('ref_discipline_group')->insert(
+        foreach ($generalSpecifics as $item) {
+            DB::table('ref_specific_discipline')->updateOrInsert(
+                ['code' => $item['code']],
                 [
-                    'code' => $discipline['code'],
-                    'description' => $discipline['description'],
+                    'description' => $item['desc'],
+                    'slug' => \Illuminate\Support\Str::slug($item['desc'], '_'),
                     'created_at' => now(),
-                    'updated_at' => now(),
+                    'updated_at' => now()
+                ]
+            );
+        }
+
+        // ---------------------------------------------------
+        // CASE 2: NO-Specific Discipline
+        // These are items that act as Major Disciplines but have NO Specific Disciplines.
+        // We will insert them into ref_major_discipline so the UI's fallback logic takes over.
+        // We will also ensure they do NOT exist in ref_specific_discipline to avoid duplications.
+        // ---------------------------------------------------
+        $isolatedMajors = [
+
+            // Group-OTHER DISCIPLINES (89)
+            ['c' => '891900', 'gc' => '89', 'd' => 'Other Civil Security and Military'],
+            ['c' => '899900', 'gc' => '89', 'd' => 'Women Development'],
+            ['c' => '899999', 'gc' => '89', 'd' => 'Other Education not elsewhere coded (NEC)'],
+
+            // Group-MASS COMMUNICATION AND DOCUMENTATION (84)
+            ['c' => '840700', 'gc' => '84', 'd' => 'Public Relations and Media Management'],
+
+            // Group-HOME ECONOMICS (66)
+            ['c' => '663200', 'gc' => '66', 'd' => 'Home Economics with Emphasis on Household Arts'],
+
+            // Group-AGRICULTURAL, FORESTRY, AND FISHERIES (62)
+            ['c' => '621200', 'gc' => '62', 'd' => 'Agricultural Economics'],
+
+            // Group-ARCHITECTURAL AND TOWN-PLANNING (58)
+            ['c' => '580200', 'gc' => '58', 'd' => 'Architectural Design'],
+
+            // Group-ENGINEERING (54)
+            ['c' => '540301', 'gc' => '54', 'd' => 'Engineering'],
+            ['c' => '543200', 'gc' => '54', 'd' => 'Metallurgical Engineering'],
+            ['c' => '545300', 'gc' => '54', 'd' => 'Agricultural Engineering'],
+
+            // Group-MEDICAL AND ALLIED (50)
+            ['c' => '501200', 'gc' => '50', 'd' => 'Nursing'],
+            ['c' => '501500', 'gc' => '50', 'd' => 'Midwifery'],
+            ['c' => '507200', 'gc' => '50', 'd' => 'Nutrition and Dietetics'],
+
+            // Group-MATHEMATICS (46)
+            ['c' => '460100', 'gc' => '46', 'd' => 'General Mathematics'],
+            ['c' => '462100', 'gc' => '46', 'd' => 'Actuarial Science'],
+
+            // Group-NATURAL SCIENCE (42)
+            ['c' => '424200', 'gc' => '42', 'd' => 'Astronomy'],
+            ['c' => '425200', 'gc' => '42', 'd' => 'Meteorology'],
+
+            // Group-LAW AND JURISPRUDENCE (38)
+            ['c' => '380400', 'gc' => '38', 'd' => 'International Law'],
+            ['c' => '380600', 'gc' => '38', 'd' => 'Labor Law'],
+            ['c' => '380800', 'gc' => '38', 'd' => 'Maritime Law'],
+
+            // Group-SOCIAL AND BEHAVIORAL SCIENCES (30)
+            ['c' => '304200', 'gc' => '30', 'd' => 'Anthropology'],
+            ['c' => '301', 'gc' => '30', 'd' => 'Economics'],
+            ['c' => '309900', 'gc' => '30', 'd' => 'Other Social and Behavioral Science'],
+
+            // Group-HUMANITIES (22)
+            ['c' => '220100', 'gc' => '22', 'd' => 'General Humanities'],
+            ['c' => '222100', 'gc' => '22', 'd' => '"Dead" Languages and their Literature'],
+            ['c' => '226100', 'gc' => '22', 'd' => 'Archeology'],
+            ['c' => '227100', 'gc' => '22', 'd' => 'Philosophy'],
+            ['c' => '229900', 'gc' => '22', 'd' => 'Other Humanities'],
+
+            // Group-FINE AND APPLIED ARTS (18)
+            ['c' => '180400', 'gc' => '18', 'd' => 'Drawing and Painting'],
+            ['c' => '180800', 'gc' => '18', 'd' => 'Sculpturing'],
+            ['c' => '185200', 'gc' => '18', 'd' => 'Interior Design'],
+        ];
+
+        foreach ($isolatedMajors as $item) {
+            $majorCode = strlen($item['c']) === 6 ? substr($item['c'], 0, 4) : $item['c'];
+
+            // Ensure the Major Discipline exists (4-digit code)
+            DB::table('ref_major_discipline')->updateOrInsert(
+                ['code' => $majorCode],
+                [
+                    'description' => $item['d'],
+                    'slug' => \Illuminate\Support\Str::slug($item['d'], '_'),
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ]
+            );
+
+            // Ensure the Specific Discipline exists (6-digit code) under that Major Discipline
+            DB::table('ref_specific_discipline')->updateOrInsert(
+                ['code' => $item['c']],
+                [
+                    'description' => $item['d'],
+                    'slug' => \Illuminate\Support\Str::slug($item['d'], '_'),
+                    'created_at' => now(),
+                    'updated_at' => now()
                 ]
             );
         }

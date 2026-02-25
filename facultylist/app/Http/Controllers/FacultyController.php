@@ -22,7 +22,7 @@ class FacultyController extends Controller
                 ->orderBy('code')
                 ->get(),
             'disciplines' => \Illuminate\Support\Facades\DB::table('ref_specific_discipline')
-                ->select('major_discipline_code as major_group_code', 'code', 'description as desc')
+                ->select(\Illuminate\Support\Facades\DB::raw('SUBSTRING(code, 1, 2) as major_group_code'), 'code', 'description as desc')
                 ->orderBy('code')
                 ->get()
         ];
@@ -171,7 +171,7 @@ class FacultyController extends Controller
 
         $referenceData = $this->getReferenceData();
 
-        return \Inertia\Inertia::render('Faculty/Edit', [
+        return \Inertia\Inertia::render('Faculty/EditPrivateFaculty', [
             'faculty' => $faculty,
             'referenceData' => $referenceData,
         ]);
