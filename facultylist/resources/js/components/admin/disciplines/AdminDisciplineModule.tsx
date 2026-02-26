@@ -14,7 +14,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from '@/components/ui/badge';
 import DisciplineTable from './DisciplineTable';
-import AddDisciplineModal from './AddDisciplineModal';
+import AddDisciplineForm from './AddDisciplineForm';
 import EditDisciplineModal from './EditDisciplineModal';
 
 interface SpecificDiscipline {
@@ -54,7 +54,6 @@ export default function AdminDisciplineModule({ disciplines = [] }: AdminDiscipl
         });
         return groups;
     }, [disciplines]);
-    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [editingItem, setEditingItem] = useState<any>(null);
     const [sortConfig, setSortConfig] = useState<{ key: string, direction: 'asc' | 'desc' } | null>(null);
@@ -175,10 +174,6 @@ export default function AdminDisciplineModule({ disciplines = [] }: AdminDiscipl
 
     const activeMajorName = disciplines.find(m => m.code === selectedMajor)?.description;
 
-    const handleAdd = () => {
-        setEditingItem(null);
-        setIsAddModalOpen(true);
-    };
 
     const handleEdit = (item: any) => {
         setEditingItem(item);
@@ -196,24 +191,32 @@ export default function AdminDisciplineModule({ disciplines = [] }: AdminDiscipl
     };
 
     const handleAddSubmit = (data: any) => {
+        console.log("router.post starting with data:", data);
         setProcessing(true);
         router.post(route('admin.disciplines.store'), data, {
+            onStart: () => console.log("Inertia request started"),
             onSuccess: (page: any) => {
+                console.log("Inertia request success:", page);
                 setProcessing(false);
                 const flash = (page.props as any).flash;
                 if (flash?.error) {
                     alert('Error: ' + flash.error);
                 } else {
-                    setIsAddModalOpen(false);
+                    setSelectedMajor(null);
+                    alert('Discipline added successfully.');
                 }
             },
             onError: (errors) => {
+                console.log("Inertia request error:", errors);
                 setProcessing(false);
                 const messages = Object.values(errors).join('\n');
                 alert('Validation error:\n' + messages);
                 console.error(errors);
             },
-            onFinish: () => setProcessing(false),
+            onFinish: () => {
+                console.log("Inertia request finished");
+                setProcessing(false);
+            },
         });
     };
 
@@ -259,7 +262,14 @@ export default function AdminDisciplineModule({ disciplines = [] }: AdminDiscipl
                 </div>
 
                 <div className="flex flex-col w-full">
-                    {/* Search and Actions */}
+                    {/* Add Discipline Form */}
+                    <AddDisciplineForm
+                        onSubmit={handleAddSubmit}
+                        majors={disciplines}
+                        processing={processing}
+                    />
+
+                    {/* Search and Filters */}
                     <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-4">
                         <div className="relative w-full md:w-96">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -280,40 +290,32 @@ export default function AdminDisciplineModule({ disciplines = [] }: AdminDiscipl
                                     </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end" className="w-[300px] rounded-none p-0">
-                                    <DropdownMenuLabel className="sticky top-0 bg-white z-10 border-b border-gray-100 py-3">Filter by Discipline Group</DropdownMenuLabel>
+                                    <DropdownMenuLabel className="sticky top-0 bg-white z-10 border-b border-gray-100 py-3 flex justify-between items-center">
+                                        <span>Filter by Discipline Group</span>
+                                        <span className="text-[10px] text-gray-400 font-normal">{disciplines.length} total</span>
+                                    </DropdownMenuLabel>
                                     <DropdownMenuSeparator className="m-0" />
-                                    <ScrollArea className="h-[300px] w-full">
-                                        <div className="py-1">
-                                            <DropdownMenuItem
-                                                onSelect={(e) => { e.preventDefault(); setSelectedMajor(null); }}
-                                                onClick={() => setSelectedMajor(null)}
-                                                className="rounded-none cursor-pointer py-2 px-3 hover:bg-gray-50"
-                                            >
-                                                All Disciplines
-                                            </DropdownMenuItem>
-                                            {disciplines.map((major) => (
-                                                <DropdownMenuItem
-                                                    key={major.code}
-                                                    onSelect={(e) => { e.preventDefault(); setSelectedMajor(String(major.code)); }}
-                                                    onClick={() => setSelectedMajor(String(major.code))}
-                                                    className="rounded-none cursor-pointer text-xs py-2 px-3 hover:bg-gray-50 flex flex-col items-start gap-1"
-                                                >
-                                                    <span className="font-bold text-gray-400">CODE {major.code}</span>
-                                                    <span className="text-gray-900">{major.description}</span>
-                                                </DropdownMenuItem>
-                                            ))}
-                                        </div>
-                                    </ScrollArea>
+                                    <DropdownMenuItem
+                                        onSelect={(e) => { e.preventDefault(); setSelectedMajor(null); }}
+                                        onClick={() => setSelectedMajor(null)}
+                                        className="rounded-none cursor-pointer py-2 px-3 hover:bg-gray-50"
+                                    >
+                                        All Disciplines
+                                    </DropdownMenuItem>
+                                    {disciplines.map((major) => (
+                                        <DropdownMenuItem
+                                            key={`filter-group-${major.code}`}
+                                            onSelect={(e) => { e.preventDefault(); setSelectedMajor(String(major.code)); }}
+                                            onClick={() => setSelectedMajor(String(major.code))}
+                                            className="rounded-none cursor-pointer text-xs py-2 px-3 hover:bg-gray-50 flex flex-col items-start gap-1"
+                                        >
+                                            <span className="font-bold text-gray-400">CODE {major.code}</span>
+                                            <span className="text-gray-900">{major.description}</span>
+                                        </DropdownMenuItem>
+                                    ))}
+                                    <div className="pb-8" />
                                 </DropdownMenuContent>
                             </DropdownMenu>
-
-                            <Button
-                                onClick={handleAdd}
-                                className="w-full md:w-auto bg-gray-900 text-white hover:bg-gray-800 rounded-none h-10 gap-2"
-                            >
-                                <Plus className="h-4 w-4" />
-                                Add Discipline
-                            </Button>
                         </div>
                     </div>
 
@@ -354,14 +356,6 @@ export default function AdminDisciplineModule({ disciplines = [] }: AdminDiscipl
                 </div>
             </div>
 
-            {/* Modals */}
-            <AddDisciplineModal
-                isOpen={isAddModalOpen}
-                onClose={() => { if (!processing) setIsAddModalOpen(false); }}
-                onSubmit={handleAddSubmit}
-                majors={disciplines}
-                processing={processing}
-            />
 
             <EditDisciplineModal
                 isOpen={isEditModalOpen}

@@ -83,9 +83,9 @@ export default function DisciplineTable({ programs, onEdit, onDelete, onSort, so
                             <TableRow key={program.id} className="even:bg-gray-50 hover:bg-blue-50/50 transition-colors border-b border-gray-100">
                                 <TableCell className="text-center font-medium text-gray-500 text-xs py-2">{index + 1}</TableCell>
                                 <TableCell className="font-medium text-gray-900 text-xs py-2">{program.code}</TableCell>
-                                <TableCell className="text-gray-500 text-xs uppercase py-2">{program.disciplineGroup}</TableCell>
-                                <TableCell className="text-gray-500 text-xs uppercase py-2">{program.specificMajor}</TableCell>
-                                <TableCell className="text-gray-700 text-xs font-semibold uppercase py-2">{program.name}</TableCell>
+                                <TableCell className="text-gray-500 text-xs py-2">{program.disciplineGroup || '—'}</TableCell>
+                                <TableCell className="text-gray-500 text-xs py-2">{program.specificMajor || '—'}</TableCell>
+                                <TableCell className="text-gray-700 text-xs font-semibold py-2">{program.name || '—'}</TableCell>
                                 <TableCell className="text-center py-2">
                                     <div className="flex items-center justify-center gap-1">
                                         <Button

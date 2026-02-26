@@ -56,10 +56,10 @@ export function Combobox({
     React.useEffect(() => {
         if (selectedOption) {
             setInputValue(selectedOption.label)
-        } else {
+        } else if (!allowFreeInput) {
             setInputValue("")
         }
-    }, [selectedOption])
+    }, [selectedOption, allowFreeInput])
 
     return (
         <Command shouldFilter={true} className={cn("overflow-visible bg-transparent", containerClassName)}>
@@ -88,10 +88,12 @@ export function Combobox({
                             onBlur={() => {
                                 if (isMouseDownOnDropdown.current) return
                                 setOpen(false)
-                                if (selectedOption) {
-                                    setInputValue(selectedOption.label)
-                                } else if (!allowFreeInput) {
-                                    setInputValue("")
+                                if (!allowFreeInput) {
+                                    if (selectedOption) {
+                                        setInputValue(selectedOption.label)
+                                    } else {
+                                        setInputValue("")
+                                    }
                                 }
                                 // if allowFreeInput, keep whatever was typed
                             }}

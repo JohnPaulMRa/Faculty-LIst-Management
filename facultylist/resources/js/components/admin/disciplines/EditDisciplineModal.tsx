@@ -72,7 +72,7 @@ export default function EditDisciplineModal({ isOpen, onClose, onSubmit, initial
                 <Input
                     value={desc}
                     onChange={(e) => setDesc(e.target.value)}
-                    className="flex-1 rounded-none uppercase text-sm border-gray-300 focus-visible:ring-1 focus-visible:ring-gray-400"
+                    className="flex-1 rounded-none text-sm border-gray-300 focus-visible:ring-1 focus-visible:ring-gray-400"
                     placeholder={`${label} description...`}
                 />
             </div>

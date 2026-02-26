@@ -231,19 +231,23 @@ class AdminController extends Controller
     }
     public function storeDiscipline(Request $request)
     {
+        \Log::info('storeDiscipline reached', $request->all());
         $validated = $request->validate([
-            'code' => 'required|string|min:4|max:10',
+            'code' => 'required|string|min:3|max:10',
             'majorName' => 'nullable|string|max:255',
             'specificDiscipline' => 'nullable|string|max:255',
         ]);
+
+        \Log::info('Discipline Store Attempt:', $validated);
 
         $code = $validated['code'];
         $majorName = $validated['majorName'] ?? null;
         $specificName = $validated['specificDiscipline'] ?? null;
 
         try {
+            $saved = false;
             if (!empty($specificName)) {
-                // Save the specific discipline (6-digit code)
+                // Save the specific discipline
                 RefSpecificDiscipline::updateOrCreate(
                     ['code' => $code],
                     [
@@ -251,6 +255,7 @@ class AdminController extends Controller
                         'slug' => Str::slug($specificName, '_'),
                     ]
                 );
+                $saved = true;
 
                 // Also ensure the major discipline (first 4 digits) exists
                 if (!empty($majorName) && strlen($code) >= 4) {
@@ -264,7 +269,7 @@ class AdminController extends Controller
                     );
                 }
             } elseif (!empty($majorName)) {
-                // Save only the major discipline (4-digit code)
+                // Save only the major discipline
                 RefMajorDiscipline::updateOrCreate(
                     ['code' => $code],
                     [
@@ -272,10 +277,15 @@ class AdminController extends Controller
                         'slug' => Str::slug($majorName, '_'),
                     ]
                 );
-            } else {
-                return redirect()->back()->with('error', 'Please fill in at least the Major Discipline name.');
+                $saved = true;
             }
+
+            if (!$saved) {
+                return redirect()->back()->with('error', 'Please fill in at least the Major Discipline name or a Specific Discipline name.');
+            }
+
         } catch (QueryException $e) {
+            \Log::error('Discipline Store Error: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Database error: ' . $e->getMessage());
         }
 
