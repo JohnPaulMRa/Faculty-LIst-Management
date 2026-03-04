@@ -27,11 +27,11 @@ interface FacultyMember {
     schoolYear: string;
 }
 
-interface AdminFacultyTableProps {
+interface PublicFacultyTableProps {
     faculty: FacultyMember[];
 }
 
-export default function AdminFacultyTable({ faculty }: AdminFacultyTableProps) {
+export default function PublicFacultyTable({ faculty }: PublicFacultyTableProps) {
     return (
         <div className="rounded-lg border border-gray-200 overflow-hidden shadow-sm">
             <Table>
@@ -51,9 +51,11 @@ export default function AdminFacultyTable({ faculty }: AdminFacultyTableProps) {
                             <TableCell className="font-medium text-gray-900">{member.name}</TableCell>
                             <TableCell className="text-gray-600">{member.sex}</TableCell>
                             <TableCell>
-                                <Badge variant="secondary" className="rounded-md font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-200">
-                                    {member.type}
-                                </Badge>
+                                <div className="max-w-[250px]" title={member.type}>
+                                    <Badge variant="secondary" className="rounded-md font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-200 truncate block w-full text-center">
+                                        {member.type}
+                                    </Badge>
+                                </div>
                             </TableCell>
                             <TableCell className="text-gray-600">{member.schoolYear}</TableCell>
                             <TableCell>

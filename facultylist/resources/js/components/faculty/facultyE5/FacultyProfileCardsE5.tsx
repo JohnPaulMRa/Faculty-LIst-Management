@@ -12,6 +12,13 @@ type FacultyProfileCardsProps = {
 
 export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, handleChange, readOnly = false, referenceData }) => {
 
+    // Helper to handle change if not readOnly
+    const onErrorSafeChange = (field: string, value: any) => {
+        if (!readOnly && handleChange) {
+            handleChange(field, value);
+        }
+    };
+
     // Helper to get description for codes
     const getDesc = (list: { code: string, desc: string }[], code?: string) => {
         return list.find(item => item.code === code)?.desc || '';
@@ -27,17 +34,6 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
         return found ? found.code : '';
     };
 
-    // Helper to handle change if not readOnly
-    const onErrorSafeChange = (field: string, value: any) => {
-        if (!readOnly && handleChange) {
-            handleChange(field, value);
-        }
-    };
-
-    const cardClass = readOnly
-        ? "space-y-4"
-        : "bg-white p-8 border border-gray-200 shadow-sm space-y-3";
-
     // Reusable formatter for reference lists
     const mapToOptions = (list: { code: string, desc: string }[]) => {
         return (list || [])
@@ -49,7 +45,7 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-1 items-start">
 
             {/* Faculty Details Card */}
-            <div className={cardClass}>
+            <div className="bg-white p-8 border border-gray-200 shadow-sm space-y-3">
 
                 <div className="flex flex-col gap-4">
                     <div className="grid gap-3">
@@ -121,7 +117,7 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
             </div>
 
             {/* Educational Credential Earned Card */}
-            <div className={cardClass}>
+            <div className="bg-white p-8 border border-gray-200 shadow-sm space-y-3">
                 <h3 className="font-bold text-gray-900 border-b pb-2">Educational Credential Earned</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-3">
                     <div className="grid gap-1 col-span-2">
@@ -191,7 +187,7 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
             </div>
 
             {/* Employment & Teaching Details Card */}
-            <div className={`${cardClass} lg:col-span-2 mt-2`}>
+            <div className={`bg-white p-8 border border-gray-200 shadow-sm space-y-3 lg:col-span-2 mt-2`}>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-5">
                     {/* Row 1 */}
                     <div className="grid gap-3">

@@ -25,7 +25,7 @@ interface Props {
 
 const CreateFacultyAccountModal: FC<Props> = ({ isOpen, onOpenChange, schools }) => {
     const { data, setData, post, processing, errors, reset } = useForm({
-        email: '',
+        username: '',
         password: '',
         password_confirmation: '',
         school_id: '',
@@ -53,25 +53,29 @@ const CreateFacultyAccountModal: FC<Props> = ({ isOpen, onOpenChange, schools })
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-[500px]">
                 <DialogHeader>
-                    <DialogTitle>Create Faculty Login Account</DialogTitle>
+                    <DialogTitle className="text-xl">Create Faculty Login Account</DialogTitle>
+                    <p className="text-sm text-muted-foreground">
+                        Provide a username, assign a school, and set a password for the new faculty member.
+                    </p>
                 </DialogHeader>
 
-                <form onSubmit={handleSubmit} className="space-y-4 py-4">
+                <form onSubmit={handleSubmit} className="space-y-5 py-4">
                     <div className="grid gap-2">
-                        <Label htmlFor="email">Email Address</Label>
+                        <Label htmlFor="username" className="text-sm font-semibold">User name <span className="text-red-500">*</span></Label>
                         <Input
-                            id="email"
-                            type="email"
-                            value={data.email}
-                            onChange={(e) => setData('email', e.target.value)}
-                            placeholder="faculty@example.com"
+                            id="username"
+                            type="text"
+                            value={data.username}
+                            onChange={(e) => setData('username', e.target.value)}
+                            placeholder="Enter user name"
                             required
+                            className="h-10"
                         />
-                        {errors.email && <p className="text-sm text-red-500">{errors.email}</p>}
+                        {errors.username && <p className="text-sm text-red-500">{errors.username}</p>}
                     </div>
 
                     <div className="grid gap-2">
-                        <Label htmlFor="school">School</Label>
+                        <Label htmlFor="school" className="text-sm font-semibold">School <span className="text-red-500">*</span></Label>
                         <select
                             id="school"
                             className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
@@ -90,7 +94,7 @@ const CreateFacultyAccountModal: FC<Props> = ({ isOpen, onOpenChange, schools })
                     </div>
 
                     <div className="grid gap-2">
-                        <Label htmlFor="password">Password</Label>
+                        <Label htmlFor="password" className="text-sm font-semibold">Password <span className="text-red-500">*</span></Label>
                         <div className="relative">
                             <Input
                                 id="password"
@@ -98,6 +102,7 @@ const CreateFacultyAccountModal: FC<Props> = ({ isOpen, onOpenChange, schools })
                                 value={data.password}
                                 onChange={(e) => setData('password', e.target.value)}
                                 required
+                                className="h-10 pr-10"
                             />
                             <button
                                 type="button"
@@ -111,13 +116,14 @@ const CreateFacultyAccountModal: FC<Props> = ({ isOpen, onOpenChange, schools })
                     </div>
 
                     <div className="grid gap-2">
-                        <Label htmlFor="password_confirmation">Confirm Password</Label>
+                        <Label htmlFor="password_confirmation" className="text-sm font-semibold">Confirm Password <span className="text-red-500">*</span></Label>
                         <Input
                             id="password_confirmation"
                             type="password"
                             value={data.password_confirmation}
                             onChange={(e) => setData('password_confirmation', e.target.value)}
                             required
+                            className="h-10"
                         />
                     </div>
 

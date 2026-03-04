@@ -15,40 +15,43 @@ export default function SchoolCard({ name, code, totalFaculty, type, isActive, o
     return (
         <Card
             className={`
-                transition-all duration-200 rounded-lg shadow-sm border 
+                group relative bg-white transition-all duration-300 rounded-2xl border-gray-400 shadow-[0_2px_12px_-3px_rgba(6,81,237,0.08)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] hover:-translate-y-1 cursor-pointer overflow-hidden flex flex-col h-full
                 ${isActive
-                    ? 'bg-blue-50 border-blue-200 ring-1 ring-blue-200'
-                    : 'bg-white border-gray-200 hover:border-gray-300 hover:shadow-md'
+                    ? 'ring-2 ring-blue-600 shadow-[0_8px_30px_rgb(0,0,0,0.08)]'
+                    : ''
                 }
             `}
             onClick={onClick}
         >
-            <div className="flex items-center p-3 gap-3">
-                <div className={`p-2 shrink-0 rounded-md transition-colors ${isActive ? 'bg-blue-100 text-blue-600 shadow-sm' : 'bg-gray-100 text-gray-500'}`}>
-                    <University className="h-4 w-4" />
-                </div>
-
-                <div className="flex-1 min-w-0 grid gap-1">
-                    <div className="flex items-center gap-2">
-                        <h3 className={`text-sm font-semibold truncate leading-none transition-colors ${isActive ? 'text-blue-900' : 'text-gray-900'}`}>
-                            {name}
-                        </h3>
-                        {code && (
-                            <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded-sm border transition-colors ${isActive ? 'bg-blue-100/50 text-blue-700 border-blue-200' : 'bg-gray-100 text-gray-500 border-gray-200'}`}>
-                                {code}
-                            </span>
-                        )}
+            <div className="p-6 flex flex-col h-full gap-5">
+                {/* Header: Icon and Type Badge */}
+                <div className="flex items-start justify-between">
+                    <div className={`p-3 rounded-xl transition-colors ${isActive ? 'bg-blue-600 text-white' : 'bg-blue-50 text-blue-600 group-hover:bg-blue-100'}`}>
+                        <University className="h-6 w-6" />
                     </div>
-                </div>
-
-                <div className="flex items-center gap-4 shrink-0">
-                    <Badge variant="outline" className={`rounded-full font-medium text-[10px] px-2.5 py-0.5 border ${type?.toLowerCase() === 'private' ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-blue-50 text-blue-700 border-blue-200'}`}>
+                    <Badge variant="secondary" className={`rounded-full px-5 py-2 text-sm font-medium border-0 ${type?.toLowerCase() === 'private' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-700'}`}>
                         {type}
                     </Badge>
+                </div>
 
-                    <div className={`flex items-center text-xs font-medium w-[100px] justify-end gap-1.5 transition-colors ${isActive ? 'text-blue-700' : 'text-gray-500'}`}>
-                        <Users className="h-3.5 w-3.5" />
-                        <span>{totalFaculty} Faculty</span>
+                {/* Body: School Name and Code */}
+                <div className="flex-1 mt-2">
+                    <h3 className="text-2xl font-semibold text-slate-900 line-clamp-2 leading-snug mb-1" title={name}>
+                        {name}
+                    </h3>
+                    {code && (
+                        <p className="text-md text-slate-500 font-medium h-5">
+                            Code: {code}
+                        </p>
+                    )}
+                </div>
+
+                {/* Footer: Faculty Count (Main Focal Point) */}
+                <div className="pt-4 mt-auto border-t border-gray-500">
+                    <p className="text-lg text-slate-500 font-medium mb-1 uppercase tracking-wider">Total Faculty</p>
+                    <div className="flex items-end gap-2 text-slate-900">
+                        <span className="text-3xl font-bold leading-none tracking-tight">{totalFaculty}</span>
+                        <Users className="h-5 w-5 text-slate-400 mb-1" />
                     </div>
                 </div>
             </div>

@@ -20,7 +20,7 @@ interface Props {
     onSave?: (school: School) => void;
 }
 
-const SchoolNameModal: FC<Props> = ({ isOpen, onOpenChange, school, onSave }) => {
+const AddSchoolModal: FC<Props> = ({ isOpen, onOpenChange, school, onSave }) => {
     const { data, setData, put, post, processing, errors, reset } = useForm({
         name: '',
         code: '',
@@ -53,15 +53,13 @@ const SchoolNameModal: FC<Props> = ({ isOpen, onOpenChange, school, onSave }) =>
         if (school) {
             put(route('schools.update', school.id), {
                 onSuccess: () => {
-                    onSave?.({ ...school, ...data } as School); // Keep for compatibility if needed, or remove
+                    onSave?.({ ...school, ...data } as School);
                     onOpenChange(false);
                 },
             });
         } else {
             post(route('admin.schools.store'), {
                 onSuccess: () => {
-                    // onSave is no longer strictly needed for the create flow if we rely on Inertia reload, 
-                    // but we keep the signature or just close.
                     onOpenChange(false);
                 },
             });
@@ -72,100 +70,115 @@ const SchoolNameModal: FC<Props> = ({ isOpen, onOpenChange, school, onSave }) =>
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-2xl rounded-none">
                 <DialogHeader>
-                    <DialogTitle>{school ? 'Edit School' : 'Add School'}</DialogTitle>
+                    <DialogTitle className="text-xl">{school ? 'Edit School' : 'Add School'}</DialogTitle>
+                    <p className="text-sm text-muted-foreground">
+                        {school ? 'Update the information for this school.' : 'Enter the details of the new school to add it to the system.'}
+                    </p>
                 </DialogHeader>
 
-                <form onSubmit={handleSubmit} className="space-y-4 py-4">
+                <form onSubmit={handleSubmit} className="space-y-5 py-4">
                     <div className="grid gap-2">
-                        <Label htmlFor="name">School Name</Label>
+                        <Label htmlFor="name" className="text-sm font-semibold">School Name <span className="text-red-500">*</span></Label>
                         <Input
                             id="name"
                             value={data.name}
                             onChange={(e) => setData('name', e.target.value)}
                             placeholder="e.g. University of Example"
                             required
+                            className="h-10"
                         />
                         {errors.name && <p className="text-sm text-red-500">{errors.name}</p>}
                     </div>
 
                     <div className="grid gap-2">
-                        <Label htmlFor="code">School Code</Label>
+                        <Label htmlFor="code" className="text-sm font-semibold">School Code <span className="text-muted-foreground font-normal">(Optional)</span></Label>
                         <Input
                             id="code"
                             value={data.code}
                             onChange={(e) => setData('code', e.target.value)}
                             placeholder="e.g. SCH-001"
+                            className="h-10"
                         />
                         {errors.code && <p className="text-sm text-red-500">{errors.code}</p>}
                     </div>
 
                     <div className="grid gap-2">
-                        <Label htmlFor="address">Address</Label>
+                        <Label htmlFor="address" className="text-sm font-semibold">Address <span className="text-muted-foreground font-normal">(Optional)</span></Label>
                         <Input
                             id="address"
                             value={data.address}
                             onChange={(e) => setData('address', e.target.value)}
                             placeholder="Full address"
+                            className="h-10"
                         />
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
                         <div className="grid gap-2">
-                            <Label htmlFor="contact_number">Contact Number</Label>
+                            <Label htmlFor="contact_number" className="text-sm font-semibold">Contact Number <span className="text-muted-foreground font-normal">(Optional)</span></Label>
                             <Input
                                 id="contact_number"
                                 value={data.contact_number}
                                 onChange={(e) => setData('contact_number', e.target.value)}
-                                placeholder="+1234567890"
+                                placeholder="+63 912 345 6789"
+                                className="h-10"
                             />
                         </div>
                         <div className="grid gap-2">
-                            <Label htmlFor="email">Email</Label>
+                            <Label htmlFor="email" className="text-sm font-semibold">Email <span className="text-muted-foreground font-normal">(Optional)</span></Label>
                             <Input
                                 id="email"
                                 type="email"
                                 value={data.email}
                                 onChange={(e) => setData('email', e.target.value)}
                                 placeholder="school@example.com"
+                                className="h-10"
                             />
                         </div>
                     </div>
 
-                    <div className="grid gap-2">
-                        <Label>School Type</Label>
-                        <div className="flex gap-4">
-                            <label className="flex items-center space-x-2 cursor-pointer">
-                                <input
-                                    type="radio"
-                                    name="type"
-                                    value="Public"
+                    <div className="grid gap-3 pt-2">
+                        <Label className="text-sm font-semibold">School Type <span className="text-red-500">*</span></Label>
+                        <div className="flex gap-6">
+                            <div className="flex items-center space-x-2">
+                                <Checkbox
+                                    id="type-public"
                                     checked={data.type === 'Public'}
-                                    onChange={(e) => setData('type', e.target.value as 'Public' | 'Private')}
-                                    className="accent-black h-4 w-4"
+                                    onCheckedChange={(checked) => {
+                                        if (checked) setData('type', 'Public');
+                                    }}
+                                    className="h-5 w-5"
                                 />
-                                <span>Public</span>
-                            </label>
-                            <label className="flex items-center space-x-2 cursor-pointer">
-                                <input
-                                    type="radio"
-                                    name="type"
-                                    value="Private"
+                                <Label htmlFor="type-public" className="cursor-pointer font-medium">Public Institution</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                                <Checkbox
+                                    id="type-private"
                                     checked={data.type === 'Private'}
-                                    onChange={(e) => setData('type', e.target.value as 'Public' | 'Private')}
-                                    className="accent-black h-4 w-4"
+                                    onCheckedChange={(checked) => {
+                                        if (checked) setData('type', 'Private');
+                                    }}
+                                    className="h-5 w-5"
                                 />
-                                <span>Private</span>
-                            </label>
+                                <Label htmlFor="type-private" className="cursor-pointer font-medium">Private Institution</Label>
+                            </div>
                         </div>
                     </div>
 
-                    <div className="flex items-center space-x-2 pt-2">
-                        <Checkbox
-                            id="is_active"
-                            checked={data.is_active}
-                            onCheckedChange={(checked) => setData('is_active', checked as boolean)}
-                        />
-                        <Label htmlFor="is_active" className="cursor-pointer">Active Status</Label>
+                    <div className="flex flex-col gap-3 pt-4 border-t mt-2">
+                        <Label className="text-sm font-semibold">Status <span className="text-red-500">*</span></Label>
+                        <div className="flex items-center space-x-2 bg-gray-50 p-3 rounded-md border text-sm">
+                            <Checkbox
+                                id="is_active"
+                                checked={data.is_active}
+                                onCheckedChange={(checked) => setData('is_active', checked as boolean)}
+                                className="h-5 w-5 data-[state=checked]:bg-green-600 data-[state=checked]:text-white data-[state=checked]:border-green-600"
+                            />
+                            <div className="flex flex-col">
+                                <Label htmlFor="is_active" className="cursor-pointer font-medium">Active School</Label>
+                                <span className="text-xs text-muted-foreground">If unchecked, the school will be hidden from the active list.</span>
+                            </div>
+                        </div>
                     </div>
 
                     <DialogFooter className="pt-4">
@@ -182,4 +195,4 @@ const SchoolNameModal: FC<Props> = ({ isOpen, onOpenChange, school, onSave }) =>
     );
 };
 
-export default SchoolNameModal;
+export default AddSchoolModal;

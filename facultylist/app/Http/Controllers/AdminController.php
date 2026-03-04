@@ -394,7 +394,7 @@ class AdminController extends Controller
             ->get()
             ->map(function ($f) {
                 return [
-                    'id' => 'e2-' . $f->id,
+                    'id' => (string) $f->id,
                     'original_id' => $f->id,
                     'name' => $f->name,
                     'email' => $f->email,
@@ -424,7 +424,7 @@ class AdminController extends Controller
             ->get()
             ->map(function ($f) {
                 return [
-                    'id' => 'e5-' . $f->id,
+                    'id' => 'e5_' . $f->id,
                     'original_id' => $f->id,
                     'name' => $f->name,
                     'email' => $f->email,
@@ -450,16 +450,14 @@ class AdminController extends Controller
     public function createFacultyAccount(Request $request)
     {
         $validated = $request->validate([
-            'email' => 'required|string|email|max:255|unique:users',
+            'username' => 'required|string|max:255|unique:users,email',
             'password' => 'required|string|confirmed|min:8',
             'school_id' => 'required|exists:schools,id',
         ]);
 
-        $name = explode('@', $validated['email'])[0];
-
         $user = \App\Models\User::create([
-            'name' => $name,
-            'email' => $validated['email'],
+            'name' => $validated['username'],
+            'email' => $validated['username'],
             'password' => \Illuminate\Support\Facades\Hash::make($validated['password']),
             // 'role' => 'faculty', // Default is Faculty per migration or handle here if needed
             'role' => 'Faculty',
@@ -467,5 +465,58 @@ class AdminController extends Controller
         ]);
 
         return redirect()->back()->with('success', 'Faculty account created successfully.');
+    }
+
+    public function showFaculty($id)
+    {
+        $isE5 = str_starts_with($id, 'e5_') || str_starts_with($id, 'e5-');
+        $realId = str_replace(['e5_', 'e5-', 'e2-', 'e2_'], '', $id);
+
+        if ($isE5) {
+            $faculty = FacultyE5::find($realId);
+            if ($faculty) {
+                // Map to formData expected by the frontend
+                return response()->json([
+                    'id' => $id,
+                    'name' => $faculty->name,
+                    'email' => $faculty->email,
+                    'status' => $faculty->status ?? 'Not Updated',
+                    'employment' => $faculty->employment,
+                    'joined_year' => $faculty->joined_year,
+                    'fullTimeCode' => $faculty->ft_pt_code,
+                    'genderCode' => $faculty->gender_code,
+                    'disciplineCode' => $faculty->discipline_code,
+                    'degree' => $faculty->highest_degree_code,
+                    'rankCode' => $faculty->rank_code,
+                    'bachelorsCode' => $faculty->bachelors_code,
+                    'mastersCode' => $faculty->masters_code,
+                    'doctorateCode' => $faculty->doctorate_code,
+                    'licenseCode' => $faculty->license_code,
+                    'tenureCode' => $faculty->tenure_code,
+                    'salaryCode' => $faculty->salary_range_code,
+                    'loadCode' => $faculty->teaching_load_code,
+                    'subjects' => $faculty->subjects,
+                    'form_type' => 'E5',
+                ]);
+            }
+        } else {
+            $faculty = Faculty::find($realId);
+            if ($faculty) {
+                return response()->json([
+                    'id' => $id,
+                    'name' => $faculty->name,
+                    'email' => $faculty->email,
+                    'status' => $faculty->status ?? 'Not Updated',
+                    'employment' => $faculty->employment,
+                    'joined_year' => $faculty->joined_year,
+                    'department' => $faculty->department,
+                    'degree' => $faculty->degree,
+                    'rank' => $faculty->rank,
+                    'form_type' => 'E2',
+                ]);
+            }
+        }
+
+        return response()->json(['error' => 'Faculty not found.'], 404);
     }
 }

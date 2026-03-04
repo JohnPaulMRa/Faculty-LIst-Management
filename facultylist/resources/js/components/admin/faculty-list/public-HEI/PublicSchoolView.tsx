@@ -2,7 +2,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { router } from '@inertiajs/react';
 import { destroy } from '@/routes/faculty';
-import FacultyListTableE2 from '@/components/faculty/facultyE2/FacultyListTableE2';
+import PublicFacultyTable from './PublicFacultyTable';
 
 interface PublicSchoolViewProps {
     schoolName: string;
@@ -25,17 +25,7 @@ export function PublicSchoolView({ schoolName, faculty }: PublicSchoolViewProps)
                 </Button>
             </div>
 
-            <FacultyListTableE2
-                facultyList={faculty}
-                yearFilter="All Years"
-                onFileClick={(f) => console.log('File click', f)}
-                onDelete={(id) => {
-                    if (confirm('Are you sure you want to delete this faculty member?')) {
-                        router.delete(destroy({ id }).url);
-                    }
-                }}
-                onEdit={(f) => console.log('Edit', f)}
-            />
+            <PublicFacultyTable faculty={faculty} />
         </div>
     );
 }

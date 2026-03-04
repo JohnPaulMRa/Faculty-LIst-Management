@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { Input } from '@/components/ui/input';
 import { Combobox } from "@/components/ui/combobox";
 
@@ -32,10 +32,21 @@ const DisciplineSelector: FC<Props> = ({
 
     // Safe access to reference data
     const groups = referenceData?.groupDiscipline || [];
-    // Flattened disciplines from controller, augmenting with leaf major groups
-    const allDisciplines: Discipline[] = (() => {
+    const allDisciplines: Discipline[] = useMemo(() => {
         const specs = Array.isArray(referenceData?.disciplines) ? [...referenceData.disciplines] : [];
         if (groups && groups.length > 0) {
+            // First, map each specific discipline to its correct major group by finding the longest matching prefix
+            specs.forEach((d: Discipline) => {
+                if (!d.major_group_code || String(d.major_group_code).length !== String(d.code).length) {
+                    const matchedGroups = groups.filter((g: any) => String(d.code).startsWith(String(g.code)));
+                    if (matchedGroups.length > 0) {
+                        // Sort by descending length so we pick the most specific major group (e.g. 1401 over 14)
+                        matchedGroups.sort((a: any, b: any) => String(b.code).length - String(a.code).length);
+                        d.major_group_code = String(matchedGroups[0].code);
+                    }
+                }
+            });
+
             groups.forEach((g: any) => {
                 const hasSpecific = specs.some((d: Discipline) => String(d.major_group_code) === String(g.code));
                 if (!hasSpecific) {
@@ -49,7 +60,7 @@ const DisciplineSelector: FC<Props> = ({
             });
         }
         return specs;
-    })();
+    }, [referenceData?.disciplines, groups]);
 
     const findDisciplineGroup = (code: string | number) => {
         if (!code) return "";
@@ -61,9 +72,10 @@ const DisciplineSelector: FC<Props> = ({
         }
 
         // Fallback to prefix matching
-        const prefix = String(code).substring(0, 2);
-        if (groups.find((g: any) => String(g.code) === prefix)) {
-            return prefix;
+        const matchedGroups = groups.filter((g: any) => String(code).startsWith(String(g.code)));
+        if (matchedGroups.length > 0) {
+            matchedGroups.sort((a: any, b: any) => String(b.code).length - String(a.code).length);
+            return String(matchedGroups[0].code);
         }
 
         return "";

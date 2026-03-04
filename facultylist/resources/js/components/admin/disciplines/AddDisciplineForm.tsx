@@ -22,7 +22,7 @@ export default function AddDisciplineForm({ onCancel, onSubmit, majors = [], pro
 
     const groupOptions = useMemo(() =>
         majors
-            .map((m: any) => ({ label: `${m.code} - ${m.description}`, value: m.code })),
+            .map((m: any) => ({ label: m.description, value: m.code })),
         [majors]
     );
 
@@ -38,10 +38,12 @@ export default function AddDisciplineForm({ onCancel, onSubmit, majors = [], pro
 
     const majorOptions = useMemo(() => {
         const group = majors.find(m => m.code === groupCode);
-        return (group?.groups ?? []).map((g: any) => ({
-            label: `${g.code} - ${g.description}`,
-            value: g.code,
-        }));
+        return (group?.groups ?? [])
+            .filter((g: any) => !g.code.endsWith('_orphan'))
+            .map((g: any) => ({
+                label: g.description,
+                value: g.code,
+            }));
     }, [majors, groupCode]);
 
     const handleMajorSelect = (code: string) => {
@@ -118,11 +120,11 @@ export default function AddDisciplineForm({ onCancel, onSubmit, majors = [], pro
                         <Label className="text-[10px] uppercase tracking-wider font-semibold text-gray-500 ml-0.5">
                             Discipline Group <span className="text-red-500">*</span>
                         </Label>
-                        <div className="flex gap-2">
+                        <div className="flex">
                             <Input
                                 value={groupCode}
                                 readOnly
-                                className="w-20 h-10 rounded-none font-mono text-xs text-center border-gray-300 bg-gray-50 shrink-0"
+                                className="w-20 h-10 rounded-none rounded-l-md font-mono text-xs text-center border-gray-300 bg-gray-50 shrink-0 border-r-0"
                                 placeholder="code"
                             />
                             <Combobox
@@ -131,7 +133,7 @@ export default function AddDisciplineForm({ onCancel, onSubmit, majors = [], pro
                                 onChange={handleGroupSelect}
                                 placeholder="Select Group..."
                                 containerClassName="flex-1 h-10"
-                                className="h-full rounded-none border border-gray-300 text-sm"
+                                className="h-full rounded-none rounded-r-md border border-gray-300 text-sm"
                             />
                         </div>
                     </div>
@@ -141,7 +143,7 @@ export default function AddDisciplineForm({ onCancel, onSubmit, majors = [], pro
                         <Label className="text-[10px] uppercase tracking-wider font-semibold text-gray-500 ml-0.5">
                             Major Discipline <span className="text-red-500">*</span>
                         </Label>
-                        <div className="flex gap-2">
+                        <div className="flex">
                             <Input
                                 value={majorCode}
                                 onChange={(e) => {
@@ -149,7 +151,7 @@ export default function AddDisciplineForm({ onCancel, onSubmit, majors = [], pro
                                     setMajorCode(val);
                                     setSpecificCode(val);
                                 }}
-                                className="w-20 h-10 rounded-none font-mono text-xs text-center border-gray-300 focus-visible:ring-1 focus-visible:ring-gray-400 shrink-0"
+                                className="w-20 h-10 rounded-none rounded-l-md font-mono text-xs text-center border-gray-300 focus-visible:ring-1 focus-visible:ring-gray-400 shrink-0 border-r-0 z-10"
                                 placeholder="code"
                                 minLength={3}
                                 maxLength={10}
@@ -165,7 +167,7 @@ export default function AddDisciplineForm({ onCancel, onSubmit, majors = [], pro
                                 allowFreeInput
                                 placeholder={majorOptions.length > 0 ? "Select or type..." : "Enter name..."}
                                 containerClassName="flex-1 h-10"
-                                className="h-full rounded-none border border-gray-300 text-sm"
+                                className="h-full rounded-none rounded-r-md border border-gray-300 text-sm focus-within:z-20 relative"
                             />
                         </div>
                     </div>
@@ -175,11 +177,11 @@ export default function AddDisciplineForm({ onCancel, onSubmit, majors = [], pro
                         <Label className="text-[10px] uppercase tracking-wider font-semibold text-gray-500 ml-0.5">
                             Specific Discipline <span className="text-red-500">*</span>
                         </Label>
-                        <div className="flex gap-2">
+                        <div className="flex">
                             <Input
                                 value={specificCode}
                                 onChange={(e) => setSpecificCode(e.target.value.replace(/\D/g, "").slice(0, 10))}
-                                className="w-20 h-10 rounded-none font-mono text-xs text-center border-gray-300 focus-visible:ring-1 focus-visible:ring-gray-400 shrink-0"
+                                className="w-20 h-10 rounded-none rounded-l-md font-mono text-xs text-center border-gray-300 focus-visible:ring-1 focus-visible:ring-gray-400 shrink-0 border-r-0 z-10"
                                 placeholder="code"
                                 minLength={3}
                                 maxLength={10}
@@ -187,7 +189,7 @@ export default function AddDisciplineForm({ onCancel, onSubmit, majors = [], pro
                             <Input
                                 value={specificDesc}
                                 onChange={(e) => setSpecificDesc(e.target.value)}
-                                className="flex-1 h-10 rounded-none text-sm border-gray-300 focus-visible:ring-1 focus-visible:ring-gray-400"
+                                className="flex-1 h-10 rounded-none rounded-r-md text-sm border-gray-300 focus-visible:ring-1 focus-visible:ring-gray-400 z-0 relative focus-visible:z-20"
                                 placeholder="Enter name..."
                             />
                         </div>

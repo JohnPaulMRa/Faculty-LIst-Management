@@ -40,6 +40,8 @@ Route::middleware(['auth', 'verified', 'role:Admin'])->group(function () {
 
     Route::get('/admin/faculty-list', [\App\Http\Controllers\AdminController::class, 'facultyList'])->name('admin.faculty-list');
 
+    Route::get('/admin/faculty/{id}', [\App\Http\Controllers\AdminController::class, 'showFaculty'])->name('admin.faculty.show');
+
     Route::get('/admin/disciplines', [\App\Http\Controllers\AdminController::class, 'disciplines'])->name('admin.disciplines');
     Route::post('/admin/disciplines', [\App\Http\Controllers\AdminController::class, 'storeDiscipline'])->name('admin.disciplines.store');
     Route::put('/admin/disciplines/{code}', [\App\Http\Controllers\AdminController::class, 'updateDiscipline'])->name('admin.disciplines.update');

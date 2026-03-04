@@ -1,0 +1,898 @@
+[
+    {
+        "code": "1401",
+        "description": "General Teacher Training",
+        "slug": "general_teacher_training",
+        "created_at": "2026-02-26 02:41:50",
+        "updated_at": "2026-02-26 02:41:50"
+    },
+    {
+        "code": "1404",
+        "description": "Teacher Training with Specialization in a Non-Vocational Subject",
+        "slug": "teacher_training_with_specialization_in_a_non_vocational_subject",
+        "created_at": "2026-02-26 02:45:51",
+        "updated_at": "2026-02-26 02:45:51"
+    },
+    {
+        "code": "1408",
+        "description": "Teacher Training  for Teaching Practical or Vocational Subjects",
+        "slug": "teacher_training_for_teaching_practical_or_vocational_subjects",
+        "created_at": "2026-02-26 02:49:01",
+        "updated_at": "2026-03-02 13:30:18"
+    },
+    {
+        "code": "1412",
+        "description": "Teacher Training for Teaching Pre-school or Kindergarten",
+        "slug": "teacher_training_for_teaching_pre_school_or_kindergarten",
+        "created_at": "2026-02-26 02:51:34",
+        "updated_at": "2026-02-26 02:51:34"
+    },
+    {
+        "code": "1416",
+        "description": "Teacher Training for Adult Education",
+        "slug": "teacher_training_for_adult_education",
+        "created_at": "2026-02-26 02:51:58",
+        "updated_at": "2026-02-26 02:51:58"
+    },
+    {
+        "code": "1422",
+        "description": "Teacher Training for Teachers in Special Education",
+        "slug": "teacher_training_for_teachers_in_special_education",
+        "created_at": "2026-02-26 02:52:07",
+        "updated_at": "2026-02-26 02:52:07"
+    },
+    {
+        "code": "1450",
+        "description": "Educational Administration and Supervision",
+        "slug": "educational_administration_and_supervision",
+        "created_at": "2026-02-26 02:52:23",
+        "updated_at": "2026-02-26 02:52:23"
+    },
+    {
+        "code": "1472",
+        "description": "Education Science in Support of Teaching",
+        "slug": "education_science_in_support_of_teaching",
+        "created_at": "2026-02-26 02:52:34",
+        "updated_at": "2026-03-02 13:37:48"
+    },
+    {
+        "code": "1499",
+        "description": "Other Education Science and Teacher Training",
+        "slug": "other_education_science_and_teacher_training",
+        "created_at": "2026-02-26 02:52:52",
+        "updated_at": "2026-03-02 13:42:49"
+    },
+    {
+        "code": "1801",
+        "description": "General Art Studies",
+        "slug": "general_art_studies",
+        "created_at": "2026-02-26 02:53:16",
+        "updated_at": "2026-02-26 02:53:16"
+    },
+    {
+        "code": "1802",
+        "description": "History and Philosophy of Arts",
+        "slug": "history_and_philosophy_of_arts",
+        "created_at": "2026-02-26 02:54:00",
+        "updated_at": "2026-02-26 02:54:00"
+    },
+    {
+        "code": "180400",
+        "description": "Drawing and Painting",
+        "slug": "drawing_and_painting",
+        "created_at": "2026-02-26 03:01:16",
+        "updated_at": "2026-02-26 03:01:16"
+    },
+    {
+        "code": "180800",
+        "description": "Sculpturing",
+        "slug": "sculpturing",
+        "created_at": "2026-02-26 03:01:31",
+        "updated_at": "2026-02-26 03:01:31"
+    },
+    {
+        "code": "1822",
+        "description": "Music",
+        "slug": "music",
+        "created_at": "2026-02-26 03:01:44",
+        "updated_at": "2026-02-26 03:01:44"
+    },
+    {
+        "code": "1832",
+        "description": "Drama",
+        "slug": "drama",
+        "created_at": "2026-02-26 03:01:52",
+        "updated_at": "2026-02-26 03:01:52"
+    },
+    {
+        "code": "185200",
+        "description": "Interior Design",
+        "slug": "interior_design",
+        "created_at": "2026-02-26 03:02:05",
+        "updated_at": "2026-02-26 03:02:05"
+    },
+    {
+        "code": "1899",
+        "description": "Other Fine and Applied Arts",
+        "slug": "other_fine_and_applied_arts",
+        "created_at": "2026-02-26 03:02:16",
+        "updated_at": "2026-02-26 03:02:16"
+    },
+    {
+        "code": "220100",
+        "description": "General Humanities",
+        "slug": "general_humanities",
+        "created_at": "2026-02-26 03:03:57",
+        "updated_at": "2026-02-26 03:03:57"
+    },
+    {
+        "code": "2211",
+        "description": "Current or Vernacular Language and its Literature",
+        "slug": "current_or_vernacular_language_and_its_literature",
+        "created_at": "2026-02-26 03:04:17",
+        "updated_at": "2026-02-26 03:04:17"
+    },
+    {
+        "code": "2215",
+        "description": "Other Living Languages and their Literature",
+        "slug": "other_living_languages_and_their_literature",
+        "created_at": "2026-02-26 03:04:26",
+        "updated_at": "2026-02-26 03:04:26"
+    },
+    {
+        "code": "222100",
+        "description": "\"Dead\" Languages and their Literature",
+        "slug": "dead_languages_and_their_literature",
+        "created_at": "2026-02-26 03:04:34",
+        "updated_at": "2026-02-26 03:04:34"
+    },
+    {
+        "code": "223101",
+        "description": "Linguistics",
+        "slug": "linguistics",
+        "created_at": "2026-03-03 00:23:17",
+        "updated_at": "2026-03-03 00:23:17"
+    },
+    {
+        "code": "2241",
+        "description": "Comparative Literature",
+        "slug": "comparative_literature",
+        "created_at": "2026-02-26 03:06:33",
+        "updated_at": "2026-02-26 03:06:33"
+    },
+    {
+        "code": "2251",
+        "description": "History",
+        "slug": "history",
+        "created_at": "2026-02-26 03:07:58",
+        "updated_at": "2026-02-26 03:07:58"
+    },
+    {
+        "code": "226100",
+        "description": "Archeology",
+        "slug": "archeology",
+        "created_at": "2026-02-26 03:04:44",
+        "updated_at": "2026-02-26 03:04:44"
+    },
+    {
+        "code": "227100",
+        "description": "Philosophy",
+        "slug": "philosophy",
+        "created_at": "2026-02-26 03:04:52",
+        "updated_at": "2026-02-26 03:04:52"
+    },
+    {
+        "code": "229900",
+        "description": "Other Humanities",
+        "slug": "other_humanities",
+        "created_at": "2026-02-26 03:05:00",
+        "updated_at": "2026-02-26 03:05:00"
+    },
+    {
+        "code": "2600",
+        "description": "Religion and Theology",
+        "slug": "religion_and_theology",
+        "created_at": "2026-02-26 03:09:23",
+        "updated_at": "2026-02-26 03:09:23"
+    },
+    {
+        "code": "3001",
+        "description": "General Social and Behavioral Sciences",
+        "slug": "general_social_and_behavioral_sciences",
+        "created_at": "2026-02-26 03:10:30",
+        "updated_at": "2026-02-26 03:10:30"
+    },
+    {
+        "code": "3012",
+        "description": "Economics",
+        "slug": "economics",
+        "created_at": "2026-02-26 03:17:22",
+        "updated_at": "2026-02-26 03:18:13"
+    },
+    {
+        "code": "3022",
+        "description": "Political Science",
+        "slug": "political_science",
+        "created_at": "2026-02-26 03:20:42",
+        "updated_at": "2026-02-26 03:20:42"
+    },
+    {
+        "code": "3032",
+        "description": "Sociology",
+        "slug": "sociology",
+        "created_at": "2026-02-26 03:19:11",
+        "updated_at": "2026-02-26 03:19:11"
+    },
+    {
+        "code": "3033",
+        "description": "Demography",
+        "slug": "demography",
+        "created_at": "2026-02-26 03:19:26",
+        "updated_at": "2026-02-26 03:19:26"
+    },
+    {
+        "code": "304200",
+        "description": "Anthropology",
+        "slug": "anthropology",
+        "created_at": "2026-02-26 03:21:01",
+        "updated_at": "2026-02-26 03:21:01"
+    },
+    {
+        "code": "3052",
+        "description": "Psychology",
+        "slug": "psychology",
+        "created_at": "2026-02-26 03:21:25",
+        "updated_at": "2026-02-26 03:21:25"
+    },
+    {
+        "code": "3062",
+        "description": "Geography",
+        "slug": "geography",
+        "created_at": "2026-02-26 03:21:42",
+        "updated_at": "2026-02-26 03:21:42"
+    },
+    {
+        "code": "3072",
+        "description": "Studies of Regional Cultures",
+        "slug": "studies_of_regional_cultures",
+        "created_at": "2026-02-26 03:22:06",
+        "updated_at": "2026-02-26 03:22:06"
+    },
+    {
+        "code": "309900",
+        "description": "Other Social and Behavioral Science",
+        "slug": "other_social_and_behavioral_science",
+        "created_at": "2026-02-26 03:22:18",
+        "updated_at": "2026-02-26 03:22:18"
+    },
+    {
+        "code": "3322",
+        "description": "Political Science",
+        "slug": "political_science",
+        "created_at": "2026-02-26 03:19:59",
+        "updated_at": "2026-02-26 03:19:59"
+    },
+    {
+        "code": "3401",
+        "description": "General Business Administration (Commerce)",
+        "slug": "general_business_administration_commerce",
+        "created_at": "2026-02-26 03:22:57",
+        "updated_at": "2026-02-26 03:22:57"
+    },
+    {
+        "code": "3404",
+        "description": "Secretarial",
+        "slug": "secretarial",
+        "created_at": "2026-02-26 03:24:17",
+        "updated_at": "2026-02-26 03:24:17"
+    },
+    {
+        "code": "3426",
+        "description": "Electronic Data Processing",
+        "slug": "electronic_data_processing",
+        "created_at": "2026-02-26 03:24:31",
+        "updated_at": "2026-02-26 03:24:31"
+    },
+    {
+        "code": "3432",
+        "description": "Accountancy",
+        "slug": "accountancy",
+        "created_at": "2026-02-26 03:24:46",
+        "updated_at": "2026-02-26 03:24:46"
+    },
+    {
+        "code": "3434",
+        "description": "Business Administration w\/ Specialization in Marketing",
+        "slug": "business_administration_w_specialization_in_marketing",
+        "created_at": "2026-02-26 03:25:08",
+        "updated_at": "2026-02-26 03:27:47"
+    },
+    {
+        "code": "3436",
+        "description": "Business Administration\/Mgt. w\/ Specialization in Finance & Investment",
+        "slug": "business_administrationmgt_w_specialization_in_finance_investment",
+        "created_at": "2026-02-26 03:28:09",
+        "updated_at": "2026-02-26 03:28:09"
+    },
+    {
+        "code": "3439",
+        "description": "Business Administration\/Mgt. with Other Specialization",
+        "slug": "business_administrationmgt_with_other_specialization",
+        "created_at": "2026-02-26 03:28:28",
+        "updated_at": "2026-02-26 03:28:28"
+    },
+    {
+        "code": "3452",
+        "description": "Public Administration",
+        "slug": "public_administration",
+        "created_at": "2026-02-26 03:28:53",
+        "updated_at": "2026-02-26 03:28:53"
+    },
+    {
+        "code": "3462",
+        "description": "Institutional Administration\/Management",
+        "slug": "institutional_administrationmanagement",
+        "created_at": "2026-02-26 03:29:06",
+        "updated_at": "2026-02-26 03:29:06"
+    },
+    {
+        "code": "3472",
+        "description": "Other Administration\/Management and Related",
+        "slug": "other_administrationmanagement_and_related",
+        "created_at": "2026-02-26 03:29:21",
+        "updated_at": "2026-02-26 03:29:21"
+    },
+    {
+        "code": "3801",
+        "description": "General Law",
+        "slug": "general_law",
+        "created_at": "2026-02-26 03:32:04",
+        "updated_at": "2026-02-26 03:32:04"
+    },
+    {
+        "code": "3802",
+        "description": "Jurisprudence and History of Law",
+        "slug": "jurisprudence_and_history_of_law",
+        "created_at": "2026-02-26 03:32:16",
+        "updated_at": "2026-02-26 03:32:16"
+    },
+    {
+        "code": "380400",
+        "description": "International Law",
+        "slug": "international_law",
+        "created_at": "2026-02-26 03:32:27",
+        "updated_at": "2026-02-26 03:32:27"
+    },
+    {
+        "code": "380600",
+        "description": "Labor Law",
+        "slug": "labor_law",
+        "created_at": "2026-02-26 03:33:16",
+        "updated_at": "2026-02-26 03:33:16"
+    },
+    {
+        "code": "380800",
+        "description": "Maritime Law",
+        "slug": "maritime_law",
+        "created_at": "2026-02-26 03:33:26",
+        "updated_at": "2026-02-26 03:33:26"
+    },
+    {
+        "code": "3899",
+        "description": "Other Law and Jurisprudence",
+        "slug": "other_law_and_jurisprudence",
+        "created_at": "2026-02-26 03:34:17",
+        "updated_at": "2026-02-26 03:34:17"
+    },
+    {
+        "code": "4202",
+        "description": "Biological Science",
+        "slug": "biological_science",
+        "created_at": "2026-02-26 03:35:08",
+        "updated_at": "2026-02-26 03:35:08"
+    },
+    {
+        "code": "4212",
+        "description": "Chemistry",
+        "slug": "chemistry",
+        "created_at": "2026-02-26 03:37:09",
+        "updated_at": "2026-02-26 03:37:09"
+    },
+    {
+        "code": "4222",
+        "description": "Geological Science",
+        "slug": "geological_science",
+        "created_at": "2026-02-26 03:37:20",
+        "updated_at": "2026-02-26 03:37:20"
+    },
+    {
+        "code": "4232",
+        "description": "Physics",
+        "slug": "physics",
+        "created_at": "2026-02-26 03:37:35",
+        "updated_at": "2026-02-26 03:37:35"
+    },
+    {
+        "code": "424200",
+        "description": "Astronomy",
+        "slug": "astronomy",
+        "created_at": "2026-02-26 03:37:46",
+        "updated_at": "2026-02-26 03:37:46"
+    },
+    {
+        "code": "425200",
+        "description": "Meteorology",
+        "slug": "meteorology",
+        "created_at": "2026-02-26 03:37:58",
+        "updated_at": "2026-02-26 03:37:58"
+    },
+    {
+        "code": "4262",
+        "description": "Oceanography",
+        "slug": "oceanography",
+        "created_at": "2026-02-26 03:38:12",
+        "updated_at": "2026-02-26 03:38:12"
+    },
+    {
+        "code": "4299",
+        "description": "Other Natural\/Applied  Science",
+        "slug": "other_naturalapplied_science",
+        "created_at": "2026-02-26 03:38:25",
+        "updated_at": "2026-02-26 03:38:25"
+    },
+    {
+        "code": "460100",
+        "description": "General Mathematics",
+        "slug": "general_mathematics",
+        "created_at": "2026-02-26 03:39:42",
+        "updated_at": "2026-02-26 03:39:42"
+    },
+    {
+        "code": "4611",
+        "description": "Statistics",
+        "slug": "statistics",
+        "created_at": "2026-02-26 03:39:53",
+        "updated_at": "2026-02-26 03:39:53"
+    },
+    {
+        "code": "462100",
+        "description": "Actuarial Science",
+        "slug": "actuarial_science",
+        "created_at": "2026-02-26 03:40:14",
+        "updated_at": "2026-02-26 03:40:14"
+    },
+    {
+        "code": "4639",
+        "description": "Other Mathematics",
+        "slug": "other_mathematics",
+        "created_at": "2026-02-26 03:42:05",
+        "updated_at": "2026-02-26 03:42:05"
+    },
+    {
+        "code": "4741",
+        "description": "Computer Science\/Information Technology",
+        "slug": "computer_scienceinformation_technology",
+        "created_at": "2026-02-26 03:46:15",
+        "updated_at": "2026-02-26 03:46:15"
+    },
+    {
+        "code": "5002",
+        "description": "Hygiene",
+        "slug": "hygiene",
+        "created_at": "2026-02-26 03:49:59",
+        "updated_at": "2026-02-26 03:49:59"
+    },
+    {
+        "code": "5006",
+        "description": "Medicine",
+        "slug": "medicine",
+        "created_at": "2026-02-26 03:50:24",
+        "updated_at": "2026-02-26 03:50:24"
+    },
+    {
+        "code": "5008",
+        "description": "Rehabilitation Medicine",
+        "slug": "rehabilitation_medicine",
+        "created_at": "2026-02-26 03:51:05",
+        "updated_at": "2026-02-26 03:51:05"
+    },
+    {
+        "code": "501200",
+        "description": "Nursing",
+        "slug": "nursing",
+        "created_at": "2026-02-26 03:51:16",
+        "updated_at": "2026-02-26 03:51:16"
+    },
+    {
+        "code": "501500",
+        "description": "Midwifery",
+        "slug": "midwifery",
+        "created_at": "2026-02-26 03:51:44",
+        "updated_at": "2026-02-26 03:51:44"
+    },
+    {
+        "code": "5017",
+        "description": "Medical X-ray Techniques",
+        "slug": "medical_x_ray_techniques",
+        "created_at": "2026-02-26 03:51:56",
+        "updated_at": "2026-02-26 03:51:56"
+    },
+    {
+        "code": "5030",
+        "description": "Medical Technology",
+        "slug": "medical_technology",
+        "created_at": "2026-02-26 03:55:42",
+        "updated_at": "2026-02-26 03:55:42"
+    },
+    {
+        "code": "5042",
+        "description": "Dental Medicine",
+        "slug": "dental_medicine",
+        "created_at": "2026-02-26 05:00:51",
+        "updated_at": "2026-02-26 05:00:51"
+    },
+    {
+        "code": "5052",
+        "description": "Pharmacy",
+        "slug": "pharmacy",
+        "created_at": "2026-02-26 05:01:14",
+        "updated_at": "2026-02-26 05:01:14"
+    },
+    {
+        "code": "506200",
+        "description": "Optometry",
+        "slug": "optometry",
+        "created_at": "2026-02-26 05:01:56",
+        "updated_at": "2026-02-26 05:01:56"
+    },
+    {
+        "code": "507200",
+        "description": "Nutrition and Dietetics",
+        "slug": "nutrition_and_dietetics",
+        "created_at": "2026-02-26 05:06:04",
+        "updated_at": "2026-02-26 05:06:04"
+    },
+    {
+        "code": "5099",
+        "description": "Other Medical Diagnostic and Treatment",
+        "slug": "other_medical_diagnostic_and_treatment",
+        "created_at": "2026-02-26 05:06:14",
+        "updated_at": "2026-02-26 05:06:14"
+    },
+    {
+        "code": "5276",
+        "description": "Clothing and Related Trades",
+        "slug": "clothing_and_related_trades",
+        "created_at": "2026-02-26 05:07:24",
+        "updated_at": "2026-02-26 05:07:24"
+    },
+    {
+        "code": "540301",
+        "description": "Basic Engineering",
+        "slug": "basic_engineering",
+        "created_at": "2026-02-26 05:08:01",
+        "updated_at": "2026-02-26 05:08:01"
+    },
+    {
+        "code": "5404",
+        "description": "Aeronautical Engineering",
+        "slug": "aeronautical_engineering",
+        "created_at": "2026-02-26 05:08:14",
+        "updated_at": "2026-02-26 05:08:14"
+    },
+    {
+        "code": "5412",
+        "description": "Chemical Engineering",
+        "slug": "chemical_engineering",
+        "created_at": "2026-02-26 05:08:55",
+        "updated_at": "2026-02-26 05:08:55"
+    },
+    {
+        "code": "5416",
+        "description": "Civil Engineering",
+        "slug": "civil_engineering",
+        "created_at": "2026-02-26 05:09:10",
+        "updated_at": "2026-02-26 05:09:10"
+    },
+    {
+        "code": "5418",
+        "description": "Geodetic Engineering",
+        "slug": "geodetic_engineering",
+        "created_at": "2026-02-26 05:09:26",
+        "updated_at": "2026-02-26 05:09:26"
+    },
+    {
+        "code": "5422",
+        "description": "Electrical, Electronics and Computer Engineering",
+        "slug": "electrical_electronics_and_computer_engineering",
+        "created_at": "2026-02-26 05:10:40",
+        "updated_at": "2026-02-26 05:10:40"
+    },
+    {
+        "code": "543200",
+        "description": "Industrial Engineering",
+        "slug": "industrial_engineering",
+        "created_at": "2026-02-26 05:10:53",
+        "updated_at": "2026-02-26 05:10:53"
+    },
+    {
+        "code": "5436",
+        "description": "Mining Engineering",
+        "slug": "mining_engineering",
+        "created_at": "2026-02-26 05:11:07",
+        "updated_at": "2026-02-26 05:11:07"
+    },
+    {
+        "code": "5450",
+        "description": "Mechanical Engineering",
+        "slug": "mechanical_engineering",
+        "created_at": "2026-02-26 05:11:18",
+        "updated_at": "2026-02-26 05:11:18"
+    },
+    {
+        "code": "545300",
+        "description": "Agricultural Engineering",
+        "slug": "agricultural_engineering",
+        "created_at": "2026-02-26 05:11:27",
+        "updated_at": "2026-02-26 05:11:27"
+    },
+    {
+        "code": "5463",
+        "description": "Forestry Engineering",
+        "slug": "forestry_engineering",
+        "created_at": "2026-02-26 05:11:47",
+        "updated_at": "2026-02-26 05:11:47"
+    },
+    {
+        "code": "5801",
+        "description": "General Architecture and Town Planning",
+        "slug": "general_architecture_and_town_planning",
+        "created_at": "2026-02-26 05:13:09",
+        "updated_at": "2026-02-26 05:13:09"
+    },
+    {
+        "code": "580200",
+        "description": "Architectural Design",
+        "slug": "architectural_design",
+        "created_at": "2026-02-26 05:13:18",
+        "updated_at": "2026-02-26 05:13:18"
+    },
+    {
+        "code": "5812",
+        "description": "Landscape Architecture",
+        "slug": "landscape_architecture",
+        "created_at": "2026-02-26 05:13:30",
+        "updated_at": "2026-02-26 05:13:30"
+    },
+    {
+        "code": "5822",
+        "description": "Town Planning",
+        "slug": "town_planning",
+        "created_at": "2026-02-26 05:13:42",
+        "updated_at": "2026-02-26 05:13:42"
+    },
+    {
+        "code": "6201",
+        "description": "General  Agriculture",
+        "slug": "general_agriculture",
+        "created_at": "2026-02-26 05:14:29",
+        "updated_at": "2026-02-26 05:14:29"
+    },
+    {
+        "code": "6203",
+        "description": "Animal Husbandry",
+        "slug": "animal_husbandry",
+        "created_at": "2026-02-26 05:14:40",
+        "updated_at": "2026-02-26 05:14:40"
+    },
+    {
+        "code": "6206",
+        "description": "Horticulture",
+        "slug": "horticulture",
+        "created_at": "2026-02-26 05:15:01",
+        "updated_at": "2026-02-26 05:15:01"
+    },
+    {
+        "code": "6208",
+        "description": "Agronomy",
+        "slug": "agronomy",
+        "created_at": "2026-02-26 05:15:11",
+        "updated_at": "2026-02-26 05:15:11"
+    },
+    {
+        "code": "621200",
+        "description": "Agricultural Economics",
+        "slug": "agricultural_economics",
+        "created_at": "2026-02-26 05:15:20",
+        "updated_at": "2026-02-26 05:15:20"
+    },
+    {
+        "code": "6222",
+        "description": "Food Sciences and Technology",
+        "slug": "food_sciences_and_technology",
+        "created_at": "2026-02-26 05:15:35",
+        "updated_at": "2026-02-26 05:15:35"
+    },
+    {
+        "code": "6226",
+        "description": "Soil and Water Sciences",
+        "slug": "soil_and_water_sciences",
+        "created_at": "2026-02-26 05:15:45",
+        "updated_at": "2026-02-26 05:15:45"
+    },
+    {
+        "code": "6232",
+        "description": "Veterinary Medicine",
+        "slug": "veterinary_medicine",
+        "created_at": "2026-02-26 05:15:55",
+        "updated_at": "2026-02-26 05:15:55"
+    },
+    {
+        "code": "6249",
+        "description": "Other  Agriculture",
+        "slug": "other_agriculture",
+        "created_at": "2026-02-26 05:16:06",
+        "updated_at": "2026-02-26 05:16:06"
+    },
+    {
+        "code": "6262",
+        "description": "Forestry",
+        "slug": "forestry",
+        "created_at": "2026-02-26 05:16:19",
+        "updated_at": "2026-02-26 05:16:19"
+    },
+    {
+        "code": "6272",
+        "description": "Fishery Science and Technology",
+        "slug": "fishery_science_and_technology",
+        "created_at": "2026-02-26 05:16:33",
+        "updated_at": "2026-02-26 05:16:33"
+    },
+    {
+        "code": "6601",
+        "description": "General Home Economics",
+        "slug": "general_home_economics",
+        "created_at": "2026-02-26 05:17:59",
+        "updated_at": "2026-02-26 05:17:59"
+    },
+    {
+        "code": "6612",
+        "description": "HE  w\/ Emphasis on Household & Consumer Food Research; Nutrition",
+        "slug": "he_w_emphasis_on_household_consumer_food_research_nutrition",
+        "created_at": "2026-02-26 05:18:11",
+        "updated_at": "2026-02-26 05:18:11"
+    },
+    {
+        "code": "663200",
+        "description": "Home Economics with Emphasis on Household Arts",
+        "slug": "home_economics_with_emphasis_on_household_arts",
+        "created_at": "2026-03-03 02:22:52",
+        "updated_at": "2026-03-03 02:22:52"
+    },
+    {
+        "code": "6699",
+        "description": "Other Home Economics",
+        "slug": "other_home_economics",
+        "created_at": "2026-02-26 05:18:45",
+        "updated_at": "2026-02-26 05:18:45"
+    },
+    {
+        "code": "7872",
+        "description": "Tourist Trade",
+        "slug": "tourist_trade",
+        "created_at": "2026-02-26 05:19:34",
+        "updated_at": "2026-03-02 14:21:00"
+    },
+    {
+        "code": "8401",
+        "description": "General Communication Arts",
+        "slug": "general_communication_arts",
+        "created_at": "2026-02-26 05:22:29",
+        "updated_at": "2026-02-26 05:22:29"
+    },
+    {
+        "code": "8402",
+        "description": "Journalism",
+        "slug": "journalism",
+        "created_at": "2026-02-26 05:23:09",
+        "updated_at": "2026-02-26 05:23:09"
+    },
+    {
+        "code": "8404",
+        "description": "Radio and Television Broadcasting",
+        "slug": "radio_and_television_broadcasting",
+        "created_at": "2026-02-26 05:23:20",
+        "updated_at": "2026-02-26 05:23:20"
+    },
+    {
+        "code": "840700",
+        "description": "Public Relations and Media Management",
+        "slug": "public_relations_and_media_management",
+        "created_at": "2026-02-26 05:23:29",
+        "updated_at": "2026-02-26 05:23:29"
+    },
+    {
+        "code": "8409",
+        "description": "Other Communications Arts",
+        "slug": "other_communications_arts",
+        "created_at": "2026-02-26 05:23:41",
+        "updated_at": "2026-02-26 05:23:41"
+    },
+    {
+        "code": "8422",
+        "description": "Library Science",
+        "slug": "library_science",
+        "created_at": "2026-02-26 05:23:50",
+        "updated_at": "2026-02-26 05:23:50"
+    },
+    {
+        "code": "8913",
+        "description": "Criminology",
+        "slug": "criminology",
+        "created_at": "2026-02-26 05:24:28",
+        "updated_at": "2026-02-26 05:24:28"
+    },
+    {
+        "code": "8919",
+        "description": "Other Civil Security and Military",
+        "slug": "other_civil_security_and_military",
+        "created_at": "2026-02-26 05:24:37",
+        "updated_at": "2026-02-26 05:24:37"
+    },
+    {
+        "code": "8932",
+        "description": "Social Welfare",
+        "slug": "social_welfare",
+        "created_at": "2026-02-26 05:24:47",
+        "updated_at": "2026-02-26 05:24:47"
+    },
+    {
+        "code": "8933",
+        "description": "Community Development",
+        "slug": "community_development",
+        "created_at": "2026-02-26 05:24:59",
+        "updated_at": "2026-02-26 05:24:59"
+    },
+    {
+        "code": "8952",
+        "description": "Environmental Studies",
+        "slug": "environmental_studies",
+        "created_at": "2026-02-26 05:25:11",
+        "updated_at": "2026-02-26 05:25:11"
+    },
+    {
+        "code": "8982",
+        "description": "Human Resource Development",
+        "slug": "human_resource_development",
+        "created_at": "2026-02-26 05:25:22",
+        "updated_at": "2026-02-26 05:25:22"
+    },
+    {
+        "code": "899900",
+        "description": "Women Development",
+        "slug": "women_development",
+        "created_at": "2026-02-26 05:25:32",
+        "updated_at": "2026-02-26 05:25:32"
+    },
+    {
+        "code": "899999",
+        "description": "Other Education not elsewhere coded (NEC)",
+        "slug": "other_education_not_elsewhere_coded_nec",
+        "created_at": "2026-02-26 05:25:49",
+        "updated_at": "2026-02-26 05:25:49"
+    },
+    {
+        "code": "9072",
+        "description": "Nautical Science",
+        "slug": "nautical_science",
+        "created_at": "2026-02-26 07:31:32",
+        "updated_at": "2026-02-26 07:31:32"
+    },
+    {
+        "code": "9099",
+        "description": "Marine Engineering",
+        "slug": "marine_engineering",
+        "created_at": "2026-02-26 07:30:48",
+        "updated_at": "2026-02-26 07:30:48"
+    }
+]

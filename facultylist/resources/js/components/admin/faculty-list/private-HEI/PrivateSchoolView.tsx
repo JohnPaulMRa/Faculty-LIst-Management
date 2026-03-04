@@ -2,7 +2,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { router } from '@inertiajs/react';
 import { destroy } from '@/routes/faculty';
-import FacultyListTableE5 from '@/components/faculty/facultyE5/FacultyListTableE5';
+import PrivateFacultyTable from './PrivateFacultyTable';
 
 interface PrivateSchoolViewProps {
     schoolName: string;
@@ -26,18 +26,7 @@ export function PrivateSchoolView({ schoolName, faculty, referenceData }: Privat
                 </Button>
             </div>
 
-            <FacultyListTableE5
-                facultyList={faculty}
-                yearFilter="All Years"
-                referenceData={referenceData}
-                onFileClick={(f) => console.log('File click', f)}
-                onDelete={(id) => {
-                    if (confirm('Are you sure you want to delete this faculty member?')) {
-                        router.delete(destroy({ id }).url);
-                    }
-                }}
-                onEdit={(f) => console.log('Edit', f)}
-            />
+            <PrivateFacultyTable faculty={faculty} referenceData={referenceData} />
         </div>
     );
 }
