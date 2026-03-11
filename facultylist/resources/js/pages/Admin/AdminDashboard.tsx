@@ -17,7 +17,8 @@ interface DashboardSchool {
 interface DashboardStat {
     title: string;
     value: string;
-    trend: string;
+    trend?: string;
+    subtext?: string;
 }
 
 interface DashboardActivity {

@@ -128,7 +128,7 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
                                 <Breadcrumbs breadcrumbs={breadcrumbs} />
                             </div>
                         ) : (
-                            <nav className="hidden items-center gap-1 lg:flex">
+                            <nav className="hidden h-14 items-center gap-8 lg:flex">
                                 {mainNavItems.map((item) => {
                                     const active = isCurrentUrl(item.href);
                                     return (
@@ -136,13 +136,12 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
                                             key={item.title}
                                             href={item.href}
                                             className={cn(
-                                                "flex items-center gap-2 rounded-md px-4 py-2 text-[15px] font-medium transition-all",
+                                                "inline-flex h-full items-center border-b-[2.5px] px-1 pt-1 text-sm font-medium transition-colors duration-200",
                                                 active
-                                                    ? "text-blue-600 bg-blue-100 dark:bg-blue-900/40 dark:text-blue-300"
-                                                    : "text-gray-800 hover:text-blue-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
+                                                    ? "border-blue-600 text-blue-700 dark:border-blue-400 dark:text-blue-400"
+                                                    : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-800 dark:text-gray-400 dark:hover:border-gray-700 dark:hover:text-gray-200"
                                             )}
                                         >
-                                            {item.icon && <item.icon className={cn("h-4.5 w-4.5 md:h-[18px] md:w-[18px]", active ? "text-blue-600" : "text-gray-500")} />}
                                             {item.title}
                                         </Link>
                                     );

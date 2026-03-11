@@ -1,7 +1,7 @@
 export interface School {
     id: number;
     name: string;
-    code: string | null;
+    hei_code: string | null;
     address: string | null;
     contact_number: string | null;
     email: string | null;

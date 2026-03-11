@@ -4,12 +4,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 interface AdminStatsCardProps {
     title: string;
     value: string;
-    trend: string;
+    trend?: string;
+    subtext?: string;
 }
 
-export default function AdminStatsCard({ title, value, trend }: AdminStatsCardProps) {
+export default function AdminStatsCard({ title, value, trend, subtext }: AdminStatsCardProps) {
     // Determine icon based on title (simple logic for now)
-    const Icon = title.toLowerCase().includes('school') ? School : Users;
+    const Icon = title.toLowerCase().includes('school') || title.toLowerCase().includes('hei') ? School : Users;
 
     return (
         <Card className="rounded-none shadow-none border border-gray-200 bg-white transition-all hover:border-gray-400">
@@ -21,11 +22,18 @@ export default function AdminStatsCard({ title, value, trend }: AdminStatsCardPr
             </CardHeader>
             <CardContent>
                 <div className="text-3xl font-bold text-gray-900 tracking-tight">{value}</div>
-                <div className="flex items-center text-xs font-medium text-green-600 mt-2 bg-green-50 w-fit px-2 py-1 rounded-none border border-green-100">
-                    <TrendingUp className="h-3 w-3 mr-1" />
-                    <span>{trend}</span>
-                    <span className="text-gray-400 ml-1 font-normal">vs last month</span>
-                </div>
+                {trend && (
+                    <div className="flex items-center text-xs font-medium text-green-600 mt-2 bg-green-50 w-fit px-2 py-1 rounded-none border border-green-100">
+                        <TrendingUp className="h-3 w-3 mr-1" />
+                        <span>{trend}</span>
+                        <span className="text-gray-400 ml-1 font-normal">vs last month</span>
+                    </div>
+                )}
+                {subtext && (
+                    <div className="flex items-center text-xs font-medium text-slate-600 mt-2 bg-slate-50 w-fit px-2 py-1 rounded-none border border-slate-200">
+                        <span>{subtext}</span>
+                    </div>
+                )}
             </CardContent>
         </Card>
     );

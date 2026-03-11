@@ -117,12 +117,43 @@ export function AnalyticsOverview({ distributionData = [] }: AnalyticsOverviewPr
                             <Tooltip content={<CustomTooltip />} cursor={{ fill: '#f1f5f9' }} />
                             <Bar
                                 dataKey="count"
-                                fill="#0f172a"
                                 radius={[0, 4, 4, 0]}
                                 barSize={14}
                                 onClick={handleBarClick}
                                 cursor={currentData.some(d => d.children && d.children.length > 0) ? "pointer" : "default"}
-                            />
+                            >
+                                {currentData.map((entry, index) => {
+                                    const maxCount = Math.max(...currentData.map(d => d.count), 1);
+                                    const ratio = entry.count / maxCount;
+
+                                    // RdYlGn Palette (Red -> Orange -> Yellow -> Green -> Dark Green)
+                                    const palette = [
+                                        [215, 48, 39],   // Red (0)
+                                        [244, 109, 67],  // Orange (1)
+                                        [253, 174, 97],  // Light Orange (2)
+                                        [254, 224, 139], // Yellow (3)
+                                        [217, 239, 139], // Light Yellow-Green (4)
+                                        [166, 217, 106], // Light Green (5)
+                                        [102, 189, 99],  // Green (6)
+                                        [26, 152, 80]    // Dark Green (7)
+                                    ];
+
+                                    const numSegments = palette.length - 1;
+                                    const scaled = ratio * numSegments;
+                                    const segment = Math.min(Math.floor(scaled), numSegments - 1);
+                                    const t = scaled - segment;
+
+                                    const c1 = palette[segment];
+                                    const c2 = palette[segment + 1];
+
+                                    // Linear interpolation between the two colors
+                                    const r = Math.round(c1[0] + (c2[0] - c1[0]) * t);
+                                    const g = Math.round(c1[1] + (c2[1] - c1[1]) * t);
+                                    const b = Math.round(c1[2] + (c2[2] - c1[2]) * t);
+
+                                    return <Cell key={`cell-${index}`} fill={`rgb(${r}, ${g}, ${b})`} />;
+                                })}
+                            </Bar>
                         </BarChart>
                     </ResponsiveContainer>
                 </div>

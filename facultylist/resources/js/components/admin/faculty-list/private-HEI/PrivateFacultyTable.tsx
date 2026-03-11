@@ -56,7 +56,7 @@ export default function PrivateFacultyTable({ faculty, referenceData }: PrivateF
     const filteredFaculty = faculty.filter(member => (member.schoolYear || 'Unknown Year') === activeYear);
 
     return (
-        <div className="flex flex-col bg-white shadow-none overflow-hidden rounded-none border border-gray-300">
+        <div className="flex flex-col bg-white shadow-none overflow-hidden rounded-none border border-gray-200">
             {/* SPREADSHEET HEADER */}
             <div className="bg-gray-50 flex items-center justify-between px-4 py-3 border-b border-gray-300">
                 <div className="text-black text-sm font-bold uppercase tracking-wide">
@@ -81,11 +81,11 @@ export default function PrivateFacultyTable({ faculty, referenceData }: PrivateF
                     <thead>
                         <tr className="bg-blue-500 text-white border-b border-gray-300">
                             <th className="px-3 py-2 font-bold text-center w-[5%]">#</th>
-                            <th className="px-3 py-2 font-bold w-[30%] text-left">Faculty Name</th>
-                            <th className="px-3 py-2 font-bold w-[10%] text-center">Gender</th>
+                            <th className="px-3 py-2 font-bold w-[20%] text-left">Faculty Name</th>
+                            <th className="px-3 py-2 font-bold w-[20%] text-left">Gender</th>
                             <th className="px-3 py-2 font-bold w-[25%] text-center">Full-Time / Part-Time</th>
-                            <th className="px-3 py-2 font-bold w-[15%] text-center">Submit Status</th>
-                            <th className="px-3 py-2 font-bold text-center w-[15%]">Action</th>
+                            <th className="px-3 py-2 font-bold w-[20%] text-center">Submit Status</th>
+                            <th className="px-3 py-2 font-bold text-center w-[10%]">Action</th>
                         </tr>
                     </thead>
                     <tbody className="bg-white text-sm">
@@ -93,10 +93,10 @@ export default function PrivateFacultyTable({ faculty, referenceData }: PrivateF
                             <tr key={member.id} className="border-b border-gray-300 hover:bg-gray-50 transition-colors">
                                 <td className="px-3 py-2 text-center text-black">{index + 1}</td>
                                 <td className="px-3 py-2 text-left font-semibold text-gray-900">{member.name}</td>
-                                <td className="px-3 py-2 text-center text-black">{member.sex}</td>
-                                <td className="px-3 py-2 text-center text-black">
+                                <td className="px-3 py-2 text-left text-black">{member.sex}</td>
+                                <td className="px-3 py-2 text-left text-black">
                                     <div
-                                        className="truncate max-w-[300px] mx-auto text-sm"
+                                        className="truncate max-w-[300px] text-sm"
                                         title={member.type}
                                     >
                                         {member.type}

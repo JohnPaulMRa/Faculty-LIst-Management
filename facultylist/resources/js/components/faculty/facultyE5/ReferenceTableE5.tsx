@@ -35,29 +35,29 @@ const ReferenceTableE5: FC<ReferenceTableProps> = ({ referenceData }) => {
                 <tbody>
                     {[...Array(maxRows)].map((_, i) => (
                         <tr key={i} className="hover:bg-gray-100 align-top">
-                            <td className="border border-gray-300 px-1 py-0.5 font-bold w-6">{fullTimePartTime[i]?.code}</td>
-                            <td className="border border-gray-300 px-1 py-0.5 whitespace-normal">{fullTimePartTime[i]?.desc}</td>
+                            <td className="border border-gray-300 px-1 py-0.5 font-bold w-6 text-center">{fullTimePartTime[i]?.code}</td>
+                            <td className="border border-gray-300 px-1 py-0.5 whitespace-normal text-left">{fullTimePartTime[i]?.desc}</td>
                             
-                            <td className="border border-gray-300 px-1 py-0.5 font-bold w-6">{gender[i]?.code}</td>
-                            <td className="border border-gray-300 px-1 py-0.5 whitespace-normal">{gender[i]?.desc}</td>
+                            <td className="border border-gray-300 px-1 py-0.5 font-bold w-6 text-center">{gender[i]?.code}</td>
+                            <td className="border border-gray-300 px-1 py-0.5 whitespace-normal text-left">{gender[i]?.desc}</td>
                             
-                            <td className="border border-gray-300 px-1 py-0.5 font-bold w-8">{highestDegree[i]?.code}</td>
-                            <td className="border border-gray-300 px-1 py-0.5 whitespace-normal">{highestDegree[i]?.desc}</td>
+                            <td className="border border-gray-300 px-1 py-0.5 font-bold w-8 text-center">{highestDegree[i]?.code}</td>
+                            <td className="border border-gray-300 px-1 py-0.5 whitespace-normal text-left">{highestDegree[i]?.desc}</td>
                             
-                            <td className="border border-gray-300 px-1 py-0.5 font-bold w-6">{professionalLicense[i]?.code}</td>
-                            <td className="border border-gray-300 px-1 py-0.5 whitespace-normal">{professionalLicense[i]?.desc}</td>
+                            <td className="border border-gray-300 px-1 py-0.5 font-bold w-6 text-center">{professionalLicense[i]?.code}</td>
+                            <td className="border border-gray-300 px-1 py-0.5 whitespace-normal text-left">{professionalLicense[i]?.desc}</td>
                             
-                            <td className="border border-gray-300 px-1 py-0.5 font-bold w-6">{tenure[i]?.code}</td>
-                            <td className="border border-gray-300 px-1 py-0.5 whitespace-normal">{tenure[i]?.desc}</td>
+                            <td className="border border-gray-300 px-1 py-0.5 font-bold w-6 text-center">{tenure[i]?.code}</td>
+                            <td className="border border-gray-300 px-1 py-0.5 whitespace-normal text-left">{tenure[i]?.desc}</td>
                             
-                            <td className="border border-gray-300 px-1 py-0.5 font-bold w-6">{facultyRank[i]?.code}</td>
-                            <td className="border border-gray-300 px-1 py-0.5 whitespace-normal">{facultyRank[i]?.desc}</td>
+                            <td className="border border-gray-300 px-1 py-0.5 font-bold w-6 text-center">{facultyRank[i]?.code}</td>
+                            <td className="border border-gray-300 px-1 py-0.5 whitespace-normal text-left">{facultyRank[i]?.desc}</td>
                             
-                            <td className="border border-gray-300 px-1 py-0.5 font-bold w-6">{teachingLoad[i]?.code}</td>
-                            <td className="border border-gray-300 px-1 py-0.5 whitespace-normal">{teachingLoad[i]?.desc}</td>
+                            <td className="border border-gray-300 px-1 py-0.5 font-bold w-6 text-center">{teachingLoad[i]?.code}</td>
+                            <td className="border border-gray-300 px-1 py-0.5 whitespace-normal text-left">{teachingLoad[i]?.desc}</td>
                             
-                            <td className="border border-gray-300 px-1 py-0.5 font-bold w-6">{annualSalary[i]?.code}</td>
-                            <td className="border border-gray-300 px-1 py-0.5 whitespace-normal">{annualSalary[i]?.desc}</td>
+                            <td className="border border-gray-300 px-1 py-0.5 font-bold w-6 text-center">{annualSalary[i]?.code}</td>
+                            <td className="border border-gray-300 px-1 py-0.5 whitespace-normal text-left">{annualSalary[i]?.desc}</td>
                         </tr>
                     ))}
                 </tbody>

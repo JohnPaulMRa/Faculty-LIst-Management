@@ -19,7 +19,7 @@ class DatabaseSeeder extends Seeder
             ['id' => 1],
             [
                 'name' => 'Test School',
-                'code' => 'TS001',
+                'hei_code' => 'TS001',
                 'is_active' => true,
                 'type' => 'Private', // or Public
             ]
@@ -49,9 +49,9 @@ class DatabaseSeeder extends Seeder
             E5ReferenceDataSeeder::class,       // E5 reference tables (gender, degree, etc.)
             AcademicYearSeeder::class,
             E5FullTimePartTimeSeeder::class,
-            DisciplineGroupSeeder::class,       // 1. Populate ref_discipline_group
-            SpecificDisciplineSeeder::class,    // 2. Truncate ref_specific_discipline (clean slate)
-            MajorDisciplineSeeder::class,       // 3. Truncate ref_major_discipline + insert GENERAL & isolated majors into both tables
+            DisciplineGroupSeeder::class,       // 1. Populate discipline_group
+            SpecificDisciplineSeeder::class,    // 2. Truncate specific_discipline (clean slate)
+            MajorDisciplineSeeder::class,       // 3. Truncate major_discipline + insert GENERAL & isolated majors into both tables
         ]);
     }
 }

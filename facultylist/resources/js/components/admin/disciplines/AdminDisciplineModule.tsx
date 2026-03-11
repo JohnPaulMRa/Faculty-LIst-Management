@@ -32,6 +32,7 @@ interface MajorDiscipline {
     code: string;
     description: string;
     groups: DisciplineGroup[];
+    specifics?: SpecificDiscipline[];
 }
 
 interface AdminDisciplineModuleProps {
@@ -76,6 +77,31 @@ export default function AdminDisciplineModule({ disciplines = [] }: AdminDiscipl
         // Flatten all groups, majors, and specifics into a single array first
         disciplines.forEach(major => {
             const groups = Array.isArray(major.groups) ? major.groups : [];
+            const directSpecifics = Array.isArray(major.specifics) ? major.specifics : [];
+
+            // Specifics that belong directly to the Discipline Group
+            directSpecifics.forEach(specific => {
+                allPrograms.push({
+                    id: String(specific.code),
+                    code: String(specific.code),
+                    name: String(specific.description || ''),
+                    major: String(major.description || ''),
+                    disciplineGroup: String(major.description || ''),
+                    specificMajor: '—',
+                    specificGroup: '—',
+                    originalData: {
+                        code: specific.code,
+                        group: major.code,
+                        groupCode: major.code,
+                        groupName: major.description,
+                        majorCode: '',
+                        majorName: '',
+                        majorDiscipline: major.description,
+                        specificDiscipline: specific.description,
+                        type: 'specific'
+                    }
+                });
+            });
 
             groups.forEach(group => {
                 const specifics = Array.isArray(group.specifics) ? group.specifics : [];
@@ -106,22 +132,21 @@ export default function AdminDisciplineModule({ disciplines = [] }: AdminDiscipl
                 }
 
                 specifics.forEach(specific => {
-                    const isOrphan = String(group.code).endsWith('_orphan');
                     allPrograms.push({
                         id: String(specific.code),
                         code: String(specific.code),
                         name: String(specific.description || ''),
                         major: String(major.description || ''),
                         disciplineGroup: String(major.description || ''),
-                        specificMajor: isOrphan ? '' : String(group.description || ''),
-                        specificGroup: isOrphan ? '' : String(group.description || ''),
+                        specificMajor: String(group.description || ''),
+                        specificGroup: String(group.description || ''),
                         originalData: {
                             code: specific.code,
                             group: group.code,
                             groupCode: major.code,
                             groupName: major.description,
                             majorCode: group.code,
-                            majorName: isOrphan ? '' : group.description,
+                            majorName: group.description,
                             majorDiscipline: major.description,
                             specificDiscipline: specific.description,
                             type: 'specific'
@@ -269,79 +294,7 @@ export default function AdminDisciplineModule({ disciplines = [] }: AdminDiscipl
                         processing={processing}
                     />
 
-                    {/* Search and Filters */}
-                    <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-4">
-                        <div className="relative w-full md:w-96">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                            <Input
-                                placeholder="Search by code, group, major, or specific..."
-                                className="pl-9 bg-gray-50 border-gray-300 rounded-none focus-visible:ring-1 focus-visible:ring-gray-400 h-10"
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                            />
-                        </div>
-
-                        <div className="flex items-center gap-2 w-full md:w-auto">
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button variant="outline" className={`rounded-none border-gray-300 gap-2 h-10 md:flex ${selectedMajor ? 'bg-gray-100 border-gray-900' : ''}`}>
-                                        <Filter className="h-4 w-4" />
-                                        {selectedMajor ? 'Filtering' : 'Filter'}
-                                    </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end" className="w-[300px] rounded-none p-0">
-                                    <DropdownMenuLabel className="sticky top-0 bg-white z-10 border-b border-gray-100 py-3 flex justify-between items-center">
-                                        <span>Filter by Discipline Group</span>
-                                        <span className="text-[10px] text-gray-400 font-normal">{disciplines.length} total</span>
-                                    </DropdownMenuLabel>
-                                    <DropdownMenuSeparator className="m-0" />
-                                    <DropdownMenuItem
-                                        onSelect={(e) => { e.preventDefault(); setSelectedMajor(null); }}
-                                        onClick={() => setSelectedMajor(null)}
-                                        className="rounded-none cursor-pointer py-2 px-3 hover:bg-gray-50"
-                                    >
-                                        All Disciplines
-                                    </DropdownMenuItem>
-                                    {disciplines.map((major) => (
-                                        <DropdownMenuItem
-                                            key={`filter-group-${major.code}`}
-                                            onSelect={(e) => { e.preventDefault(); setSelectedMajor(String(major.code)); }}
-                                            onClick={() => setSelectedMajor(String(major.code))}
-                                            className="rounded-none cursor-pointer text-xs py-2 px-3 hover:bg-gray-50 flex flex-col items-start gap-1"
-                                        >
-                                            <span className="font-bold text-gray-400">CODE {major.code}</span>
-                                            <span className="text-gray-900">{major.description}</span>
-                                        </DropdownMenuItem>
-                                    ))}
-                                    <div className="pb-8" />
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-                        </div>
-                    </div>
-
-                    {/* Active Filters */}
-                    {selectedMajor && (
-                        <div className="flex items-center gap-2 mb-6 animate-in fade-in slide-in-from-left-2">
-                            <Badge variant="secondary" className="rounded-none bg-gray-900 text-white pl-2 pr-1 py-1 gap-1 font-normal">
-                                Group: {activeMajorName}
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="h-4 w-4 p-0 hover:bg-gray-700 text-white rounded-none"
-                                    onClick={() => setSelectedMajor(null)}
-                                >
-                                    <X className="h-3 w-3" />
-                                </Button>
-                            </Badge>
-                            <Button
-                                variant="link"
-                                className="text-xs text-gray-500 h-auto p-0"
-                                onClick={() => setSelectedMajor(null)}
-                            >
-                                Clear all
-                            </Button>
-                        </div>
-                    )}
+                    {/* Search block was moved into DisciplineTable */}
 
                     {/* Hierarchy Display */}
                     <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 flex flex-col gap-8">
@@ -351,6 +304,8 @@ export default function AdminDisciplineModule({ disciplines = [] }: AdminDiscipl
                             onDelete={handleDelete}
                             onSort={handleSort}
                             sortConfig={sortConfig}
+                            searchQuery={searchQuery}
+                            onSearchQueryChange={setSearchQuery}
                         />
                     </div>
                 </div>

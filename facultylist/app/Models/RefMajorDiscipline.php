@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class RefMajorDiscipline extends Model
 {
-    protected $table = 'ref_major_discipline';
+    protected $table = 'major_discipline';
     protected $primaryKey = 'code';
     public $incrementing = false;
     protected $keyType = 'string';

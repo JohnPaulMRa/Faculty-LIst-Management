@@ -22,7 +22,7 @@ class AdminController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'code' => 'nullable|string|max:50|unique:schools,code',
+            'hei_code' => 'nullable|string|max:50|unique:schools,hei_code',
             'address' => 'nullable|string|max:255',
             'contact_number' => 'nullable|string|max:20',
             'email' => 'nullable|email|max:255',
@@ -30,9 +30,9 @@ class AdminController extends Controller
             'type' => 'required|in:Public,Private',
         ]);
 
-        // Convert empty strings to null to avoid unique constraint violations on 'code'
+        // Convert empty strings to null to avoid unique constraint violations on 'hei_code'
         $data = $validated;
-        $data['code'] = $data['code'] ?: null;
+        $data['hei_code'] = $data['hei_code'] ?: null;
         $data['address'] = $data['address'] ?: null;
         $data['contact_number'] = $data['contact_number'] ?: null;
         $data['email'] = $data['email'] ?: null;
@@ -44,12 +44,25 @@ class AdminController extends Controller
 
     public function dashboard(Request $request)
     {
-        // 1. Schools List with Faculty Count
+        $distributionAndStatus = $this->getDashboardDistributionData();
+
+        return Inertia::render('Admin/AdminDashboard', [
+            'schools' => $this->getDashboardSchools(),
+            'stats' => $this->getDashboardStats(),
+            'recentActivities' => $this->getDashboardRecentActivities(),
+            'distributionData' => $distributionAndStatus['distributionData'],
+            'statusData' => $distributionAndStatus['statusData'],
+            'disciplineUpdates' => $this->getDashboardDisciplineUpdates()
+        ]);
+    }
+
+    private function getDashboardSchools()
+    {
         $schoolsQuery = School::withCount(['faculties', 'facultiesE5'])
             ->orderBy('name')
             ->get();
 
-        $schools = $schoolsQuery->map(function ($s) {
+        return $schoolsQuery->map(function ($s) {
             return [
                 'id' => (int) $s->id,
                 'name' => $s->name,
@@ -57,16 +70,28 @@ class AdminController extends Controller
                 'status' => $s->is_active ? 'Active' : 'Inactive',
             ];
         });
+    }
 
-        // 2. Stats
-        $totalFacultyE2 = Faculty::count();
-        $totalFacultyE5 = FacultyE5::count();
-        $totalFaculty = $totalFacultyE2 + $totalFacultyE5;
-
+    private function getDashboardStats()
+    {
+        $totalFaculty = Faculty::count() + FacultyE5::count();
         $totalSchools = School::count();
+        $privateSchools = School::where('type', 'Private')->count();
+        $publicSchools = School::where('type', 'Public')->count();
 
-        // 3. Recent Activities (from SchoolSubmission)
-        $recentActivities = SchoolSubmission::latest()
+        return [
+            ['title' => "Total Faculty", 'value' => (string) $totalFaculty, 'trend' => "+0%"],
+            [
+                'title' => "TOTAL SUBMITTED HEIs",
+                'value' => (string) $totalSchools,
+                'subtext' => "{$privateSchools} Private HEIs, {$publicSchools} Public HEIs"
+            ],
+        ];
+    }
+
+    private function getDashboardRecentActivities()
+    {
+        return SchoolSubmission::latest()
             ->take(5)
             ->get()
             ->map(function ($submission) {
@@ -76,22 +101,67 @@ class AdminController extends Controller
                     'time' => $submission->created_at->diffForHumans(),
                 ];
             });
+    }
 
-        // 4. Analytics Data - Discipline counts per group (simplified after schema change)
-        // Previously this relied on the 'discipline_group_code' foreign key which has been removed.
-        // For now we provide an empty array or you can implement a custom aggregation later.
+    private function getDashboardDistributionData()
+    {
+        $groups = DB::table('discipline_group')->orderBy('code')->get();
+        $majors = DB::table('major_discipline')->orderBy('code')->get();
+        $specifics = DB::table('specific_discipline')->orderBy('code')->get();
+
         $distributionData = [];
 
-        $activeSchools = School::where('is_active', true)->count();
-        $inactiveSchools = School::where('is_active', false)->count();
+        foreach ($groups as $group) {
+            $groupMajors = $majors->filter(function ($m) use ($group) {
+                return str_starts_with($m->code, $group->code);
+            });
 
-        $statusData = [
-            ['name' => 'Active', 'value' => $activeSchools, 'color' => '#16a34a'],
-            ['name' => 'Inactive', 'value' => $inactiveSchools, 'color' => '#9ca3af'],
+            $children = [];
+            $groupCount = 0;
+
+            foreach ($groupMajors as $major) {
+                $specCount = $specifics->filter(function ($s) use ($major) {
+                    return str_starts_with($s->code, $major->code);
+                })->count();
+
+                if ($specCount > 0) {
+                    $children[] = [
+                        'name' => $major->description,
+                        'count' => $specCount,
+                    ];
+                    $groupCount += $specCount;
+                }
+            }
+
+            if ($groupCount > 0) {
+                usort($children, function ($a, $b) {
+                    return $b['count'] <=> $a['count'];
+                });
+
+                $distributionData[] = [
+                    'name' => $group->description,
+                    'count' => $groupCount,
+                    'children' => $children,
+                ];
+            }
+        }
+
+        usort($distributionData, function ($a, $b) {
+            return $b['count'] <=> $a['count'];
+        });
+
+        return [
+            'distributionData' => $distributionData,
+            'statusData' => [
+                ['name' => 'Active', 'value' => School::where('is_active', true)->count(), 'color' => '#16a34a'],
+                ['name' => 'Inactive', 'value' => School::where('is_active', false)->count(), 'color' => '#9ca3af'],
+            ],
         ];
+    }
 
-        // 5. Discipline Updates (from RefSpecificDiscipline)
-        $disciplineUpdates = RefSpecificDiscipline::latest()
+    private function getDashboardDisciplineUpdates()
+    {
+        return RefSpecificDiscipline::latest()
             ->take(5)
             ->get()
             ->map(function ($d) {
@@ -103,18 +173,6 @@ class AdminController extends Controller
                     'time' => $d->updated_at->diffForHumans(),
                 ];
             });
-
-        return Inertia::render('Admin/AdminDashboard', [
-            'schools' => $schools,
-            'stats' => [
-                ['title' => "Total Faculty", 'value' => (string) $totalFaculty, 'trend' => "+0%"],
-                ['title' => "Total School", 'value' => (string) $totalSchools, 'trend' => "+0%"],
-            ],
-            'recentActivities' => $recentActivities,
-            'distributionData' => $distributionData,
-            'statusData' => $statusData,
-            'disciplineUpdates' => $disciplineUpdates
-        ]);
     }
     private function getReferenceData()
     {
@@ -127,11 +185,11 @@ class AdminController extends Controller
             'facultyRank' => DB::table('e5_ref_faculty_rank')->select('code', 'description as desc')->get(),
             'teachingLoad' => DB::table('e5_ref_teaching_load')->select('code', 'description as desc')->get(),
             'annualSalary' => DB::table('e5_ref_annual_salary')->select('code', 'description as desc')->get(),
-            'groupDiscipline' => DB::table('ref_major_discipline')
+            'groupDiscipline' => DB::table('major_discipline')
                 ->select('code', 'description as desc')
                 ->orderBy('code')
                 ->get(),
-            'disciplines' => DB::table('ref_specific_discipline')
+            'disciplines' => DB::table('specific_discipline')
                 ->select('code', 'description as desc')
                 ->orderBy('code')
                 ->get()
@@ -167,14 +225,21 @@ class AdminController extends Controller
         $specifics = RefSpecificDiscipline::orderBy('code')->get();
 
         $disciplines = $groups->map(function ($group) use ($majors, $specifics) {
-            // Majors whose code starts with the group's 2-digit code (e.g., group '14' → majors '1401', '1402', ...)
+            // Get all specific disciplines directly under this group (no major)
+            $groupSpecifics = $specifics
+                ->filter(fn($s) => $s->group_code === $group->code && empty($s->major_code))
+                ->map(fn($s) => [
+                    'code' => $s->code,
+                    'description' => $s->description,
+                ])->values()->toArray();
+
+            // Get all majors under this group
             $groupMajors = $majors
                 ->filter(fn($m) => str_starts_with($m->code, $group->code) && $m->code !== '0000')
                 ->map(function ($major) use ($specifics) {
-                    // Specifics whose code starts with the major's 4-digit code (e.g., major '1401' → specifics '140101', '140102', ...)
-                    // Exclude placeholder specifics whose description exactly matches the major's own description
+                    // Specifics whose major_code matches this major
                     $majorSpecifics = $specifics
-                        ->filter(fn($s) => str_starts_with($s->code, $major->code)
+                        ->filter(fn($s) => $s->major_code === $major->code
                             && strtoupper(trim($s->description)) !== strtoupper(trim($major->description)))
                         ->map(fn($s) => [
                             'code' => $s->code,
@@ -184,44 +249,15 @@ class AdminController extends Controller
                     return [
                         'code' => $major->code,
                         'description' => $major->description,
-                        'specifics' => $majorSpecifics,
+                        'specifics' => $majorSpecifics->toArray(),
                     ];
                 })->values()->toArray();
-
-            // Orphan specifics: code starts with the group's code, but no major code is a prefix of it
-            $groupMajorCodes = $majors
-                ->filter(fn($m) => str_starts_with($m->code, $group->code) && $m->code !== '0000')
-                ->pluck('code')
-                ->toArray();
-
-            $orphanSpecifics = $specifics
-                ->filter(function ($s) use ($group, $groupMajorCodes) {
-                    if (!str_starts_with($s->code, $group->code))
-                        return false;
-                    // If any major code is a prefix of this specific's code, it's not an orphan
-                    foreach ($groupMajorCodes as $mc) {
-                        if (str_starts_with($s->code, $mc))
-                            return false;
-                    }
-                    return true;
-                })
-                ->map(fn($s) => [
-                    'code' => $s->code,
-                    'description' => $s->description,
-                ])->values();
-
-            if ($orphanSpecifics->isNotEmpty()) {
-                $groupMajors[] = [
-                    'code' => $group->code . '_orphan',
-                    'description' => '(No Major Discipline)',
-                    'specifics' => $orphanSpecifics->toArray(),
-                ];
-            }
 
             return [
                 'code' => $group->code,
                 'description' => $group->description,
                 'groups' => collect($groupMajors)->values(),
+                'specifics' => $groupSpecifics,
             ];
         })->values();
 
@@ -247,19 +283,32 @@ class AdminController extends Controller
         try {
             $saved = false;
             if (!empty($specificName)) {
+                $groupCode = substr($code, 0, 2);
+                $majorPrefix = substr($code, 0, 4);
+                
+                // If majorName is provided, we create it. If not, we just check if it exists in DB.
+                if (!empty($majorName) && strlen($code) >= 4) {
+                    $majorCode = $majorPrefix;
+                } else {
+                    $majorExists = RefMajorDiscipline::where('code', $majorPrefix)->exists();
+                    $majorCode = $majorExists ? $majorPrefix : null;
+                }
+
                 // Save the specific discipline
                 RefSpecificDiscipline::updateOrCreate(
                     ['code' => $code],
                     [
                         'description' => $specificName,
                         'slug' => Str::slug($specificName, '_'),
+                        'group_code' => $groupCode,
+                        'major_code' => $majorCode,
                     ]
                 );
+
                 $saved = true;
 
-                // Also ensure the major discipline (first 4 digits) exists
+                // Also ensure the major discipline exists if a name was provided
                 if (!empty($majorName) && strlen($code) >= 4) {
-                    $majorCode = substr($code, 0, 4);
                     RefMajorDiscipline::updateOrCreate(
                         ['code' => $majorCode],
                         [
@@ -327,6 +376,10 @@ class AdminController extends Controller
                     $specific->slug = $slug;
                     if ($newCode && $newCode !== $code) {
                         $specific->code = $newCode;
+                        $specific->group_code = substr($newCode, 0, 2);
+                        $majorPrefix = substr($newCode, 0, 4);
+                        $majorExists = RefMajorDiscipline::where('code', $majorPrefix)->exists();
+                        $specific->major_code = $majorExists ? $majorPrefix : null;
                     }
                     $specific->save();
                     $updated = true;
@@ -377,7 +430,7 @@ class AdminController extends Controller
             return [
                 'id' => (int) $s->id,
                 'name' => $s->name,
-                'code' => $s->code,
+                'hei_code' => $s->hei_code,
                 'faculty' => $s->faculties_count + $s->faculties_e5_count,
                 'type' => $s->type,
                 'status' => $s->is_active ? 'Active' : 'Inactive',

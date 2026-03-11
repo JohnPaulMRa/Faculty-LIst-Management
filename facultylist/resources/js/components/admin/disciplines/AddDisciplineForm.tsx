@@ -39,7 +39,6 @@ export default function AddDisciplineForm({ onCancel, onSubmit, majors = [], pro
     const majorOptions = useMemo(() => {
         const group = majors.find(m => m.code === groupCode);
         return (group?.groups ?? [])
-            .filter((g: any) => !g.code.endsWith('_orphan'))
             .map((g: any) => ({
                 label: g.description,
                 value: g.code,

@@ -8,12 +8,11 @@ import { useDebounce } from '@/hooks/use-debounce';
 import { PrivateSchoolView } from '@/components/admin/faculty-list/private-HEI/PrivateSchoolView';
 import { PublicSchoolView } from '@/components/admin/faculty-list/public-HEI/PublicSchoolView';
 import CreateFacultyAccountModal from './CreateFacultyAccountModal';
-import SchoolCard from './SchoolCard';
 
 interface School {
     id: number;
     name: string;
-    code: string | null;
+    hei_code: string | null;
     faculty: number;
     type: 'Public' | 'Private'; // Ensure case matches backend
     status: string;
@@ -57,7 +56,7 @@ export default function AdminFacultyListModule({ schools = [], faculty = [], fil
         const searchLower = debouncedSearch.toLowerCase();
         return (
             school.name.toLowerCase().includes(searchLower) ||
-            (school.code && school.code.toLowerCase().includes(searchLower))
+            (school.hei_code && school.hei_code.toLowerCase().includes(searchLower))
         );
     });
 
@@ -169,26 +168,66 @@ export default function AdminFacultyListModule({ schools = [], faculty = [], fil
                         )}
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 animate-in fade-in duration-300">
-                        {filteredSchools.length > 0 ? (
-                            filteredSchools.map((school) => (
-                                <SchoolCard
-                                    key={school.id}
-                                    name={school.name}
-                                    code={school.code}
-                                    totalFaculty={school.faculty}
-                                    type={school.type}
-                                    onClick={() => handleSchoolClick(school.id)}
-                                />
-                            ))
-                        ) : (
-                            <div className="col-span-full flex flex-col items-center justify-center p-12 text-center text-gray-500 border border-dashed border-gray-300 rounded-lg bg-gray-50/50">
-                                <University className="h-12 w-12 text-gray-300 mb-4" />
-                                <h3 className="text-lg font-medium text-gray-900 mb-1">No schools found</h3>
-                                <p className="text-sm">We couldn't find any schools matching "{searchQuery}".</p>
-                                <Button variant="link" onClick={clearSearch} className="mt-2">Clear search</Button>
+                    <div className="flex flex-col animate-in fade-in duration-300 bg-white shadow-none overflow-hidden rounded-none border border-gray-300 mt-2">
+                        {/* SPREADSHEET HEADER */}
+                        <div className="bg-gray-50 flex items-center justify-between px-4 py-3 border-b border-gray-300">
+                            <div className="text-black text-sm font-bold uppercase tracking-wide">
+                                LIST OF HIGHER EDUCATION INSTITUTIONS (HEIs)
                             </div>
-                        )}
+                        </div>
+                        <div className="overflow-x-auto">
+                            <table className="w-full border-collapse text-sm whitespace-nowrap font-sans">
+                                <thead>
+                                    <tr className="bg-blue-500 text-white border-b border-gray-300">
+                                        <th className="px-3 py-2 font-bold w-[15%] text-left">HEI Code</th>
+                                        <th className="px-3 py-2 font-bold w-[45%] text-left">List of HEIs</th>
+                                        <th className="px-3 py-2 font-bold w-[20%] text-left">Academic Year</th>
+                                        <th className="px-3 py-2 font-bold w-[20%] text-center">Total Faculty</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="bg-white text-sm">
+                                    {filteredSchools.length > 0 ? (
+                                        filteredSchools.map((school) => (
+                                            <tr
+                                                key={school.id}
+                                                className="border-b border-gray-300 hover:bg-gray-50 transition-colors cursor-pointer"
+                                                onClick={() => handleSchoolClick(school.id)}
+                                            >
+                                                <td className="px-3 py-2 text-left font-semibold text-gray-900">
+                                                    {school.hei_code || <span className="text-gray-400">-</span>}
+                                                </td>
+                                                <td className="px-3 py-2 text-left font-semibold text-gray-900">
+                                                    <div>{school.name}</div>
+                                                    <div className="text-[10px] font-normal text-gray-400 uppercase tracking-wide -mt-0.5">
+                                                        {school.type} HEI
+                                                    </div>
+                                                </td>
+                                                <td className="px-3 py-2 text-left text-black">
+                                                    2024-2025
+                                                </td>
+                                                <td className="px-3 py-2 font-bold text-center">
+                                                    <div className="flex items-center justify-center gap-1.5 text-black">
+                                                        <span>{school.faculty}</span>
+                                                        <Users className="h-4 w-4 text-gray-400" />
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    ) : (
+                                        <tr>
+                                            <td colSpan={4} className="px-6 py-12 text-center text-gray-500 text-sm border-b border-gray-300 bg-gray-50">
+                                                <div className="flex flex-col items-center justify-center text-gray-500">
+                                                    <University className="h-12 w-12 text-gray-300 mb-4" />
+                                                    <h3 className="text-lg font-medium text-gray-900 mb-1">No schools found</h3>
+                                                    <p className="text-sm">We couldn't find any schools matching "{searchQuery}".</p>
+                                                    <Button variant="link" onClick={clearSearch} className="mt-2 text-blue-600">Clear search</Button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 )}
             </div>

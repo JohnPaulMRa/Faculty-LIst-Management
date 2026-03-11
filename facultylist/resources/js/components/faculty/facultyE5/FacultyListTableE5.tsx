@@ -133,12 +133,12 @@ const FacultyListTableE5: FC<Props> = ({ facultyList, yearFilter, onFileClick, o
                                     Faculty Name <ArrowUpDown className="h-4 w-4" />
                                 </div>
                             </th>
-                            <th className="px-3 py-2 font-bold w-[5%]">
+                            <th className="px-3 py-2 font-bold w-[10%]">
                                 <div className="flex items-center justify-center gap-1 cursor-pointer hover:text-gray-200" onClick={() => handleSort('gender')}>
                                     Gender <ArrowUpDown className="h-4 w-4" />
                                 </div>
                             </th>
-                            <th className="px-3 py-2 font-bold w-[27%]">
+                            <th className="px-3 py-2 font-bold w-[20%]">
                                 <div className="flex items-center justify-center gap-1 cursor-pointer hover:text-gray-200" onClick={() => handleSort('employment')}>
                                     Full-Time / Part-Time <ArrowUpDown className="h-4 w-4" />
                                 </div>
@@ -159,9 +159,9 @@ const FacultyListTableE5: FC<Props> = ({ facultyList, yearFilter, onFileClick, o
                                     <td className="px-3 py-2 text-center text-black">{faculty.joined_year}</td>
                                     <td className="px-3 py-2 text-left font-semibold text-gray-900">{faculty.name}</td>
                                     <td className="px-3 py-2 text-center text-black">{getGender(faculty.genderCode)}</td>
-                                    <td className="px-3 py-2 text-center text-black">
+                                    <td className="px-3 py-2 text-left text-black">
                                         <div
-                                            className="truncate max-w-[250px] mx-auto text-sm"
+                                            className="truncate max-w-[420px] text-sm"
                                             title={getEmploymentStatus(faculty)}
                                         >
                                             {getEmploymentStatus(faculty)}

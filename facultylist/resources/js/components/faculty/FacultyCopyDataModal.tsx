@@ -55,65 +55,76 @@ export function FacultyCopyDataModal({ isOpen, onOpenChange, availableYears, onS
 
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
-            <DialogContent
-                className="sm:max-w-4xl rounded-none"
-                onInteractOutside={(e) => {
-                    e.preventDefault();
-                }}
+            <DialogContent 
+                className="sm:max-w-xl p-0 overflow-hidden border-0 shadow-lg rounded-none"
+                onInteractOutside={(e) => e.preventDefault()}
             >
-                <DialogHeader>
-                    <DialogTitle className="text-[#003468]">Copy Faculty Data</DialogTitle>
-                </DialogHeader>
-                <div className="flex flex-col gap-4 py-4">
-                    <p className="text-sm text-gray-600">
-                        Copy all faculty records from a previous academic year into a new one. This will duplicate their profiles so you can update them for the new year.
-                    </p>
+                <div className="px-6 py-6 pb-4">
+                    <DialogHeader className="mb-6">
+                        <DialogTitle className="text-xl font-bold tracking-tight text-slate-900">
+                            Copy Faculty Data
+                        </DialogTitle>
+                    </DialogHeader>
 
-                    <div className="grid gap-2">
-                        <label className="text-sm font-semibold text-gray-700">Copy From (Source Year)</label>
-                        <Select value={sourceYear} onValueChange={setSourceYear}>
-                            <SelectTrigger>
-                                <SelectValue placeholder="Select Source Year" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {availableYears.length > 0 ? (
-                                    // Show only the latest academic year as source
-                                    (() => {
-                                        const sorted = [...availableYears].sort((a, b) => (a > b ? -1 : 1));
-                                        const latestYear = sorted[0];
-                                        return <SelectItem key={latestYear} value={latestYear}>{latestYear}</SelectItem>;
-                                    })()
-                                ) : (
-                                    <SelectItem value="none" disabled>No years available</SelectItem>
-                                )}
-                            </SelectContent>
-                        </Select>
-                    </div>
+                    <div className="space-y-6">
+                        <p className="text-sm leading-relaxed text-slate-600">
+                            Duplicate all faculty records from a previous academic year into a new one. This allows you to quickly set up profiles for the new year.
+                        </p>
 
-                    <div className="grid gap-2">
-                        <label className="text-sm font-semibold text-gray-700">Copy To (Target Year)</label>
-                        <input
-                            type="text"
-                            placeholder="e.g. 2024-2025"
-                            className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                            value={customTargetYear}
-                            onChange={(e) => setCustomTargetYear(e.target.value)}
-                        />
-                        <p className="text-xs text-gray-500">Enter the new academic year format (e.g., 2024-2025).</p>
+                        <div className="grid gap-5 bg-slate-50/50 p-5 rounded-lg border border-slate-100">
+                            <div className="space-y-2">
+                                <label className="text-sm font-semibold text-slate-700">Source Academic Year</label>
+                                <Select value={sourceYear} onValueChange={setSourceYear}>
+                                    <SelectTrigger className="w-full bg-white transition-shadow focus:ring-2 focus:ring-blue-600/20">
+                                        <SelectValue placeholder="Select year to copy from" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {availableYears.length > 0 ? (
+                                            // Show only the latest academic year as source
+                                            (() => {
+                                                const sorted = [...availableYears].sort((a, b) => (a > b ? -1 : 1));
+                                                const latestYear = sorted[0];
+                                                return <SelectItem key={latestYear} value={latestYear}>{latestYear}</SelectItem>;
+                                            })()
+                                        ) : (
+                                            <SelectItem value="none" disabled>No previous records found</SelectItem>
+                                        )}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-sm font-semibold text-slate-700">Target Academic Year</label>
+                                <input
+                                    type="text"
+                                    placeholder="e.g. 2024-2025"
+                                    className="flex h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm transition-all placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10"
+                                    value={customTargetYear}
+                                    onChange={(e) => setCustomTargetYear(e.target.value)}
+                                />
+                                <p className="text-[13px] text-slate-500 font-medium ml-1">Example: 2024-2025</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <DialogFooter className="gap-3 sm:gap-3">
-                    <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting} className="text-[#003468] border-[#003468] hover:bg-gray-100 shadow-sm">
+
+                <div className="flex items-center justify-end gap-3 bg-slate-50 px-6 py-4 border-t border-slate-100">
+                    <Button
+                        variant="outline"
+                        onClick={() => onOpenChange(false)}
+                        disabled={isSubmitting}
+                        className="font-medium text-slate-600 hover:text-slate-900 border-slate-200 hover:bg-slate-100"
+                    >
                         Cancel
                     </Button>
                     <Button
                         onClick={handleCopy}
-                        className="bg-[#003468] text-white hover:bg-[#002a54]"
+                        className="bg-blue-600 font-medium text-white shadow-sm hover:bg-blue-700 focus-visible:ring-4 focus-visible:ring-blue-600/20"
                         disabled={!sourceYear || (!targetYear && !customTargetYear) || isSubmitting}
                     >
-                        {isSubmitting ? 'Copying...' : 'Copy Data'}
+                        {isSubmitting ? 'Copying Records...' : 'Copy Records'}
                     </Button>
-                </DialogFooter>
+                </div>
             </DialogContent>
         </Dialog>
     );

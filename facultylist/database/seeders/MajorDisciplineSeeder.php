@@ -10,14 +10,14 @@ class MajorDisciplineSeeder extends Seeder
     public function run()
     {
         \Illuminate\Support\Facades\Schema::disableForeignKeyConstraints();
-        DB::table('ref_major_discipline')->truncate();
+        DB::table('major_discipline')->truncate();
         \Illuminate\Support\Facades\Schema::enableForeignKeyConstraints();
 
         // ---------------------------------------------------
         // CASE 1: NO-MAJOR DISCIPLINE (Group-GENERAL)
         // Group: GENERAL (00) -> Major: GENERAL (0000) -> Specifics
         // ---------------------------------------------------
-        DB::table('ref_major_discipline')->updateOrInsert(
+        DB::table('major_discipline')->updateOrInsert(
             ['code' => '0000'],
             ['description' => 'GENERAL', 'slug' => 'general', 'created_at' => now(), 'updated_at' => now()]
         );
@@ -34,7 +34,7 @@ class MajorDisciplineSeeder extends Seeder
         ];
 
         foreach ($generalSpecifics as $item) {
-            DB::table('ref_specific_discipline')->updateOrInsert(
+            DB::table('specific_discipline')->updateOrInsert(
                 ['code' => $item['code']],
                 [
                     'description' => $item['desc'],
@@ -115,7 +115,7 @@ class MajorDisciplineSeeder extends Seeder
             $majorCode = strlen($item['c']) === 6 ? substr($item['c'], 0, 4) : $item['c'];
 
             // Ensure the Major Discipline exists (4-digit code)
-            DB::table('ref_major_discipline')->updateOrInsert(
+            DB::table('major_discipline')->updateOrInsert(
                 ['code' => $majorCode],
                 [
                     'description' => $item['d'],
@@ -126,7 +126,7 @@ class MajorDisciplineSeeder extends Seeder
             );
 
             // Ensure the Specific Discipline exists (6-digit code) under that Major Discipline
-            DB::table('ref_specific_discipline')->updateOrInsert(
+            DB::table('specific_discipline')->updateOrInsert(
                 ['code' => $item['c']],
                 [
                     'description' => $item['d'],

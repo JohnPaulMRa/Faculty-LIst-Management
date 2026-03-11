@@ -23,7 +23,7 @@ interface Props {
 const AddSchoolModal: FC<Props> = ({ isOpen, onOpenChange, school, onSave }) => {
     const { data, setData, put, post, processing, errors, reset } = useForm({
         name: '',
-        code: '',
+        hei_code: '',
         address: '',
         contact_number: '',
         email: '',
@@ -35,7 +35,7 @@ const AddSchoolModal: FC<Props> = ({ isOpen, onOpenChange, school, onSave }) => 
         if (school) {
             setData({
                 name: school.name,
-                code: school.code || '',
+                hei_code: school.hei_code || '',
                 address: school.address || '',
                 contact_number: school.contact_number || '',
                 email: school.email || '',
@@ -68,7 +68,10 @@ const AddSchoolModal: FC<Props> = ({ isOpen, onOpenChange, school, onSave }) => 
 
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-2xl rounded-none">
+            <DialogContent
+                className="sm:max-w-2xl rounded-none"
+                onInteractOutside={(e) => e.preventDefault()}
+            >
                 <DialogHeader>
                     <DialogTitle className="text-xl">{school ? 'Edit School' : 'Add School'}</DialogTitle>
                     <p className="text-sm text-muted-foreground">
@@ -91,15 +94,15 @@ const AddSchoolModal: FC<Props> = ({ isOpen, onOpenChange, school, onSave }) => 
                     </div>
 
                     <div className="grid gap-2">
-                        <Label htmlFor="code" className="text-sm font-semibold">School Code <span className="text-muted-foreground font-normal">(Optional)</span></Label>
+                        <Label htmlFor="hei_code" className="text-sm font-semibold">HEI Code <span className="text-muted-foreground font-normal">(Optional)</span></Label>
                         <Input
-                            id="code"
-                            value={data.code}
-                            onChange={(e) => setData('code', e.target.value)}
-                            placeholder="e.g. SCH-001"
+                            id="hei_code"
+                            value={data.hei_code}
+                            onChange={(e) => setData('hei_code', e.target.value)}
+                            placeholder="e.g. HEI-001"
                             className="h-10"
                         />
-                        {errors.code && <p className="text-sm text-red-500">{errors.code}</p>}
+                        {errors.hei_code && <p className="text-sm text-red-500">{errors.hei_code}</p>}
                     </div>
 
                     <div className="grid gap-2">

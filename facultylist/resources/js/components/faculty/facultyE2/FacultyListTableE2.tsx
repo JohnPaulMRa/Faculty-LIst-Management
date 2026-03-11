@@ -51,7 +51,7 @@ const FacultyListTableE2: FC<Props> = ({ facultyList, yearFilter, onFileClick, o
                                 <td className="px-3 py-2 text-center text-black">{faculty.joined_year}</td>
                                 <td className="px-3 py-2 text-center font-medium text-black">{faculty.name}</td>
                                 <td className="px-3 py-2 text-center text-black">Female</td>
-                                <td className="px-3 py-2 text-center text-black">
+                                <td className="px-3 py-2 text-left text-black">
                                     {faculty.employment === 'Plantilla' ? 'Full-Time' : 'Part-Time'}
                                 </td>
                                 <td className="px-3 py-2 text-center">

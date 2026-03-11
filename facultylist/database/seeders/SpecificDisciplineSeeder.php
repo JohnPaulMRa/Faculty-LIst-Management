@@ -14,7 +14,7 @@ class SpecificDisciplineSeeder extends Seeder
     {
         // Truncate generic specific disciplines to ensure clean state
         \Illuminate\Support\Facades\Schema::disableForeignKeyConstraints();
-        \Illuminate\Support\Facades\DB::table('ref_specific_discipline')->truncate();
+        \Illuminate\Support\Facades\DB::table('specific_discipline')->truncate();
         \Illuminate\Support\Facades\Schema::enableForeignKeyConstraints();
 
         $disciplines = [
@@ -23,7 +23,7 @@ class SpecificDisciplineSeeder extends Seeder
         ];
 
         foreach ($disciplines as $discipline) {
-            \Illuminate\Support\Facades\DB::table('ref_specific_discipline')->insert(
+            \Illuminate\Support\Facades\DB::table('specific_discipline')->insert(
                 [
                     'code' => $discipline['code'],
                     'description' => $discipline['description'],

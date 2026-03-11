@@ -40,15 +40,13 @@ export default function EditDisciplineModal({ isOpen, onClose, onSubmit, initial
 
     if (!initialData) return null;
 
-    const isSpecific = initialData.type === "specific";
-
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         onSubmit({
-            code: isSpecific ? specificCode : majorCode,
+            code: specificCode || majorCode,
             majorName: majorDesc,
-            specificDiscipline: isSpecific ? specificDesc : "",
-            groupDescription: isSpecific ? specificDesc : majorDesc,
+            specificDiscipline: specificDesc,
+            groupDescription: specificDesc || majorDesc,
         });
     };
 
@@ -81,7 +79,10 @@ export default function EditDisciplineModal({ isOpen, onClose, onSubmit, initial
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="sm:max-w-[520px] rounded-none bg-white">
+            <DialogContent
+                className="sm:max-w-[520px] rounded-none bg-white"
+                onInteractOutside={(e) => e.preventDefault()}
+            >
                 <DialogHeader className="px-6 pt-6 pb-4 border-b border-gray-100">
                     <DialogTitle className="text-xl font-bold">Edit Discipline</DialogTitle>
                     <DialogDescription>Update the details below and click Save Changes.</DialogDescription>
@@ -90,7 +91,7 @@ export default function EditDisciplineModal({ isOpen, onClose, onSubmit, initial
                 <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
                     {row("Discipline Group", groupCode, setGroupCode, groupDesc, setGroupDesc, 2)}
                     {row("Major Discipline", majorCode, setMajorCode, majorDesc, setMajorDesc, 4)}
-                    {isSpecific && row("Specific Discipline", specificCode, setSpecificCode, specificDesc, setSpecificDesc, 6)}
+                    {row("Specific Discipline", specificCode, setSpecificCode, specificDesc, setSpecificDesc, 6)}
 
                     <DialogFooter className="pt-4 border-t border-gray-100">
                         <Button type="button" variant="outline" onClick={onClose} disabled={processing} className="rounded-none border-gray-300">

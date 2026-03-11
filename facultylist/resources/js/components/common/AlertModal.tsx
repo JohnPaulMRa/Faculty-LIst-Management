@@ -48,7 +48,10 @@ const AlertModal: FC<AlertModalProps> = ({
 
     return (
         <Dialog open={open} onOpenChange={onClose}>
-            <DialogContent className="max-w-sm rounded-none">
+            <DialogContent 
+                className="max-w-sm rounded-none"
+                onInteractOutside={(e) => e.preventDefault()}
+            >
                 <DialogHeader>
                     <DialogTitle className={titleColor[type]}>
                         {title ?? defaultTitles[type]}

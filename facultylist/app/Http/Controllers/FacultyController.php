@@ -3,26 +3,26 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\DB;
 class FacultyController extends Controller
 {
-    private function getReferenceData()
+    public function getReferenceData()
     {
         return [
-            'gender' => \Illuminate\Support\Facades\DB::table('e5_ref_gender')->select('code', 'description as desc')->get(),
-            'fullTimePartTime' => \Illuminate\Support\Facades\DB::table('e5_ref_full_time_part_time')->select('code', 'description as desc')->get(),
-            'highestDegree' => \Illuminate\Support\Facades\DB::table('e5_ref_highest_degree')->select('code', 'description as desc')->get(),
-            'professionalLicense' => \Illuminate\Support\Facades\DB::table('e5_ref_professional_license')->select('code', 'description as desc')->get(),
-            'tenure' => \Illuminate\Support\Facades\DB::table('e5_ref_tenure')->select('code', 'description as desc')->get(),
-            'facultyRank' => \Illuminate\Support\Facades\DB::table('e5_ref_faculty_rank')->select('code', 'description as desc')->get(),
-            'teachingLoad' => \Illuminate\Support\Facades\DB::table('e5_ref_teaching_load')->select('code', 'description as desc')->get(),
-            'annualSalary' => \Illuminate\Support\Facades\DB::table('e5_ref_annual_salary')->select('code', 'description as desc')->get(),
-            'groupDiscipline' => \Illuminate\Support\Facades\DB::table('ref_major_discipline')
+            'gender' => DB::table('e5_ref_gender')->select('code', 'description as desc')->get(),
+            'fullTimePartTime' => DB::table('e5_ref_full_time_part_time')->select('code', 'description as desc')->get(),
+            'highestDegree' => DB::table('e5_ref_highest_degree')->select('code', 'description as desc')->get(),
+            'professionalLicense' => DB::table('e5_ref_professional_license')->select('code', 'description as desc')->get(),
+            'tenure' => DB::table('e5_ref_tenure')->select('code', 'description as desc')->get(),
+            'facultyRank' => DB::table('e5_ref_faculty_rank')->select('code', 'description as desc')->get(),
+            'teachingLoad' => DB::table('e5_ref_teaching_load')->select('code', 'description as desc')->get(),
+            'annualSalary' => DB::table('e5_ref_annual_salary')->select('code', 'description as desc')->get(),
+            'groupDiscipline' => DB::table('major_discipline')
                 ->select('code', 'description as desc')
                 ->orderBy('code')
                 ->get(),
-            'disciplines' => \Illuminate\Support\Facades\DB::table('ref_specific_discipline')
-                ->select(\Illuminate\Support\Facades\DB::raw('SUBSTRING(code, 1, 2) as major_group_code'), 'code', 'description as desc')
+            'disciplines' => DB::table('specific_discipline')
+                ->select(DB::raw('SUBSTRING(code, 1, 2) as major_group_code'), 'code', 'description as desc')
                 ->orderBy('code')
                 ->get()
         ];

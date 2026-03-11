@@ -38,13 +38,13 @@ export function PrivateFacultyProfileView({ formData, referenceData }: PrivateFa
         return (
             <div className="flex flex-col gap-1.5 mb-6">
                 <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">{label}</span>
-                <div className="flex items-center gap-3 border-b border-gray-200 pb-2 bg-transparent min-h-[30px]">
-                    <div className="w-14 shrink-0 flex justify-center">
+                <div className="flex items-start gap-3 border-b border-gray-200 pb-2 bg-transparent min-h-[30px]">
+                    <div className="w-14 shrink-0 flex justify-center pt-0.5">
                         <span className="text-[13px] font-bold text-gray-900 text-center">{code || "-"}</span>
                     </div>
-                    <span className="text-[12px] font-bold text-gray-600">:</span>
-                    <div className="flex-1">
-                        <span className="text-[13px] font-medium text-gray-900">{desc || "-"}</span>
+                    <span className="text-[12px] font-bold text-gray-600 pt-0.5">:</span>
+                    <div className="flex-1 text-left">
+                        <span className="text-[13px] font-medium text-gray-900 wrap-break-word leading-tight block">{desc || "-"}</span>
                     </div>
                 </div>
             </div>

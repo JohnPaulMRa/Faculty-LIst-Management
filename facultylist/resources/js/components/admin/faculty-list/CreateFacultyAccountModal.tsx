@@ -51,7 +51,10 @@ const CreateFacultyAccountModal: FC<Props> = ({ isOpen, onOpenChange, schools })
 
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[500px]">
+            <DialogContent
+                className="sm:max-w-[500px]"
+                onInteractOutside={(e) => e.preventDefault()}
+            >
                 <DialogHeader>
                     <DialogTitle className="text-xl">Create Faculty Login Account</DialogTitle>
                     <p className="text-sm text-muted-foreground">

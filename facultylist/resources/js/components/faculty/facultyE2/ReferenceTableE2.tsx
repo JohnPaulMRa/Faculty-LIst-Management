@@ -109,29 +109,29 @@ const ReferenceTableE2: FC = () => {
                 <tbody>
                     {[...Array(maxRows)].map((_, i) => (
                         <tr key={i} className="hover:bg-gray-100 align-top">
-                            <td className="border border-gray-300 px-1 py-0.5 font-bold w-6">{col1[i]?.code}</td>
-                            <td className="border border-gray-300 px-1 py-0.5 whitespace-normal">{col1[i]?.desc}</td>
+                            <td className="border border-gray-300 px-1 py-0.5 font-bold w-6 text-center">{col1[i]?.code}</td>
+                            <td className="border border-gray-300 px-1 py-0.5 whitespace-normal text-left">{col1[i]?.desc}</td>
                             
-                            <td className="border border-gray-300 px-1 py-0.5 font-bold w-6">{col2[i]?.code}</td>
-                            <td className="border border-gray-300 px-1 py-0.5 whitespace-normal">{col2[i]?.desc}</td>
+                            <td className="border border-gray-300 px-1 py-0.5 font-bold w-6 text-center">{col2[i]?.code}</td>
+                            <td className="border border-gray-300 px-1 py-0.5 whitespace-normal text-left">{col2[i]?.desc}</td>
                             
-                            <td className="border border-gray-300 px-1 py-0.5 font-bold w-8">{col3[i]?.code}</td>
-                            <td className="border border-gray-300 px-1 py-0.5 whitespace-normal">{col3[i]?.desc}</td>
+                            <td className="border border-gray-300 px-1 py-0.5 font-bold w-8 text-center">{col3[i]?.code}</td>
+                            <td className="border border-gray-300 px-1 py-0.5 whitespace-normal text-left">{col3[i]?.desc}</td>
                             
-                            <td className="border border-gray-300 px-1 py-0.5 font-bold w-6">{col4[i]?.code}</td>
-                            <td className="border border-gray-300 px-1 py-0.5 whitespace-normal">{col4[i]?.desc}</td>
+                            <td className="border border-gray-300 px-1 py-0.5 font-bold w-6 text-center">{col4[i]?.code}</td>
+                            <td className="border border-gray-300 px-1 py-0.5 whitespace-normal text-left">{col4[i]?.desc}</td>
                             
-                            <td className="border border-gray-300 px-1 py-0.5 font-bold w-6">{col5[i]?.code}</td>
-                            <td className="border border-gray-300 px-1 py-0.5 whitespace-normal">{col5[i]?.desc}</td>
+                            <td className="border border-gray-300 px-1 py-0.5 font-bold w-6 text-center">{col5[i]?.code}</td>
+                            <td className="border border-gray-300 px-1 py-0.5 whitespace-normal text-left">{col5[i]?.desc}</td>
                             
-                            <td className="border border-gray-300 px-1 py-0.5 font-bold w-6">{col6[i]?.code}</td>
-                            <td className="border border-gray-300 px-1 py-0.5 whitespace-normal">{col6[i]?.desc}</td>
+                            <td className="border border-gray-300 px-1 py-0.5 font-bold w-6 text-center">{col6[i]?.code}</td>
+                            <td className="border border-gray-300 px-1 py-0.5 whitespace-normal text-left">{col6[i]?.desc}</td>
                             
-                            <td className="border border-gray-300 px-1 py-0.5 font-bold w-6">{col7[i]?.code}</td>
-                            <td className="border border-gray-300 px-1 py-0.5 whitespace-normal">{col7[i]?.desc}</td>
+                            <td className="border border-gray-300 px-1 py-0.5 font-bold w-6 text-center">{col7[i]?.code}</td>
+                            <td className="border border-gray-300 px-1 py-0.5 whitespace-normal text-left">{col7[i]?.desc}</td>
                             
-                            <td className="border border-gray-300 px-1 py-0.5 font-bold w-6">{col8[i]?.code}</td>
-                            <td className="border border-gray-300 px-1 py-0.5 whitespace-normal">{col8[i]?.desc}</td>
+                            <td className="border border-gray-300 px-1 py-0.5 font-bold w-6 text-center">{col8[i]?.code}</td>
+                            <td className="border border-gray-300 px-1 py-0.5 whitespace-normal text-left">{col8[i]?.desc}</td>
                         </tr>
                     ))}
                 </tbody>

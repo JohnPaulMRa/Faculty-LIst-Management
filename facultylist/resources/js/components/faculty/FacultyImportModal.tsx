@@ -59,11 +59,14 @@ const FacultyImportModal: FC<Props> = ({
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
             <DialogTrigger asChild>
-                <Button variant="outline" className="text-[#003468] border-[#003468] hover:bg-gray-100 shadow-sm gap-2">
+                <Button variant="outline" className="text-[#003468] border-[#003468] hover:bg-[#003468]/5 font-medium shadow-sm gap-2 rounded-md h-9 px-4">
                     <FileSpreadsheet className="h-4 w-4" /> Import Excel
                 </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-2xl rounded-none">
+            <DialogContent 
+                className="sm:max-w-2xl rounded-none"
+                onInteractOutside={(e) => e.preventDefault()}
+            >
                 <DialogHeader>
                     <DialogTitle>Import Faculty Data</DialogTitle>
                     <DialogDescription>Select form template, academic year, and upload file.</DialogDescription>

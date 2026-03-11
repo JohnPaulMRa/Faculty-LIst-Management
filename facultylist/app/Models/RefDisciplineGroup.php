@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class RefDisciplineGroup extends Model
 {
-    protected $table = 'ref_discipline_group';
+    protected $table = 'discipline_group';
     protected $primaryKey = 'code';
     public $incrementing = false;
     protected $keyType = 'string';

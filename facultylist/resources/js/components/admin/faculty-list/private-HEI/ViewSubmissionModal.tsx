@@ -1,4 +1,5 @@
 import React from 'react';
+import { X } from 'lucide-react';
 import {
     Dialog,
     DialogContent,
@@ -17,10 +18,20 @@ interface ViewSubmissionModalProps {
 export function ViewSubmissionModal({ isOpen, onClose, selectedFaculty, referenceData }: ViewSubmissionModalProps) {
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="max-w-[95vw] sm:max-w-[1200px] w-full max-h-[90vh] overflow-y-auto p-0 gap-0 rounded-md">
+            <DialogContent
+                className="max-w-[95vw] sm:max-w-[1200px] w-full max-h-[90vh] overflow-y-auto p-0 gap-0 rounded-md [&>button]:hidden"
+                onInteractOutside={(e) => e.preventDefault()}
+            >
                 <DialogHeader className="p-6 pb-2 sticky top-0 bg-white z-10 border-b border-gray-200">
                     <DialogTitle className="text-2xl font-bold flex items-center justify-between">
-                        Faculty Profile Details
+                        <span>Faculty Profile Details</span>
+                        <button
+                            onClick={() => onClose(false)}
+                            className="rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
+                        >
+                            <X className="h-6 w-6" />
+                            <span className="sr-only">Close</span>
+                        </button>
                     </DialogTitle>
                 </DialogHeader>
 

@@ -270,7 +270,7 @@ const FacultyProfile: FC<FacultyProfileProps> = ({
 
                             <Button
                                 onClick={() => setIsDownloadModalOpen(true)}
-                                className="bg-[#003468] hover:bg-[#002a54] gap-2 text-white shadow-md"
+                                className="bg-[#003468] hover:bg-[#002a54] gap-2 font-medium text-white shadow-sm rounded-md h-9 px-4"
                             >
                                 <FileDown className="h-4 w-4" /> Download Template
                             </Button>

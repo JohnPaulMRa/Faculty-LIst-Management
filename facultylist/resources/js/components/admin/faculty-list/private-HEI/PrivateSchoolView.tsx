@@ -12,7 +12,7 @@ interface PrivateSchoolViewProps {
 
 export function PrivateSchoolView({ schoolName, faculty, referenceData }: PrivateSchoolViewProps) {
     return (
-        <div className="bg-white p-6 shadow-sm rounded-xl animate-in fade-in zoom-in-95 duration-200">
+        <div className="bg-white p-6 rounded-xl animate-in fade-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between mb-6">
                 <div>
                     <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">

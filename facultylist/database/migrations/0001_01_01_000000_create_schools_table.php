@@ -11,7 +11,7 @@ return new class extends Migration {
             $table->id();
             $table->string('name');
             $table->string('type')->default('Private'); // Merged
-            $table->string('code')->unique()->nullable();
+            $table->string('hei_code')->unique()->nullable();
             $table->text('address')->nullable();
             $table->string('contact_number')->nullable();
             $table->string('email')->nullable();

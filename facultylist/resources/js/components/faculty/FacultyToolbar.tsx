@@ -75,7 +75,7 @@ export function FacultyToolbar({
                     size="sm"
                     onClick={onCopyData}
                     variant="outline"
-                    className="text-[#003468] border-[#003468] hover:bg-gray-100 shadow-sm mr-2"
+                    className="text-[#003468] border-[#003468] hover:bg-[#003468]/5 font-medium shadow-sm rounded-md h-9 px-4"
                 >
                     Copy Data
                 </Button>
@@ -83,7 +83,7 @@ export function FacultyToolbar({
                 <Button
                     size="sm"
                     onClick={onSubmit}
-                    className="bg-[#003468] text-white hover:bg-[#002a54] shadow-sm"
+                    className="bg-[#003468] text-white hover:bg-[#002a54] font-medium shadow-sm rounded-md h-9 px-4 ml-1"
                 >
                     Submit
                 </Button>

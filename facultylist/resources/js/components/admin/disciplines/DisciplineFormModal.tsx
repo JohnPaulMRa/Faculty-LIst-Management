@@ -164,7 +164,10 @@ export default function DisciplineFormModal({ isOpen, onClose, onSubmit, initial
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="sm:max-w-[500px] rounded-none bg-white">
+            <DialogContent
+                className="sm:max-w-[500px] rounded-none bg-white"
+                onInteractOutside={(e) => e.preventDefault()}
+            >
                 <DialogHeader className="px-6 pt-6 pb-4 border-b border-gray-100">
                     <DialogTitle className="text-xl font-bold">
                         {initialData ? 'Edit Discipline' : (specificSubCode ? 'Add Specific Discipline' : 'Add Discipline')}
@@ -282,16 +285,16 @@ export default function DisciplineFormModal({ isOpen, onClose, onSubmit, initial
                                 <div className="flex gap-2">
                                     <div className="flex-1">
                                         <Input
-                                            value={formData.majorCode?.endsWith('_orphan') ? '' : (formData.majorName || '')}
+                                            value={formData.majorCode ? (formData.majorName || '') : ''}
                                             onChange={(e) => setFormData({ ...formData, majorName: e.target.value, groupDescription: e.target.value })}
                                             className="rounded-none h-10 border-gray-200 focus-visible:ring-1 focus-visible:ring-black"
-                                            placeholder={formData.majorCode?.endsWith('_orphan') ? '—' : 'Major Discipline name'}
+                                            placeholder={formData.majorCode ? 'Major Discipline name' : '—'}
                                         />
                                     </div>
                                     <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 px-3 h-10 shrink-0">
                                         <span className="text-[10px] font-bold text-gray-400 uppercase">Code</span>
                                         <Input
-                                            value={formData.majorCode?.endsWith('_orphan') ? '' : (formData.majorCode || '')}
+                                            value={formData.majorCode || ''}
                                             onChange={(e) => setFormData({ ...formData, majorCode: e.target.value })}
                                             className="w-14 h-7 border-none bg-transparent font-mono text-sm p-0 focus-visible:ring-0 text-center"
                                             placeholder="XXXXXX"
