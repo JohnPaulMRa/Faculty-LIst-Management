@@ -42,10 +42,10 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
     };
 
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-1 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 items-start">
 
             {/* Faculty Details Card */}
-            <div className="bg-white p-8 border border-gray-200 shadow-sm space-y-3">
+            <div className="bg-white p-5 space-y-3 border">
 
                 <div className="flex flex-col gap-4">
                     <div className="grid gap-3">
@@ -113,11 +113,12 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                             showGroup={false}
                         />
                     </div>
+
                 </div>
             </div>
 
             {/* Educational Credential Earned Card */}
-            <div className="bg-white p-8 border border-gray-200 shadow-sm space-y-3">
+            <div className="bg-white p-5 space-y-3 border">
                 <h3 className="font-bold text-gray-900 border-b pb-2">Educational Credential Earned</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-3">
                     <div className="grid gap-1 col-span-2">
@@ -183,12 +184,14 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                             showGroup={false}
                         />
                     </div>
+
                 </div>
+
             </div>
 
             {/* Employment & Teaching Details Card */}
-            <div className={`bg-white p-8 border border-gray-200 shadow-sm space-y-3 lg:col-span-2 mt-2`}>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-5">
+            <div className={`bg-white p-5 space-y-3 lg:col-span-2 mt-2 border`}>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
                     {/* Row 1 */}
                     <div className="grid gap-3">
                         <label className="text-sm font-semibold text-gray-600">Professional License</label>

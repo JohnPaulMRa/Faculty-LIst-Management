@@ -9,7 +9,7 @@ class Faculty extends Model
     protected $table = 'faculty_e2';
 
     protected $fillable = [
-        'school_id',
+        'hei_id',
         'name',
         'email',
         'department',
@@ -24,10 +24,10 @@ class Faculty extends Model
     ];
 
     /**
-     * Get the school that the faculty belongs to.
+     * Get the HEI that the faculty belongs to.
      */
-    public function school()
+    public function hei()
     {
-        return $this->belongsTo(School::class);
+        return $this->belongsTo(Hei::class);
     }
 }

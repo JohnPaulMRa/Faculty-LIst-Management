@@ -3,6 +3,7 @@ import { useForm } from '@inertiajs/react';
 import {
     Dialog,
     DialogContent,
+    DialogDescription,
     DialogHeader,
     DialogTitle,
     DialogFooter,
@@ -11,16 +12,16 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { School } from '@/types/school';
+import { Hei } from '@/types/hei';
 
 interface Props {
     isOpen: boolean;
     onOpenChange: (open: boolean) => void;
-    school: School | null;
-    onSave?: (school: School) => void;
+    hei: Hei | null;
+    onSave?: (hei: Hei) => void;
 }
 
-const AddSchoolModal: FC<Props> = ({ isOpen, onOpenChange, school, onSave }) => {
+const AddHEIsModal: FC<Props> = ({ isOpen, onOpenChange, hei, onSave }) => {
     const { data, setData, put, post, processing, errors, reset } = useForm({
         name: '',
         hei_code: '',
@@ -32,33 +33,33 @@ const AddSchoolModal: FC<Props> = ({ isOpen, onOpenChange, school, onSave }) => 
     });
 
     useEffect(() => {
-        if (school) {
+        if (hei) {
             setData({
-                name: school.name,
-                hei_code: school.hei_code || '',
-                address: school.address || '',
-                contact_number: school.contact_number || '',
-                email: school.email || '',
-                is_active: school.is_active,
-                type: school.type || 'Private',
+                name: hei.name,
+                hei_code: hei.hei_code || '',
+                address: hei.address || '',
+                contact_number: hei.contact_number || '',
+                email: hei.email || '',
+                is_active: hei.is_active,
+                type: hei.type || 'Private',
             });
         } else {
             reset();
         }
-    }, [school, isOpen]);
+    }, [hei, isOpen]);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (school) {
-            put(route('schools.update', school.id), {
+        if (hei) {
+            put(route('admin.heis.update', hei.id), {
                 onSuccess: () => {
-                    onSave?.({ ...school, ...data } as School);
+                    onSave?.({ ...hei, ...data } as Hei);
                     onOpenChange(false);
                 },
             });
         } else {
-            post(route('admin.schools.store'), {
+            post(route('admin.heis.store'), {
                 onSuccess: () => {
                     onOpenChange(false);
                 },
@@ -69,19 +70,19 @@ const AddSchoolModal: FC<Props> = ({ isOpen, onOpenChange, school, onSave }) => 
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
             <DialogContent
-                className="sm:max-w-2xl rounded-none"
+                className="sm:max-w-2xl rounded-[4px]"
                 onInteractOutside={(e) => e.preventDefault()}
             >
                 <DialogHeader>
-                    <DialogTitle className="text-xl">{school ? 'Edit School' : 'Add School'}</DialogTitle>
-                    <p className="text-sm text-muted-foreground">
-                        {school ? 'Update the information for this school.' : 'Enter the details of the new school to add it to the system.'}
-                    </p>
+                    <DialogTitle className="text-xl">{hei ? 'Edit HEI' : 'Add HEIs'}</DialogTitle>
+                    <DialogDescription>
+                        {hei ? 'Update the information for this HEI.' : 'Enter the details of the new HEI to add it to the system.'}
+                    </DialogDescription>
                 </DialogHeader>
 
                 <form onSubmit={handleSubmit} className="space-y-5 py-4">
                     <div className="grid gap-2">
-                        <Label htmlFor="name" className="text-sm font-semibold">School Name <span className="text-red-500">*</span></Label>
+                        <Label htmlFor="name" className="text-sm font-semibold">HEIs Name <span className="text-red-500">*</span></Label>
                         <Input
                             id="name"
                             value={data.name}
@@ -94,7 +95,7 @@ const AddSchoolModal: FC<Props> = ({ isOpen, onOpenChange, school, onSave }) => 
                     </div>
 
                     <div className="grid gap-2">
-                        <Label htmlFor="hei_code" className="text-sm font-semibold">HEI Code <span className="text-muted-foreground font-normal">(Optional)</span></Label>
+                        <Label htmlFor="hei_code" className="text-sm font-semibold">HEIs Code <span className="text-muted-foreground font-normal">(Optional)</span></Label>
                         <Input
                             id="hei_code"
                             value={data.hei_code}
@@ -141,7 +142,7 @@ const AddSchoolModal: FC<Props> = ({ isOpen, onOpenChange, school, onSave }) => 
                     </div>
 
                     <div className="grid gap-3 pt-2">
-                        <Label className="text-sm font-semibold">School Type <span className="text-red-500">*</span></Label>
+                        <Label className="text-sm font-semibold">HEIs Type <span className="text-red-500">*</span></Label>
                         <div className="flex gap-6">
                             <div className="flex items-center space-x-2">
                                 <Checkbox
@@ -178,8 +179,8 @@ const AddSchoolModal: FC<Props> = ({ isOpen, onOpenChange, school, onSave }) => 
                                 className="h-5 w-5 data-[state=checked]:bg-green-600 data-[state=checked]:text-white data-[state=checked]:border-green-600"
                             />
                             <div className="flex flex-col">
-                                <Label htmlFor="is_active" className="cursor-pointer font-medium">Active School</Label>
-                                <span className="text-xs text-muted-foreground">If unchecked, the school will be hidden from the active list.</span>
+                                <Label htmlFor="is_active" className="cursor-pointer font-medium">Active HEIs</Label>
+                                <span className="text-xs text-muted-foreground">If unchecked, the HEIs will be hidden from the active list.</span>
                             </div>
                         </div>
                     </div>
@@ -198,4 +199,4 @@ const AddSchoolModal: FC<Props> = ({ isOpen, onOpenChange, school, onSave }) => 
     );
 };
 
-export default AddSchoolModal;
+export default AddHEIsModal;

@@ -21,9 +21,7 @@ export function PrivateSchoolView({ schoolName, faculty, referenceData }: Privat
                     </h2>
                     <p className="text-xs text-gray-500 mt-1">Viewing all faculty members for this private school.</p>
                 </div>
-                <Button variant="outline" size="sm" className="rounded-md border-gray-300">
-                    Download Report
-                </Button>
+
             </div>
 
             <PrivateFacultyTable faculty={faculty} referenceData={referenceData} />

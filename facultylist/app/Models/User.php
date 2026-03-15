@@ -23,7 +23,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
-        'school_id',
+        'hei_id',
     ];
 
     const ROLE_ADMIN = 'Admin';
@@ -41,9 +41,9 @@ class User extends Authenticatable
         'remember_token',
     ];
 
-    public function school()
+    public function hei()
     {
-        return $this->belongsTo(School::class);
+        return $this->belongsTo(Hei::class);
     }
 
     /**

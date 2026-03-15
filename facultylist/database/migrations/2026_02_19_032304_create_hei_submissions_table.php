@@ -7,10 +7,10 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
-        Schema::create('school_submissions', function (Blueprint $table) {
+        Schema::create('hei_submissions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('school_id')->nullable()->constrained()->onDelete('cascade');
-            $table->string('school_name');
+            $table->foreignId('hei_id')->nullable()->constrained('heis')->onDelete('cascade');
+            $table->string('hei_name');
             $table->string('academic_year');
             $table->string('submitted_by');
             $table->integer('total_faculty');
@@ -21,6 +21,6 @@ return new class extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('school_submissions');
+        Schema::dropIfExists('hei_submissions');
     }
 };

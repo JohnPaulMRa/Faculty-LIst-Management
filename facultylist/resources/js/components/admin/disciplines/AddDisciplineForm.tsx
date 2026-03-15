@@ -85,9 +85,6 @@ export default function AddDisciplineForm({ onCancel, onSubmit, majors = [], pro
             majorName: majorDesc,
             specificDiscipline: specificDesc || null,
         });
-
-        // Reset form after successful local submission logic (Parent will handle actual API call and state)
-        // Wait for parent success if needed, but usually we reset or parent closes it.
     };
 
     const clearForm = () => {
@@ -113,28 +110,57 @@ export default function AddDisciplineForm({ onCancel, onSubmit, majors = [], pro
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-[70px_1fr_1fr_1fr] gap-4 items-end">
+                    {/* Code */}
+                    <div className="space-y-1.5">
+                        <Label className="text-[10px] uppercase tracking-wider font-semibold text-gray-500 ml-0.5">
+                            Code <span className="text-red-500">*</span>
+                        </Label>
+                        <Input
+                            value={specificCode}
+                            onChange={(e) => {
+                                const val = e.target.value.replace(/\D/g, "").slice(0, 10);
+                                setSpecificCode(val);
+                                
+                                // Sync parent codes
+                                const gCode = val.length >= 2 ? val.slice(0, 2) : val;
+                                const mCode = val.length >= 4 ? val.slice(0, 4) : val;
+                                
+                                setGroupCode(gCode);
+                                setMajorCode(mCode);
+
+                                // Try to find matching descriptions to auto-fill the comboboxes
+                                const foundGroup = majors.find(m => m.code === gCode);
+                                if (foundGroup) {
+                                    setGroupDesc(foundGroup.description);
+                                    const foundMajor = (foundGroup.groups ?? []).find((g: any) => g.code === mCode);
+                                    if (foundMajor) {
+                                        setMajorDesc(foundMajor.description);
+                                    }
+                                }
+                            }}
+                            className="h-10 rounded-none font-mono text-xs text-center border-gray-300 focus-visible:ring-1 focus-visible:ring-gray-400"
+                            placeholder=""
+                            maxLength={10}
+                        />
+                    </div>
+
                     {/* Discipline Group */}
                     <div className="space-y-1.5">
                         <Label className="text-[10px] uppercase tracking-wider font-semibold text-gray-500 ml-0.5">
                             Discipline Group <span className="text-red-500">*</span>
                         </Label>
-                        <div className="flex">
-                            <Input
-                                value={groupCode}
-                                readOnly
-                                className="w-20 h-10 rounded-none rounded-l-md font-mono text-xs text-center border-gray-300 bg-gray-50 shrink-0 border-r-0"
-                                placeholder="code"
-                            />
-                            <Combobox
-                                options={groupOptions}
-                                value={groupCode}
-                                onChange={handleGroupSelect}
-                                placeholder="Select Group..."
-                                containerClassName="flex-1 h-10"
-                                className="h-full rounded-none rounded-r-md border border-gray-300 text-sm"
-                            />
-                        </div>
+                        <Combobox
+                            options={groupOptions}
+                            value={groupCode}
+                            onChange={handleGroupSelect}
+                            onInputChange={(typed) => {
+                                setGroupDesc(typed);
+                            }}
+                            placeholder=""
+                            containerClassName="w-full h-10"
+                            className="h-full rounded-none border border-gray-300 text-sm"
+                        />
                     </div>
 
                     {/* Major Discipline */}
@@ -142,33 +168,18 @@ export default function AddDisciplineForm({ onCancel, onSubmit, majors = [], pro
                         <Label className="text-[10px] uppercase tracking-wider font-semibold text-gray-500 ml-0.5">
                             Major Discipline <span className="text-red-500">*</span>
                         </Label>
-                        <div className="flex">
-                            <Input
-                                value={majorCode}
-                                onChange={(e) => {
-                                    const val = e.target.value.replace(/\D/g, "").slice(0, 10);
-                                    setMajorCode(val);
-                                    setSpecificCode(val);
-                                }}
-                                className="w-20 h-10 rounded-none rounded-l-md font-mono text-xs text-center border-gray-300 focus-visible:ring-1 focus-visible:ring-gray-400 shrink-0 border-r-0 z-10"
-                                placeholder="code"
-                                minLength={3}
-                                maxLength={10}
-                            />
-                            <Combobox
-                                options={majorOptions}
-                                value={majorCode}
-                                onChange={handleMajorSelect}
-                                onInputChange={(typed) => {
-                                    setMajorDesc(typed);
-                                    // If manually typing, we don't clear the code, allowing the user to provide a new code.
-                                }}
-                                allowFreeInput
-                                placeholder={majorOptions.length > 0 ? "Select or type..." : "Enter name..."}
-                                containerClassName="flex-1 h-10"
-                                className="h-full rounded-none rounded-r-md border border-gray-300 text-sm focus-within:z-20 relative"
-                            />
-                        </div>
+                        <Combobox
+                            options={majorOptions}
+                            value={majorCode}
+                            onChange={handleMajorSelect}
+                            onInputChange={(typed) => {
+                                setMajorDesc(typed);
+                            }}
+                            allowFreeInput
+                            placeholder=""
+                            containerClassName="w-full h-10"
+                            className="h-full rounded-none border border-gray-300 text-sm"
+                        />
                     </div>
 
                     {/* Specific Discipline */}
@@ -176,22 +187,12 @@ export default function AddDisciplineForm({ onCancel, onSubmit, majors = [], pro
                         <Label className="text-[10px] uppercase tracking-wider font-semibold text-gray-500 ml-0.5">
                             Specific Discipline <span className="text-red-500">*</span>
                         </Label>
-                        <div className="flex">
-                            <Input
-                                value={specificCode}
-                                onChange={(e) => setSpecificCode(e.target.value.replace(/\D/g, "").slice(0, 10))}
-                                className="w-20 h-10 rounded-none rounded-l-md font-mono text-xs text-center border-gray-300 focus-visible:ring-1 focus-visible:ring-gray-400 shrink-0 border-r-0 z-10"
-                                placeholder="code"
-                                minLength={3}
-                                maxLength={10}
-                            />
-                            <Input
-                                value={specificDesc}
-                                onChange={(e) => setSpecificDesc(e.target.value)}
-                                className="flex-1 h-10 rounded-none rounded-r-md text-sm border-gray-300 focus-visible:ring-1 focus-visible:ring-gray-400 z-0 relative focus-visible:z-20"
-                                placeholder="Enter name..."
-                            />
-                        </div>
+                        <Input
+                            value={specificDesc}
+                            onChange={(e) => setSpecificDesc(e.target.value)}
+                            className="h-10 rounded-none text-sm border-gray-300 focus-visible:ring-1 focus-visible:ring-gray-400"
+                            placeholder=""
+                        />
                     </div>
                 </div>
 

@@ -176,17 +176,17 @@ const FacultyListTableE5: FC<Props> = ({ facultyList, yearFilter, onFileClick, o
                                         <div className="flex items-center justify-center gap-2">
                                             <Link
                                                 href={edit({ id: faculty.id }).url}
-                                                className="flex items-center gap-1 black-[#ffffff] hover:text-white transition-colors bg-[#ffbb00]/50 hover:bg-[#ffbb00] px-3 py-1.5 rounded-sm border border-[#ffbb00]/30 shadow-sm text-xs font-semibold"
+                                                className="flex items-center gap-1 black-[#ffffff] hover:text-white transition-colors bg-[#ffbb00]/50 hover:bg-[#ffbb00] px-2 py-1.5 rounded-sm border border-[#ffbb00]/30 shadow-sm text-xs font-semibold"
                                                 title="Edit Profile"
                                             >
-                                                <Eye className="h-3 w-3" /> Edit Profile
+                                                <Eye className="h-2 w-2" /> Edit
                                             </Link>
                                             <button
                                                 onClick={() => onDelete(faculty.id)}
-                                                className="flex items-center gap-1 text-red-700 hover:text-white transition-colors bg-red-50 hover:bg-red-600 px-3 py-1.5 rounded-sm border border-red-200 shadow-sm text-xs font-semibold"
+                                                className="flex items-center gap-1 text-red-700 hover:text-white transition-colors bg-red-50 hover:bg-red-600 px-2 py-1.5 rounded-sm border border-red-200 shadow-sm text-xs font-semibold"
                                                 title="Delete"
                                             >
-                                                <Trash2 className="h-3 w-3" /> Delete
+                                                <Trash2 className="h-2 w-2" /> Delete
                                             </button>
                                         </div>
                                     </td>

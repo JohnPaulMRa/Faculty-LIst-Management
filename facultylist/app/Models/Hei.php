@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class School extends Model
+class Hei extends Model
 {
     protected $fillable = [
         'name',
@@ -21,7 +21,7 @@ class School extends Model
     ];
 
     /**
-     * Get the faculties for the school.
+     * Get the faculties for the HEI.
      */
     public function faculties()
     {
@@ -31,5 +31,13 @@ class School extends Model
     public function facultiesE5()
     {
         return $this->hasMany(FacultyE5::class);
+    }
+
+    /**
+     * Get the HEI's most recent submission.
+     */
+    public function latestSubmission()
+    {
+        return $this->hasOne(HeiSubmission::class)->latestOfMany();
     }
 }

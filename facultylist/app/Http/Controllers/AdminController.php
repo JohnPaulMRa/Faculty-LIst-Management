@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Models\School;
-use App\Models\SchoolSubmission;
+use App\Models\Hei;
+use App\Models\HeiSubmission;
 use App\Models\Faculty;
 use App\Models\FacultyE5;
 use Illuminate\Http\Request;
@@ -18,11 +18,11 @@ use Illuminate\Database\QueryException;
 
 class AdminController extends Controller
 {
-    public function storeSchool(Request $request)
+    public function storeHei(Request $request)
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'hei_code' => 'nullable|string|max:50|unique:schools,hei_code',
+            'hei_code' => 'nullable|string|max:50|unique:heis,hei_code',
             'address' => 'nullable|string|max:255',
             'contact_number' => 'nullable|string|max:20',
             'email' => 'nullable|email|max:255',
@@ -30,16 +30,47 @@ class AdminController extends Controller
             'type' => 'required|in:Public,Private',
         ]);
 
-        // Convert empty strings to null to avoid unique constraint violations on 'hei_code'
         $data = $validated;
         $data['hei_code'] = $data['hei_code'] ?: null;
         $data['address'] = $data['address'] ?: null;
         $data['contact_number'] = $data['contact_number'] ?: null;
         $data['email'] = $data['email'] ?: null;
 
-        School::create($data);
+        Hei::create($data);
 
-        return redirect()->back()->with('success', 'School created successfully.');
+        return redirect()->back()->with('success', 'HEI created successfully.');
+    }
+
+    public function updateHei(Request $request, $id)
+    {
+        $hei = Hei::findOrFail($id);
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'hei_code' => 'nullable|string|max:50|unique:heis,hei_code,' . $hei->id,
+            'address' => 'nullable|string|max:255',
+            'contact_number' => 'nullable|string|max:20',
+            'email' => 'nullable|email|max:255',
+            'is_active' => 'boolean',
+            'type' => 'required|in:Public,Private',
+        ]);
+
+        $data = $validated;
+        $data['hei_code'] = $data['hei_code'] ?: null;
+        $data['address'] = $data['address'] ?: null;
+        $data['contact_number'] = $data['contact_number'] ?: null;
+        $data['email'] = $data['email'] ?: null;
+
+        $hei->update($data);
+
+        return redirect()->back()->with('success', 'HEI updated successfully.');
+    }
+
+    public function destroyHei($id)
+    {
+        $hei = Hei::findOrFail($id);
+        $hei->delete();
+
+        return redirect()->back()->with('success', 'HEI deleted successfully.');
     }
 
     public function dashboard(Request $request)
@@ -47,7 +78,7 @@ class AdminController extends Controller
         $distributionAndStatus = $this->getDashboardDistributionData();
 
         return Inertia::render('Admin/AdminDashboard', [
-            'schools' => $this->getDashboardSchools(),
+            'heis' => $this->getDashboardHeis(),
             'stats' => $this->getDashboardStats(),
             'recentActivities' => $this->getDashboardRecentActivities(),
             'distributionData' => $distributionAndStatus['distributionData'],
@@ -56,13 +87,13 @@ class AdminController extends Controller
         ]);
     }
 
-    private function getDashboardSchools()
+    private function getDashboardHeis()
     {
-        $schoolsQuery = School::withCount(['faculties', 'facultiesE5'])
+        $heisQuery = Hei::withCount(['faculties', 'facultiesE5'])
             ->orderBy('name')
             ->get();
 
-        return $schoolsQuery->map(function ($s) {
+        return $heisQuery->map(function ($s) {
             return [
                 'id' => (int) $s->id,
                 'name' => $s->name,
@@ -75,23 +106,23 @@ class AdminController extends Controller
     private function getDashboardStats()
     {
         $totalFaculty = Faculty::count() + FacultyE5::count();
-        $totalSchools = School::count();
-        $privateSchools = School::where('type', 'Private')->count();
-        $publicSchools = School::where('type', 'Public')->count();
+        $totalHeis = Hei::count();
+        $privateHeis = Hei::where('type', 'Private')->count();
+        $publicHeis = Hei::where('type', 'Public')->count();
 
         return [
             ['title' => "Total Faculty", 'value' => (string) $totalFaculty, 'trend' => "+0%"],
             [
                 'title' => "TOTAL SUBMITTED HEIs",
-                'value' => (string) $totalSchools,
-                'subtext' => "{$privateSchools} Private HEIs, {$publicSchools} Public HEIs"
+                'value' => (string) $totalHeis,
+                'subtext' => "{$privateHeis} Private HEIs, {$publicHeis} Public HEIs"
             ],
         ];
     }
 
     private function getDashboardRecentActivities()
     {
-        return SchoolSubmission::latest()
+        return HeiSubmission::latest()
             ->take(5)
             ->get()
             ->map(function ($submission) {
@@ -153,8 +184,8 @@ class AdminController extends Controller
         return [
             'distributionData' => $distributionData,
             'statusData' => [
-                ['name' => 'Active', 'value' => School::where('is_active', true)->count(), 'color' => '#16a34a'],
-                ['name' => 'Inactive', 'value' => School::where('is_active', false)->count(), 'color' => '#9ca3af'],
+                ['name' => 'Active', 'value' => Hei::where('is_active', true)->count(), 'color' => '#16a34a'],
+                ['name' => 'Inactive', 'value' => Hei::where('is_active', false)->count(), 'color' => '#9ca3af'],
             ],
         ];
     }
@@ -202,19 +233,19 @@ class AdminController extends Controller
         $referenceData = $this->getReferenceData();
 
         $faculty = [];
-        if ($request->has('school_id') && $request->school_id) {
+        if ($request->has('hei_id') && $request->hei_id) {
             $search = $request->input('search');
-            $facultyE2 = $this->getFacultyE2($request->school_id, $search);
-            $facultyE5 = $this->getFacultyE5($request->school_id, $search);
+            $facultyE2 = $this->getFacultyE2($request->hei_id, $search);
+            $facultyE5 = $this->getFacultyE5($request->hei_id, $search);
 
             $faculty = collect($facultyE2)->concat($facultyE5)->sortBy('name')->values();
         }
 
         return Inertia::render('Admin/FacultyList', [
-            'schools' => $schools,
+            'heis' => $schools,
             'faculty' => $faculty,
             'referenceData' => $referenceData,
-            'filters' => $request->only(['school_id', 'search', 'type']),
+            'filters' => $request->only(['hei_id', 'search', 'type']),
         ]);
     }
 
@@ -419,28 +450,50 @@ class AdminController extends Controller
     private function getSchools(Request $request)
     {
         $search = $request->input('search');
-        $schoolsQuery = School::withCount(['faculties', 'facultiesE5'])
+        $heisQuery = Hei::with('latestSubmission')
+            ->withCount(['faculties', 'facultiesE5'])
             ->when($search, function ($query, $search) {
                 return $query->where('name', 'like', '%' . $search . '%');
             })
             ->orderBy('name')
             ->get();
 
-        return $schoolsQuery->map(function ($s) {
+        return $heisQuery->map(function ($s) {
             return [
                 'id' => (int) $s->id,
                 'name' => $s->name,
                 'hei_code' => $s->hei_code,
                 'faculty' => $s->faculties_count + $s->faculties_e5_count,
                 'type' => $s->type,
+                'academic_year' => $s->latestSubmission ? $s->latestSubmission->academic_year : 'N/A',
                 'status' => $s->is_active ? 'Active' : 'Inactive',
             ];
         });
     }
 
-    private function getFacultyE2($schoolId, $search)
+    public function heisAccounts(Request $request)
     {
-        return Faculty::where('school_id', $schoolId)
+        $heis = Hei::orderBy('name')->get();
+
+        $accounts = \App\Models\User::orderBy('name')->get()->map(function ($u) {
+            return [
+                'id' => (int) $u->id,
+                'name' => $u->name,
+                'email' => $u->email,
+                'role' => $u->role,
+                'hei_id' => $u->hei_id,
+            ];
+        });
+
+        return Inertia::render('Admin/HeisAccounts', [
+            'heis' => $heis,
+            'accounts' => $accounts,
+        ]);
+    }
+
+    private function getFacultyE2($heiId, $search)
+    {
+        return Faculty::where('hei_id', $heiId)
             ->when($search, function ($query, $search) {
                 return $query->where('name', 'like', '%' . $search . '%');
             })
@@ -468,9 +521,9 @@ class AdminController extends Controller
             });
     }
 
-    private function getFacultyE5($schoolId, $search)
+    private function getFacultyE5($heiId, $search)
     {
-        return FacultyE5::where('school_id', $schoolId)
+        return FacultyE5::where('hei_id', $heiId)
             ->when($search, function ($query, $search) {
                 return $query->where('name', 'like', '%' . $search . '%');
             })
@@ -505,7 +558,7 @@ class AdminController extends Controller
         $validated = $request->validate([
             'username' => 'required|string|max:255|unique:users,email',
             'password' => 'required|string|confirmed|min:8',
-            'school_id' => 'required|exists:schools,id',
+            'hei_id' => 'required|exists:heis,id',
         ]);
 
         $user = \App\Models\User::create([
@@ -514,7 +567,7 @@ class AdminController extends Controller
             'password' => \Illuminate\Support\Facades\Hash::make($validated['password']),
             // 'role' => 'faculty', // Default is Faculty per migration or handle here if needed
             'role' => 'Faculty',
-            'school_id' => $validated['school_id'],
+            'hei_id' => $validated['hei_id'],
         ]);
 
         return redirect()->back()->with('success', 'Faculty account created successfully.');

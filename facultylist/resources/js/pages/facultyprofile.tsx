@@ -21,9 +21,9 @@ import type { Faculty } from '@/types/faculty';
 // Basic declaration for Ziggy's route helper
 declare function route(name?: string, params?: any, absolute?: boolean): string;
 
-const breadcrumbs = [
-    { title: 'Faculty', href: '/faculty-profile' },
-];
+import type { BreadcrumbItem } from '@/types';
+
+const breadcrumbs: BreadcrumbItem[] = [];
 
 interface FacultyProfileProps {
     initialFacultyData: Faculty[];

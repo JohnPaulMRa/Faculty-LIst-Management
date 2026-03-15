@@ -39,6 +39,7 @@ Route::middleware(['auth', 'verified', 'role:Admin'])->group(function () {
     Route::get('/admin/dashboard', [\App\Http\Controllers\AdminController::class, 'dashboard'])->name('admin.dashboard');
 
     Route::get('/admin/faculty-list', [\App\Http\Controllers\AdminController::class, 'facultyList'])->name('admin.faculty-list');
+    Route::get('/admin/heis-accounts', [\App\Http\Controllers\AdminController::class, 'heisAccounts'])->name('admin.heis-accounts');
 
     Route::get('/admin/faculty/{id}', [\App\Http\Controllers\AdminController::class, 'showFaculty'])->name('admin.faculty.show');
 
@@ -47,8 +48,10 @@ Route::middleware(['auth', 'verified', 'role:Admin'])->group(function () {
     Route::put('/admin/disciplines/{code}', [\App\Http\Controllers\AdminController::class, 'updateDiscipline'])->name('admin.disciplines.update');
     Route::delete('/admin/disciplines/{code}', [\App\Http\Controllers\AdminController::class, 'destroyDiscipline'])->name('admin.disciplines.destroy');
 
-    // School Management
-    Route::post('/admin/schools', [\App\Http\Controllers\AdminController::class, 'storeSchool'])->name('admin.schools.store');
+    // HEI Management
+    Route::post('/admin/heis', [\App\Http\Controllers\AdminController::class, 'storeHei'])->name('admin.heis.store');
+    Route::put('/admin/heis/{id}', [\App\Http\Controllers\AdminController::class, 'updateHei'])->name('admin.heis.update');
+    Route::delete('/admin/heis/{id}', [\App\Http\Controllers\AdminController::class, 'destroyHei'])->name('admin.heis.destroy');
 
     // User Management
     Route::post('/admin/faculty/create-account', [\App\Http\Controllers\AdminController::class, 'createFacultyAccount'])->name('admin.faculty.create-account');

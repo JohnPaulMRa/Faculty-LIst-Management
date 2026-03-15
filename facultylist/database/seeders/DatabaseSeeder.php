@@ -15,10 +15,10 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        \App\Models\School::firstOrCreate(
+        \App\Models\Hei::firstOrCreate(
             ['id' => 1],
             [
-                'name' => 'Test School',
+                'name' => 'Test HEI',
                 'hei_code' => 'TS001',
                 'is_active' => true,
                 'type' => 'Private', // or Public
@@ -29,7 +29,7 @@ class DatabaseSeeder extends Seeder
             ['email' => 'test@example.com'],
             [
                 'name' => 'Test User',
-                'school_id' => 1,
+                'hei_id' => 1,
                 'password' => bcrypt('password'), // Ensure password is set if creating
                 'role' => 'Faculty',
             ]
@@ -39,7 +39,7 @@ class DatabaseSeeder extends Seeder
             ['email' => 'admin@example.com'],
             [
                 'name' => 'Admin User',
-                'school_id' => 1,
+                'hei_id' => 1,
                 'password' => bcrypt('password'),
                 'role' => 'Admin',
             ]

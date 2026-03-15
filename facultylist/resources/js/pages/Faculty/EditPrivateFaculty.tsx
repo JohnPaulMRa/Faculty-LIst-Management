@@ -6,7 +6,7 @@ import type { FC } from 'react';
 import AppLayout from '@/layouts/app-layout';
 import { Button } from '@/components/ui/button';
 import { FacultyProfileCardsE5 } from '@/components/faculty/facultyE5/FacultyProfileCardsE5';
-import type { Faculty } from '@/types/faculty';
+import { Faculty } from '@/types/faculty';
 import { update } from '@/routes/faculty';
 import { facultyprofile } from '@/routes';
 
@@ -16,26 +16,34 @@ interface EditProps {
 }
 
 const Edit: FC<EditProps> = ({ faculty, referenceData }) => {
+    // Helper to check if it's E5
+    const isE5 = faculty.form_type === 'E5';
+
+    // Type casting helper for safe access to shared fields or narrow based on form_type
+    const getInitialValue = <K extends keyof any>(f: any, key: K): string => {
+        return f[key] || '';
+    };
+
     const [formData, setFormData] = useState({
-        name: faculty?.name || '',
-        fullTimeCode: faculty?.fullTimeCode || '',
-        genderCode: faculty?.genderCode || '',
-        disciplineCode: faculty?.disciplineCode || '',
-        degree: faculty?.degree || '',
-        bachelors: faculty?.bachelors || '',
-        bachelorsCode: faculty?.bachelorsCode || '',
-        masters: faculty?.masters || '',
-        mastersCode: faculty?.mastersCode || '',
-        doctorate: faculty?.doctorate || '',
-        doctorateCode: faculty?.doctorateCode || '',
-        licenseCode: faculty?.licenseCode || '',
-        tenureCode: faculty?.tenureCode || '',
-        rankCode: faculty?.rankCode || '',
-        loadCode: faculty?.loadCode || '',
-        subjects: faculty?.subjects || '',
-        salaryCode: faculty?.salaryCode || '',
-        joined_year: faculty?.joined_year || '',
-        status: faculty?.status || ''
+        name: faculty.name || '',
+        fullTimeCode: isE5 ? faculty.fullTimeCode || '' : '',
+        genderCode: isE5 ? faculty.genderCode || '' : '',
+        disciplineCode: isE5 ? faculty.disciplineCode || '' : '',
+        degree: faculty.degree || '',
+        bachelors: isE5 ? faculty.bachelors || '' : '',
+        bachelorsCode: isE5 ? faculty.bachelorsCode || '' : '',
+        masters: isE5 ? faculty.masters || '' : '',
+        mastersCode: isE5 ? faculty.mastersCode || '' : '',
+        doctorate: isE5 ? faculty.doctorate || '' : '',
+        doctorateCode: isE5 ? faculty.doctorateCode || '' : '',
+        licenseCode: isE5 ? faculty.licenseCode || '' : '',
+        tenureCode: isE5 ? faculty.tenureCode || '' : '',
+        rankCode: isE5 ? faculty.rankCode || '' : '',
+        loadCode: isE5 ? faculty.loadCode || '' : '',
+        subjects: isE5 ? faculty.subjects || '' : '',
+        salaryCode: isE5 ? faculty.salaryCode || '' : '',
+        joined_year: faculty.joined_year || '',
+        status: faculty.status || ''
     });
 
     const [processing, setProcessing] = useState(false);
@@ -51,27 +59,52 @@ const Edit: FC<EditProps> = ({ faculty, referenceData }) => {
     // Initialize/Normalize data
     useEffect(() => {
         if (faculty) {
-            setFormData({
-                name: faculty.name || '',
-                fullTimeCode: normalizeCode(referenceData?.fullTimePartTime, faculty.fullTimeCode),
-                genderCode: normalizeCode(referenceData?.gender, faculty.genderCode),
-                disciplineCode: faculty.disciplineCode || '',
-                degree: normalizeCode(referenceData?.highestDegree, faculty.degree),
-                bachelors: faculty.bachelors || '',
-                bachelorsCode: faculty.bachelorsCode || '',
-                masters: faculty.masters || '',
-                mastersCode: faculty.mastersCode || '',
-                doctorate: faculty.doctorate || '',
-                doctorateCode: faculty.doctorateCode || '',
-                licenseCode: normalizeCode(referenceData?.professionalLicense, faculty.licenseCode),
-                tenureCode: normalizeCode(referenceData?.tenure, faculty.tenureCode),
-                rankCode: normalizeCode(referenceData?.facultyRank, faculty.rankCode),
-                loadCode: normalizeCode(referenceData?.teachingLoad, faculty.loadCode),
-                subjects: faculty.subjects || '',
-                salaryCode: normalizeCode(referenceData?.annualSalary, faculty.salaryCode),
-                joined_year: faculty.joined_year || '',
-                status: faculty.status || ''
-            });
+            if (faculty.form_type === 'E5') {
+                setFormData({
+                    name: faculty.name || '',
+                    fullTimeCode: normalizeCode(referenceData?.fullTimePartTime, faculty.fullTimeCode),
+                    genderCode: normalizeCode(referenceData?.gender, faculty.genderCode),
+                    disciplineCode: faculty.disciplineCode || '',
+                    degree: normalizeCode(referenceData?.highestDegree, faculty.degree),
+                    bachelors: faculty.bachelors || '',
+                    bachelorsCode: faculty.bachelorsCode || '',
+                    masters: faculty.masters || '',
+                    mastersCode: faculty.mastersCode || '',
+                    doctorate: faculty.doctorate || '',
+                    doctorateCode: faculty.doctorateCode || '',
+                    licenseCode: normalizeCode(referenceData?.professionalLicense, faculty.licenseCode),
+                    tenureCode: normalizeCode(referenceData?.tenure, faculty.tenureCode),
+                    rankCode: normalizeCode(referenceData?.facultyRank, faculty.rankCode),
+                    loadCode: normalizeCode(referenceData?.teachingLoad, faculty.loadCode),
+                    subjects: faculty.subjects || '',
+                    salaryCode: normalizeCode(referenceData?.annualSalary, faculty.salaryCode),
+                    joined_year: faculty.joined_year || '',
+                    status: faculty.status || ''
+                });
+            } else {
+                // Public Faculty (E2) - shared fields only
+                setFormData({
+                    name: faculty.name || '',
+                    fullTimeCode: '',
+                    genderCode: '',
+                    disciplineCode: '',
+                    degree: normalizeCode(referenceData?.highestDegree, faculty.degree),
+                    bachelors: '',
+                    bachelorsCode: '',
+                    masters: '',
+                    mastersCode: '',
+                    doctorate: '',
+                    doctorateCode: '',
+                    licenseCode: '',
+                    tenureCode: '',
+                    rankCode: normalizeCode(referenceData?.facultyRank, faculty.rank),
+                    loadCode: '',
+                    subjects: '',
+                    salaryCode: '',
+                    joined_year: faculty.joined_year || '',
+                    status: faculty.status || ''
+                });
+            }
         }
     }, [faculty, referenceData]);
 
@@ -84,19 +117,31 @@ const Edit: FC<EditProps> = ({ faculty, referenceData }) => {
         const requiredFields = [
             formData.name,
             formData.fullTimeCode,
-            formData.genderCode,
-            formData.disciplineCode,
             formData.degree,
             formData.licenseCode,
             formData.tenureCode,
             formData.rankCode,
             formData.loadCode,
             formData.salaryCode,
-            formData.subjects
         ];
 
-        const isComplete = requiredFields.every(field => field && field.trim() !== '');
-        const newStatus = isComplete ? 'Updated' : 'Not Updated';
+        // E5 specific required fields
+        if (isE5) {
+            requiredFields.push(formData.genderCode);
+            requiredFields.push(formData.disciplineCode);
+        }
+
+        const isComplete = requiredFields.every(field => field && String(field).trim() !== '');
+        
+        // If already 'Completed' (from submission), don't downgrade it unless it's genuinely incomplete
+        // Otherwise, mark as 'Updated' if all required fields are present.
+        let newStatus = formData.status;
+        
+        if (!isComplete) {
+            newStatus = 'Not Updated';
+        } else if (formData.status !== 'Completed') {
+            newStatus = 'Updated';
+        }
 
         if (formData.status !== newStatus) {
             setFormData(prev => ({ ...prev, status: newStatus }));
@@ -112,7 +157,8 @@ const Edit: FC<EditProps> = ({ faculty, referenceData }) => {
         formData.rankCode,
         formData.loadCode,
         formData.salaryCode,
-        formData.subjects
+        formData.subjects,
+        faculty.id
     ]);
 
     const handleSave = () => {
@@ -131,11 +177,11 @@ const Edit: FC<EditProps> = ({ faculty, referenceData }) => {
         // Sync legacy string fields
         const syncedData = {
             ...formData,
-            rank: getDesc(referenceData?.facultyRank, formData.rankCode) || faculty?.rank || '',
-            employment: getDesc(referenceData?.fullTimePartTime, formData.fullTimeCode) || faculty?.employment || '',
-            bachelors: getDisciplineDesc(formData.bachelorsCode) || faculty?.bachelors || '',
-            masters: getDisciplineDesc(formData.mastersCode) || faculty?.masters || '',
-            doctorate: getDisciplineDesc(formData.doctorateCode) || faculty?.doctorate || ''
+            rank: getDesc(referenceData?.facultyRank, formData.rankCode) || (faculty.form_type === 'E2' ? faculty.rank : (faculty.form_type === 'E5' ? faculty.rankCode : '')) || '',
+            employment: getDesc(referenceData?.fullTimePartTime, formData.fullTimeCode) || (faculty.form_type === 'E2' ? faculty.employment : '') || '',
+            bachelors: getDisciplineDesc(formData.bachelorsCode) || (faculty.form_type === 'E5' ? faculty.bachelors : '') || '',
+            masters: getDisciplineDesc(formData.mastersCode) || (faculty.form_type === 'E5' ? faculty.masters : '') || '',
+            doctorate: getDisciplineDesc(formData.doctorateCode) || (faculty.form_type === 'E5' ? faculty.doctorate : '') || ''
         };
 
         router.put(update({ id: faculty.id }).url, syncedData, {
@@ -157,7 +203,6 @@ const Edit: FC<EditProps> = ({ faculty, referenceData }) => {
     };
 
     const breadcrumbs = [
-        { title: 'Faculty Profile', href: facultyprofile().url },
         { title: 'Edit Faculty', href: '#' },
     ];
 

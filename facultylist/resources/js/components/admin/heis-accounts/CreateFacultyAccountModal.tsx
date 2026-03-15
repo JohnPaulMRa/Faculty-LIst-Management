@@ -3,6 +3,7 @@ import { useForm } from '@inertiajs/react';
 import {
     Dialog,
     DialogContent,
+    DialogDescription,
     DialogHeader,
     DialogTitle,
     DialogFooter,
@@ -12,7 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Eye, EyeOff } from 'lucide-react';
 
-interface School {
+interface Hei {
     id: number;
     name: string;
 }
@@ -20,15 +21,15 @@ interface School {
 interface Props {
     isOpen: boolean;
     onOpenChange: (open: boolean) => void;
-    schools: School[];
+    heis: Hei[];
 }
 
-const CreateFacultyAccountModal: FC<Props> = ({ isOpen, onOpenChange, schools }) => {
+const CreateFacultyAccountModal: FC<Props> = ({ isOpen, onOpenChange, heis }) => {
     const { data, setData, post, processing, errors, reset } = useForm({
         username: '',
         password: '',
         password_confirmation: '',
-        school_id: '',
+        hei_id: '',
     });
 
     const [showPassword, setShowPassword] = useState(false);
@@ -52,14 +53,14 @@ const CreateFacultyAccountModal: FC<Props> = ({ isOpen, onOpenChange, schools })
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
             <DialogContent
-                className="sm:max-w-[500px]"
+                className="sm:max-w-[500px] rounded-[4px]"
                 onInteractOutside={(e) => e.preventDefault()}
             >
                 <DialogHeader>
                     <DialogTitle className="text-xl">Create Faculty Login Account</DialogTitle>
-                    <p className="text-sm text-muted-foreground">
-                        Provide a username, assign a school, and set a password for the new faculty member.
-                    </p>
+                    <DialogDescription>
+                        Provide a username, assign an HEIs, and set a password for the new faculty member.
+                    </DialogDescription>
                 </DialogHeader>
 
                 <form onSubmit={handleSubmit} className="space-y-5 py-4">
@@ -78,22 +79,22 @@ const CreateFacultyAccountModal: FC<Props> = ({ isOpen, onOpenChange, schools })
                     </div>
 
                     <div className="grid gap-2">
-                        <Label htmlFor="school" className="text-sm font-semibold">School <span className="text-red-500">*</span></Label>
+                        <Label htmlFor="hei" className="text-sm font-semibold">HEIs <span className="text-red-500">*</span></Label>
                         <select
-                            id="school"
+                            id="hei"
                             className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                            value={data.school_id}
-                            onChange={(e) => setData('school_id', e.target.value)}
+                            value={data.hei_id}
+                            onChange={(e) => setData('hei_id', e.target.value)}
                             required
                         >
-                            <option value="">Select a school</option>
-                            {schools.map((school) => (
-                                <option key={school.id} value={school.id}>
-                                    {school.name}
+                            <option value="">Select an HEIs</option>
+                            {heis.map((hei) => (
+                                <option key={hei.id} value={hei.id}>
+                                    {hei.name}
                                 </option>
                             ))}
                         </select>
-                        {errors.school_id && <p className="text-sm text-red-500">{errors.school_id}</p>}
+                        {errors.hei_id && <p className="text-sm text-red-500">{errors.hei_id}</p>}
                     </div>
 
                     <div className="grid gap-2">

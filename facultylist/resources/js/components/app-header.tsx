@@ -46,7 +46,7 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
     const page = usePage<SharedData>();
     const { auth } = page.props;
     const getInitials = useInitials();
-    const { isCurrentUrl } = useCurrentUrl();
+    const { isCurrentUrl, currentUrl } = useCurrentUrl();
 
     return (
         <div className="flex w-full flex-col font-sans">
@@ -122,31 +122,36 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
                             </Sheet>
                         </div>
 
-                        {/* Show breadcrumbs if present, otherwise show navigation tabs */}
-                        {breadcrumbs.length > 1 ? (
-                            <div className="hidden lg:block">
+                        {/* Desktop Navigation Tabs */}
+                        <nav className="hidden h-14 items-center gap-8 lg:flex">
+                            {mainNavItems.map((item) => {
+                                // Active if strict match OR if sub-page (e.g. /faculty/...) for Faculty Profile
+                                const active = isCurrentUrl(item.href) || 
+                                    (item.title === 'Faculty Profile' && currentUrl.startsWith('/faculty/'));
+                                
+                                return (
+                                    <Link
+                                        key={item.title}
+                                        href={item.href}
+                                        className={cn(
+                                            "inline-flex h-full items-center border-b-[2.5px] px-1 pt-1 text-sm font-medium transition-colors duration-200",
+                                            active
+                                                ? "border-blue-600 text-blue-700 dark:border-blue-400 dark:text-blue-400"
+                                                : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-800 dark:text-gray-400 dark:hover:border-gray-700 dark:hover:text-gray-200"
+                                        )}
+                                    >
+                                        {item.title}
+                                    </Link>
+                                );
+                            })}
+                        </nav>
+
+                        {/* Breadcrumbs (shown next to tabs on desktop) */}
+                        {breadcrumbs.length > 0 && (
+                            <div className="hidden lg:flex items-center gap-4">
+                                <div className="h-6 w-px bg-gray-200" />
                                 <Breadcrumbs breadcrumbs={breadcrumbs} />
                             </div>
-                        ) : (
-                            <nav className="hidden h-14 items-center gap-8 lg:flex">
-                                {mainNavItems.map((item) => {
-                                    const active = isCurrentUrl(item.href);
-                                    return (
-                                        <Link
-                                            key={item.title}
-                                            href={item.href}
-                                            className={cn(
-                                                "inline-flex h-full items-center border-b-[2.5px] px-1 pt-1 text-sm font-medium transition-colors duration-200",
-                                                active
-                                                    ? "border-blue-600 text-blue-700 dark:border-blue-400 dark:text-blue-400"
-                                                    : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-800 dark:text-gray-400 dark:hover:border-gray-700 dark:hover:text-gray-200"
-                                            )}
-                                        >
-                                            {item.title}
-                                        </Link>
-                                    );
-                                })}
-                            </nav>
                         )}
                     </div>
 

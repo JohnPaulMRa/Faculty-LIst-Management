@@ -31,18 +31,18 @@ class FacultyController extends Controller
     public function index(Request $request)
     {
         $user = \Illuminate\Support\Facades\Auth::user();
-        if (!$user || !$user->school_id) {
+        if (!$user || !$user->hei_id) {
             // Ideally redirect or show empty state if no school
-            $schoolId = null;
+            $heiId = null;
         } else {
-            $schoolId = $user->school_id;
+            $heiId = $user->hei_id;
         }
 
         // Auto-seed logic removed
 
         $query = \App\Models\Faculty::query();
-        if ($schoolId) {
-            $query->where('school_id', $schoolId);
+        if ($heiId) {
+            $query->where('hei_id', $heiId);
         } else {
             // If no school, maybe show nothing? or all if super admin?
             // For safety, let's show nothing if not admin.
@@ -73,8 +73,8 @@ class FacultyController extends Controller
 
         // Fetch E5 Data and map to match E2 structure for frontend consistency
         $queryE5 = \App\Models\FacultyE5::query();
-        if ($schoolId) {
-            $queryE5->where('school_id', $schoolId);
+        if ($heiId) {
+            $queryE5->where('hei_id', $heiId);
         } else {
             $queryE5->whereRaw('1 = 0');
         }
@@ -109,9 +109,9 @@ class FacultyController extends Controller
         $facultyData = $facultyE2->concat($facultyE5);
 
         // Get dynamic years from DB (union both tables)
-        if ($schoolId) {
-            $yearsE2 = \App\Models\Faculty::select('joined_year')->where('school_id', $schoolId)->whereNotNull('joined_year')->distinct()->pluck('joined_year');
-            $yearsE5 = \App\Models\FacultyE5::select('joined_year')->where('school_id', $schoolId)->whereNotNull('joined_year')->distinct()->pluck('joined_year');
+        if ($heiId) {
+            $yearsE2 = \App\Models\Faculty::select('joined_year')->where('hei_id', $heiId)->whereNotNull('joined_year')->distinct()->pluck('joined_year');
+            $yearsE5 = \App\Models\FacultyE5::select('joined_year')->where('hei_id', $heiId)->whereNotNull('joined_year')->distinct()->pluck('joined_year');
         } else {
             $yearsE2 = collect([]);
             $yearsE5 = collect([]);
@@ -123,7 +123,7 @@ class FacultyController extends Controller
             'filters' => $request->only(['search', 'year']),
             'referenceData' => $referenceData,
             'availableYears' => $availableYears,
-            'schoolName' => $schoolId ? (\App\Models\School::find($schoolId)->name ?? 'School Name') : 'School Name',
+            'schoolName' => $heiId ? (\App\Models\Hei::find($heiId)->name ?? 'HEI Name') : 'HEI Name',
         ]);
     }
 
@@ -161,7 +161,16 @@ class FacultyController extends Controller
             }
         } else {
             $faculty = \App\Models\Faculty::find($realId);
-            if (!$faculty) {
+            if ($faculty) {
+                // Map E2 fields to consistent E5 keys for frontend normalization
+                $data = $faculty->toArray();
+                $data['fullTimeCode'] = $faculty->employment;
+                $data['rankCode'] = $faculty->rank;
+                $data['degree'] = $faculty->degree;
+                $data['id'] = $id;
+
+                $faculty = (object) $data;
+            } else {
                 \Illuminate\Support\Facades\Log::warning("Faculty (E2) not found for ID: {$realId}");
             }
         }
@@ -187,12 +196,12 @@ class FacultyController extends Controller
         ]);
 
         $user = \Illuminate\Support\Facades\Auth::user();
-        if (!$user || !$user->school_id) {
-            return redirect()->back()->with('error', 'You must be associated with a school to add faculty.');
+        if (!$user || !$user->hei_id) {
+            return redirect()->back()->with('error', 'You must be associated with an HEI to add faculty.');
         }
 
         $data = $request->all();
-        $data['school_id'] = $user->school_id;
+        $data['hei_id'] = $user->hei_id;
 
         // For now allowing all fields from request for flexibility with imports
         \App\Models\Faculty::create($data);
@@ -208,8 +217,8 @@ class FacultyController extends Controller
         ]);
 
         $user = \Illuminate\Support\Facades\Auth::user();
-        if (!$user || !$user->school_id) {
-            return redirect()->back()->with('error', 'You must be associated with a school to import faculty.');
+        if (!$user || !$user->hei_id) {
+            return redirect()->back()->with('error', 'You must be associated with an HEI to import faculty.');
         }
 
         $data = $request->input('faculty');
@@ -220,10 +229,10 @@ class FacultyController extends Controller
             \App\Models\Faculty::updateOrCreate(
                 [
                     'name' => $record['name'],
-                    'school_id' => $user->school_id, // Scope by school
+                    'hei_id' => $user->hei_id, // Scope by school
                     'joined_year' => $record['joined_year'] ?? null // Scope by year
                 ],
-                array_merge($record, ['school_id' => $user->school_id])
+                array_merge($record, ['hei_id' => $user->hei_id])
             );
         }
 
@@ -238,8 +247,8 @@ class FacultyController extends Controller
         ]);
 
         $user = \Illuminate\Support\Facades\Auth::user();
-        if (!$user || !$user->school_id) {
-            return redirect()->back()->with('error', 'You must be associated with a school to import faculty.');
+        if (!$user || !$user->hei_id) {
+            return redirect()->back()->with('error', 'You must be associated with an HEI to import faculty.');
         }
 
         $data = $request->input('faculty');
@@ -250,7 +259,7 @@ class FacultyController extends Controller
             \App\Models\FacultyE5::updateOrCreate(
                 [
                     'name' => $record['name'],
-                    'school_id' => $user->school_id,
+                    'hei_id' => $user->hei_id,
                     'joined_year' => $record['joined_year'] ?? null
                 ],
                 [
@@ -259,7 +268,7 @@ class FacultyController extends Controller
                     'form_type' => 'E5',
                     'status' => $record['status'],
                     'employment' => $record['employment'],
-                    'school_id' => $user->school_id,
+                    'hei_id' => $user->hei_id,
 
                     'ft_pt_code' => $record['fullTimeCode'] ?? null,
                     'gender_code' => $record['genderCode'] ?? null,
@@ -357,16 +366,16 @@ class FacultyController extends Controller
         // Logic to updated statuses for the given year
         // Update both E2 and E5 tables, scoped to the user's school
         $user = \Illuminate\Support\Facades\Auth::user();
-        if (!$user || !$user->school_id) {
-            return redirect()->back()->with('error', 'You must be associated with a school to submit.');
+        if (!$user || !$user->hei_id) {
+            return redirect()->back()->with('error', 'You must be associated with an HEI to submit.');
         }
 
         $updatedCountE2 = \App\Models\Faculty::where('joined_year', $year)
-            ->where('school_id', $user->school_id)
+            ->where('hei_id', $user->hei_id)
             ->update(['status' => 'Completed']);
 
         $updatedCountE5 = \App\Models\FacultyE5::where('joined_year', $year)
-            ->where('school_id', $user->school_id)
+            ->where('hei_id', $user->hei_id)
             ->update(['status' => 'Completed']);
 
         $totalUpdated = $updatedCountE2 + $updatedCountE5;
@@ -374,13 +383,13 @@ class FacultyController extends Controller
         if ($totalUpdated > 0) {
             // Create Submission Record
             // Correctly use the user's school name
-            $schoolName = $user->school ? $user->school->name : (\App\Models\School::find($user->school_id)->name ?? 'Unknown School');
+            $heiName = $user->hei ? $user->hei->name : (\App\Models\Hei::find($user->hei_id)->name ?? 'Unknown HEI');
             $submittedBy = $user ? $user->name : 'Unknown User';
             $facultyCount = $totalUpdated;
 
-            \App\Models\SchoolSubmission::create([
-                'school_id' => $user->school_id, // Ensure SchoolSubmission has school_id if possible, or join it
-                'school_name' => $schoolName,
+            \App\Models\HeiSubmission::create([
+                'hei_id' => $user->hei_id, // Ensure SchoolSubmission has hei_id if possible, or join it
+                'hei_name' => $heiName,
                 'academic_year' => $year,
                 'submitted_by' => $submittedBy,
                 'total_faculty' => $facultyCount,
@@ -401,8 +410,8 @@ class FacultyController extends Controller
         ]);
 
         $user = \Illuminate\Support\Facades\Auth::user();
-        if (!$user || !$user->school_id) {
-            return redirect()->back()->with('error', 'You must be associated with a school to copy data.');
+        if (!$user || !$user->hei_id) {
+            return redirect()->back()->with('error', 'You must be associated with an HEI to copy data.');
         }
 
         $sourceYear = $request->input('source_year');
@@ -413,7 +422,7 @@ class FacultyController extends Controller
         }
 
         // Copy E2 Faculty
-        $e2Faculty = \App\Models\Faculty::where('school_id', $user->school_id)
+        $e2Faculty = \App\Models\Faculty::where('hei_id', $user->hei_id)
             ->where('joined_year', $sourceYear)
             ->get();
 
@@ -425,7 +434,7 @@ class FacultyController extends Controller
             $newFaculty->status = 'Not Updated';
 
             // Check if it already exists for target year to prevent duplicates
-            $exists = \App\Models\Faculty::where('school_id', $user->school_id)
+            $exists = \App\Models\Faculty::where('hei_id', $user->hei_id)
                 ->where('joined_year', $targetYear)
                 ->where('name', $faculty->name)
                 ->exists();
@@ -437,7 +446,7 @@ class FacultyController extends Controller
         }
 
         // Copy E5 Faculty
-        $e5Faculty = \App\Models\FacultyE5::where('school_id', $user->school_id)
+        $e5Faculty = \App\Models\FacultyE5::where('hei_id', $user->hei_id)
             ->where('joined_year', $sourceYear)
             ->get();
 
@@ -449,7 +458,7 @@ class FacultyController extends Controller
             $newFaculty->status = 'Not Updated';
 
             // Check if it already exists for target year
-            $exists = \App\Models\FacultyE5::where('school_id', $user->school_id)
+            $exists = \App\Models\FacultyE5::where('hei_id', $user->hei_id)
                 ->where('joined_year', $targetYear)
                 ->where('name', $faculty->name)
                 ->exists();

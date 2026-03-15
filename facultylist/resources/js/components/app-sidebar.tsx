@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid, LayoutDashboard, Users, LogOut } from 'lucide-react';
+import { BookOpen, Folder, LayoutGrid, LayoutDashboard, Users, LogOut, Building } from 'lucide-react';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
 import {
@@ -47,6 +47,11 @@ export function AppSidebar() {
                     { title: 'Private HEIs', href: `${admin.facultyList().url}?type=Private` },
                     { title: 'Public HEIs', href: `${admin.facultyList().url}?type=Public` }
                 ]
+            },
+            {
+                title: 'HEIs & Accounts',
+                href: admin.heisAccounts(),
+                icon: Building,
             },
             {
                 title: 'Disciplines',

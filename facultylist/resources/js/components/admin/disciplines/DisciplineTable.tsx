@@ -102,11 +102,11 @@ export default function DisciplineTable({ programs, onEdit, onDelete, onSort, so
                             <SelectValue placeholder="50" />
                         </SelectTrigger>
                         <SelectContent className="rounded-none">
+                            <SelectItem value="-1">All</SelectItem>
                             <SelectItem value="25">25</SelectItem>
                             <SelectItem value="50">50</SelectItem>
                             <SelectItem value="100">100</SelectItem>
                             <SelectItem value="500">500</SelectItem>
-                            <SelectItem value="-1">All</SelectItem>
                         </SelectContent>
                     </Select>
                     <span>entries</span>
@@ -127,8 +127,8 @@ export default function DisciplineTable({ programs, onEdit, onDelete, onSort, so
                 <Table>
                     <TableHeader>
                         <TableRow className="bg-blue-600 hover:bg-blue-600 border-b-0">
-                            <TableHead className="font-bold text-white uppercase text-xs tracking-wider w-12 text-center h-10">#</TableHead>
-                            <TableHead className="font-bold text-white uppercase text-xs tracking-wider h-10 w-[15%]">
+                            <TableHead className="font-bold text-white uppercase text-xs tracking-wider w-20 text-center h-10">#</TableHead>
+                            <TableHead className="font-bold text-white uppercase text-xs tracking-wider h-10 w-[20%]">
                                 <div
                                     className={`flex items-center gap-1 cursor-pointer transition-colors ${sortConfig?.key === 'code' ? 'text-blue-100' : 'hover:text-gray-200'}`}
                                     onClick={() => onSort('code')}
@@ -136,7 +136,7 @@ export default function DisciplineTable({ programs, onEdit, onDelete, onSort, so
                                     Code <ArrowUpDown className={`h-3 w-3 ${sortConfig?.key === 'code' ? 'opacity-100' : 'opacity-70'}`} />
                                 </div>
                             </TableHead>
-                            <TableHead className="font-bold text-white uppercase text-xs tracking-wider h-10 w-[20%]">
+                            <TableHead className="font-bold text-white uppercase text-xs tracking-wider h-10 w-[25%]">
                                 <div
                                     className={`flex items-center gap-1 cursor-pointer transition-colors ${sortConfig?.key === 'disciplineGroup' ? 'text-blue-100' : 'hover:text-gray-200'}`}
                                     onClick={() => onSort('disciplineGroup')}
@@ -144,7 +144,7 @@ export default function DisciplineTable({ programs, onEdit, onDelete, onSort, so
                                     Discipline Group <ArrowUpDown className={`h-3 w-3 ${sortConfig?.key === 'disciplineGroup' ? 'opacity-100' : 'opacity-70'}`} />
                                 </div>
                             </TableHead>
-                            <TableHead className="font-bold text-white uppercase text-xs tracking-wider h-10 w-[30%]">
+                            <TableHead className="font-bold text-white uppercase text-xs tracking-wider h-10 w-[25%]">
                                 <div
                                     className={`flex items-center gap-1 cursor-pointer transition-colors ${sortConfig?.key === 'specificMajor' ? 'text-blue-100' : 'hover:text-gray-200'}`}
                                     onClick={() => onSort('specificMajor')}
@@ -152,7 +152,7 @@ export default function DisciplineTable({ programs, onEdit, onDelete, onSort, so
                                     Major Discipline <ArrowUpDown className={`h-3 w-3 ${sortConfig?.key === 'specificMajor' ? 'opacity-100' : 'opacity-70'}`} />
                                 </div>
                             </TableHead>
-                            <TableHead className="font-bold text-white uppercase text-xs tracking-wider h-10">
+                            <TableHead className="font-bold text-white uppercase text-xs tracking-wider h-10 w-[20%]">
                                 <div
                                     className={`flex items-center gap-1 cursor-pointer transition-colors ${sortConfig?.key === 'name' ? 'text-blue-100' : 'hover:text-gray-200'}`}
                                     onClick={() => onSort('name')}

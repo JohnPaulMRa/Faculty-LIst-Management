@@ -165,7 +165,7 @@ export default function DisciplineFormModal({ isOpen, onClose, onSubmit, initial
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent
-                className="sm:max-w-[500px] rounded-none bg-white"
+                className="sm:max-w-[500px] rounded-[4px] bg-white"
                 onInteractOutside={(e) => e.preventDefault()}
             >
                 <DialogHeader className="px-6 pt-6 pb-4 border-b border-gray-100">

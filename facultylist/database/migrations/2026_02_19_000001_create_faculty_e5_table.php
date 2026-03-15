@@ -16,7 +16,7 @@ return new class extends Migration {
             $table->string('form_type', 10)->default('E5');
             $table->string('status')->default('Not Updated');
             $table->string('employment')->nullable();
-            $table->unsignedBigInteger('school_id')->nullable();
+            $table->unsignedBigInteger('hei_id')->nullable();
             $table->string('import_group')->nullable();
 
             $table->string('discipline_code')->nullable();
@@ -40,7 +40,7 @@ return new class extends Migration {
             // Setup proper relations to reference tables if needed
             // $table->foreign('ft_pt_code')->references('code')->on('e5_ref_full_time_part_time');
             // ... repeat for others ...
-            $table->foreign('school_id')->references('id')->on('schools')->onDelete('cascade');
+            $table->foreign('hei_id')->references('id')->on('heis')->onDelete('cascade');
         });
     }
 

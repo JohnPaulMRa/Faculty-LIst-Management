@@ -2,12 +2,10 @@ import { useState, useEffect, useCallback } from 'react';
 import { Search, Plus, Filter, LayoutGrid, X, University, Users, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import AddSchoolModal from './AddSchoolModal';
 import { router } from '@inertiajs/react';
 import { useDebounce } from '@/hooks/use-debounce';
 import { PrivateSchoolView } from '@/components/admin/faculty-list/private-HEI/PrivateSchoolView';
 import { PublicSchoolView } from '@/components/admin/faculty-list/public-HEI/PublicSchoolView';
-import CreateFacultyAccountModal from './CreateFacultyAccountModal';
 
 interface School {
     id: number;
@@ -15,6 +13,7 @@ interface School {
     hei_code: string | null;
     faculty: number;
     type: 'Public' | 'Private'; // Ensure case matches backend
+    academic_year?: string;
     status: string;
 }
 
@@ -31,16 +30,14 @@ interface FacultyMember {
 interface AdminFacultyListModuleProps {
     schools: School[];
     faculty: FacultyMember[];
-    filters: { school_id?: string; search?: string; type?: string };
+    filters: { hei_id?: string; search?: string; type?: string };
     referenceData?: any;
 }
 
 export default function AdminFacultyListModule({ schools = [], faculty = [], filters = {}, referenceData = {} }: AdminFacultyListModuleProps) {
     const [searchQuery, setSearchQuery] = useState(filters.search || "");
     const debouncedSearch = useDebounce(searchQuery, 500);
-    const selectedSchoolId = filters.school_id ? parseInt(filters.school_id) : null;
-    const [isSchoolModalOpen, setIsSchoolModalOpen] = useState(false);
-    const [isCreateAccountModalOpen, setIsCreateAccountModalOpen] = useState(false);
+    const selectedSchoolId = filters.hei_id ? parseInt(filters.hei_id) : null;
 
     const activeSchoolTitle = schools.find(s => s.id === selectedSchoolId)?.name;
 
@@ -79,9 +76,9 @@ export default function AdminFacultyListModule({ schools = [], faculty = [], fil
 
         const newFilters = { ...filters };
         if (isSelected) {
-            delete newFilters.school_id;
+            delete newFilters.hei_id;
         } else {
-            newFilters.school_id = schoolId.toString();
+            newFilters.hei_id = schoolId.toString();
         }
 
         router.get(
@@ -94,10 +91,6 @@ export default function AdminFacultyListModule({ schools = [], faculty = [], fil
     const clearSearch = () => {
         setSearchQuery("");
         handleSearch("");
-    };
-
-    const handleAddSchool = () => {
-        setIsSchoolModalOpen(true);
     };
 
     return (
@@ -127,19 +120,6 @@ export default function AdminFacultyListModule({ schools = [], faculty = [], fil
                                 )}
                             </div>
                         )}
-                        <Button
-                            onClick={handleAddSchool}
-                            variant="outline"
-                            className="w-full md:w-auto rounded-md h-10 gap-2 border-gray-300 shrink-0"
-                        >
-                            <Plus className="h-4 w-4" /> Add School
-                        </Button>
-                        <Button
-                            onClick={() => setIsCreateAccountModalOpen(true)}
-                            className="w-full md:w-auto bg-gray-900 text-white hover:bg-gray-800 rounded-md h-10 gap-2 shrink-0"
-                        >
-                            <Plus className="h-4 w-4" /> Create Account
-                        </Button>
                     </div>
                 </div>
 
@@ -179,43 +159,50 @@ export default function AdminFacultyListModule({ schools = [], faculty = [], fil
                             <table className="w-full border-collapse text-sm whitespace-nowrap font-sans">
                                 <thead>
                                     <tr className="bg-blue-500 text-white border-b border-gray-300">
-                                        <th className="px-3 py-2 font-bold w-[15%] text-left">HEI Code</th>
-                                        <th className="px-3 py-2 font-bold w-[45%] text-left">List of HEIs</th>
-                                        <th className="px-3 py-2 font-bold w-[20%] text-left">Academic Year</th>
+                                        <th className="px-3 py-2 font-bold w-[40px] text-left">#</th>
+                                        <th className="px-3 py-2 font-bold w-[20%] text-left">HEI Code</th>
+                                        <th className="px-3 py-2 font-bold w-[20%] text-left">List of HEIs</th>
+                                        <th className="px-3 py-2 font-bold w-[20%] text-left">Type of HEIs</th>
+                                        <th className="px-3 py-2 font-bold w-[10%] text-left">Academic Year</th>
                                         <th className="px-3 py-2 font-bold w-[20%] text-center">Total Faculty</th>
                                     </tr>
                                 </thead>
                                 <tbody className="bg-white text-sm">
                                     {filteredSchools.length > 0 ? (
-                                        filteredSchools.map((school) => (
+                                        filteredSchools.map((school, index) => (
                                             <tr
                                                 key={school.id}
                                                 className="border-b border-gray-300 hover:bg-gray-50 transition-colors cursor-pointer"
                                                 onClick={() => handleSchoolClick(school.id)}
                                             >
+                                                <td className="px-3 py-2 text-left text-gray-500 border-r border-gray-100">
+                                                    {index + 1}
+                                                </td>
                                                 <td className="px-3 py-2 text-left font-semibold text-gray-900">
                                                     {school.hei_code || <span className="text-gray-400">-</span>}
                                                 </td>
                                                 <td className="px-3 py-2 text-left font-semibold text-gray-900">
                                                     <div>{school.name}</div>
-                                                    <div className="text-[10px] font-normal text-gray-400 uppercase tracking-wide -mt-0.5">
-                                                        {school.type} HEI
+                                                </td>
+                                                <td className="px-3 py-2 text-left text-black">
+                                                    <div className="text-[10px] font-normal text-black tracking-wide -mt-0.5">
+                                                        {school.type} HEIs
                                                     </div>
                                                 </td>
                                                 <td className="px-3 py-2 text-left text-black">
-                                                    2024-2025
+                                                    {school.academic_year || 'N/A'}
                                                 </td>
                                                 <td className="px-3 py-2 font-bold text-center">
                                                     <div className="flex items-center justify-center gap-1.5 text-black">
                                                         <span>{school.faculty}</span>
-                                                        <Users className="h-4 w-4 text-gray-400" />
+                                                        <Users className="h-4 w-4 text-gray-500" />
                                                     </div>
                                                 </td>
                                             </tr>
                                         ))
                                     ) : (
                                         <tr>
-                                            <td colSpan={4} className="px-6 py-12 text-center text-gray-500 text-sm border-b border-gray-300 bg-gray-50">
+                                            <td colSpan={6} className="px-6 py-12 text-center text-gray-500 text-sm border-b border-gray-300 bg-gray-50">
                                                 <div className="flex flex-col items-center justify-center text-gray-500">
                                                     <University className="h-12 w-12 text-gray-300 mb-4" />
                                                     <h3 className="text-lg font-medium text-gray-900 mb-1">No schools found</h3>
@@ -231,18 +218,6 @@ export default function AdminFacultyListModule({ schools = [], faculty = [], fil
                     </div>
                 )}
             </div>
-
-            <AddSchoolModal
-                isOpen={isSchoolModalOpen}
-                onOpenChange={setIsSchoolModalOpen}
-                school={null}
-            />
-
-            <CreateFacultyAccountModal
-                isOpen={isCreateAccountModalOpen}
-                onOpenChange={setIsCreateAccountModalOpen}
-                schools={schools}
-            />
         </div>
     );
 }

@@ -9,7 +9,7 @@ return new class extends Migration {
     {
         Schema::create('faculty_e2', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('school_id')->nullable()->constrained('schools')->onDelete('cascade');
+            $table->foreignId('hei_id')->nullable()->constrained('heis')->onDelete('cascade');
             $table->string('name');
             $table->string('email')->nullable();
             $table->string('department')->nullable();

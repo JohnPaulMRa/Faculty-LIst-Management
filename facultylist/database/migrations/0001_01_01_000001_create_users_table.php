@@ -9,7 +9,7 @@ return new class extends Migration {
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('school_id')->nullable()->constrained()->onDelete('set null'); // Merged
+            $table->foreignId('hei_id')->nullable()->constrained('heis')->onDelete('set null'); // Merged
             $table->string('name');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();

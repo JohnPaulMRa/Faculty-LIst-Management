@@ -1,4 +1,4 @@
-export interface School {
+export interface Hei {
     id: number;
     name: string;
     hei_code: string | null;
@@ -11,4 +11,4 @@ export interface School {
     updated_at: string;
 }
 
-export type SchoolForm = Omit<School, 'id' | 'created_at' | 'updated_at'>;
+export type HeiForm = Omit<Hei, 'id' | 'created_at' | 'updated_at'>;

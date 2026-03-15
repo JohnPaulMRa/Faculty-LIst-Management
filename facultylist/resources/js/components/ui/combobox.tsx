@@ -52,14 +52,17 @@ export function Combobox({
         [value, options]
     )
 
-    // Sync input value with selected option
+    // Sync input value with selected option or clear if value is explicitly cleared
     React.useEffect(() => {
         if (selectedOption) {
             setInputValue(selectedOption.label)
-        } else if (!allowFreeInput) {
-            setInputValue("")
+        } else {
+            // If there's no selected option and we're not allowing free input, or if the value is explicitly cleared
+            if (!allowFreeInput || !value) {
+                setInputValue("")
+            }
         }
-    }, [selectedOption, allowFreeInput])
+    }, [selectedOption, allowFreeInput, value])
 
     return (
         <Command shouldFilter={true} className={cn("overflow-visible bg-transparent", containerClassName)}>

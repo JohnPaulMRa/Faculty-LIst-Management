@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
-        Schema::create('schools', function (Blueprint $table) {
+        Schema::create('heis', function (Blueprint $table) {
             $table->id();
             $table->string('name');
             $table->string('type')->default('Private'); // Merged
@@ -22,6 +22,6 @@ return new class extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('schools');
+        Schema::dropIfExists('heis');
     }
 };

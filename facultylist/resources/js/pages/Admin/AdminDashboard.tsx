@@ -47,7 +47,7 @@ interface UpdateItem {
 }
 
 interface AdminDashboardProps {
-    schools: DashboardSchool[];
+    heis: DashboardSchool[];
     stats: DashboardStat[];
     recentActivities: DashboardActivity[];
     distributionData: DistributionItem[];
@@ -56,7 +56,7 @@ interface AdminDashboardProps {
 }
 
 export default function AdminDashboard({
-    schools = [],
+    heis = [],
     stats = [],
     recentActivities = [],
     distributionData = [],
@@ -83,7 +83,7 @@ export default function AdminDashboard({
 
                         {/* School List */}
                         <div className="flex-1 min-h-[300px]">
-                            <SchoolList schools={schools} />
+                            <SchoolList schools={heis} />
                         </div>
                     </div>
 

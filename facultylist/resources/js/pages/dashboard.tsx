@@ -7,12 +7,7 @@ import FacultyOverview from '@/components/faculty/dashboard/FacultyOverview';
 import FacultyStats from '@/components/faculty/dashboard/FacultyStats';
 import FacultyTrends from '@/components/faculty/dashboard/FacultyTrends';
 
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Dashboard',
-        href: dashboard().url,
-    },
-];
+const breadcrumbs: BreadcrumbItem[] = [];
 
 // --- INTERFACES ---
 interface DashboardStats {
