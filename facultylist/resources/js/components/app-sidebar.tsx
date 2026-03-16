@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid, LayoutDashboard, Users, LogOut, Building } from 'lucide-react';
+import { BookOpen, Folder, LayoutGrid, LayoutDashboard, Users, LogOut, Building, Settings } from 'lucide-react';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
 import {
@@ -10,8 +10,10 @@ import {
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
+    SidebarSeparator,
 } from '@/components/ui/sidebar';
 import { facultyprofile, logout } from '@/routes';
+import { edit } from '@/routes/profile';
 import admin from '@/routes/admin';
 import type { NavItem, SharedData } from '@/types';
 import AppLogo from './app-logo';
@@ -64,7 +66,7 @@ export function AppSidebar() {
     return (
         <Sidebar collapsible="icon">
             <SidebarHeader className="p-0 border-b-0 bg-[#0067ce]">
-                <div className="flex w-full items-center text-white h-17 pl-2 pr-0 overflow-hidden">
+                <div className="flex w-full items-center justify-between text-white h-17 pl-2 pr-0 overflow-hidden">
                     <Link href={facultyprofile()} prefetch className="flex items-center gap-2 group/logo min-w-0">
                         <div className="shrink-0 flex items-center justify-center">
                             <img
@@ -92,6 +94,20 @@ export function AppSidebar() {
             <SidebarFooter>
                 <NavFooter items={footerNavItems} className="mt-auto" />
                 <SidebarMenu>
+                    <SidebarMenuItem>
+                        <SidebarMenuButton
+                            asChild
+                            className="text-base pl-3 h-12 px-3 [&>svg]:size-5 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground transition-colors group-data-[collapsible=icon]:justify-start"
+                        >
+                            <Link href={edit()} className="w-full justify-start cursor-pointer transition-colors">
+                                <Settings />
+                                <span className="transition-[max-width,opacity] duration-150 ease-out overflow-hidden whitespace-nowrap max-w-[200px] group-data-[collapsible=icon]:max-w-0 group-data-[collapsible=icon]:opacity-0">Settings</span>
+                            </Link>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+
+                    <SidebarSeparator />
+
                     <SidebarMenuItem>
                         <SidebarMenuButton
                             asChild

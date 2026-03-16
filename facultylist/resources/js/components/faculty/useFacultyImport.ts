@@ -124,7 +124,7 @@ export function useFacultyImport({
                             name: row[1], // ID is 0
                             rank: row[2],
                             degree: row[3],
-                            status: row[4] || 'Not Yet Completed',
+                            status: row[4] || 'Not Updated',
                             joined_year: importYear,
                             form_type: 'E2',
                             import_group: detectedGroup,

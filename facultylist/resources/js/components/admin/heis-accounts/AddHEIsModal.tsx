@@ -70,7 +70,7 @@ const AddHEIsModal: FC<Props> = ({ isOpen, onOpenChange, hei, onSave }) => {
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
             <DialogContent
-                className="sm:max-w-2xl rounded-[4px]"
+                className="sm:max-w-2xl rounded-xl shadow-xl"
                 onInteractOutside={(e) => e.preventDefault()}
             >
                 <DialogHeader>
@@ -186,10 +186,10 @@ const AddHEIsModal: FC<Props> = ({ isOpen, onOpenChange, hei, onSave }) => {
                     </div>
 
                     <DialogFooter className="pt-4">
-                        <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+                        <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="rounded-xl shadow-sm">
                             Cancel
                         </Button>
-                        <Button type="submit" disabled={processing}>
+                        <Button type="submit" disabled={processing} className="rounded-xl bg-gray-900 text-white hover:bg-gray-800 shadow-sm">
                             {processing ? 'Saving...' : 'Save Changes'}
                         </Button>
                     </DialogFooter>

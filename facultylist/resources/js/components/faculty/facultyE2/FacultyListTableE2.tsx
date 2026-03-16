@@ -15,12 +15,13 @@ type Props = {
 
 const FacultyListTableE2: FC<Props> = ({ facultyList, yearFilter, onFileClick, onDelete, onEdit }) => {
     const getStatusBadge = (status: string): string => {
+        const s = status?.trim();
         const styles: Record<string, string> = {
-            'Completed': 'bg-emerald-100 text-emerald-700 border border-emerald-200',
+            'Submitted': 'bg-emerald-100 text-emerald-700 border border-emerald-200',
             'No Submission': 'bg-red-100 text-red-700 border border-red-200',
             'Not Yet Completed': 'bg-red-100 text-red-700 border border-red-200',
         };
-        return styles[status] || 'bg-gray-100 text-gray-700 border border-gray-200';
+        return styles[s] || 'bg-gray-100 text-gray-700 border border-gray-200';
     };
 
     return (

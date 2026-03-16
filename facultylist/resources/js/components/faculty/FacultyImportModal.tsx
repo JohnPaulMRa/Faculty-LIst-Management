@@ -59,11 +59,11 @@ const FacultyImportModal: FC<Props> = ({
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
             <DialogTrigger asChild>
-                <Button variant="outline" className="text-[#003468] border-[#003468] hover:bg-[#003468]/5 font-medium shadow-sm gap-2 rounded-md h-9 px-4">
+                <Button variant="outline" className=" border-green-500 bg-green-200 text-green-900 hover:border-green-500 hover:bg-green-300 hover:text-gray-900 font-medium shadow-sm gap-2 rounded-md h-9 px-4">
                     <FileSpreadsheet className="h-4 w-4" /> Import Excel
                 </Button>
             </DialogTrigger>
-            <DialogContent 
+            <DialogContent
                 className="sm:max-w-2xl rounded-none"
                 onInteractOutside={(e) => e.preventDefault()}
             >

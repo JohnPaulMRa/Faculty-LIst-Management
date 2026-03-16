@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { Monitor, Menu, BookOpen, User, UserCog, LogOut } from 'lucide-react';
+import { Monitor, Menu, BookOpen, User, UserCog, LogOut, LayoutDashboard } from 'lucide-react';
 import { Breadcrumbs } from '@/components/breadcrumbs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -20,33 +20,40 @@ import { useCurrentUrl } from '@/hooks/use-current-url';
 import { useInitials } from '@/hooks/use-initials';
 import { cn } from '@/lib/utils';
 import { dashboard, facultyprofile, logout } from '@/routes';
+import admin from '@/routes/admin';
 import type { BreadcrumbItem, NavItem, SharedData } from '@/types';
 import AppLogoIcon from './app-logo-icon';
-
-
 
 type Props = {
     breadcrumbs?: BreadcrumbItem[];
 };
-
-const mainNavItems: NavItem[] = [
-    {
-        title: 'Dashboard',
-        href: dashboard(),
-        icon: Monitor,
-    },
-    {
-        title: 'Faculty Profile',
-        href: facultyprofile(),
-        icon: UserCog,
-    },
-];
 
 export function AppHeader({ breadcrumbs = [] }: Props) {
     const page = usePage<SharedData>();
     const { auth } = page.props;
     const getInitials = useInitials();
     const { isCurrentUrl, currentUrl } = useCurrentUrl();
+
+    const navItems: NavItem[] = auth.user.role === 'Admin'
+        ? [
+            {
+                title: 'Admin Dashboard',
+                href: admin.dashboard(),
+                icon: LayoutDashboard,
+            },
+        ]
+        : [
+            {
+                title: 'Dashboard',
+                href: dashboard(),
+                icon: Monitor,
+            },
+            {
+                title: 'Faculty Profile',
+                href: facultyprofile(),
+                icon: UserCog,
+            },
+        ];
 
     return (
         <div className="flex w-full flex-col font-sans">
@@ -102,7 +109,7 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
                                         </SheetTitle>
                                     </SheetHeader>
                                     <div className="flex flex-col space-y-1 p-2">
-                                        {mainNavItems.map((item) => (
+                                        {navItems.map((item) => (
                                             <Link
                                                 key={item.title}
                                                 href={item.href}
@@ -124,10 +131,11 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
 
                         {/* Desktop Navigation Tabs */}
                         <nav className="hidden h-14 items-center gap-8 lg:flex">
-                            {mainNavItems.map((item) => {
+                            {navItems.map((item) => {
                                 // Active if strict match OR if sub-page (e.g. /faculty/...) for Faculty Profile
                                 const active = isCurrentUrl(item.href) || 
-                                    (item.title === 'Faculty Profile' && currentUrl.startsWith('/faculty/'));
+                                    (item.title === 'Faculty Profile' && currentUrl.startsWith('/faculty/')) ||
+                                    (item.title === 'Admin Dashboard' && currentUrl.startsWith('/admin/'));
                                 
                                 return (
                                     <Link

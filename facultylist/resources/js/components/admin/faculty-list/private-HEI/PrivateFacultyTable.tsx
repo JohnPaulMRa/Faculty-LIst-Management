@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FileText, Eye, Loader2 } from "lucide-react";
+import { FileText, Loader2 } from "lucide-react";
 import { Link } from '@inertiajs/react';
 import axios from 'axios';
 import { edit } from '@/routes/faculty';
@@ -108,11 +108,11 @@ export default function PrivateFacultyTable({ faculty, referenceData }: PrivateF
                                     </span>
                                 </td>
                                 <td className="px-3 py-2 font-bold text-center">
-                                    <div className="flex items-center justify-center gap-2">
+                                    <div className="flex items-center justify-center">
                                         <button
                                             onClick={() => handleViewProfile(member)}
                                             disabled={isLoadingId === member.id}
-                                            className="flex items-center gap-1.5 text-blue-600 hover:text-blue-700 transition-colors bg-white hover:bg-blue-50 disabled:opacity-50 px-3 py-1.5 rounded-[4px] border border-blue-200 shadow-sm text-xs font-semibold w-36 justify-center"
+                                            className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50 px-3 h-8 rounded-xl shadow-md border-b-2 border-blue-800 active:border-b-0 active:translate-y-px transition-all text-xs font-semibold w-full max-w-[140px] justify-center"
                                             title="View Submission"
                                         >
                                             {isLoadingId === member.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileText className="h-3.5 w-3.5" />}

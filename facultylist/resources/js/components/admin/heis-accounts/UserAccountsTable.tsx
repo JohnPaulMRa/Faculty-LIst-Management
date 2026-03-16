@@ -41,7 +41,7 @@ export function UserAccountsTable({ accounts, searchQuery, onClearSearch }: User
                                     key={account.id}
                                     className="border-b border-gray-300 hover:bg-gray-50 transition-colors cursor-pointer"
                                 >
-                                    <td className="px-3 py-2 text-center text-gray-500 border-r border-gray-100">
+                                    <td className="px-3 py-2 text-center text-gray-500">
                                         {index + 1}
                                     </td>
                                     <td className="px-3 py-2 text-left font-semibold text-gray-900">
@@ -57,10 +57,20 @@ export function UserAccountsTable({ accounts, searchQuery, onClearSearch }: User
                                     </td>
                                     <td className="px-3 py-2 font-bold text-center">
                                         <div className="flex items-center justify-center gap-2">
-                                            <Button variant="ghost" size="icon" className="h-8 w-8 bg-amber-400 hover:bg-amber-500 text-amber-900" title="Edit">
+                                            <Button 
+                                                variant="ghost" 
+                                                size="icon" 
+                                                className="h-8 w-8 bg-amber-400 hover:bg-amber-500 text-amber-950 rounded-xl shadow-md border-b-2 border-amber-600 active:border-b-0 active:translate-y-px transition-all" 
+                                                title="Edit"
+                                            >
                                                 <Pencil className="h-4 w-4" />
                                             </Button>
-                                            <Button variant="ghost" size="icon" className="h-8 w-8 bg-red-500 hover:bg-red-600 text-white" title="Delete">
+                                            <Button 
+                                                variant="ghost" 
+                                                size="icon" 
+                                                className="h-8 w-8 bg-red-500 hover:bg-red-600 text-white rounded-xl shadow-md border-b-2 border-red-700 active:border-b-0 active:translate-y-px transition-all" 
+                                                title="Delete"
+                                            >
                                                 <Trash2 className="h-4 w-4" />
                                             </Button>
                                         </div>

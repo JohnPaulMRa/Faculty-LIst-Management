@@ -29,12 +29,19 @@ export default function EditDisciplineModal({ isOpen, onClose, onSubmit, initial
 
     useEffect(() => {
         if (initialData && isOpen) {
+            const isSpecific = initialData.type === 'specific';
+            const isMajor = initialData.type === 'major';
+
             setGroupCode(initialData.groupCode ?? initialData.code?.slice(0, 2) ?? "");
             setGroupDesc(initialData.groupName ?? initialData.majorDiscipline ?? "");
-            setMajorCode(initialData.majorCode ?? initialData.code?.slice(0, 4) ?? "");
-            setMajorDesc(initialData.majorName ?? "");
-            setSpecificCode(initialData.code ?? "");
-            setSpecificDesc(initialData.specificDiscipline ?? "");
+            
+            // Major fields
+            setMajorCode(isMajor || isSpecific ? (initialData.majorCode ?? initialData.code?.slice(0, 6) ?? "") : "");
+            setMajorDesc(initialData.majorName ?? (isMajor ? initialData.description : ""));
+            
+            // Specific fields
+            setSpecificCode(isSpecific ? (initialData.code ?? "") : "");
+            setSpecificDesc(isSpecific ? (initialData.specificDiscipline ?? initialData.description ?? "") : "");
         }
     }, [initialData, isOpen]);
 
@@ -80,7 +87,7 @@ export default function EditDisciplineModal({ isOpen, onClose, onSubmit, initial
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent
-                className="sm:max-w-[520px] rounded-[4px] bg-white"
+                className="sm:max-w-[520px] rounded-xl bg-white shadow-xl"
                 onInteractOutside={(e) => e.preventDefault()}
             >
                 <DialogHeader className="px-6 pt-6 pb-4 border-b border-gray-100">
@@ -90,14 +97,14 @@ export default function EditDisciplineModal({ isOpen, onClose, onSubmit, initial
 
                 <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
                     {row("Discipline Group", groupCode, setGroupCode, groupDesc, setGroupDesc, 2)}
-                    {row("Major Discipline", majorCode, setMajorCode, majorDesc, setMajorDesc, 4)}
+                    {row("Major Discipline", majorCode, setMajorCode, majorDesc, setMajorDesc, 6)}
                     {row("Specific Discipline", specificCode, setSpecificCode, specificDesc, setSpecificDesc, 6)}
 
                     <DialogFooter className="pt-4 border-t border-gray-100">
-                        <Button type="button" variant="outline" onClick={onClose} disabled={processing} className="rounded-none border-gray-300">
+                        <Button type="button" variant="outline" onClick={onClose} disabled={processing} className="rounded-xl border-gray-300 shadow-sm">
                             Cancel
                         </Button>
-                        <Button type="submit" disabled={processing} className="rounded-none bg-black text-white hover:bg-gray-800 disabled:opacity-60">
+                        <Button type="submit" disabled={processing} className="rounded-xl bg-gray-900 text-white hover:bg-gray-800 disabled:opacity-60 shadow-sm">
                             {processing ? "Saving..." : "Save Changes"}
                         </Button>
                     </DialogFooter>

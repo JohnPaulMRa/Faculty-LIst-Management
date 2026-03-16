@@ -69,7 +69,13 @@ class FacultyController extends Controller
         // Fetch Reference Data from Database
         $referenceData = $this->getReferenceData();
 
-        $facultyE2 = $query->get();
+        $facultyE2 = $query->get()->map(function ($item) {
+            $data = $item->toArray();
+            $data['status'] = $item->status ?? 'Not Updated';
+            // Map E2 fields to be consistent with E5 frontend keys if needed
+            // For E2, degree and rank are already named 'degree' and 'rank'
+            return (object) $data;
+        });
 
         // Fetch E5 Data and map to match E2 structure for frontend consistency
         $queryE5 = \App\Models\FacultyE5::query();
@@ -372,11 +378,11 @@ class FacultyController extends Controller
 
         $updatedCountE2 = \App\Models\Faculty::where('joined_year', $year)
             ->where('hei_id', $user->hei_id)
-            ->update(['status' => 'Completed']);
+            ->update(['status' => 'Submitted']);
 
         $updatedCountE5 = \App\Models\FacultyE5::where('joined_year', $year)
             ->where('hei_id', $user->hei_id)
-            ->update(['status' => 'Completed']);
+            ->update(['status' => 'Submitted']);
 
         $totalUpdated = $updatedCountE2 + $updatedCountE5;
 
@@ -393,7 +399,7 @@ class FacultyController extends Controller
                 'academic_year' => $year,
                 'submitted_by' => $submittedBy,
                 'total_faculty' => $facultyCount,
-                'status' => 'Completed',
+                'status' => 'Submitted',
             ]);
 
             return redirect()->back()->with('success', "Successfully submitted {$totalUpdated} faculty records for {$year}.");

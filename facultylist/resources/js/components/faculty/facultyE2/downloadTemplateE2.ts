@@ -1,6 +1,6 @@
 export const downloadTemplateE2 = (): void => {
     const headers = ["ID","Name","Rank","Degree","Status","Year"];
-    const rowExample = ["001","Juan Cruz","Prof I","PhD","Completed","2024"];
+    const rowExample = ["001","Juan Cruz","Prof I","PhD","Submitted","2024"];
     const fileName = "FORM_E2_PUBLIC.csv";
 
     const processRow = (row: string[]) => row.map(cell => `"${cell.replace(/"/g, '""')}"`).join(",");

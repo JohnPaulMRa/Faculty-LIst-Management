@@ -4,14 +4,14 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { DialogClose } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import type { Faculty } from '@/types/faculty';
+import type { PrivateFaculty } from '@/types/faculty';
 import DisciplineSelector from './DisciplineSelector';
 import { FacultyProfileCardsE5 } from './FacultyProfileCardsE5';
 import ReferenceTableE5 from './ReferenceTableE5';
 
 
 type Props = {
-    faculty?: Faculty;
+    faculty?: PrivateFaculty;
     onSave?: (data: any) => void;
     onCancel?: () => void;
     referenceData: any;
@@ -166,8 +166,8 @@ const FacultyFormE5: FC<Props> = ({ faculty, onSave, referenceData }) => {
         // Sync legacy string fields
         const syncedData = {
             ...formData,
-            rank: getDesc(referenceData?.facultyRank, formData.rankCode) || faculty?.rank || '',
-            employment: getDesc(referenceData?.fullTimePartTime, formData.fullTimeCode) || faculty?.employment || '',
+            rank: getDesc(referenceData?.facultyRank, formData.rankCode) || faculty?.rankCode || '',
+            employment: getDesc(referenceData?.fullTimePartTime, formData.fullTimeCode) || (faculty?.form_type === 'E5' ? (faculty as any).employment : '') || '',
 
             // Sync Degree Strings
             bachelors: getDisciplineDesc(formData.bachelorsCode) || faculty?.bachelors || '',

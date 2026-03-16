@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { Trash2, Eye, ArrowUpDown } from 'lucide-react';
+import { Trash2, Pencil, ArrowUpDown } from 'lucide-react';
 import type { FC } from 'react';
 import { useState, useMemo } from 'react';
 import type { Faculty } from '@/types/faculty';
@@ -35,11 +35,13 @@ const FacultyListTableE5: FC<Props> = ({ facultyList, yearFilter, onFileClick, o
     };
 
     const getStatusBadge = (status: string): string => {
+        const s = status?.trim();
         const styles: Record<string, string> = {
             'Updated': 'bg-green-400 text-white border-green-600 shadow-sm',
+            'Submitted': 'bg-green-500 text-white border-green-700 shadow-sm',
             'Not Updated': 'bg-red-400 text-white border-red-600 shadow-sm',
         };
-        return styles[status] || 'bg-gray-100 text-gray-800 border border-gray-300 shadow-sm';
+        return styles[s] || 'bg-gray-100 text-gray-800 border border-gray-300 shadow-sm';
     };
 
     const getGender = (code?: string) => {
@@ -49,7 +51,7 @@ const FacultyListTableE5: FC<Props> = ({ facultyList, yearFilter, onFileClick, o
     };
 
     const getEmploymentStatus = (faculty: Faculty) => {
-        if (faculty.fullTimeCode) {
+        if (faculty.form_type === 'E5' && faculty.fullTimeCode) {
             const found = referenceData?.fullTimePartTime?.find((f: any) => f.code == faculty.fullTimeCode);
             if (found) {
                 return found.desc;
@@ -158,7 +160,9 @@ const FacultyListTableE5: FC<Props> = ({ facultyList, yearFilter, onFileClick, o
                                     <td className="px-3 py-2 text-center text-black">{(currentPage - 1) * pageSize + index + 1}</td>
                                     <td className="px-3 py-2 text-center text-black">{faculty.joined_year}</td>
                                     <td className="px-3 py-2 text-left font-semibold text-gray-900">{faculty.name}</td>
-                                    <td className="px-3 py-2 text-center text-black">{getGender(faculty.genderCode)}</td>
+                                    <td className="px-3 py-2 text-center text-black">
+                                        {faculty.form_type === 'E5' ? getGender(faculty.genderCode) : 'N/A'}
+                                    </td>
                                     <td className="px-3 py-2 text-left text-black">
                                         <div
                                             className="truncate max-w-[420px] text-sm"
@@ -176,17 +180,17 @@ const FacultyListTableE5: FC<Props> = ({ facultyList, yearFilter, onFileClick, o
                                         <div className="flex items-center justify-center gap-2">
                                             <Link
                                                 href={edit({ id: faculty.id }).url}
-                                                className="flex items-center gap-1 black-[#ffffff] hover:text-white transition-colors bg-[#ffbb00]/50 hover:bg-[#ffbb00] px-2 py-1.5 rounded-sm border border-[#ffbb00]/30 shadow-sm text-xs font-semibold"
+                                                className="flex items-center justify-center h-8 w-8 bg-amber-400 hover:bg-amber-500 text-amber-950 rounded-xl shadow-md border-b-2 border-amber-600 active:border-b-0 active:translate-y-px transition-all"
                                                 title="Edit Profile"
                                             >
-                                                <Eye className="h-2 w-2" /> Edit
+                                                <Pencil className="h-4 w-4" />
                                             </Link>
                                             <button
                                                 onClick={() => onDelete(faculty.id)}
-                                                className="flex items-center gap-1 text-red-700 hover:text-white transition-colors bg-red-50 hover:bg-red-600 px-2 py-1.5 rounded-sm border border-red-200 shadow-sm text-xs font-semibold"
+                                                className="flex items-center justify-center h-8 w-8 bg-red-500 hover:bg-red-600 text-white rounded-xl shadow-md border-b-2 border-red-700 active:border-b-0 active:translate-y-px transition-all"
                                                 title="Delete"
                                             >
-                                                <Trash2 className="h-2 w-2" /> Delete
+                                                <Trash2 className="h-4 w-4" />
                                             </button>
                                         </div>
                                     </td>
@@ -213,7 +217,7 @@ const FacultyListTableE5: FC<Props> = ({ facultyList, yearFilter, onFileClick, o
                         <button
                             onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                             disabled={currentPage === 1}
-                            className="px-3 py-1.5 border border-gray-300 rounded-none text-sm disabled:opacity-40 hover:bg-gray-100 font-medium"
+                            className="px-2 py-1.5 border border-gray-300 rounded-none text-sm disabled:opacity-40 hover:bg-gray-100 font-medium"
                         >Previous</button>
                         {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                             const start = Math.max(1, Math.min(currentPage - 2, totalPages - 4));

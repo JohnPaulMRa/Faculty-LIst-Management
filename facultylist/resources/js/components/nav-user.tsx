@@ -1,5 +1,5 @@
 import { usePage } from '@inertiajs/react';
-import { ChevronsUpDown } from 'lucide-react';
+import { User } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -21,6 +21,22 @@ export function NavUser() {
     const { state } = useSidebar();
     const isMobile = useIsMobile();
 
+    if (auth.user.role === 'Admin') {
+        return (
+            <SidebarMenu>
+                <SidebarMenuItem>
+                    <SidebarMenuButton
+                        size="lg"
+                        className="group text-white hover:bg-white/10 hover:text-white data-[state=open]:bg-white/10 data-[state=open]:text-white px-3 cursor-default active:bg-transparent"
+                    >
+                        <User className="size-5" />
+                        <span className="truncate text-sm font-normal">{auth.user.name}</span>
+                    </SidebarMenuButton>
+                </SidebarMenuItem>
+            </SidebarMenu>
+        );
+    }
+
     return (
         <SidebarMenu>
             <SidebarMenuItem>
@@ -28,11 +44,11 @@ export function NavUser() {
                     <DropdownMenuTrigger asChild>
                         <SidebarMenuButton
                             size="lg"
-                            className="group text-white hover:bg-white/10 hover:text-white data-[state=open]:bg-white/10 data-[state=open]:text-white"
+                            className="group text-white hover:bg-white/10 hover:text-white data-[state=open]:bg-white/10 data-[state=open]:text-white px-3"
                             data-test="sidebar-menu-button"
                         >
-                            <UserInfo user={auth.user} />
-                            <ChevronsUpDown className="ml-auto size-4" />
+                            <User className="size-5" />
+                            <span className="truncate text-sm font-normal">{auth.user.name}</span>
                         </SidebarMenuButton>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent

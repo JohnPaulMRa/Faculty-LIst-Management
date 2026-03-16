@@ -8,15 +8,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { FileText, MoreHorizontal } from "lucide-react";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { FileText } from "lucide-react";
 
 interface FacultyMember {
     id: string | number;
@@ -68,25 +60,26 @@ export default function PublicFacultyTable({ faculty }: PublicFacultyTableProps)
                                     {member.submissionStatus}
                                 </Badge>
                             </TableCell>
-                            <TableCell className="text-right">
-                                <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                        <Button variant="ghost" className="h-8 w-8 p-0 rounded-md hover:bg-gray-100">
-                                            <span className="sr-only">Open menu</span>
-                                            <MoreHorizontal className="h-4 w-4 text-gray-500" />
-                                        </Button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent align="end" className="rounded-lg border-gray-200 shadow-md">
-                                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                        <DropdownMenuItem className="cursor-pointer rounded-md focus:bg-gray-100 m-1">
-                                            View Profile
-                                        </DropdownMenuItem>
-                                        <DropdownMenuSeparator className="bg-gray-100" />
-                                        <DropdownMenuItem className="cursor-pointer rounded-md focus:bg-gray-100 m-1">
-                                            <FileText className="mr-2 h-4 w-4" /> View Submission
-                                        </DropdownMenuItem>
-                                    </DropdownMenuContent>
-                                </DropdownMenu>
+                            <TableCell className="text-center py-2">
+                                <div className="flex items-center justify-center gap-2">
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="h-8 px-3 bg-amber-400 hover:bg-amber-500 text-amber-950 rounded-xl shadow-md border-b-2 border-amber-600 active:border-b-0 active:translate-y-px transition-all text-[10px] font-bold uppercase tracking-wider"
+                                        title="View Profile"
+                                    >
+                                        View Profile
+                                    </Button>
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="h-8 px-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-md border-b-2 border-blue-800 active:border-b-0 active:translate-y-px transition-all text-[10px] font-bold uppercase tracking-wider flex gap-1.5"
+                                        title="View Submission"
+                                    >
+                                        <FileText className="h-3.5 w-3.5" />
+                                        View Submission
+                                    </Button>
+                                </div>
                             </TableCell>
                         </TableRow>
                     ))}

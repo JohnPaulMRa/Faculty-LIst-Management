@@ -270,8 +270,7 @@ class AdminController extends Controller
                 ->map(function ($major) use ($specifics) {
                     // Specifics whose major_code matches this major
                     $majorSpecifics = $specifics
-                        ->filter(fn($s) => $s->major_code === $major->code
-                            && strtoupper(trim($s->description)) !== strtoupper(trim($major->description)))
+                        ->filter(fn($s) => $s->major_code === $major->code)
                         ->map(fn($s) => [
                             'code' => $s->code,
                             'description' => $s->description,
@@ -315,14 +314,20 @@ class AdminController extends Controller
             $saved = false;
             if (!empty($specificName)) {
                 $groupCode = substr($code, 0, 2);
-                $majorPrefix = substr($code, 0, 4);
+                $majorPrefix6 = substr($code, 0, 6);
+                $majorPrefix4 = substr($code, 0, 4);
                 
                 // If majorName is provided, we create it. If not, we just check if it exists in DB.
-                if (!empty($majorName) && strlen($code) >= 4) {
-                    $majorCode = $majorPrefix;
+                if (!empty($majorName)) {
+                    $majorCode = strlen($code) >= 6 ? $majorPrefix6 : $majorPrefix4;
                 } else {
-                    $majorExists = RefMajorDiscipline::where('code', $majorPrefix)->exists();
-                    $majorCode = $majorExists ? $majorPrefix : null;
+                    $majorExists6 = RefMajorDiscipline::where('code', $majorPrefix6)->exists();
+                    if ($majorExists6 && strlen($code) >= 6) {
+                        $majorCode = $majorPrefix6;
+                    } else {
+                        $majorExists4 = RefMajorDiscipline::where('code', $majorPrefix4)->exists();
+                        $majorCode = $majorExists4 ? $majorPrefix4 : null;
+                    }
                 }
 
                 // Save the specific discipline
@@ -408,9 +413,17 @@ class AdminController extends Controller
                     if ($newCode && $newCode !== $code) {
                         $specific->code = $newCode;
                         $specific->group_code = substr($newCode, 0, 2);
-                        $majorPrefix = substr($newCode, 0, 4);
-                        $majorExists = RefMajorDiscipline::where('code', $majorPrefix)->exists();
-                        $specific->major_code = $majorExists ? $majorPrefix : null;
+                        
+                        $mPrefix6 = substr($newCode, 0, 6);
+                        $mPrefix4 = substr($newCode, 0, 4);
+                        
+                        $majorExists6 = RefMajorDiscipline::where('code', $mPrefix6)->exists();
+                        if ($majorExists6 && strlen($newCode) >= 6) {
+                            $specific->major_code = $mPrefix6;
+                        } else {
+                            $majorExists4 = RefMajorDiscipline::where('code', $mPrefix4)->exists();
+                            $specific->major_code = $majorExists4 ? $mPrefix4 : null;
+                        }
                     }
                     $specific->save();
                     $updated = true;

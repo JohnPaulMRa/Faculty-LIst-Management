@@ -64,7 +64,8 @@ const FacultyProfile: FC<FacultyProfileProps> = ({
                 (f) =>
                     (f.name && f.name.toLowerCase().includes(q)) ||
                     (f.degree && f.degree.toLowerCase().includes(q)) ||
-                    (f.rank && f.rank.toLowerCase().includes(q))
+                    (f.form_type === 'E2' && f.rank && f.rank.toLowerCase().includes(q)) ||
+                    (f.form_type === 'E5' && f.rankCode && f.rankCode.toLowerCase().includes(q))
             );
         }
 
@@ -113,7 +114,7 @@ const FacultyProfile: FC<FacultyProfileProps> = ({
         }
         setIsSubmitModalOpen(false);
         showConfirm(
-            `Are you sure you want to SUBMIT the faculty list for ${submitYear}? This will mark records as Completed.`,
+            `Are you sure you want to SUBMIT the faculty list for ${submitYear}? This will mark records as Submitted.`,
             () => {
                 router.post(
                     route('faculty.submit'),

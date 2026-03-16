@@ -94,7 +94,7 @@ export default function AddDisciplineForm({ onCancel, onSubmit, majors = [], pro
     };
 
     return (
-        <div className="bg-white border border-gray-200 p-6 mb-8 animate-in fade-in slide-in-from-top-4 duration-500">
+        <div className="bg-white border border-gray-100 p-6 mb-8 animate-in fade-in slide-in-from-top-4 duration-500">
             <div className="flex justify-between items-center mb-6">
                 <div>
                     <h2 className="text-xl font-bold text-gray-900"> New Discipline</h2>
@@ -103,7 +103,7 @@ export default function AddDisciplineForm({ onCancel, onSubmit, majors = [], pro
                     </p>
                 </div>
                 {onCancel && (
-                    <Button variant="ghost" size="icon" onClick={onCancel} className="rounded-none">
+                    <Button variant="ghost" size="icon" onClick={onCancel} className="rounded-xl">
                         <X className="h-5 w-5" />
                     </Button>
                 )}
@@ -121,11 +121,11 @@ export default function AddDisciplineForm({ onCancel, onSubmit, majors = [], pro
                             onChange={(e) => {
                                 const val = e.target.value.replace(/\D/g, "").slice(0, 10);
                                 setSpecificCode(val);
-                                
+
                                 // Sync parent codes
                                 const gCode = val.length >= 2 ? val.slice(0, 2) : val;
-                                const mCode = val.length >= 4 ? val.slice(0, 4) : val;
-                                
+                                const mCode = val.length >= 6 ? val.slice(0, 6) : (val.length >= 4 ? val.slice(0, 4) : val);
+
                                 setGroupCode(gCode);
                                 setMajorCode(mCode);
 
@@ -139,7 +139,7 @@ export default function AddDisciplineForm({ onCancel, onSubmit, majors = [], pro
                                     }
                                 }
                             }}
-                            className="h-10 rounded-none font-mono text-xs text-center border-gray-300 focus-visible:ring-1 focus-visible:ring-gray-400"
+                            className="h-10 rounded-none font-mono text-xs text-center border-gray-500 focus-visible:ring-1 focus-visible:ring-gray-400"
                             placeholder=""
                             maxLength={10}
                         />
@@ -159,7 +159,7 @@ export default function AddDisciplineForm({ onCancel, onSubmit, majors = [], pro
                             }}
                             placeholder=""
                             containerClassName="w-full h-10"
-                            className="h-full rounded-none border border-gray-300 text-sm"
+                            className="h-full rounded-none border border-gray-500 text-sm"
                         />
                     </div>
 
@@ -178,7 +178,7 @@ export default function AddDisciplineForm({ onCancel, onSubmit, majors = [], pro
                             allowFreeInput
                             placeholder=""
                             containerClassName="w-full h-10"
-                            className="h-full rounded-none border border-gray-300 text-sm"
+                            className="h-full rounded-none border border-gray-500 text-sm"
                         />
                     </div>
 
@@ -190,7 +190,7 @@ export default function AddDisciplineForm({ onCancel, onSubmit, majors = [], pro
                         <Input
                             value={specificDesc}
                             onChange={(e) => setSpecificDesc(e.target.value)}
-                            className="h-10 rounded-none text-sm border-gray-300 focus-visible:ring-1 focus-visible:ring-gray-400"
+                            className="h-10 rounded-none text-sm border-gray-500 focus-visible:ring-1 focus-visible:ring-gray-400"
                             placeholder=""
                         />
                     </div>
@@ -202,14 +202,14 @@ export default function AddDisciplineForm({ onCancel, onSubmit, majors = [], pro
                         variant="outline"
                         onClick={clearForm}
                         disabled={processing}
-                        className="rounded-none border-gray-300 h-10 px-6 text-xs uppercase tracking-wider font-semibold"
+                        className="rounded-xl border-gray-300 h-10 px-6 text-xs uppercase tracking-wider font-semibold shadow-sm"
                     >
                         Clear
                     </Button>
                     <Button
                         type="submit"
                         disabled={processing}
-                        className="rounded-none bg-black text-white hover:bg-gray-800 disabled:opacity-60 h-10 px-8 text-xs uppercase tracking-wider font-semibold flex gap-2"
+                        className="rounded-xl bg-gray-900 text-white hover:bg-gray-800 disabled:opacity-60 h-10 px-8 text-xs uppercase tracking-wider font-semibold flex gap-2 shadow-sm"
                     >
                         {processing ? "Saving..." : (
                             <>

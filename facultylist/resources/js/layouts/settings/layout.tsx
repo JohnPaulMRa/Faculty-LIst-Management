@@ -1,4 +1,4 @@
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import type { PropsWithChildren } from 'react';
 import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
@@ -9,7 +9,9 @@ import { edit as editAppearance } from '@/routes/appearance';
 import { edit } from '@/routes/profile';
 import { show } from '@/routes/two-factor';
 import { edit as editPassword } from '@/routes/user-password';
-import type { NavItem } from '@/types';
+import AppLayout from '@/layouts/app-layout';
+import AppSidebarLayout from '@/layouts/app/app-sidebar-layout';
+import type { BreadcrumbItem, NavItem, SharedData } from '@/types';
 
 const sidebarNavItems: NavItem[] = [
     {
@@ -34,15 +36,21 @@ const sidebarNavItems: NavItem[] = [
     },
 ];
 
-export default function SettingsLayout({ children }: PropsWithChildren) {
+type SettingsLayoutProps = PropsWithChildren<{
+    breadcrumbs?: BreadcrumbItem[];
+}>;
+
+export default function SettingsLayout({ children, breadcrumbs = [] }: SettingsLayoutProps) {
     const { isCurrentUrl } = useCurrentUrl();
+    const { auth } = usePage<SharedData>().props;
+    const isAdmin = auth.user.role === 'Admin';
 
     // When server-side rendering, we only render the layout on the client...
     if (typeof window === 'undefined') {
         return null;
     }
 
-    return (
+    const settingsContent = (
         <div className="px-4 py-6">
             <Heading
                 title="Settings"
@@ -85,5 +93,19 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
                 </div>
             </div>
         </div>
+    );
+
+    if (isAdmin) {
+        return (
+            <AppSidebarLayout breadcrumbs={breadcrumbs}>
+                {settingsContent}
+            </AppSidebarLayout>
+        );
+    }
+
+    return (
+        <AppLayout breadcrumbs={breadcrumbs}>
+            {settingsContent}
+        </AppLayout>
     );
 }

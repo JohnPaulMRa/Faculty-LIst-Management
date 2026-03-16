@@ -8,7 +8,7 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Edit, Trash2, ArrowUpDown } from "lucide-react";
+import { Pencil, Trash2, ArrowUpDown } from "lucide-react";
 import {
     Select,
     SelectContent,
@@ -174,27 +174,31 @@ export default function DisciplineTable({ programs, onEdit, onDelete, onSort, so
                             paginatedPrograms.map((program, index) => (
                                 <TableRow key={program.id} className="even:bg-gray-50 hover:bg-blue-50/50 transition-colors border-b border-gray-100">
                                     <TableCell className="text-center font-medium text-gray-500 text-xs py-2">{startEntry + index}</TableCell>
-                                    <TableCell className="font-medium text-gray-900 text-xs py-2">{program.code}</TableCell>
-                                    <TableCell className="text-gray-500 text-xs py-2">{program.disciplineGroup || '—'}</TableCell>
-                                    <TableCell className="text-gray-500 text-xs py-2">{program.specificMajor || '—'}</TableCell>
-                                    <TableCell className="text-gray-700 text-xs font-semibold py-2">{program.name || '—'}</TableCell>
+                                    <TableCell className="font-medium text-gray-700 text-xs py-2">{program.code}</TableCell>
+                                    <TableCell className="text-gray-700 text-xs font-semibold py-2">{program.disciplineGroup || '—'}</TableCell>
+                                    <TableCell className="text-gray-700 text-xs font-semibold py-2">{program.specificMajor || '—'}</TableCell>
+                                    <TableCell className="text-gray-700 text-xs font-semibold py-2">
+                                        {program.name || '—'}
+                                    </TableCell>
                                     <TableCell className="text-center py-2">
-                                        <div className="flex items-center justify-center gap-1">
+                                        <div className="flex items-center justify-center gap-2">
                                             <Button
                                                 variant="ghost"
-                                                size="sm"
+                                                size="icon"
                                                 onClick={() => onEdit(program.originalData)}
-                                                className="h-7 w-7 p-0 bg-amber-400 hover:bg-amber-500 text-amber-900 rounded-sm shadow-sm"
+                                                className="h-8 w-8 bg-amber-400 hover:bg-amber-500 text-amber-950 rounded-xl shadow-md border-b-2 border-amber-600 active:border-b-0 active:translate-y-px transition-all"
+                                                title="Edit"
                                             >
-                                                <Edit className="h-3.5 w-3.5" />
+                                                <Pencil className="h-4 w-4" />
                                             </Button>
                                             <Button
                                                 variant="ghost"
-                                                size="sm"
+                                                size="icon"
                                                 onClick={() => onDelete(program.code)}
-                                                className="h-7 w-7 p-0 bg-red-500 hover:bg-red-600 text-white rounded-sm shadow-sm"
+                                                className="h-8 w-8 bg-red-500 hover:bg-red-600 text-white rounded-xl shadow-md border-b-2 border-red-700 active:border-b-0 active:translate-y-px transition-all"
+                                                title="Delete"
                                             >
-                                                <Trash2 className="h-3.5 w-3.5" />
+                                                <Trash2 className="h-4 w-4" />
                                             </Button>
                                         </div>
                                     </TableCell>

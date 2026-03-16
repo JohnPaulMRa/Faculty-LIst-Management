@@ -91,13 +91,13 @@ export default function HeisAccountsModule({ heis = [], accounts = [] }: HeisAcc
                                 setSelectedHei(null);
                                 setIsHeiModalOpen(true);
                             }}
-                            className="w-full md:w-auto bg-white text-gray-900 border border-gray-300 hover:bg-gray-100 rounded-md h-10 gap-2 shrink-0"
+                            className="w-full md:w-auto bg-white text-gray-900 border border-gray-300 hover:bg-gray-100 rounded-xl h-10 gap-2 shrink-0 shadow-sm"
                         >
                             <Plus className="h-4 w-4" /> Add HEIs
                         </Button>
                         <Button
                             onClick={() => setIsCreateAccountModalOpen(true)}
-                            className="w-full md:w-auto bg-gray-900 text-white hover:bg-gray-800 rounded-md h-10 gap-2 shrink-0"
+                            className="w-full md:w-auto bg-gray-900 text-white hover:bg-gray-800 rounded-xl h-10 gap-2 shrink-0 shadow-sm"
                         >
                             <Plus className="h-4 w-4" /> Create Account
                         </Button>

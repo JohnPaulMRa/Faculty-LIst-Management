@@ -17,13 +17,14 @@ type Props = {
 
 const STATUS_OPTIONS = [
     "Updated",
-    "Not Updated"
+    "Not Updated",
+    "Submitted"
 ];
 
-const FacultyStatusSelect: FC<Props> = ({ 
-    value, 
-    onValueChange, 
-    disabled = false, 
+const FacultyStatusSelect: FC<Props> = ({
+    value,
+    onValueChange,
+    disabled = false,
     placeholder = "Select Status",
     className
 }) => {

@@ -22,23 +22,27 @@ export function UserMenuContent({ user }: Props) {
         <>
             <DropdownMenuLabel className="p-0 font-normal">
                 <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                    <UserInfo user={user} showEmail={true} />
+                    <UserInfo user={user} />
                 </div>
             </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-                <DropdownMenuItem asChild>
-                    <Link
-                        className="block w-full cursor-pointer"
-                        href={edit()}
-                        prefetch
-                        onClick={cleanup}
-                    >
-                        <Settings className="mr-2" />
-                        Settings
-                    </Link>
-                </DropdownMenuItem>
-            </DropdownMenuGroup>
+            {user.role !== 'Admin' && (
+                <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuGroup>
+                        <DropdownMenuItem asChild>
+                            <Link
+                                className="block w-full cursor-pointer"
+                                href={edit()}
+                                prefetch
+                                onClick={cleanup}
+                            >
+                                <Settings className="mr-2" />
+                                Settings
+                            </Link>
+                        </DropdownMenuItem>
+                    </DropdownMenuGroup>
+                </>
+            )}
         </>
     );
 }
