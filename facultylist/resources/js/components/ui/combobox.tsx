@@ -28,6 +28,7 @@ interface ComboboxProps {
     className?: string
     containerClassName?: string
     allowFreeInput?: boolean
+    showCodePrefix?: boolean
 }
 
 export function Combobox({
@@ -42,6 +43,7 @@ export function Combobox({
     className,
     containerClassName,
     allowFreeInput = false,
+    showCodePrefix = false,
 }: ComboboxProps) {
     const [open, setOpen] = React.useState(false)
     const [inputValue, setInputValue] = React.useState("")
@@ -70,47 +72,54 @@ export function Combobox({
                 <PopoverPrimitive.Anchor asChild>
                     <div
                         className={cn(
-                            "flex w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors focus-within:ring-1 focus-within:ring-ring disabled:cursor-not-allowed disabled:opacity-50",
+                            "flex w-full items-stretch rounded-md border border-input bg-white text-sm shadow-xs transition-colors focus-within:ring-1 focus-within:ring-ring disabled:cursor-not-allowed disabled:opacity-50 overflow-hidden h-9",
                             disabled && "opacity-50 pointer-events-none",
                             className
                         )}
                     >
-                        <CommandPrimitive.Input
-                            value={inputValue}
-                            onValueChange={(val) => {
-                                setInputValue(val)
-                                if (!open) setOpen(true)
-                                if (onInputChange) onInputChange(val)
-                                if (val === '' && value) {
-                                    onChange('')
-                                }
-                            }}
-                            onFocus={() => {
-                                if (!disabled) setOpen(true)
-                            }}
-                            onBlur={() => {
-                                if (isMouseDownOnDropdown.current) return
-                                setOpen(false)
-                                if (!allowFreeInput) {
-                                    if (selectedOption) {
-                                        setInputValue(selectedOption.label)
-                                    } else {
-                                        setInputValue("")
+                        {showCodePrefix && (
+                            <div className="shrink-0 w-[60px] bg-[#F8F9FA] border-r border-input flex items-center justify-center text-[11px] font-semibold text-[#6B7280] select-none tracking-wide uppercase">
+                                {selectedOption ? String(selectedOption.value) : "Code"}
+                            </div>
+                        )}
+                        <div className="flex flex-1 items-center min-w-0 px-3">
+                            <CommandPrimitive.Input
+                                value={inputValue}
+                                onValueChange={(val) => {
+                                    setInputValue(val)
+                                    if (!open) setOpen(true)
+                                    if (onInputChange) onInputChange(val)
+                                    if (val === '' && value) {
+                                        onChange('')
                                     }
-                                }
-                                // if allowFreeInput, keep whatever was typed
-                            }}
-                            placeholder={placeholder}
-                            disabled={disabled}
-                            className="flex-1 bg-transparent outline-none placeholder:text-muted-foreground min-w-0"
-                        />
-                        <ChevronsUpDown
-                            className="ml-2 h-4 w-4 shrink-0 opacity-50 cursor-pointer hover:opacity-100"
-                            onMouseDown={(e) => {
-                                e.preventDefault()
-                                if (!disabled) setOpen((prev) => !prev)
-                            }}
-                        />
+                                }}
+                                onFocus={() => {
+                                    if (!disabled) setOpen(true)
+                                }}
+                                onBlur={() => {
+                                    if (isMouseDownOnDropdown.current) return
+                                    setOpen(false)
+                                    if (!allowFreeInput) {
+                                        if (selectedOption) {
+                                            setInputValue(selectedOption.label)
+                                        } else {
+                                            setInputValue("")
+                                        }
+                                    }
+                                    // if allowFreeInput, keep whatever was typed
+                                }}
+                                placeholder={placeholder}
+                                disabled={disabled}
+                                className="flex-1 min-w-0 bg-transparent outline-none placeholder:text-muted-foreground text-sm"
+                            />
+                            <ChevronsUpDown
+                                className="ml-2 h-4 w-4 shrink-0 opacity-40 cursor-pointer hover:opacity-70 transition-opacity"
+                                onMouseDown={(e) => {
+                                    e.preventDefault()
+                                    if (!disabled) setOpen((prev) => !prev)
+                                }}
+                            />
+                        </div>
                     </div>
                 </PopoverPrimitive.Anchor>
                 <PopoverContent

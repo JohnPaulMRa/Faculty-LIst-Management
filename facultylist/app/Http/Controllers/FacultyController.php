@@ -130,6 +130,7 @@ class FacultyController extends Controller
             'referenceData' => $referenceData,
             'availableYears' => $availableYears,
             'schoolName' => $heiId ? (\App\Models\Hei::find($heiId)->name ?? 'HEI Name') : 'HEI Name',
+            'schoolType' => $heiId ? (\App\Models\Hei::find($heiId)->type ?? 'private') : 'private',
         ]);
     }
 
@@ -186,7 +187,9 @@ class FacultyController extends Controller
 
         $referenceData = $this->getReferenceData();
 
-        return \Inertia\Inertia::render('Faculty/EditPrivateFaculty', [
+        $component = $isE5 ? 'Faculty/EditPrivateFaculty' : 'Faculty/EditPublicFaculty';
+
+        return \Inertia\Inertia::render($component, [
             'faculty' => $faculty,
             'referenceData' => $referenceData,
         ]);

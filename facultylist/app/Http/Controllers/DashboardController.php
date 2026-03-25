@@ -198,14 +198,31 @@ class DashboardController extends Controller
         $years = $trendDataE2->pluck('joined_year')->merge($trendDataE5->pluck('joined_year'))->unique()->sort()->values()->all();
 
         // Prepare Data Structure
-        $categories = [
-            1 => ['label' => 'full-time employee HEI.', 'color' => '#10b981'],
-            2 => ['label' => 'half-time employee HEI.', 'color' => '#3b82f6'],
-            3 => ['label' => 'Student employee', 'color' => '#f59e0b'],
-            4 => ['label' => 'Teaching Fellow', 'color' => '#8b5cf6'],
-            5 => ['label' => 'part-time', 'color' => '#ef4444'],
-            9 => ['label' => 'Not known', 'color' => '#6b7280'],
-        ];
+        $schoolType = $user->hei->type ?? 'private';
+        $isPublic = strtolower($schoolType) === 'public';
+
+        if ($isPublic) {
+            $categories = [
+                'GROUP A1' => ['label' => 'GROUP A1', 'color' => '#10b981'],
+                'GROUP A2' => ['label' => 'GROUP A2', 'color' => '#3b82f6'],
+                'GROUP A3' => ['label' => 'GROUP A3', 'color' => '#f59e0b'],
+                'GROUP B'  => ['label' => 'GROUP B', 'color' => '#ef4444'],
+                'GROUP C1' => ['label' => 'GROUP C1', 'color' => '#8b5cf6'],
+                'GROUP C2' => ['label' => 'GROUP C2', 'color' => '#ec4899'],
+                'GROUP C3' => ['label' => 'GROUP C3', 'color' => '#06b6d4'],
+                'GROUP D'  => ['label' => 'GROUP D', 'color' => '#f97316'],
+                'GROUP E'  => ['label' => 'GROUP E', 'color' => '#6b7280'],
+            ];
+        } else {
+            $categories = [
+                1 => ['label' => 'full-time employee HEI.', 'color' => '#10b981'],
+                2 => ['label' => 'half-time employee HEI.', 'color' => '#3b82f6'],
+                3 => ['label' => 'Student employee', 'color' => '#f59e0b'],
+                4 => ['label' => 'Teaching Fellow', 'color' => '#8b5cf6'],
+                5 => ['label' => 'part-time', 'color' => '#ef4444'],
+                9 => ['label' => 'Not known', 'color' => '#6b7280'],
+            ];
+        }
 
         $totalSeriesData = [];
         foreach ($years as $year) {
@@ -224,31 +241,37 @@ class DashboardController extends Controller
         foreach ($categories as $code => $meta) {
             $dataPoints = [];
             foreach ($years as $year) {
-                // E5 Count
-                $e5Count = $trendDataE5->where('joined_year', $year)->where('ft_pt_code', $code)->sum('count');
+                if ($isPublic) {
+                    // For Public, we only care about Faculty (E2) import_group
+                    // But FacultyE5 also has import_group, so we can combine if needed
+                    $e2Count = $trendDataE2->where('joined_year', $year)
+                        ->where('import_group', $code)
+                        ->sum('count');
+                    $e5Count = $trendDataE5->where('joined_year', $year)
+                        ->where('import_group', $code)
+                        ->sum('count');
+                    $dataPoints[] = $e2Count + $e5Count;
+                } else {
+                    // E5 Count by ft_pt_code
+                    $e5Count = $trendDataE5->where('joined_year', $year)->where('ft_pt_code', $code)->sum('count');
 
-                // E2 Count (Map strings to code)
-                $e2Count = 0;
-                // E2 types mapping:
-                // Code 1 (Full Time) matches 'Full-time'
-                // Code 5 (Part Time) matches 'Part-time'
-                // Code 9 (Unknown) matches others
+                    // E2 Count (Map strings to code for backward compatibility or if mixed)
+                    $e2Count = 0;
+                    $e2Records = $trendDataE2->where('joined_year', $year);
+                    foreach ($e2Records as $rec) {
+                        $emp = strtolower($rec->employment);
+                        $mappedCode = 9;
+                        if (str_contains($emp, 'full'))
+                            $mappedCode = 1;
+                        elseif (str_contains($emp, 'part'))
+                            $mappedCode = 5;
 
-                $e2Records = $trendDataE2->where('joined_year', $year);
-                foreach ($e2Records as $rec) {
-                    $emp = strtolower($rec->employment);
-                    $mappedCode = 9;
-                    if (str_contains($emp, 'full'))
-                        $mappedCode = 1;
-                    elseif (str_contains($emp, 'part'))
-                        $mappedCode = 5;
-
-                    if ($mappedCode === $code) {
-                        $e2Count += $rec->count;
+                        if ($mappedCode === $code) {
+                            $e2Count += $rec->count;
+                        }
                     }
+                    $dataPoints[] = $e5Count + $e2Count;
                 }
-
-                $dataPoints[] = $e5Count + $e2Count;
             }
             $series[] = [
                 'name' => $meta['label'],
@@ -313,6 +336,7 @@ class DashboardController extends Controller
             ],
             'selectedYear' => $selectedYear, // Pass back to UI
             'availableYears' => $availableYears,
+            'schoolType' => $schoolType,
         ]);
     }
 }

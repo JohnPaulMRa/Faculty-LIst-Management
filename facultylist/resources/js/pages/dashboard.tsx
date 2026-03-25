@@ -50,9 +50,10 @@ interface DashboardProps {
     overview: DashboardStats;
     selectedYear: string;
     availableYears: string[];
+    schoolType?: string;
 }
 
-export default function Dashboard({ overview, selectedYear: initialYear, availableYears = [] }: DashboardProps) {
+export default function Dashboard({ overview, selectedYear: initialYear, availableYears = [], schoolType }: DashboardProps) {
     const [selectedYear, setSelectedYear] = useState<string>(initialYear);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -100,7 +101,7 @@ export default function Dashboard({ overview, selectedYear: initialYear, availab
 
                 {data.employmentTrends && data.employmentTrends.years.length > 0 && (
                     <div className="grid grid-cols-1 gap-6">
-                        <FacultyTrends trends={data.employmentTrends} />
+                        <FacultyTrends trends={data.employmentTrends} schoolType={schoolType} />
                     </div>
                 )}
             </div>

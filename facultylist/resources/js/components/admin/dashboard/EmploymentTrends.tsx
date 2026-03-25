@@ -1,7 +1,8 @@
-import { FC } from 'react';
+import { FC, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { Briefcase, Users } from 'lucide-react';
+import { Briefcase } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface TrendSeries {
     name: string;
@@ -9,22 +10,26 @@ interface TrendSeries {
     data: number[];
 }
 
-interface FacultyTrendsProps {
-    trends: {
-        years: string[];
-        series: TrendSeries[];
-    };
-    schoolType?: string;
+interface TrendsData {
+    years: string[];
+    series: TrendSeries[];
+}
+
+interface EmploymentTrendsProps {
+    privateTrends: TrendsData;
+    publicTrends: TrendsData;
 }
 
 const YEAR_COLORS = ['#2563eb', '#16a34a', '#d97706', '#dc2626', '#7c3aed', '#db2777'];
 
-const FacultyTrends: FC<FacultyTrendsProps> = ({ trends, schoolType }) => {
-    const isPublic = schoolType?.toLowerCase().trim() === 'public';
-    // Transform data for Recharts: X-axis = Employment Types (series names), Lines = Years
-    const chartData = trends.series.map((series) => {
+export function EmploymentTrends({ privateTrends, publicTrends }: EmploymentTrendsProps) {
+    const [activeTab, setActiveTab] = useState<string>('private');
+
+    const activeTrends = activeTab === 'private' ? privateTrends : publicTrends;
+
+    const chartData = activeTrends.series.map((series) => {
         const dataPoint: any = { name: series.name };
-        trends.years.forEach((year, index) => {
+        activeTrends.years.forEach((year, index) => {
             dataPoint[year] = series.data[index];
         });
         return dataPoint;
@@ -32,20 +37,17 @@ const FacultyTrends: FC<FacultyTrendsProps> = ({ trends, schoolType }) => {
 
     return (
         <Card className="rounded-none border border-gray-200 shadow-none bg-white">
-            <CardHeader className="border-b border-gray-100 p-5">
+            <CardHeader className="border-b border-gray-100 p-5 flex flex-row items-center justify-between">
                 <CardTitle className="text-base font-bold text-gray-900 flex items-center gap-2">
-                    {isPublic ? (
-                        <>
-                            <Users className="h-4 w-4 text-gray-500" />
-                            Group
-                        </>
-                    ) : (
-                        <>
-                            <Briefcase className="h-4 w-4 text-gray-500" />
-                            Employment
-                        </>
-                    )}
+                    <Briefcase className="h-4 w-4 text-gray-500" />
+                    Employment Trends
                 </CardTitle>
+                <Tabs value={activeTab} onValueChange={setActiveTab} className="w-[200px]">
+                    <TabsList className="grid w-full grid-cols-2">
+                        <TabsTrigger value="private">Private</TabsTrigger>
+                        <TabsTrigger value="public">Public</TabsTrigger>
+                    </TabsList>
+                </Tabs>
             </CardHeader>
             <CardContent className="p-6">
                 <div className="h-[350px] w-full">
@@ -86,7 +88,7 @@ const FacultyTrends: FC<FacultyTrendsProps> = ({ trends, schoolType }) => {
                                 iconSize={8}
                                 wrapperStyle={{ fontSize: '12px', fontWeight: 500, paddingBottom: '20px' }}
                             />
-                            {trends.years.map((year, index) => (
+                            {activeTrends.years.map((year, index) => (
                                 <Line
                                     key={year}
                                     type="linear"
@@ -103,6 +105,6 @@ const FacultyTrends: FC<FacultyTrendsProps> = ({ trends, schoolType }) => {
             </CardContent>
         </Card>
     );
-};
+}
 
-export default FacultyTrends;
+export default EmploymentTrends;

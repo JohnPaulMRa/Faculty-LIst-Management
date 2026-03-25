@@ -6,6 +6,7 @@ import SchoolList from '@/components/admin/dashboard/SchoolList';
 import RecentFacultyUpdates from '@/components/admin/dashboard/RecentFacultyUpdates';
 import SystemActivity from '@/components/admin/dashboard/SystemActivity';
 import { AnalyticsOverview, StatusOverview } from '@/components/admin/dashboard/AnalyticsOverview';
+import EmploymentTrends from '@/components/admin/dashboard/EmploymentTrends';
 
 interface DashboardSchool {
     id: number;
@@ -46,13 +47,28 @@ interface UpdateItem {
     time: string;
 }
 
+interface TrendSeries {
+    name: string;
+    color: string;
+    data: number[];
+}
+
+interface TrendsData {
+    years: string[];
+    series: TrendSeries[];
+}
+
 interface AdminDashboardProps {
     heis: DashboardSchool[];
     stats: DashboardStat[];
     recentActivities: DashboardActivity[];
     distributionData: DistributionItem[];
+    privateDistributionData: DistributionItem[];
+    publicDistributionData: DistributionItem[];
     statusData: StatusItem[];
     disciplineUpdates: UpdateItem[];
+    privateEmploymentTrends: TrendsData;
+    publicEmploymentTrends: TrendsData;
 }
 
 export default function AdminDashboard({
@@ -60,8 +76,12 @@ export default function AdminDashboard({
     stats = [],
     recentActivities = [],
     distributionData = [],
+    privateDistributionData = [],
+    publicDistributionData = [],
     statusData = [],
-    disciplineUpdates = []
+    disciplineUpdates = [],
+    privateEmploymentTrends,
+    publicEmploymentTrends
 }: AdminDashboardProps) {
     return (
         <AppSidebarLayout breadcrumbs={[{ title: 'Admin Dashboard', href: '/admin/dashboard' }]}>
@@ -94,9 +114,14 @@ export default function AdminDashboard({
                 </div>
 
                 {/* Analytics Section */}
-                <div className="mt-8">
+                <div className="mt-8 grid grid-cols-1 xl:grid-cols-2 gap-8">
                     <AnalyticsOverview
-                        distributionData={distributionData}
+                        privateDistributionData={privateDistributionData}
+                        publicDistributionData={publicDistributionData}
+                    />
+                    <EmploymentTrends 
+                        privateTrends={privateEmploymentTrends}
+                        publicTrends={publicEmploymentTrends}
                     />
                 </div>
             </div>

@@ -22,32 +22,49 @@ interface Props {
     isOpen: boolean;
     onOpenChange: (open: boolean) => void;
     heis: Hei[];
+    account?: any; // Add account prop
 }
 
-const CreateFacultyAccountModal: FC<Props> = ({ isOpen, onOpenChange, heis }) => {
-    const { data, setData, post, processing, errors, reset } = useForm({
-        username: '',
+const CreateFacultyAccountModal: FC<Props> = ({ isOpen, onOpenChange, heis, account }) => {
+    const { data, setData, post, put, processing, errors, reset } = useForm({
+        username: account?.email || '',
         password: '',
         password_confirmation: '',
-        hei_id: '',
+        hei_id: account?.hei_id || '',
     });
 
     const [showPassword, setShowPassword] = useState(false);
 
     useEffect(() => {
-        if (!isOpen) {
+        if (isOpen && account) {
+            setData({
+                username: account.email || account.name || '',
+                password: '',
+                password_confirmation: '',
+                hei_id: account.hei_id || '',
+            });
+        } else if (!isOpen) {
             reset();
         }
-    }, [isOpen]);
+    }, [isOpen, account]);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        post(route('admin.faculty.create-account'), {
-            onSuccess: () => {
-                onOpenChange(false);
-                reset();
-            },
-        });
+        if (account) {
+            put(route('admin.users.update', account.id), {
+                onSuccess: () => {
+                    onOpenChange(false);
+                    reset();
+                },
+            });
+        } else {
+            post(route('admin.faculty.create-account'), {
+                onSuccess: () => {
+                    onOpenChange(false);
+                    reset();
+                },
+            });
+        }
     };
 
     return (
@@ -57,9 +74,13 @@ const CreateFacultyAccountModal: FC<Props> = ({ isOpen, onOpenChange, heis }) =>
                 onInteractOutside={(e) => e.preventDefault()}
             >
                 <DialogHeader>
-                    <DialogTitle className="text-xl">Create Faculty Login Account</DialogTitle>
+                    <DialogTitle className="text-xl">
+                        {account ? 'Edit User Account' : 'Create Faculty Login Account'}
+                    </DialogTitle>
                     <DialogDescription>
-                        Provide a username, assign an HEIs, and set a password for the new faculty member.
+                        {account 
+                            ? 'Update account details. Leave password blank if you don\'t want to change it.' 
+                            : 'Provide a username, assign an HEIs, and set a password for the new faculty member.'}
                     </DialogDescription>
                 </DialogHeader>
 
@@ -98,14 +119,16 @@ const CreateFacultyAccountModal: FC<Props> = ({ isOpen, onOpenChange, heis }) =>
                     </div>
 
                     <div className="grid gap-2">
-                        <Label htmlFor="password" className="text-sm font-semibold">Password <span className="text-red-500">*</span></Label>
+                        <Label htmlFor="password" className="text-sm font-semibold">
+                            Password {account ? '(Optional)' : <span className="text-red-500">*</span>}
+                        </Label>
                         <div className="relative">
                             <Input
                                 id="password"
                                 type={showPassword ? 'text' : 'password'}
                                 value={data.password}
                                 onChange={(e) => setData('password', e.target.value)}
-                                required
+                                required={!account}
                                 className="h-10 pr-10"
                             />
                             <button
@@ -120,13 +143,15 @@ const CreateFacultyAccountModal: FC<Props> = ({ isOpen, onOpenChange, heis }) =>
                     </div>
 
                     <div className="grid gap-2">
-                        <Label htmlFor="password_confirmation" className="text-sm font-semibold">Confirm Password <span className="text-red-500">*</span></Label>
+                        <Label htmlFor="password_confirmation" className="text-sm font-semibold">
+                            Confirm Password {account ? '(Optional)' : <span className="text-red-500">*</span>}
+                        </Label>
                         <Input
                             id="password_confirmation"
                             type="password"
                             value={data.password_confirmation}
                             onChange={(e) => setData('password_confirmation', e.target.value)}
-                            required
+                            required={!account && data.password !== ''}
                             className="h-10"
                         />
                     </div>
@@ -136,7 +161,9 @@ const CreateFacultyAccountModal: FC<Props> = ({ isOpen, onOpenChange, heis }) =>
                             Cancel
                         </Button>
                         <Button type="submit" disabled={processing}>
-                            {processing ? 'Creating...' : 'Create Account'}
+                            {processing 
+                                ? (account ? 'Updating...' : 'Creating...') 
+                                : (account ? 'Update Account' : 'Create Account')}
                         </Button>
                     </DialogFooter>
                 </form>

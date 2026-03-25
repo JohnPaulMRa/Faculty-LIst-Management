@@ -13,9 +13,11 @@ interface UserAccountsTableProps {
     accounts: UserAccount[];
     searchQuery: string;
     onClearSearch: () => void;
+    onEdit: (account: UserAccount) => void;
+    onDelete: (account: UserAccount) => void;
 }
 
-export function UserAccountsTable({ accounts, searchQuery, onClearSearch }: UserAccountsTableProps) {
+export function UserAccountsTable({ accounts, searchQuery, onClearSearch, onEdit, onDelete }: UserAccountsTableProps) {
     return (
         <div className="flex flex-col animate-in fade-in duration-300 bg-white shadow-none overflow-hidden rounded-none border border-gray-300 mt-2">
             <div className="bg-gray-50 flex items-center justify-between px-4 py-3 border-b border-gray-300">
@@ -62,6 +64,7 @@ export function UserAccountsTable({ accounts, searchQuery, onClearSearch }: User
                                                 size="icon" 
                                                 className="h-8 w-8 bg-amber-400 hover:bg-amber-500 text-amber-950 rounded-xl shadow-md border-b-2 border-amber-600 active:border-b-0 active:translate-y-px transition-all" 
                                                 title="Edit"
+                                                onClick={() => onEdit(account)}
                                             >
                                                 <Pencil className="h-4 w-4" />
                                             </Button>
@@ -70,6 +73,7 @@ export function UserAccountsTable({ accounts, searchQuery, onClearSearch }: User
                                                 size="icon" 
                                                 className="h-8 w-8 bg-red-500 hover:bg-red-600 text-white rounded-xl shadow-md border-b-2 border-red-700 active:border-b-0 active:translate-y-px transition-all" 
                                                 title="Delete"
+                                                onClick={() => onDelete(account)}
                                             >
                                                 <Trash2 className="h-4 w-4" />
                                             </Button>

@@ -3,6 +3,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { BarChart3, PieChart as PieChartIcon, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface DistributionItem {
     name: string;
@@ -17,7 +18,8 @@ interface StatusItem {
 }
 
 interface AnalyticsOverviewProps {
-    distributionData: DistributionItem[];
+    privateDistributionData: DistributionItem[];
+    publicDistributionData: DistributionItem[];
 }
 
 interface StatusOverviewProps {
@@ -38,17 +40,18 @@ const CustomTooltip = ({ active, payload, label }: any) => {
     return null;
 };
 
-export function AnalyticsOverview({ distributionData = [] }: AnalyticsOverviewProps) {
-    const [history, setHistory] = useState<{ name: string; data: DistributionItem[] }[]>([{ name: 'All Groups', data: distributionData }]);
+export function AnalyticsOverview({ privateDistributionData = [], publicDistributionData = [] }: AnalyticsOverviewProps) {
+    const [activeTab, setActiveTab] = useState<string>('private');
+    const [history, setHistory] = useState<{ name: string; data: DistributionItem[] }[]>([{ name: 'All Groups', data: privateDistributionData }]);
+
+    const activeDistributionData = activeTab === 'private' ? privateDistributionData : publicDistributionData;
 
     useEffect(() => {
-        // Reset to top level if parent data completely changes
-        if (history.length <= 1) {
-            setHistory([{ name: 'All Groups', data: distributionData }]);
-        }
-    }, [distributionData]);
+        // Reset to top level if parent data completely changes or tab changes
+        setHistory([{ name: 'All Groups', data: activeDistributionData }]);
+    }, [activeTab, privateDistributionData, publicDistributionData]);
 
-    const currentData = history[history.length - 1].data;
+    const currentData = history[history.length - 1].data || [];
 
     const handleBarClick = (data: any) => {
         const item = data?.payload || data;
@@ -77,16 +80,26 @@ export function AnalyticsOverview({ distributionData = [] }: AnalyticsOverviewPr
                             : "Distribution of disciplines by group"}
                     </CardDescription>
                 </div>
-                {history.length > 1 && (
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleBackClick}
-                        className="h-8 text-xs flex items-center gap-1"
-                    >
-                        <ArrowLeft className="h-3 w-3" /> Back
-                    </Button>
-                )}
+                <div className="flex items-center gap-4">
+                    {history.length <= 1 && (
+                        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-[200px]">
+                            <TabsList className="grid w-full grid-cols-2">
+                                <TabsTrigger value="private">Private</TabsTrigger>
+                                <TabsTrigger value="public">Public</TabsTrigger>
+                            </TabsList>
+                        </Tabs>
+                    )}
+                    {history.length > 1 && (
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={handleBackClick}
+                            className="h-8 text-xs flex items-center gap-1"
+                        >
+                            <ArrowLeft className="h-3 w-3" /> Back
+                        </Button>
+                    )}
+                </div>
             </CardHeader>
             <CardContent className="p-4 pt-6">
                 <div style={{ height: `${Math.max(400, currentData.length * 32)}px` }} className="w-full">

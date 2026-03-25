@@ -1,17 +1,17 @@
 import type { FC } from 'react';
 import { Input } from '@/components/ui/input';
-import type { Faculty } from '@/types/faculty';
+import type { PublicFaculty } from '@/types/faculty';
 
 type FacultyProfileCardsE2Props = {
-    formData: Partial<Faculty>;
-    handleChange?: (field: keyof Faculty, value: any) => void;
+    formData: Partial<PublicFaculty>;
+    handleChange?: (field: keyof PublicFaculty, value: any) => void;
     readOnly?: boolean;
 };
 
 export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({ formData, handleChange, readOnly = false }) => {
     
     // Helper to handle change if not readOnly
-    const onErrorSafeChange = (field: keyof Faculty, value: any) => {
+    const onErrorSafeChange = (field: keyof PublicFaculty, value: any) => {
         if (!readOnly && handleChange) {
             handleChange(field, value);
         }

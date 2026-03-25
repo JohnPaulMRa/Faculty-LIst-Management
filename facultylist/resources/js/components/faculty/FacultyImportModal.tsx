@@ -33,6 +33,7 @@ type Props = {
     importYear: string;
     setImportYear: (year: string) => void;
     onFileImport: (file: File) => void;
+    schoolType?: string;
 };
 
 const FacultyImportModal: FC<Props> = ({
@@ -44,7 +45,8 @@ const FacultyImportModal: FC<Props> = ({
     setImportGroup,
     importYear,
     setImportYear,
-    onFileImport
+    onFileImport,
+    schoolType
 }) => {
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -59,7 +61,7 @@ const FacultyImportModal: FC<Props> = ({
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
             <DialogTrigger asChild>
-                <Button variant="outline" className=" border-green-500 bg-green-200 text-green-900 hover:border-green-500 hover:bg-green-300 hover:text-gray-900 font-medium shadow-sm gap-2 rounded-md h-9 px-4">
+                <Button variant="outline" className="border-green-500 bg-green-500 text-white hover:border-green-500 hover:bg-green-300 hover:text-gray-500 font-medium shadow-sm gap-2 rounded-md h-9 px-3">
                     <FileSpreadsheet className="h-4 w-4" /> Import Excel
                 </Button>
             </DialogTrigger>
@@ -73,14 +75,20 @@ const FacultyImportModal: FC<Props> = ({
                 </DialogHeader>
                 <div className="grid gap-5 py-8">
                     <div className="space-y-2">
-                        <Label>Select Form Template</Label>
-                        <Select value={importType} onValueChange={(val: any) => setImportType(val)}>
-                            <SelectTrigger><SelectValue placeholder="Select Form" /></SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="E5">Private: FORM E5</SelectItem>
-                                <SelectItem value="E2">Public: FORM E2</SelectItem>
-                            </SelectContent>
-                        </Select>
+                        <Label>Form Template</Label>
+                        {schoolType ? (
+                            <div className="flex h-9 w-full items-center px-3 py-2 text-sm font-medium bg-gray-100 border border-gray-200 text-gray-700">
+                                {schoolType.toLowerCase().trim() === 'private' ? 'Private: FORM E5' : 'Public: FORM E2'}
+                            </div>
+                        ) : (
+                            <Select value={importType} onValueChange={(val: any) => setImportType(val)}>
+                                <SelectTrigger><SelectValue placeholder="Select Form" /></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="E5">Private: FORM E5</SelectItem>
+                                    <SelectItem value="E2">Public: FORM E2</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        )}
                     </div>
 
                     <div className="space-y-2">

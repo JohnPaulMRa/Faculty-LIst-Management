@@ -138,18 +138,18 @@
 
 **Date Generated:** 2026-03-15
 
-## UI Development
+// UI Development
 
 - **Table Indexing:** Added a numbering column ("#") to `AdminFacultyListModule.tsx`, `HeisTable.tsx`, and `UserAccountsTable.tsx`, utilizing array indices for dynamic row numbering.
 - **Table Index Styling:** Applied consistent header and data cell styling for the new index columns to ensure alignment with existing table themes.
 
-## Bug Fixes & Quality Improvements
+// Bug Fixes & Quality Improvements
 
 - **IDE Syntax Error Resolution:** Resolved PHP syntax errors reported by the IDE by updating the configuration to PHP 8.2 and regenerating IDE helper files.
 - **Type-Constant Separation:** Refined the project structure by separating types and constants. Replaced value-level dependencies with explicit string unions and refactored `EditPrivateFaculty.tsx` for improved type safety.
 - **Form UI Fixes:** Improved input field alignment and border behavior in discipline management forms for a more polished user interface.
 
-## Testing & Debugging
+// Testing & Debugging
 
 - **PHPUnit Test Suite:** Configured `phpunit.xml` and maintained a `tests/` directory (17 items) for automated backend testing.
 - **Debug & Verification Scripts:** Created temporary diagnostic scripts including `verify_submission_flow.php`, `verify_counts.php`, `test_disciplines.php`, `test_import.php`, `debug_ghost_submissions.php`, and `db_check.php` to support database integrity validation and system debugging.
@@ -159,11 +159,11 @@
 
 **Date Generated:** 2026-03-16
 
-## Backend Development
+// Backend Development
 
 - **Controller Refinement:** Updated `AdminController.php` and `FacultyController.php` to resolve PHP Intelephense syntax errors and ensure strict compatibility with PHP 8.2 standards.
 
-## UI Development
+// UI Development
 
 - **Standardizing Button Roundness:** System-wide UI refinement unifying the border-radius (roundness) of action buttons across all modules (Disciplines, HEIs Accounts, Faculty Data, Settings) to establish a consistent, premium aesthetic.
 - **Sidebar Header Display:** Refined `app-sidebar-header.tsx` and related layout components by removing redundant breadcrumb text, streamlining the sidebar header to focus on the hamburger menu icon.
@@ -173,3 +173,48 @@
 
 - **IDE Syntax & Stack Overflow Resolution:** Resolved a PHP stack overflow and PHP version mismatch issues within the IDE environment, ensuring stable code analysis when processing PHP files.
 - **Dependency Clean up:** Removed the redundant `package-lock.json` to prevent potential dependency tree conflicts.
+
+---
+
+**Date Generated:** 2026-03-24
+
+## Backend Development
+
+- **Admin Dashboard Logic:** Updated `AdminController.php` to partition data separately for employment trends and distribution overviews.
+- **Faculty Management:** Enhanced `FacultyController.php` and `Faculty.php` models to support new public faculty editing capabilities.
+- **Application Routing:** Added new route definitions in `routes/web.php` for `EditPublicFaculty` and related routes.
+
+## UI Development
+
+- **Admin Dashboard Trends:** Separated the admin analytics into distinct components (`EmploymentTrends.tsx`, `AnalyticsOverview.tsx`) and updated `AdminDashboard.tsx`.
+- **Syncing E2 Table UI:** Synchronized the `FacultyListTableE2` component layout and features with the premium E5 table design.
+- **Refining Faculty Form UI:** Restructured `FacultyFormE2.tsx` layout to display the "CODE" prefix boxes side-by-side and integrated the `combobox.tsx` component.
+- **Public Faculty Editor:** Developed `EditPublicFaculty.tsx` and integrated `tabs.tsx` for public HEI faculty profile updates.
+- **Accounts & Modals Polishing:** Refined `CreateFacultyAccountModal.tsx`, `HeisAccountsModule.tsx`, and `UserAccountsTable.tsx` for visual consistency.
+
+## Bug Fixes & Improvements
+
+- **Suppressing IDE Vendor Errors:** Configured `.vscode/settings.json` to enforce PHP 8.2 parsing, resolving false-positive syntax warnings across vendor directories.
+- **Dependency Setup:** Updated `package.json`, `package-lock.json`, and `composer.json` for build tools and formatting compliance.
+
+---
+
+**Date Generated:** 2026-03-24
+
+## Backend Development
+
+- **Faculty Dashboard Trends:** Updated `DashboardController.php` to conditionally aggregate metrics based on HEI type, enabling differentiated analytics for Public and Private institutions.
+- **Role-Based Context:** Enhanced backend responses to include `schoolType` metadata, supporting filtered UI capabilities.
+
+## UI Development
+
+- **Conditional Import/Download Access:** Restricted template selection and download buttons based on institution type (E2 vs E5) across `FacultyImportModal.tsx` and `FacultyDownloadModal.tsx`.
+- **Refining Import Workflow:** Simplified the faculty import process by replacing selection dropdowns with static, read-only labels when the form type is pre-defined.
+- **Dynamic Dashboard Visualization:** Updated `FacultyTrends.tsx` to dynamically switch between "Group" and "Employment" views, featuring context-aware titles, icons, and data series.
+- **Enhanced Faculty Edit Headers:** Refined `EditPublicFaculty.tsx` to display the faculty member's specific Group identifier (e.g., GROUP A1) directly in the header for immediate context.
+
+## Bug Fixes & Improvements
+
+- **TypeScript Type Safety:** Resolved core type errors in `FacultyProfileCardsE2.tsx` and `dashboard.tsx` by implementing explicit type guarding and narrowing for faculty models.
+- **Robust Data Comparison:** Implemented normalized (trimmed and case-insensitive) string comparisons for role-based logic to ensure UI consistency regardless of backend data formatting.
+- **UI Polish:** Standardized subtitle typography across public faculty management pages to improve readability and aesthetic consistency.

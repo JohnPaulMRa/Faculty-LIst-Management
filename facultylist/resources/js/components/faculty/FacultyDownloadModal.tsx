@@ -14,9 +14,10 @@ import { downloadTemplateE5 } from './facultyE5/downloadTemplateE5';
 interface FacultyDownloadModalProps {
     isOpen: boolean;
     onOpenChange: (open: boolean) => void;
+    schoolType?: string;
 }
 
-const FacultyDownloadModal: FC<FacultyDownloadModalProps> = ({ isOpen, onOpenChange }) => {
+const FacultyDownloadModal: FC<FacultyDownloadModalProps> = ({ isOpen, onOpenChange, schoolType }) => {
 
 
     const handleDownloadTemplate = (type: 'E2' | 'E5'): void => {
@@ -44,23 +45,27 @@ const FacultyDownloadModal: FC<FacultyDownloadModalProps> = ({ isOpen, onOpenCha
                     </DialogDescription>
                 </DialogHeader>
                 <div className="flex flex-col gap-4 p-6 pt-2">
-                    <Button
-                        onClick={() => handleDownloadTemplate('E2')}
-                        variant="outline"
-                        className="flex flex-col items-center justify-center h-32 gap-3 border-dashed border-2 border-gray-300 text-[#003468] hover:border-[#003468] hover:bg-gray-100 transition-all rounded-md shadow-sm"
-                    >
-                        <FileSpreadsheet className="h-12 w-12 text-[#003468]" />
-                        <span className="text-lg font-bold text-[#003468]">Public: FORM E2</span>
-                    </Button>
+                    {(schoolType?.toLowerCase().trim() === 'public' || !schoolType) && (
+                        <Button
+                            onClick={() => handleDownloadTemplate('E2')}
+                            variant="outline"
+                            className="flex flex-col items-center justify-center h-32 gap-3 border-dashed border-2 border-gray-300 text-[#003468] hover:border-[#003468] hover:bg-gray-100 transition-all rounded-md shadow-sm"
+                        >
+                            <FileSpreadsheet className="h-12 w-12 text-[#003468]" />
+                            <span className="text-lg font-bold text-[#003468]">Public: FORM E2</span>
+                        </Button>
+                    )}
 
-                    <Button
-                        onClick={() => handleDownloadTemplate('E5')}
-                        variant="outline"
-                        className="flex flex-col items-center justify-center h-32 gap-3 border-dashed border-2 border-gray-300 text-[#003468] hover:border-[#003468] hover:bg-gray-100 transition-all rounded-md shadow-sm"
-                    >
-                        <FileSpreadsheet className="h-12 w-12 text-[#003468]" />
-                        <span className="text-lg font-bold text-[#003468]">Private: FORM E5</span>
-                    </Button>
+                    {(schoolType?.toLowerCase().trim() === 'private' || !schoolType) && (
+                        <Button
+                            onClick={() => handleDownloadTemplate('E5')}
+                            variant="outline"
+                            className="flex flex-col items-center justify-center h-32 gap-3 border-dashed border-2 border-gray-300 text-[#003468] hover:border-[#003468] hover:bg-gray-100 transition-all rounded-md shadow-sm"
+                        >
+                            <FileSpreadsheet className="h-12 w-12 text-[#003468]" />
+                            <span className="text-lg font-bold text-[#003468]">Private: FORM E5</span>
+                        </Button>
+                    )}
                 </div>
             </DialogContent>
         </Dialog>

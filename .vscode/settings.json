@@ -1,3 +1,18 @@
 {
-    "css.lint.unknownAtRules": "ignore"
+    "php.validate.enable": false,
+    "intelephense.environment.phpVersion": "8.2.12",
+    "intelephense.files.exclude": [
+        "**/.git/**",
+        "**/.svn/**",
+        "**/.hg/**",
+        "**/CVS/**",
+        "**/.DS_Store/**",
+        "**/node_modules/**",
+        "**/bower_components/**",
+        "**/vendor/**/(tests|Tests)/**",
+        "**/.history/**",
+        "**/vendor/**/vendor/**",
+        "**/storage/framework/views/**",
+        "**/facultylist/storage/framework/views/**"
+    ]
 }

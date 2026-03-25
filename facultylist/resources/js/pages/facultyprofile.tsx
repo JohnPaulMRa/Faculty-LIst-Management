@@ -6,6 +6,7 @@ import { useState, useMemo } from 'react';
 
 import FacultyDownloadModal from '@/components/faculty/FacultyDownloadModal';
 import FacultyListTableE5 from '@/components/faculty/facultyE5/FacultyListTableE5';
+import FacultyListTableE2 from '@/components/faculty/facultyE2/FacultyListTableE2';
 import FacultyFileDetailsModal from '@/components/faculty/FacultyFileDetailsModal';
 import FacultyImportModal from '@/components/faculty/FacultyImportModal';
 import { FacultyCopyDataModal } from '@/components/faculty/FacultyCopyDataModal';
@@ -17,6 +18,7 @@ import AppLayout from '@/layouts/app-layout';
 
 import { getCurrentAcademicYear } from '@/lib/utils';
 import type { Faculty } from '@/types/faculty';
+import { edit } from '@/routes/faculty';
 
 // Basic declaration for Ziggy's route helper
 declare function route(name?: string, params?: any, absolute?: boolean): string;
@@ -34,6 +36,7 @@ interface FacultyProfileProps {
     referenceData: any;
     availableYears?: string[];
     schoolName?: string;
+    schoolType?: string;
 }
 
 const FacultyProfile: FC<FacultyProfileProps> = ({
@@ -42,6 +45,7 @@ const FacultyProfile: FC<FacultyProfileProps> = ({
     referenceData,
     availableYears = [],
     schoolName = 'School Name',
+    schoolType = 'private',
 }) => {
     usePage<any>().props; // keep academicYears available if needed by child components
 
@@ -75,7 +79,7 @@ const FacultyProfile: FC<FacultyProfileProps> = ({
     // --- Modal / UI state ---
     const [isImportModalOpen, setIsImportModalOpen] = useState<boolean>(false);
     const [isDownloadModalOpen, setIsDownloadModalOpen] = useState<boolean>(false);
-    const [importType, setImportType] = useState<'E2' | 'E5'>('E5');
+    const [importType, setImportType] = useState<'E2' | 'E5'>(schoolType?.toLowerCase() === 'public' ? 'E2' : 'E5');
     const [importGroup, setImportGroup] = useState<string>('');
     const [importYear, setImportYear] = useState<string>(getCurrentAcademicYear());
     const [submitYear, setSubmitYear] = useState<string>(getCurrentAcademicYear());
@@ -163,6 +167,10 @@ const FacultyProfile: FC<FacultyProfileProps> = ({
         setIsFileModalOpen(true);
     };
 
+    const handleEdit = (faculty: Faculty) => {
+        router.visit(edit(faculty.id).url);
+    };
+
     const handleUpdateFaculty = (updatedFaculty: Faculty) => {
         router.put(`/faculty/${updatedFaculty.id}`, updatedFaculty, {
             onSuccess: (page: any) => {
@@ -229,6 +237,7 @@ const FacultyProfile: FC<FacultyProfileProps> = ({
             <FacultyDownloadModal
                 isOpen={isDownloadModalOpen}
                 onOpenChange={setIsDownloadModalOpen}
+                schoolType={schoolType}
             />
 
             <FacultyCopyDataModal
@@ -267,6 +276,7 @@ const FacultyProfile: FC<FacultyProfileProps> = ({
                                 importYear={importYear}
                                 setImportYear={setImportYear}
                                 onFileImport={handleFileImport}
+                                schoolType={schoolType}
                             />
 
                             <Button
@@ -290,14 +300,25 @@ const FacultyProfile: FC<FacultyProfileProps> = ({
                             onSubmit={handleSubmit}
                         />
 
-                        <FacultyListTableE5
-                            facultyList={filteredFacultyList}
-                            yearFilter={yearFilter}
-                            onFileClick={handleFileClick}
-                            onDelete={handleDelete}
-                            onEdit={handleFileClick}
-                            referenceData={referenceData}
-                        />
+                        {schoolType?.toLowerCase() === 'private' ? (
+                            <FacultyListTableE5
+                                facultyList={filteredFacultyList}
+                                yearFilter={yearFilter}
+                                onFileClick={handleFileClick}
+                                onDelete={handleDelete}
+                                onEdit={handleEdit}
+                                referenceData={referenceData}
+                            />
+                        ) : (
+                            <FacultyListTableE2
+                                facultyList={filteredFacultyList}
+                                yearFilter={yearFilter}
+                                onFileClick={handleFileClick}
+                                onDelete={handleDelete}
+                                onEdit={handleEdit}
+                                referenceData={referenceData}
+                            />
+                        )}
                     </div>
                 </div>
             </AppLayout>

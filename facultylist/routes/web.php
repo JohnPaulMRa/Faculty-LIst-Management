@@ -16,9 +16,7 @@ Route::middleware(['auth', 'verified', 'role:Faculty'])->group(function () {
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('userprofile', function () {
-        return Inertia::render('userprofile');
-    })->name('userprofile');
+    Route::get('userprofile', [\App\Http\Controllers\Settings\ProfileController::class, 'edit'])->name('userprofile');
 
     // Faculty Management Routes (accessible to Faculty & Admin)
     Route::get('faculty/{id}/edit', [\App\Http\Controllers\FacultyController::class, 'edit'])->name('faculty.edit');
@@ -55,6 +53,8 @@ Route::middleware(['auth', 'verified', 'role:Admin'])->group(function () {
 
     // User Management
     Route::post('/admin/faculty/create-account', [\App\Http\Controllers\AdminController::class, 'createFacultyAccount'])->name('admin.faculty.create-account');
+    Route::put('/admin/users/{id}', [\App\Http\Controllers\AdminController::class, 'updateUserAccount'])->name('admin.users.update');
+    Route::delete('/admin/users/{id}', [\App\Http\Controllers\AdminController::class, 'destroyUserAccount'])->name('admin.users.destroy');
 });
 
 require __DIR__ . '/settings.php';

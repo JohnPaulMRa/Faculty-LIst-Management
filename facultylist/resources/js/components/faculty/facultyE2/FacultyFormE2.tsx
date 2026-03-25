@@ -1,327 +1,764 @@
-import { ChevronLeft, ChevronRight, Plus, Save, X } from 'lucide-react';
+import { Save, X, User, GraduationCap, Briefcase, Clock, Award, ChevronRight } from 'lucide-react';
 import type { FC } from 'react';
 import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { DialogClose } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import type { Faculty } from '@/types/faculty';
-
-const SHEET_TABS = [
-    { id: 'A1', label: 'GROUP A1', title: 'GROUP A1: FULL-TIME FACULTY MEMBERS WITH THEIR OWN FACULTY PLANTILLA ITEMS TEACHING AT ELEM, SECONDARY AND TECH/VOC', remarks: 'Every full-time faculty member with his/her own PS item, even if on leave without pay, should be listed here.' },
-    { id: 'A2', label: 'GROUP A2', title: 'GROUP A2: HALF-TIME FACULTY MEMBERS WITH THEIR OWN FACULTY PLANTILLA ITEMS', remarks: 'Every half-time faculty member with his/her own PS item, even if on leave without pay, should be listed here.' },
-    { id: 'A3', label: 'GROUP A3', title: 'GROUP A3: PERSONS OCCUPYING RESEARCH PLANTILLA ITEMS BUT CLASSIFIED AS REGULAR FACULTY.', remarks: 'Please see instructions.' },
-    { id: 'B', label: 'GROUP B', title: 'GROUP B: FULL-TIME FACULTY MEMBERS WITHOUT ITEMS BUT DRAWING SALARIES FROM THE PS ITEMS OF FACULTY ON LEAVE WITHOUT PAY.', remarks: 'Popularly known as "substitutes", these are the faculty members who take over temporarily the PS item of somebody on leave without pay.' },
-    { id: 'C1', label: 'GROUP C1', title: 'GROUP C1:  FULL-TIME FACULTY MEMBERS  WITHOUT ITEMS DRAWING SALARIES FROM GAA PS LUMP SUMS.', remarks: 'Full-time without PS items. Salaries are paid from GAA PS Lump Sums.' },
-    { id: 'C2', label: 'GROUP C2', title: 'GROUP C2: FULL-TIME FACULTY MEMBERS  WITHOUT ITEMS PAID DRAWING SALARIES FROM SUC INCOME.', remarks: 'Sometimes known as "contractual faculty", these are full-time faculty with no plantilla items. Salaries are paid from SUC income. ' },
-    { id: 'C3', label: 'GROUP C3', title: 'GROUP C3: FULL-TIME FACULTY MEMBERS  WITH NO PS ITEMS  DRAWING SALARIES FROM LGU FUNDS.', remarks: 'Faculty members who have no PS items but teach full-time, with salaries paid from LGU funds.' },
-    { id: 'D', label: 'GROUP D', title: 'GROUP D: TEACHING FELLOWS AND TEACHING ASSOCIATES  ( but not Graduate Assistants)', remarks: 'Technically, TA/TF are not faculty members. However, they do teach and study on official time.' },
-    { id: 'E', label: 'GROUP E', title: 'GROUP E: LECTURERS AND ALL OTHER PART-TIME FACULTY WITH NO ITEMS ( e.g. PROFS EMERITI, ADJUNCT/ AFFILIATE FACULTY, VISITING PROFS, etc.)', remarks: 'List only the lecturers and/or part-time faculty who have actual teaching loads in First Sem.' },
-    { id: 'Reference', label: 'Reference', title: 'REFERENCE CODES', remarks: 'Codes to be used in filling out the form.' },
-];
-
-import ReferenceTableE2 from './ReferenceTableE2';
+import { Separator } from '@/components/ui/separator';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Combobox } from '@/components/ui/combobox';
+import type { PublicFaculty } from '@/types/faculty';
+import { cn } from '@/lib/utils';
 
 type Props = {
-    faculty?: Faculty;
+    faculty?: PublicFaculty;
+    formData?: Partial<PublicFaculty>;
+    onChange?: (field: keyof PublicFaculty, value: string) => void;
     onCancel?: () => void;
-    onSave?: (data: Partial<Faculty>) => void;
+    onSave?: (data: Partial<PublicFaculty>) => void;
     referenceData?: any;
+    hideHeader?: boolean;
 };
 
-const FacultyFormE2: FC<Props> = ({ faculty, onSave, referenceData }) => {
-    const [activeTab, setActiveTab] = useState('A1');
-    const [formData, setFormData] = useState<Partial<Faculty>>({});
-    const currentGroup = SHEET_TABS.find(tab => tab.id === activeTab) || SHEET_TABS[0];
+// Section Header Component for consistent styling
+const SectionHeader: FC<{ icon: React.ReactNode; title: string; badge?: string }> = ({ icon, title, badge }) => (
+    <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+            <div className="p-2 bg-linear-to-br from-[#003468] to-[#1a4f8c] text-white rounded-lg shadow-sm">
+                {icon}
+            </div>
+            <div>
+                <h3 className="font-bold text-lg text-[#003468]">{title}</h3>
+                {badge && <p className="text-xs text-gray-500">{badge}</p>}
+            </div>
+        </div>
+        {badge && <Badge variant="outline" className="text-xs bg-gray-50 border-gray-200">{badge}</Badge>}
+    </div>
+);
 
-    useEffect(() => {
-        if (faculty) {
-            setFormData(faculty);
-        }
-    }, [faculty]);
+// Form Field Component for consistency
+const FormField: FC<{
+    label: string;
+    value: string;
+    onChange?: (value: string) => void;
+    placeholder?: string;
+    type?: string;
+    className?: string;
+    required?: boolean;
+    hint?: string;
+    error?: string;
+    readOnly?: boolean;
+    showCodePrefix?: boolean;
+}> = ({ label, value, onChange, placeholder, type = 'text', className = '', required, hint, error, readOnly, showCodePrefix = false }) => (
+    <div className="space-y-1.5">
+        <div className="flex items-center justify-between">
+            <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                {label}
+                {required && <span className="text-red-500 ml-1">*</span>}
+            </label>
+            {hint && <span className="text-[10px] text-gray-400 italic">{hint}</span>}
+        </div>
+        <div className="flex items-center gap-2">
+            {showCodePrefix && (
+                <div className="shrink-0 h-9 w-[50px] bg-[#F8F9FA] border border-gray-200 flex items-center justify-center text-xs font-medium text-gray-700 uppercase rounded-sm">
+                    CODE
+                </div>
+            )}
+            <div className={cn(
+                "flex flex-1 items-stretch rounded-4px border border-gray-300 bg-white transition-all duration-200 overflow-hidden",
+                readOnly ? "bg-gray-50/50 border-gray-200" : "focus-within:border-[#003468] focus-within:ring-1 focus-within:ring-[#003468]/20 hover:border-gray-400",
+                error ? "border-red-500 focus-within:border-red-500 focus-within:ring-red-500/20" : ""
+            )}>
+                <Input
+                    type={type}
+                    value={value || ''}
+                    onChange={(e) => onChange && onChange(e.target.value)}
+                    placeholder={placeholder}
+                    readOnly={readOnly}
+                    className={cn(
+                        "border-0 focus-visible:ring-0 shadow-none h-9 flex-1",
+                        readOnly && "cursor-not-allowed text-gray-500",
+                        className
+                    )}
+                />
+            </div>
+        </div>
+        {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
+    </div>
+);
 
-    const handleChange = (field: keyof Faculty, value: string) => {
-        setFormData(prev => ({ ...prev, [field]: value }));
-    };
-
-    const handleSave = () => {
-        if (onSave) {
-            onSave(formData);
-        }
-    };
+// Form Combobox Component for consistency
+const FormCombobox: FC<{
+    label: string;
+    value: string;
+    onChange: (value: string) => void;
+    options: { label: string; value: string | number }[];
+    placeholder?: string;
+    required?: boolean;
+    error?: string;
+    showCodePrefix?: boolean;
+}> = ({ label, value, onChange, options, placeholder, required, error, showCodePrefix = true }) => {
+    const selectedOption = options.find((opt) => String(opt.value) === String(value));
+    const codeValue = selectedOption ? String(selectedOption.value) : "CODE";
 
     return (
-        <div className="flex flex-col h-full w-full">
-            <div className="bg-white text-black px-2 py-1 text-xl font-bold uppercase border border-black shrink-0 flex justify-between items-center">
-                <span>FORM E-2: PROFILE OF EACH TERTIARY FACULTY IN AN SUC CAMPUS, as of [CD]</span>
-                <div className="flex items-center gap-2">
+        <div className="space-y-1.5">
+            <label className="text-[13px] font-semibold text-gray-600 uppercase tracking-wider">
+                {label}
+                {required && <span className="text-red-500 ml-1">*</span>}
+            </label>
+            <div className="flex items-center gap-2">
+                {showCodePrefix && (
+                    <div className="shrink-0 h-10 w-[60px] bg-[#F8F9FA] border border-gray-200 flex items-center justify-center text-xs font-medium text-gray-700 uppercase rounded-4px">
+                        {codeValue}
+                    </div>
+                )}
+                <div className="flex-1 min-w-0">
+                    <Combobox
+                        value={value}
+                        onChange={onChange}
+                        options={options}
+                        placeholder={placeholder}
+                        showCodePrefix={false}
+                        className={cn(
+                            'border-gray-300 hover:border-gray-400 focus-within:border-[#003468] focus-within:ring-1 focus-within:ring-[#003468]/20 rounded-4px shadow-none h-9',
+                            error ? 'border-red-500 focus-within:ring-red-500/20 focus-within:border-red-500' : ''
+                        )}
+                    />
+                </div>
+            </div>
+            {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
+        </div>
+    );
+};
+
+// Workload Grid Component for consistent workload sections
+const WorkloadGrid: FC<{
+    title: string;
+    items: Array<{
+        label: string;
+        value: string;
+        onChange?: (value: string) => void;
+        highlighted?: boolean;
+        hint?: string;
+        readOnly?: boolean;
+        showCodePrefix?: boolean;
+    }>;
+}> = ({ title, items }) => (
+    <div className="space-y-3">
+        <div className="flex items-center gap-2">
+            <ChevronRight className="h-4 w-4 text-[#003468]" />
+            <span className="text-xs font-bold text-[#003468] uppercase tracking-wider">{title}</span>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {items.map((item, index) => (
+                <div key={index} className="space-y-1">
+                    <div className="flex items-center justify-between">
+                        <label className="text-[13px] font-semibold text-gray-500 uppercase leading-tight">
+                            {item.label}
+                        </label>
+                        {item.hint && <span className="text-[8px] text-gray-400">{item.hint}</span>}
+                    </div>
+                    <div className="flex items-center gap-2">
+                        {item.showCodePrefix && (
+                            <div className="shrink-0 h-9 w-[60px] bg-[#F8F9FA] border border-gray-200 flex items-center justify-center text-xs font-medium text-gray-700 uppercase rounded-4px">
+                                CODE
+                            </div>
+                        )}
+                        <div className={cn(
+                            "flex flex-1 items-stretch rounded-4px border overflow-hidden h-9",
+                            item.highlighted
+                                ? 'bg-blue-50/50 border-blue-200'
+                                : 'bg-white border-gray-300 hover:border-gray-400'
+                        )}>
+                            <Input
+                                value={item.value || ''}
+                                onChange={(e) => item.onChange && item.onChange(e.target.value)}
+                                readOnly={item.readOnly || item.highlighted}
+                                className={cn(
+                                    "border-0 focus-visible:ring-0 shadow-none h-full w-full flex-1 text-center",
+                                    item.highlighted
+                                        ? 'font-bold text-[#003468] cursor-default bg-transparent'
+                                        : 'bg-transparent'
+                                )}
+                            />
+                        </div>
+                    </div>
+                </div>
+            ))}
+        </div>
+    </div>
+);
+
+const FacultyFormE2: FC<Props> = ({
+    faculty,
+    onSave,
+    onCancel,
+    hideHeader = false,
+    formData: externalFormData,
+    onChange: externalOnChange
+}) => {
+    const [internalFormData, setInternalFormData] = useState<Partial<PublicFaculty>>({});
+    const [errors, setErrors] = useState<Record<string, string>>({});
+    const [isSaving, setIsSaving] = useState(false);
+
+    useEffect(() => {
+        if (faculty && !externalFormData) {
+            setInternalFormData(faculty);
+        }
+    }, [faculty, externalFormData]);
+
+    const formData = externalFormData || internalFormData;
+
+    const handleChange = (field: keyof PublicFaculty, value: string) => {
+        if (errors[field]) {
+            setErrors(prev => {
+                const newErrors = { ...prev };
+                delete newErrors[field];
+                return newErrors;
+            });
+        }
+
+        if (externalOnChange) {
+            externalOnChange(field, value);
+        } else {
+            setInternalFormData(prev => ({ ...prev, [field]: value }));
+        }
+    };
+
+    // Auto-calculate totals
+    useEffect(() => {
+        const calculateAndSync = (fields: string[], targetField: keyof PublicFaculty) => {
+            const total = fields.reduce((sum, field) => sum + (parseFloat(formData[field as keyof PublicFaculty] as string || '0') || 0), 0).toFixed(2);
+            if (total !== formData[targetField]) {
+                handleChange(targetField, total);
+            }
+        };
+
+        // Undergraduate Totals
+        calculateAndSync(['ug_lab_units', 'ug_lec_units'], 'ug_total_units');
+        calculateAndSync(['ug_lab_hours', 'ug_lec_hours'], 'ug_total_hours');
+        calculateAndSync(['ug_lab_contact', 'ug_lec_contact'], 'ug_total_contact');
+
+        // Graduate Totals
+        calculateAndSync(['grad_lab_units', 'grad_lec_units'], 'grad_total_units');
+        calculateAndSync(['grad_lab_contact', 'grad_lec_contact'], 'grad_total_contact');
+
+        // Official Credit Load Total
+        calculateAndSync([
+            'load_research', 'load_extension', 'load_study',
+            'load_production', 'load_admin', 'load_others'
+        ], 'load_total');
+
+    }, [
+        formData.ug_lab_units, formData.ug_lec_units,
+        formData.ug_lab_hours, formData.ug_lec_hours,
+        formData.ug_lab_contact, formData.ug_lec_contact,
+        formData.grad_lab_units, formData.grad_lec_units,
+        formData.grad_lab_contact, formData.grad_lec_contact,
+        formData.load_research, formData.load_extension,
+        formData.load_study, formData.load_production,
+        formData.load_admin, formData.load_others
+    ]);
+
+    const validateForm = () => {
+        const newErrors: Record<string, string> = {};
+        if (!formData.name?.trim()) newErrors.name = "Faculty name is required";
+        if (!formData.rank?.trim()) newErrors.rank = "Faculty rank is required";
+        if (!formData.gender?.trim()) newErrors.gender = "Gender is required";
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
+    const handleSave = async (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
+        if (!validateForm()) return;
+
+        setIsSaving(true);
+        try {
+            if (onSave) {
+                await onSave(formData);
+            }
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const formFields = (
+        <div className="space-y-6">
+            {/* Section 1: General Information */}
+            <Card className="border border-gray-200 shadow-sm">
+                <CardHeader className="bg-linear-to-r from-gray-50 to-white border-b border-gray-100 pb-4">
+                    <SectionHeader
+                        icon={<User className="h-5 w-5" />}
+                        title="General Information"
+                    />
+                </CardHeader>
+                <CardContent className="pt-5">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <FormField
+                            label="Name of Faculty (Last, First, M.I.)"
+                            value={formData.name || ''}
+                            onChange={(value) => handleChange('name', value)}
+                            placeholder="e.g. DOE, JOHN A."
+                            required
+                            error={errors.name}
+                        />
+                        <FormCombobox
+                            label="Generic Faculty Rank"
+                            value={formData.rank || ''}
+                            onChange={(value) => handleChange('rank', value)}
+                            options={[
+                                { label: 'PROFESSOR', value: 'PROF' },
+                                { label: 'ASSOCIATE PROFESSOR', value: 'ASSOC_PROF' },
+                                { label: 'ASSISTANT PROFESSOR', value: 'ASST_PROF' },
+                                { label: 'INSTRUCTOR', value: 'INST' },
+                                { label: 'LECTURER', value: 'LECT' },
+                            ]}
+                            placeholder="Select Rank"
+                            required
+                            showCodePrefix={true}
+                            error={errors.rank}
+                        />
+                        <FormField
+                            label="Home College"
+                            value={formData.college || ''}
+                            onChange={(value) => handleChange('college', value)}
+                            placeholder="College code"
+                            showCodePrefix={true}
+                        />
+                        <FormField
+                            label="Home Department"
+                            value={formData.department || ''}
+                            onChange={(value) => handleChange('department', value)}
+                            placeholder="Department code"
+                            showCodePrefix={true}
+                        />
+                    </div>
+
+                    <Separator className="my-6" />
+
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <FormCombobox
+                            label="Is Faculty Member Tenured?"
+                            value={formData.is_tenured || ''}
+                            onChange={(value) => handleChange('is_tenured', value)}
+                            options={[
+                                { label: 'YES', value: '1' },
+                                { label: 'NO', value: '0' },
+                            ]}
+                            placeholder="Select Option"
+                            showCodePrefix={true}
+                        />
+                        <FormField
+                            label="SSL Salary Grade"
+                            value={formData.salary_grade || ''}
+                            onChange={(value) => handleChange('salary_grade', value)}
+                            type="number"
+                            placeholder="e.g. 15"
+                            showCodePrefix={true}
+                        />
+                        <FormField
+                            label="Annual Basic Salary"
+                            value={formData.annual_salary || ''}
+                            onChange={(value) => handleChange('annual_salary', value)}
+                            type="number"
+                            placeholder="e.g. 123456"
+                            showCodePrefix={true}
+                        />
+                        <FormCombobox
+                            label="On Leave Without Pay?"
+                            value={formData.on_leave || ''}
+                            onChange={(value) => handleChange('on_leave', value)}
+                            options={[
+                                { label: 'YES', value: '1' },
+                                { label: 'NO', value: '0' },
+                            ]}
+                            placeholder="Select Option"
+                            showCodePrefix={true}
+                        />
+                        <FormField
+                            label="Full-Time Equivalent (FTE)"
+                            value={formData.fte || ''}
+                            onChange={(value) => handleChange('fte', value)}
+                            placeholder="1.00"
+                            showCodePrefix={true}
+                        />
+                        <FormCombobox
+                            label="Gender of Faculty"
+                            value={formData.gender || ''}
+                            onChange={(value) => handleChange('gender', value)}
+                            options={[
+                                { label: 'MALE', value: 'M' },
+                                { label: 'FEMALE', value: 'F' },
+                            ]}
+                            placeholder="Select Gender"
+                            required
+                            showCodePrefix={true}
+                            error={errors.gender}
+                        />
+                    </div>
+                </CardContent>
+            </Card>
+            <Separator className="my-6" />
+            {/* Section 2: Educational Attainment */}
+            <Card className="border border-gray-200 shadow-sm">
+                <CardHeader className="bg-linear-to-r from-gray-50 to-white border-b border-gray-100 pb-4">
+                    <SectionHeader
+                        icon={<GraduationCap className="h-5 w-5" />}
+                        title="Educational Attainment"
+                    />
+                </CardHeader>
+                <CardContent className="pt-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <FormField
+                            label="Highest Degree Attained"
+                            value={formData.degree || ''}
+                            onChange={(value) => handleChange('degree', value)}
+                            placeholder="Use 3-digit code"
+                            hint="e.g. PHD, MAS"
+                            showCodePrefix={true}
+                        />
+                        <FormCombobox
+                            label="Actively Pursuing Next Degree?"
+                            value={formData.pursuing_degree || ''}
+                            onChange={(value) => handleChange('pursuing_degree', value)}
+                            options={[
+                                { label: 'YES', value: '1' },
+                                { label: 'NO', value: '0' },
+                            ]}
+                            placeholder="Select Option"
+                            showCodePrefix={true}
+                        />
+                    </div>
+
+                    <Separator className="my-6" />
+
+                    <div className="space-y-4">
+                        <h4 className="text-sm font-semibold text-[#003468]">Teaching Load Disciplines</h4>
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <FormField
+                                label="Primary Discipline (1)"
+                                value={formData.discipline_load_1 || ''}
+                                onChange={(value) => handleChange('discipline_load_1', value)}
+                                placeholder="Use 6-digit code"
+                                showCodePrefix={true}
+                            />
+                            <FormField
+                                label="Primary Discipline (2)"
+                                value={formData.discipline_load_2 || ''}
+                                onChange={(value) => handleChange('discipline_load_2', value)}
+                                placeholder="Use 6-digit code"
+                                showCodePrefix={true}
+                            />
+                        </div>
+                    </div>
+
+                    <Separator className="my-6" />
+
+                    <div className="space-y-4">
+                        <h4 className="text-sm font-semibold text-[#003468]">Degree Disciplines</h4>
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                            <FormField
+                                label="Bachelors Degree"
+                                value={formData.discipline_bachelors || ''}
+                                onChange={(value) => handleChange('discipline_bachelors', value)}
+                                placeholder="6-digit code"
+                                showCodePrefix={true}
+                            />
+                            <FormField
+                                label="Masters Degree"
+                                value={formData.discipline_masters || ''}
+                                onChange={(value) => handleChange('discipline_masters', value)}
+                                placeholder="6-digit code"
+                                showCodePrefix={true}
+                            />
+                            <FormField
+                                label="Doctorate"
+                                value={formData.discipline_doctorate || ''}
+                                onChange={(value) => handleChange('discipline_doctorate', value)}
+                                placeholder="6-digit code"
+                                showCodePrefix={true}
+                            />
+                        </div>
+                    </div>
+
+                    <Separator className="my-6" />
+
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <FormCombobox
+                            label="Masters Degree with Thesis?"
+                            value={formData.masters_thesis || ''}
+                            onChange={(value) => handleChange('masters_thesis', value)}
+                            options={[
+                                { label: 'YES', value: '1' },
+                                { label: 'NO', value: '0' },
+                            ]}
+                            placeholder="Select Option"
+                            showCodePrefix={true}
+                        />
+                        <FormCombobox
+                            label="Doctorate with Dissertation?"
+                            value={formData.doctorate_dissertation || ''}
+                            onChange={(value) => handleChange('doctorate_dissertation', value)}
+                            options={[
+                                { label: 'YES', value: '1' },
+                                { label: 'NO', value: '0' },
+                            ]}
+                            placeholder="Select Option"
+                            showCodePrefix={true}
+                        />
+                    </div>
+                </CardContent>
+            </Card>
+
+            {/* Section 3: Undergraduate Workload */}
+            <Card className="border border-gray-200 shadow-sm">
+                <CardHeader className="bg-linear-to-r from-gray-50 to-white border-b border-gray-100 pb-4">
+                    <SectionHeader
+                        icon={<Clock className="h-5 w-5" />}
+                        title="Undergraduate Workload"
+                    />
+                </CardHeader>
+                <CardContent className="pt-6 space-y-8">
+                    <WorkloadGrid
+                        title="Credit Units"
+                        items={[
+                            {
+                                label: "Lab Credit Units",
+                                value: formData.ug_lab_units || '',
+                                onChange: (value) => handleChange('ug_lab_units', value),
+                            },
+                            {
+                                label: "Lecture Credit Units",
+                                value: formData.ug_lec_units || '',
+                                onChange: (value) => handleChange('ug_lec_units', value),
+                            },
+                            {
+                                label: "Total Credit Units",
+                                value: formData.ug_total_units || '',
+                                highlighted: true,
+                                hint: "Auto-calculated",
+                            }
+                        ]}
+                    />
+                    <Separator className="my-6" />
+                    <WorkloadGrid
+                        title="Hours Per Week"
+                        items={[
+                            {
+                                label: "Lab Hours",
+                                value: formData.ug_lab_hours || '',
+                                onChange: (value) => handleChange('ug_lab_hours', value)
+                            },
+                            {
+                                label: "Lecture Hours",
+                                value: formData.ug_lec_hours || '',
+                                onChange: (value) => handleChange('ug_lec_hours', value)
+                            },
+                            {
+                                label: "Total Hours",
+                                value: formData.ug_total_hours || '',
+                                highlighted: true,
+                                hint: "Auto-calculated"
+                            }
+                        ]}
+                    />
+                    <Separator className="my-6" />
+                    <WorkloadGrid
+                        title="Contact Hours"
+                        items={[
+                            {
+                                label: "Lab Contact Hours",
+                                value: formData.ug_lab_contact || '',
+                                onChange: (value) => handleChange('ug_lab_contact', value)
+                            },
+                            {
+                                label: "Lecture Contact Hours",
+                                value: formData.ug_lec_contact || '',
+                                onChange: (value) => handleChange('ug_lec_contact', value)
+                            },
+                            {
+                                label: "Total Contact Hours",
+                                value: formData.ug_total_contact || '',
+                                highlighted: true,
+                                hint: "Auto-calculated"
+                            }
+                        ]}
+                    />
+                </CardContent>
+            </Card>
+
+            {/* Section 4: Graduate Workload */}
+            <Card className="border border-gray-200 shadow-sm">
+                <CardHeader className="bg-linear-to-r from-gray-50 to-white border-b border-gray-100 pb-4">
+                    <SectionHeader
+                        icon={<Briefcase className="h-5 w-5" />}
+                        title="Graduate Workload"
+                    />
+                </CardHeader>
+                <CardContent className="pt-6 space-y-8">
+                    <WorkloadGrid
+                        title="Credit Units"
+                        items={[
+                            {
+                                label: "Lab Units",
+                                value: formData.grad_lab_units || '',
+                                onChange: (value) => handleChange('grad_lab_units', value),
+                            },
+                            {
+                                label: "Lecture Units",
+                                value: formData.grad_lec_units || '',
+                                onChange: (value) => handleChange('grad_lec_units', value),
+                            },
+                            {
+                                label: "Total Units",
+                                value: formData.grad_total_units || '',
+                                highlighted: true,
+                                hint: "Auto-calculated"
+                            }
+                        ]}
+                    />
+                    <Separator className="my-6" />
+                    <WorkloadGrid
+                        title="Contact - Hours"
+                        items={[
+                            {
+                                label: "Lab Contact",
+                                value: formData.grad_lab_contact || '',
+                                onChange: (value) => handleChange('grad_lab_contact', value),
+                            },
+                            {
+                                label: "Lecture Contact",
+                                value: formData.grad_lec_contact || '',
+                                onChange: (value) => handleChange('grad_lec_contact', value),
+                            },
+                            {
+                                label: "Total Contact",
+                                value: formData.grad_total_contact || '',
+                                highlighted: true,
+                                hint: "Auto-calculated"
+                            }
+                        ]}
+                    />
+                </CardContent>
+            </Card>
+
+            {/* Section 5: Official Credit Load */}
+            <Card className="border border-gray-200 shadow-sm">
+                <CardHeader className="bg-linear-to-r from-gray-50 to-white border-b border-gray-100 pb-4">
+                    <SectionHeader
+                        icon={<Award className="h-5 w-5" />}
+                        title="Official Credit Load"
+                    />
+                </CardHeader>
+                <CardContent className="pt-6">
+                    <WorkloadGrid
+                        title="Credit Units"
+                        items={[
+                            {
+                                label: "OFFICIAL RESEARCH LOAD",
+                                value: formData.grad_lab_units || '',
+                                onChange: (value) => handleChange('grad_lab_units', value),
+                            },
+                            {
+                                label: "OFFICIAL EXTENSION LOAD",
+                                value: formData.grad_lec_units || '',
+                                onChange: (value) => handleChange('grad_lec_units', value),
+                            },
+                            {
+                                label: "OFFICIAL STUDY LOAD",
+                                value: formData.grad_lec_units || '',
+                                onChange: (value) => handleChange('grad_lec_units', value),
+                            },
+                            {
+                                label: "OFFICIAL LOAD FOR PRODUCTION",
+                                value: formData.grad_lec_units || '',
+                                onChange: (value) => handleChange('grad_lec_units', value),
+                            },
+                            {
+                                label: "OFFICIAL ADMINISTRATIVE LOAD",
+                                value: formData.grad_lec_units || '',
+                                onChange: (value) => handleChange('grad_lec_units', value),
+                            },
+                            {
+                                label: "OTHER OFFICIAL LOAD CREDITS",
+                                value: formData.grad_lec_units || '',
+                                onChange: (value) => handleChange('grad_lec_units', value),
+                            },
+                        ]}
+                    />
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    </div>
+
+                    <Separator className="my-6" />
+
+                    <div className="bg-linear-to-r from-blue-50 to-indigo-50 p-6 rounded-4px border border-blue-200">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <label className="text-sm font-bold text-[#003468] uppercase tracking-wider">
+                                    Total Work Load
+                                </label>
+                                <p className="text-xs text-gray-600 mt-1">Sum of all official loads</p>
+                            </div>
+                            <div className="text-right">
+                                <Input
+                                    value={formData.load_total || '0.00'}
+                                    readOnly
+                                    className="text-xl font-bold text-[#003468] bg-white border-blue-300 w-32 text-center rounded-lg focus-visible:ring-0 cursor-default"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+        </div>
+    );
+
+    if (hideHeader) {
+        return (
+            <div className="w-full bg-gray-50/50 p-6">
+                {formFields}
+            </div>
+        );
+    }
+
+    return (
+        <div className="flex flex-col h-[90vh] md:h-[85vh] w-full bg-gray-50 overflow-hidden rounded-4px">
+            <div className="bg-linear-to-r from-[#003468] to-[#1a4f8c] text-white px-6 py-4 flex justify-between items-center shrink-0 shadow-sm z-10">
+                <div>
+                    <h2 className="text-xl font-bold tracking-tight flex items-center gap-2">
+                        FORM E-2
+                        <Badge variant="outline" className="bg-white/10 text-white border-white/20 text-xs">
+                            Tertiary Faculty Profile
+                        </Badge>
+                    </h2>
+                    <p className="text-sm text-blue-100 mt-1">Faculty Registration • Academic Year 2025-2026</p>
+                </div>
+                <div className="flex items-center gap-3">
                     <Button
+                        variant="secondary"
                         size="sm"
-                        className="h-6 px-3 bg-[#003468] hover:bg-[#002a54] text-white border border-black rounded-none text-[15px] uppercase tracking-wider font-bold flex items-center gap-1"
-                        onClick={handleSave}
+                        onClick={() => handleSave()}
+                        disabled={isSaving}
+                        className="h-9 font-bold uppercase text-xs bg-white text-[#003468] hover:bg-gray-100 shadow-xs"
                     >
-                        <Save className="h-3 w-3" /> Save
+                        <Save className="h-4 w-4 mr-2" /> {isSaving ? 'Saving...' : 'Quick Save'}
                     </Button>
-                    <DialogClose className="h-6 w-6 flex items-center justify-center text-black hover:bg-gray-200 rounded-none">
-                        <X className="h-4 w-4" />
+                    <DialogClose className="h-9 w-9 flex items-center justify-center hover:bg-white/10 rounded-md transition-all duration-200">
+                        <X className="h-5 w-5" />
                     </DialogClose>
                 </div>
             </div>
 
-            {/* Dynamic Header Moved to Table Thead */}
-
-            <div className="flex-1 overflow-auto border border-black bg-white relative">
-                {activeTab === 'Reference' ? (
-                    <ReferenceTableE2 />
-                ) : (
-                    <table className="w-full min-w-[3000px] border-collapse text-[11px] font-sans">
-                        <thead className="bg-black text-white sticky top-0 z-30 shadow-md">
-                            {/* COLUMN CODES */}
-                            <tr className="bg-black border-b border-white/30">
-                                <th className="border-r border-white/30 w-64 text-center py-1">A2</th>
-                                <th className="border-r border-white/30 w-48 text-center">A3</th>
-                                <th className="border-r border-white/30 w-48 text-center">A4</th>
-                                <th className="border-r border-white/30 w-48 text-center">A5</th>
-                                <th className="border-r border-white/30 w-20 text-center">A6</th>
-                                <th className="border-r border-white/30 w-16 text-center">A7</th>
-                                <th className="border-r border-white/30 w-24 text-center">A8</th>
-                                <th className="border-r border-white/30 w-20 text-center">A9</th>
-                                <th className="border-r border-white/30 w-20 text-center">A10</th>
-                                <th className="border-r border-white/30 w-20 text-center">A11</th>
-                                <th className="border-r border-white/30 w-48 text-center">B1</th>
-                                <th className="border-r border-white/30 w-24 text-center">B2</th>
-                                <th className="border-r border-white/30 w-24 text-center">B3</th>
-                                <th className="border-r border-white/30 w-24 text-center">B4</th>
-                                <th className="border-r border-white/30 w-24 text-center">B5</th>
-                                <th className="border-r border-white/30 w-24 text-center">B6</th>
-                                <th className="border-r border-white/30 w-24 text-center">B7</th>
-                                <th className="border-r border-white/30 w-20 text-center">B8</th>
-                                <th className="border-r border-white/30 w-20 text-center">B9</th>
-                                {/* C Columns */}
-                                <th className="border-r border-white/30 w-16 text-center">C1</th>
-                                <th className="border-r border-white/30 w-16 text-center">C2</th>
-                                <th className="border-r border-white/30 w-16 text-center">C3</th>
-                                <th className="border-r border-white/30 w-16 text-center">C4</th>
-                                <th className="border-r border-white/30 w-16 text-center">C5</th>
-                                <th className="border-r border-white/30 w-16 text-center">C6</th>
-                                <th className="border-r border-white/30 w-16 text-center">C7</th>
-                                <th className="border-r border-white/30 w-16 text-center">C8</th>
-                                <th className="border-r border-white/30 w-16 text-center">C9</th>
-                                {/* D Columns */}
-                                <th className="border-r border-white/30 w-16 text-center">D1</th>
-                                <th className="border-r border-white/30 w-16 text-center">D2</th>
-                                <th className="border-r border-white/30 w-16 text-center">D3</th>
-                                <th className="border-r border-white/30 w-16 text-center">D7</th>
-                                <th className="border-r border-white/30 w-16 text-center">D8</th>
-                                <th className="border-r border-white/30 w-16 text-center">D9</th>
-                                {/* E Columns */}
-                                <th className="border-r border-white/30 w-20 text-center">E1</th>
-                                <th className="border-r border-white/30 w-20 text-center">E2</th>
-                                <th className="border-r border-white/30 w-20 text-center">E3</th>
-                                <th className="border-r border-white/30 w-20 text-center">E4</th>
-                                <th className="border-r border-white/30 w-20 text-center">E5</th>
-                                <th className="border-r border-white/30 w-20 text-center">E6</th>
-                                <th className="border-r border-white/30 w-20 text-center">E7</th>
-                            </tr>
-
-                            {/* HEADERS */}
-                            <tr className="align-bottom h-24">
-                                <th className="border border-white/30 px-2 text-left align-middle wrap-break-word whitespace-normal">NAME OF FACULTY (Last name, first name, middle initial)</th>
-                                <th className="border border-white/30 px-1 align-middle whitespace-normal">GENERIC FACULTY RANK</th>
-                                <th rowSpan={2} className="border border-white/30 px-1 align-middle whitespace-normal">HOME COLLEGE</th>
-                                <th rowSpan={2} className="border border-white/30 px-1 align-middle whitespace-normal">HOME DEPT</th>
-                                <th className="border border-white/30 px-1 align-middle whitespace-normal">IS FACULTY MEMBER TENURED?</th>
-                                <th className="border border-white/30 px-1 align-middle whitespace-normal">SSL SALARY GRADE</th>
-                                <th className="border border-white/30 px-1 align-middle whitespace-normal">ANNUAL BASIC SALARY</th>
-                                <th className="border border-white/30 px-1 align-middle whitespace-normal">ON LEAVE WITHOUT PAY?</th>
-                                <th className="border border-white/30 px-1 align-middle whitespace-normal">FULL-TIME EQUIVALENT OF THE FACULTY</th>
-                                <th className="border border-white/30 px-1 align-middle whitespace-normal">GENDER OF FACULTY</th>
-                                <th className="border border-white/30 px-1 align-middle whitespace-normal">HIGHEST DEGREE ATTAINED</th>
-                                <th className="border border-white/30 px-1 align-middle whitespace-normal">ACTIVELY PURSUING NEXT DEGREE?</th>
-                                <th className="border border-white/30 px-1 align-middle whitespace-normal">SPECIFIC DISCIPLINE (1) OF PRIMARY TEACHING LOAD</th>
-                                <th className="border border-white/30 px-1 align-middle whitespace-normal">SPECIFIC DISCIPLINE (2) OF PRIMARY TEACHING LOAD</th>
-                                <th className="border border-white/30 px-1 align-middle whitespace-normal">SPECIFIC DISCIPLINE OF BACHELORS DEGREE</th>
-                                <th className="border border-white/30 px-1 align-middle whitespace-normal">SPECIFIC DISCIPLINE OF MASTERS DEGREE</th>
-                                <th className="border border-white/30 px-1 align-middle whitespace-normal">SPECIFIC DISCIPLINE OF DOCTORATE</th>
-                                <th className="border border-white/30 px-1 align-middle whitespace-normal">MASTERS DEGREE WITH THESIS?</th>
-                                <th className="border border-white/30 px-1 align-middle whitespace-normal">DOCTORATE WITH DISSERTATION?</th>
-
-                                {/* C Headers */}
-                                <th className="border border-white/30 px-1 align-middle whitespace-normal">LAB CREDIT UNITS TEACHING Undergrad</th>
-                                <th className="border border-white/30 px-1 align-middle whitespace-normal">LECTURE CREDIT UNITS TEACHING Undergrad</th>
-                                <th className="border border-white/30 px-1 align-middle whitespace-normal">TOTAL TEACHING CREDIT UNITS Undergrad (Lab+Lect)</th>
-                                <th className="border border-white/30 px-1 align-middle whitespace-normal">LAB HOURS PER WEEK TEACHING Undergrad</th>
-                                <th className="border border-white/30 px-1 align-middle whitespace-normal">LECTURE HOURS PER WEEK TEACHING Undergrad</th>
-                                <th className="border border-white/30 px-1 align-middle whitespace-normal">TOTAL TEACHING HOURS PER WEEK Undergrad</th>
-                                <th className="border border-white/30 px-1 align-middle whitespace-normal">Student Contact Hours Lab Undergrad</th>
-                                <th className="border border-white/30 px-1 align-middle whitespace-normal">Student Contact Hours Lecture Undergrad</th>
-                                <th className="border border-white/30 px-1 align-middle whitespace-normal">STUDENT CONTACT-HOURS Undergrad (Lab+Lect)</th>
-
-                                {/* D Headers */}
-                                <th className="border border-white/30 px-1 align-middle whitespace-normal">LAB CREDIT UNITS TEACHING Graduate Level</th>
-                                <th className="border border-white/30 px-1 align-middle whitespace-normal">LECTURE CREDIT UNITS TEACHING Graduate Level</th>
-                                <th className="border border-white/30 px-1 align-middle whitespace-normal">TOTAL TEACHING CREDIT UNITS Graduate (Lab+Lect)</th>
-                                <th className="border border-white/30 px-1 align-middle whitespace-normal">Student ContactHrs LAB Graduate level</th>
-                                <th className="border border-white/30 px-1 align-middle whitespace-normal">Student ContactHrs LECTURE Graduate level</th>
-                                <th className="border border-white/30 px-1 align-middle whitespace-normal">Student ContactHrs GRADUATE Level (Lab+Lect)</th>
-
-                                {/* E Headers */}
-                                <th className="border border-white/30 px-1 align-middle whitespace-normal">OFFICIAL RESEARCH LOAD</th>
-                                <th className="border border-white/30 px-1 align-middle whitespace-normal">OFFICIAL EXTENSION SERVICES LOAD</th>
-                                <th className="border border-white/30 px-1 align-middle whitespace-normal">OFFICIAL STUDY LOAD</th>
-                                <th className="border border-white/30 px-1 align-middle whitespace-normal">OFFICIAL LOAD FOR PRODUCTION</th>
-                                <th className="border border-white/30 px-1 align-middle whitespace-normal">OFFICIAL ADMINISTRATIVE LOAD</th>
-                                <th className="border border-white/30 px-1 align-middle whitespace-normal">OTHER OFFICIAL LOAD CREDITS</th>
-                                <th className="border border-white/30 px-1 align-middle whitespace-normal">TOTAL WORK LOAD</th>
-                            </tr>
-
-                            {/* SUB HEADERS */}
-                            <tr className="bg-black text-[9px] h-6">
-                                <th className="border border-white/30 px-1 uppercase align-middle">Elem/ Secondary/ Tech Voc</th>
-                                <th className="border border-white/30 px-1 align-middle">Use code.</th>
-                                <th colSpan={6} className="border border-white/30 px-1 align-middle">Use code.</th>
-
-                                <th className="border border-white/30 px-1 align-middle">Use 3-digit code.</th>
-                                <th className="border border-white/30 px-1 align-middle">Use code.</th>
-                                <th colSpan={5} className="border border-white/30 px-1 align-middle">Use 6-digit code.</th>
-
-                                <th className="border border-white/30 px-1 align-middle">Use code.</th>
-                                <th className="border border-white/30 px-1 bg-black"></th>
-
-                                <th colSpan={3} className="border border-white/30 px-1 align-middle">CREDIT UNITS</th>
-                                <th colSpan={3} className="border border-white/30 px-1 align-middle">HOURS PER WEEK TEACHING</th>
-                                <th colSpan={3} className="border border-white/30 px-1 align-middle">CONTACT-HOURS</th>
-
-                                <th colSpan={3} className="border border-white/30 px-1 align-middle">CREDIT UNITS</th>
-                                <th colSpan={3} className="border border-white/30 px-1 align-middle">CONTACT-HOURS</th>
-
-                                <th colSpan={7} className="border border-white/30 px-1 align-middle">CREDIT UNITS</th>
-                            </tr>
-                            {/* DYNAMIC GROUP TITLE ROW */}
-                            <tr className="bg-white border-b border-black">
-                                <th colSpan={41} className="p-0 border border-black text-left">
-                                    <div className="bg-white text-black text-left flex flex-col">
-                                        <div className="px-2 py-1 text-[15px] font-bold italic whitespace-normal">
-                                            {currentGroup.title}
-                                        </div>
-                                        <div className="px-2 pb-1 text-[11px] italic whitespace-normal">
-                                            <span className="font-bold">REMARKS:</span> {currentGroup.remarks}
-                                        </div>
-                                        <div className="bg-black text-white text-[11px] font-bold px-2 w-full mt-1">
-                                            START BELOW THIS ROW
-                                        </div>
-                                    </div>
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {/* DATA ROW */}
-                            <tr className="bg-white hover:bg-gray-100">
-                                {/* A Columns */}
-                                <td className="border border-black p-0 h-8 font-bold">
-                                    <Input
-                                        className="h-full w-full border-none rounded-none bg-transparent px-2 text-left text-[11px] focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-black"
-                                        value={formData.name || ''}
-                                        onChange={(e) => handleChange('name', e.target.value)}
-                                        placeholder="Name"
-                                    />
-                                </td>
-                                <td className="border border-black p-0">
-                                    <Input
-                                        className="h-full w-full border-none rounded-none bg-transparent px-1 text-left text-[11px] focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-black"
-                                        value={formData.rank || ''}
-                                        onChange={(e) => handleChange('rank', e.target.value)}
-                                        placeholder="Code"
-                                    />
-                                </td>
-                                <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-left text-[11px]" defaultValue="CAS" /></td>
-                                <td className="border border-black p-0">
-                                    <Input
-                                        className="h-full w-full border-none rounded-none bg-transparent px-1 text-left text-[11px] focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-black"
-                                        value={formData.department || ''}
-                                        onChange={(e) => handleChange('department', e.target.value)}
-                                    />
-                                </td>
-                                <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" defaultValue="1" placeholder="Code" /></td>
-                                <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" defaultValue="18" /></td>
-                                <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" defaultValue="350000" /></td>
-                                <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" defaultValue="N" /></td>
-                                <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" defaultValue="1.0" /></td>
-                                <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" defaultValue="1" placeholder="Code" /></td>
-
-                                {/* B Columns */}
-                                <td className="border border-black p-0">
-                                    <Input
-                                        className="h-full w-full border-none rounded-none bg-transparent px-1 text-left text-[11px] focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-black"
-                                        value={formData.degree || ''}
-                                        onChange={(e) => handleChange('degree', e.target.value)}
-                                        placeholder="Code"
-                                    />
-                                </td>
-                                <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" defaultValue="2" placeholder="Code" /></td>
-                                {[...Array(5)].map((_, i) => (
-                                    <td key={`B${3 + i}`} className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-[11px]" /></td>
-                                ))}
-                                <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" defaultValue="1" placeholder="Code" /></td>
-                                <td className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" defaultValue="1" placeholder="Code" /></td>
-
-                                {/* C Columns - Zeros */}
-                                {[...Array(9)].map((_, i) => (
-                                    <td key={`C${1 + i}`} className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" defaultValue="0" /></td>
-                                ))}
-
-                                {/* D Columns - Zeros */}
-                                {[...Array(6)].map((_, i) => (
-                                    <td key={`D${1 + i}`} className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" defaultValue="0" /></td>
-                                ))}
-
-                                {/* E Columns - Zeros */}
-                                {[...Array(7)].map((_, i) => (
-                                    <td key={`E${1 + i}`} className="border border-black p-0"><Input className="h-full w-full border-none rounded-none bg-transparent px-1 text-center text-[11px]" defaultValue="0" /></td>
-                                ))}
-                            </tr>
-
-                            {/* EMPTY ROWS */}
-                            {[...Array(8)].map((_, r) => (
-                                <tr key={r} className="hover:bg-gray-100">
-                                    <td className="border border-black h-8"></td>
-                                    {[...Array(40)].map((_, c) => (
-                                        <td key={c} className="border border-black"></td>
-                                    ))}
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-
-                )}
-            </div>
-
-            {/* SHEET TABS */}
-            <div className="flex items-center bg-[#f0f0f0] border-t border-gray-300 px-1 gap-1 h-8 shrink-0 overflow-x-auto">
-                <div className="flex items-center space-x-2 mr-4 text-gray-500">
-                    <div className="flex gap-1">
-                        <button className="hover:bg-gray-200 p-0.5 rounded-none"><ChevronLeft className="h-3 w-3" /></button>
-                        <button className="hover:bg-gray-200 p-0.5 rounded-none"><ChevronRight className="h-3 w-3" /></button>
-                    </div>
-                </div>
-                {SHEET_TABS.map((tab) => (
-                    <button
-                        key={tab.id}
-                        onClick={() => setActiveTab(tab.id)}
-                        className={`
-                            px-4 py-1 text-[11px] font-medium transition-colors border-r border-black h-full relative top-px whitespace-nowrap
-                            ${activeTab === tab.id
-                                ? 'bg-black text-white border-t-2 border-t-black border-b-black shadow-sm'
-                                : 'bg-[#f0f0f0] text-gray-600 hover:bg-gray-200'}
-                        `}
-                    >
-                        {tab.label}
-                    </button>
-                ))}
-                <button className="px-2 py-1 text-gray-500 hover:bg-gray-200 rounded-none ml-1">
-                    <Plus className="h-4 w-4" />
-                </button>
-            </div>
+            <ScrollArea className="flex-1 px-8 py-6">
+                <form onSubmit={handleSave} className="max-w-7xl mx-auto pb-8">
+                    {formFields}
+                </form>
+            </ScrollArea>
         </div>
     );
 };

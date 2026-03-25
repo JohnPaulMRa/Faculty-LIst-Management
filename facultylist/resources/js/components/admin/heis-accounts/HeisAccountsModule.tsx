@@ -30,6 +30,7 @@ export default function HeisAccountsModule({ heis = [], accounts = [] }: HeisAcc
     const [isHeiModalOpen, setIsHeiModalOpen] = useState(false);
     const [selectedHei, setSelectedHei] = useState<Hei | null>(null);
     const [isCreateAccountModalOpen, setIsCreateAccountModalOpen] = useState(false);
+    const [selectedAccount, setSelectedAccount] = useState<UserAccount | null>(null);
 
     const handleEditHei = (hei: Hei) => {
         setSelectedHei(hei);
@@ -45,6 +46,22 @@ export default function HeisAccountsModule({ heis = [], accounts = [] }: HeisAcc
     const closeHeiModal = (open: boolean) => {
         setIsHeiModalOpen(open);
         if (!open) setSelectedHei(null);
+    };
+
+    const handleEditAccount = (account: UserAccount) => {
+        setSelectedAccount(account);
+        setIsCreateAccountModalOpen(true);
+    };
+
+    const handleDeleteAccount = (account: UserAccount) => {
+        if (confirm(`Are you sure you want to delete the account for ${account.name}?`)) {
+            router.delete(route('admin.users.destroy', account.id));
+        }
+    };
+
+    const closeAccountModal = (open: boolean) => {
+        setIsCreateAccountModalOpen(open);
+        if (!open) setSelectedAccount(null);
     };
 
     const filteredHeis = heis.filter(hei => {
@@ -96,7 +113,10 @@ export default function HeisAccountsModule({ heis = [], accounts = [] }: HeisAcc
                             <Plus className="h-4 w-4" /> Add HEIs
                         </Button>
                         <Button
-                            onClick={() => setIsCreateAccountModalOpen(true)}
+                            onClick={() => {
+                                setSelectedAccount(null);
+                                setIsCreateAccountModalOpen(true);
+                            }}
                             className="w-full md:w-auto bg-gray-900 text-white hover:bg-gray-800 rounded-xl h-10 gap-2 shrink-0 shadow-sm"
                         >
                             <Plus className="h-4 w-4" /> Create Account
@@ -141,6 +161,8 @@ export default function HeisAccountsModule({ heis = [], accounts = [] }: HeisAcc
                             accounts={filteredAccounts} 
                             searchQuery={searchQuery} 
                             onClearSearch={() => setSearchQuery('')} 
+                            onEdit={handleEditAccount}
+                            onDelete={handleDeleteAccount}
                         />
                     )}
                 </div>
@@ -154,8 +176,9 @@ export default function HeisAccountsModule({ heis = [], accounts = [] }: HeisAcc
 
             <CreateFacultyAccountModal
                 isOpen={isCreateAccountModalOpen}
-                onOpenChange={setIsCreateAccountModalOpen}
+                onOpenChange={closeAccountModal}
                 heis={heis}
+                account={selectedAccount}
             />
         </div>
     );
