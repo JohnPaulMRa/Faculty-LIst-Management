@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { DialogClose } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import type { PrivateFaculty } from '@/types/faculty';
-import DisciplineSelector from './DisciplineSelector';
+import DisciplineSelector from '../DisciplineSelector';
 import { FacultyProfileCardsE5 } from './FacultyProfileCardsE5';
 import ReferenceTableE5 from './ReferenceTableE5';
 
@@ -194,8 +194,6 @@ const FacultyFormE5: FC<Props> = ({ faculty, onSave, referenceData }) => {
                     </DialogClose>
                 </div>
             </div>
-
-
 
             <div className="flex-1 overflow-hidden relative">
                 {activeTab === 'Reference' ? (

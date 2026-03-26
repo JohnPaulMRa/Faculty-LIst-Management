@@ -1,7 +1,17 @@
 import type { FC } from 'react';
 import { Input } from '@/components/ui/input';
 import { Combobox } from "@/components/ui/combobox";
-import DisciplineSelector from './DisciplineSelector';
+import DisciplineSelector from '../DisciplineSelector';
+import {
+    FT_PT_OPTIONS,
+    GENDER_OPTIONS,
+    HIGHEST_DEGREE_OPTIONS,
+    PROFESSIONAL_LICENSE_OPTIONS,
+    TENURE_OPTIONS,
+    FACULTY_RANK_OPTIONS,
+    TEACHING_LOAD_OPTIONS,
+    ANNUAL_SALARY_OPTIONS
+} from '@/types/faculty/referenceDataE5';
 
 type FacultyProfileCardsProps = {
     formData: any;
@@ -66,12 +76,12 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                             <Input
                                 readOnly
                                 className="w-24 shrink-0 bg-gray-50 text-center font-mono focus-visible:ring-0 disabled:opacity-100 disabled:bg-white rounded-none h-auto"
-                                value={lookupCode(referenceData.fullTimePartTime, formData.fullTimeCode)}
+                                value={lookupCode(FT_PT_OPTIONS, formData.fullTimeCode)}
                                 placeholder="Code"
                             />
 
                             <Combobox
-                                options={mapToOptions(referenceData.fullTimePartTime)}
+                                options={mapToOptions(FT_PT_OPTIONS)}
                                 value={formData.fullTimeCode}
                                 onChange={(val) => onErrorSafeChange('fullTimeCode', val)}
                                 disabled={readOnly}
@@ -87,12 +97,12 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                             <Input
                                 readOnly
                                 className="w-24 shrink-0 bg-gray-50 text-center font-mono focus-visible:ring-0 disabled:opacity-100 disabled:bg-white rounded-none h-auto"
-                                value={lookupCode(referenceData.gender, formData.genderCode)}
+                                value={lookupCode(GENDER_OPTIONS, formData.genderCode)}
                                 placeholder="Code"
                             />
 
                             <Combobox
-                                options={mapToOptions(referenceData.gender)}
+                                options={mapToOptions(GENDER_OPTIONS)}
                                 value={formData.genderCode}
                                 onChange={(val) => onErrorSafeChange('genderCode', val)}
                                 disabled={readOnly}
@@ -127,12 +137,12 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                             <Input
                                 readOnly
                                 className="w-24 shrink-0 bg-gray-50 text-center font-mono focus-visible:ring-0 disabled:opacity-100 disabled:bg-white rounded-none h-auto"
-                                value={lookupCode(referenceData.highestDegree, formData.degree)}
+                                value={lookupCode(HIGHEST_DEGREE_OPTIONS, formData.degree)}
                                 placeholder="Code"
                             />
 
                             <Combobox
-                                options={mapToOptions(referenceData.highestDegree)}
+                                options={mapToOptions(HIGHEST_DEGREE_OPTIONS)}
                                 value={formData.degree}
                                 onChange={(val) => onErrorSafeChange('degree', val)}
                                 disabled={readOnly}
@@ -199,12 +209,12 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                             <Input
                                 readOnly
                                 className="w-24 shrink-0 bg-gray-50 text-center font-mono focus-visible:ring-0 disabled:opacity-100 disabled:bg-white rounded-none h-auto"
-                                value={lookupCode(referenceData.professionalLicense, formData.licenseCode)}
+                                value={lookupCode(PROFESSIONAL_LICENSE_OPTIONS, formData.licenseCode)}
                                 placeholder="Code"
                             />
 
                             <Combobox
-                                options={mapToOptions(referenceData.professionalLicense)}
+                                options={mapToOptions(PROFESSIONAL_LICENSE_OPTIONS)}
                                 value={formData.licenseCode}
                                 onChange={(val) => onErrorSafeChange('licenseCode', val)}
                                 disabled={readOnly}
@@ -221,12 +231,12 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                             <Input
                                 readOnly
                                 className="w-24 shrink-0 bg-gray-50 text-center font-mono focus-visible:ring-0 disabled:opacity-100 disabled:bg-white rounded-none h-auto"
-                                value={lookupCode(referenceData.facultyRank, formData.rankCode)}
+                                value={lookupCode(FACULTY_RANK_OPTIONS, formData.rankCode)}
                                 placeholder="Code"
                             />
 
                             <Combobox
-                                options={mapToOptions(referenceData.facultyRank)}
+                                options={mapToOptions(FACULTY_RANK_OPTIONS)}
                                 value={formData.rankCode}
                                 onChange={(val) => onErrorSafeChange('rankCode', val)}
                                 disabled={readOnly}
@@ -244,12 +254,12 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                             <Input
                                 readOnly
                                 className="w-24 shrink-0 bg-gray-50 text-center font-mono focus-visible:ring-0 disabled:opacity-100 disabled:bg-white rounded-none h-auto"
-                                value={lookupCode(referenceData.teachingLoad, formData.loadCode)}
+                                value={lookupCode(TEACHING_LOAD_OPTIONS, formData.loadCode)}
                                 placeholder="Code"
                             />
 
                             <Combobox
-                                options={mapToOptions(referenceData.teachingLoad)}
+                                options={mapToOptions(TEACHING_LOAD_OPTIONS)}
                                 value={formData.loadCode}
                                 onChange={(val) => onErrorSafeChange('loadCode', val)}
                                 disabled={readOnly}
@@ -265,12 +275,12 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                             <Input
                                 readOnly
                                 className="w-24 shrink-0 bg-gray-50 text-center font-mono focus-visible:ring-0 disabled:opacity-100 disabled:bg-white rounded-none h-auto"
-                                value={lookupCode(referenceData.annualSalary, formData.salaryCode)}
+                                value={lookupCode(ANNUAL_SALARY_OPTIONS, formData.salaryCode)}
                                 placeholder="Code"
                             />
 
                             <Combobox
-                                options={mapToOptions(referenceData.annualSalary)}
+                                options={mapToOptions(ANNUAL_SALARY_OPTIONS)}
                                 value={formData.salaryCode}
                                 onChange={(val) => onErrorSafeChange('salaryCode', val)}
                                 disabled={readOnly}
@@ -288,12 +298,12 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                             <Input
                                 readOnly
                                 className="w-24 shrink-0 bg-gray-50 text-center font-mono focus-visible:ring-0 disabled:opacity-100 disabled:bg-white rounded-none h-auto"
-                                value={lookupCode(referenceData.tenure, formData.tenureCode)}
+                                value={lookupCode(TENURE_OPTIONS, formData.tenureCode)}
                                 placeholder="Code"
                             />
 
                             <Combobox
-                                options={mapToOptions(referenceData.tenure)}
+                                options={mapToOptions(TENURE_OPTIONS)}
                                 value={formData.tenureCode}
                                 onChange={(val) => onErrorSafeChange('tenureCode', val)}
                                 disabled={readOnly}

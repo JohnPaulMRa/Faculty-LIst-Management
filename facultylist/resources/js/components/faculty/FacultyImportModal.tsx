@@ -19,7 +19,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { Faculty, IMPORT_GROUP_OPTIONS } from '@/types/faculty';
+import { Faculty, IMPORT_GROUPS, IMPORT_GROUP_OPTIONS } from '@/types/faculty';
 import AcademicYearSelect from '@/components/common/AcademicYearSelect';
 
 
@@ -111,14 +111,11 @@ const FacultyImportModal: FC<Props> = ({
                                     <SelectValue placeholder="Select Group" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    {IMPORT_GROUP_OPTIONS
-                                        .filter(opt => opt.includes('GROUP A'))
-                                        .map((option) => (
-                                            <SelectItem key={option} value={option.replace('GROUP ', '')}>
-                                                {option}
-                                            </SelectItem>
-                                        ))
-                                    }
+                                    {IMPORT_GROUPS.map((group) => (
+                                        <SelectItem key={group.value} value={group.value}>
+                                            {group.value}: {group.label.split(': ')[1] || group.label}
+                                        </SelectItem>
+                                    ))}
                                 </SelectContent>
                             </Select>
                             <p className="text-xs text-gray-500">Select the specific group for this batch of faculty records.</p>

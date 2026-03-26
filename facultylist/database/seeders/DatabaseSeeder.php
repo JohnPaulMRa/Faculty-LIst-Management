@@ -46,9 +46,9 @@ class DatabaseSeeder extends Seeder
         );
 
         $this->call([
-            E5ReferenceDataSeeder::class,       // E5 reference tables (gender, degree, etc.)
+            E5ReferenceDataSeeder::class,       // E5 reference tables (gender, degree, full-time/part-time, etc.)
+            E2ReferenceDataSeeder::class,       // E2 reference tables
             AcademicYearSeeder::class,
-            E5FullTimePartTimeSeeder::class,
             DisciplineGroupSeeder::class,       // 1. Populate discipline_group
             SpecificDisciplineSeeder::class,    // 2. Truncate specific_discipline (clean slate)
             MajorDisciplineSeeder::class,       // 3. Truncate major_discipline + insert GENERAL & isolated majors into both tables

@@ -157,6 +157,17 @@ class E5ReferenceDataSeeder extends Seeder
             ['code' => "9", 'desc' => "500,000 - UP"]
         ];
         $this->seedTable('e5_ref_annual_salary', $salary);
+
+        // 8. Full-Time / Part-Time
+        $fullTimePartTime = [
+            ['code' => '1', 'desc' => 'The person is a full-time employee of the HEI.'],
+            ['code' => '2', 'desc' => 'The person is a half-time employee of the HEI.'],
+            ['code' => '3', 'desc' => 'Student employee such as Student Assistant or Graduate Assistant.'],
+            ['code' => '4', 'desc' => 'Teaching Fellow, Associate or Assistant.'],
+            ['code' => '5', 'desc' => 'None of the above and therefore part-time. This includes: lecturers (all ranks), adjunct or affiliate faculty, visiting professors, professors emeriti, Physicians on call, lawyers or accountants on retainer basis, etc.'],
+            ['code' => '9', 'desc' => 'Not known or not indicated.'],
+        ];
+        $this->seedTable('e5_ref_full_time_part_time', $fullTimePartTime);
     }
 
     private function seedTable(string $table, array $data): void

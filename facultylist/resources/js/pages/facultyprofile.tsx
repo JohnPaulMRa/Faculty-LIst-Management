@@ -69,6 +69,7 @@ const FacultyProfile: FC<FacultyProfileProps> = ({
                     (f.name && f.name.toLowerCase().includes(q)) ||
                     (f.degree && f.degree.toLowerCase().includes(q)) ||
                     (f.form_type === 'E2' && f.rank && f.rank.toLowerCase().includes(q)) ||
+                    (f.form_type === 'E2' && f.import_group && f.import_group.toLowerCase().includes(q)) ||
                     (f.form_type === 'E5' && f.rankCode && f.rankCode.toLowerCase().includes(q))
             );
         }

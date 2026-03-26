@@ -10,7 +10,21 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Combobox } from '@/components/ui/combobox';
 import type { PublicFaculty } from '@/types/faculty';
+import { IMPORT_GROUPS } from '@/types/faculty/constants';
 import { cn } from '@/lib/utils';
+import {
+    GENERIC_RANK_OPTIONS,
+    TENURE_OPTIONS,
+    SALARY_GRADE_OPTIONS,
+    ANNUAL_SALARY_OPTIONS,
+    ON_LEAVE_PAY_OPTIONS,
+    FTE_OPTIONS,
+    GENDER_OPTIONS,
+    HIGHEST_DEGREE_OPTIONS,
+    PURSUING_DEGREE_OPTIONS,
+    THESIS_OPTIONS,
+    DISSERTATION_OPTIONS
+} from '@/types/faculty/referenceDataE2';
 
 type Props = {
     faculty?: PublicFaculty;
@@ -54,7 +68,7 @@ const FormField: FC<{
 }> = ({ label, value, onChange, placeholder, type = 'text', className = '', required, hint, error, readOnly, showCodePrefix = false }) => (
     <div className="space-y-1.5">
         <div className="flex items-center justify-between">
-            <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider">
+            <label className="text-[14px] font-semibold text-gray-600 uppercase tracking-wider">
                 {label}
                 {required && <span className="text-red-500 ml-1">*</span>}
             </label>
@@ -62,7 +76,7 @@ const FormField: FC<{
         </div>
         <div className="flex items-center gap-2">
             {showCodePrefix && (
-                <div className="shrink-0 h-9 w-[50px] bg-[#F8F9FA] border border-gray-200 flex items-center justify-center text-xs font-medium text-gray-700 uppercase rounded-sm">
+                <div className="shrink-0 h-10 w-[65px] bg-[#F8F9FA] border border-gray-200 flex items-center justify-center text-[13px] font-medium text-gray-700 uppercase rounded-sm">
                     CODE
                 </div>
             )}
@@ -78,7 +92,7 @@ const FormField: FC<{
                     placeholder={placeholder}
                     readOnly={readOnly}
                     className={cn(
-                        "border-0 focus-visible:ring-0 shadow-none h-9 flex-1",
+                        "border-0 focus-visible:ring-0 shadow-none h-10 flex-1",
                         readOnly && "cursor-not-allowed text-gray-500",
                         className
                     )}
@@ -105,13 +119,13 @@ const FormCombobox: FC<{
 
     return (
         <div className="space-y-1.5">
-            <label className="text-[13px] font-semibold text-gray-600 uppercase tracking-wider">
+            <label className="text-[15px] font-semibold text-gray-600 uppercase tracking-wider">
                 {label}
                 {required && <span className="text-red-500 ml-1">*</span>}
             </label>
             <div className="flex items-center gap-2">
                 {showCodePrefix && (
-                    <div className="shrink-0 h-10 w-[60px] bg-[#F8F9FA] border border-gray-200 flex items-center justify-center text-xs font-medium text-gray-700 uppercase rounded-4px">
+                    <div className="shrink-0 h-11 w-[75px] bg-[#F8F9FA] border border-gray-200 flex items-center justify-center text-[13px] font-medium text-gray-700 uppercase rounded-4px">
                         {codeValue}
                     </div>
                 )}
@@ -123,7 +137,7 @@ const FormCombobox: FC<{
                         placeholder={placeholder}
                         showCodePrefix={false}
                         className={cn(
-                            'border-gray-300 hover:border-gray-400 focus-within:border-[#003468] focus-within:ring-1 focus-within:ring-[#003468]/20 rounded-4px shadow-none h-9',
+                            'border-gray-300 hover:border-gray-400 focus-within:border-[#003468] focus-within:ring-1 focus-within:ring-[#003468]/20 rounded-4px shadow-none h-10',
                             error ? 'border-red-500 focus-within:ring-red-500/20 focus-within:border-red-500' : ''
                         )}
                     />
@@ -156,19 +170,19 @@ const WorkloadGrid: FC<{
             {items.map((item, index) => (
                 <div key={index} className="space-y-1">
                     <div className="flex items-center justify-between">
-                        <label className="text-[13px] font-semibold text-gray-500 uppercase leading-tight">
+                        <label className="text-[14px] font-semibold text-gray-500 uppercase leading-tight">
                             {item.label}
                         </label>
                         {item.hint && <span className="text-[8px] text-gray-400">{item.hint}</span>}
                     </div>
                     <div className="flex items-center gap-2">
                         {item.showCodePrefix && (
-                            <div className="shrink-0 h-9 w-[60px] bg-[#F8F9FA] border border-gray-200 flex items-center justify-center text-xs font-medium text-gray-700 uppercase rounded-4px">
+                            <div className="shrink-0 h-10 w-[65px] bg-[#F8F9FA] border border-gray-200 flex items-center justify-center text-[13px] font-medium text-gray-700 uppercase rounded-4px">
                                 CODE
                             </div>
                         )}
                         <div className={cn(
-                            "flex flex-1 items-stretch rounded-4px border overflow-hidden h-9",
+                            "flex flex-1 items-stretch rounded-4px border overflow-hidden h-10",
                             item.highlighted
                                 ? 'bg-blue-50/50 border-blue-200'
                                 : 'bg-white border-gray-300 hover:border-gray-400'
@@ -311,17 +325,22 @@ const FacultyFormE2: FC<Props> = ({
                             label="Generic Faculty Rank"
                             value={formData.rank || ''}
                             onChange={(value) => handleChange('rank', value)}
-                            options={[
-                                { label: 'PROFESSOR', value: 'PROF' },
-                                { label: 'ASSOCIATE PROFESSOR', value: 'ASSOC_PROF' },
-                                { label: 'ASSISTANT PROFESSOR', value: 'ASST_PROF' },
-                                { label: 'INSTRUCTOR', value: 'INST' },
-                                { label: 'LECTURER', value: 'LECT' },
-                            ]}
+                            options={GENERIC_RANK_OPTIONS.map(opt => ({ label: opt.desc, value: opt.code }))}
                             placeholder="Select Rank"
                             required
                             showCodePrefix={true}
                             error={errors.rank}
+                        />
+                        <FormCombobox
+                            label="FACULTY GROUP"
+                            value={formData.import_group || ''}
+                            onChange={(value) => handleChange('import_group', value)}
+                            options={IMPORT_GROUPS.map(group => ({
+                                label: group.label,
+                                value: group.value
+                            }))}
+                            placeholder="Select Group"
+                            showCodePrefix={true}
                         />
                         <FormField
                             label="Home College"
@@ -346,44 +365,39 @@ const FacultyFormE2: FC<Props> = ({
                             label="Is Faculty Member Tenured?"
                             value={formData.is_tenured || ''}
                             onChange={(value) => handleChange('is_tenured', value)}
-                            options={[
-                                { label: 'YES', value: '1' },
-                                { label: 'NO', value: '0' },
-                            ]}
+                            options={TENURE_OPTIONS.map(opt => ({ label: opt.desc, value: opt.code }))}
                             placeholder="Select Option"
                             showCodePrefix={true}
                         />
-                        <FormField
+                        <FormCombobox
                             label="SSL Salary Grade"
                             value={formData.salary_grade || ''}
                             onChange={(value) => handleChange('salary_grade', value)}
-                            type="number"
-                            placeholder="e.g. 15"
+                            options={SALARY_GRADE_OPTIONS.map(opt => ({ label: opt.desc, value: opt.code }))}
+                            placeholder="Select Salary Grade"
                             showCodePrefix={true}
                         />
-                        <FormField
+                        <FormCombobox
                             label="Annual Basic Salary"
                             value={formData.annual_salary || ''}
                             onChange={(value) => handleChange('annual_salary', value)}
-                            type="number"
-                            placeholder="e.g. 123456"
+                            options={ANNUAL_SALARY_OPTIONS.map(opt => ({ label: opt.desc, value: opt.code }))}
+                            placeholder="Select Salary Range"
                             showCodePrefix={true}
                         />
                         <FormCombobox
                             label="On Leave Without Pay?"
                             value={formData.on_leave || ''}
                             onChange={(value) => handleChange('on_leave', value)}
-                            options={[
-                                { label: 'YES', value: '1' },
-                                { label: 'NO', value: '0' },
-                            ]}
+                            options={ON_LEAVE_PAY_OPTIONS.map(opt => ({ label: opt.desc, value: opt.code }))}
                             placeholder="Select Option"
                             showCodePrefix={true}
                         />
-                        <FormField
+                        <FormCombobox
                             label="Full-Time Equivalent (FTE)"
                             value={formData.fte || ''}
                             onChange={(value) => handleChange('fte', value)}
+                            options={FTE_OPTIONS.map(opt => ({ label: opt.desc, value: opt.code }))}
                             placeholder="1.00"
                             showCodePrefix={true}
                         />
@@ -391,10 +405,7 @@ const FacultyFormE2: FC<Props> = ({
                             label="Gender of Faculty"
                             value={formData.gender || ''}
                             onChange={(value) => handleChange('gender', value)}
-                            options={[
-                                { label: 'MALE', value: 'M' },
-                                { label: 'FEMALE', value: 'F' },
-                            ]}
+                            options={GENDER_OPTIONS.map(opt => ({ label: opt.desc, value: opt.code }))}
                             placeholder="Select Gender"
                             required
                             showCodePrefix={true}
@@ -414,22 +425,19 @@ const FacultyFormE2: FC<Props> = ({
                 </CardHeader>
                 <CardContent className="pt-6">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <FormField
+                        <FormCombobox
                             label="Highest Degree Attained"
                             value={formData.degree || ''}
                             onChange={(value) => handleChange('degree', value)}
-                            placeholder="Use 3-digit code"
-                            hint="e.g. PHD, MAS"
+                            options={HIGHEST_DEGREE_OPTIONS.map(opt => ({ label: opt.desc, value: opt.code }))}
+                            placeholder="Select Degree"
                             showCodePrefix={true}
                         />
                         <FormCombobox
                             label="Actively Pursuing Next Degree?"
                             value={formData.pursuing_degree || ''}
                             onChange={(value) => handleChange('pursuing_degree', value)}
-                            options={[
-                                { label: 'YES', value: '1' },
-                                { label: 'NO', value: '0' },
-                            ]}
+                            options={PURSUING_DEGREE_OPTIONS.map(opt => ({ label: opt.desc, value: opt.code }))}
                             placeholder="Select Option"
                             showCodePrefix={true}
                         />
@@ -493,10 +501,7 @@ const FacultyFormE2: FC<Props> = ({
                             label="Masters Degree with Thesis?"
                             value={formData.masters_thesis || ''}
                             onChange={(value) => handleChange('masters_thesis', value)}
-                            options={[
-                                { label: 'YES', value: '1' },
-                                { label: 'NO', value: '0' },
-                            ]}
+                            options={THESIS_OPTIONS.map(opt => ({ label: opt.desc, value: opt.code }))}
                             placeholder="Select Option"
                             showCodePrefix={true}
                         />
@@ -504,10 +509,7 @@ const FacultyFormE2: FC<Props> = ({
                             label="Doctorate with Dissertation?"
                             value={formData.doctorate_dissertation || ''}
                             onChange={(value) => handleChange('doctorate_dissertation', value)}
-                            options={[
-                                { label: 'YES', value: '1' },
-                                { label: 'NO', value: '0' },
-                            ]}
+                            options={DISSERTATION_OPTIONS.map(opt => ({ label: opt.desc, value: opt.code }))}
                             placeholder="Select Option"
                             showCodePrefix={true}
                         />

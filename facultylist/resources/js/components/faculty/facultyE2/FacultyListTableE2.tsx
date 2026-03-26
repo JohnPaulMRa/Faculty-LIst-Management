@@ -8,6 +8,7 @@ import { useState, useMemo } from 'react';
 import { Link } from '@inertiajs/react';
 import type { Faculty } from '@/types/faculty';
 import { edit } from '@/routes/faculty';
+import { IMPORT_GROUPS } from '@/types/faculty/constants';
 
 type Props = {
     facultyList: Faculty[];
@@ -61,19 +62,23 @@ const FacultyListTableE2: FC<Props> = ({ facultyList, yearFilter, onFileClick, o
         return found ? found.desc : code;
     };
 
-    // Mock function to get group - replace with actual data source
     const getGroup = (faculty: Faculty) => {
-        // This is a placeholder - replace with actual group data from your faculty object
-        // For now, returning different groups based on index for demonstration
-        const groups = ['A', 'B', 'C', 'D', 'E'];
-        return groups[Math.floor(Math.random() * groups.length)];
+        if (faculty.form_type !== 'E2') return 'N/A';
+        const groupValue = faculty.import_group;
+        if (!groupValue) return 'N/A';
+        
+        const found = IMPORT_GROUPS.find(g => 
+            g.value === groupValue || 
+            g.value === `GROUP ${groupValue}` ||
+            g.value.replace('GROUP ', '') === groupValue
+        );
+        
+        return found ? found.value : groupValue;
     };
 
-    // Mock function to get generic faculty rank - replace with actual data source
     const getGenericFacultyRank = (faculty: Faculty) => {
-        // This is a placeholder - replace with actual rank data from your faculty object
-        const ranks = ['Instructor I', 'Instructor II', 'Assistant Professor I', 'Assistant Professor II', 'Associate Professor I', 'Professor I'];
-        return ranks[Math.floor(Math.random() * ranks.length)];
+        if (faculty.form_type !== 'E2') return 'N/A';
+        return faculty.rank || 'N/A';
     };
 
     const sortedFacultyList = useMemo(() => {
@@ -104,7 +109,7 @@ const FacultyListTableE2: FC<Props> = ({ facultyList, yearFilter, onFileClick, o
     const paginated = sortedFacultyList.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
     return (
-        <div className="flex flex-col bg-white shadow-none overflow-hidden rounded-none m-4 border border-gray-300">
+        <div className="flex flex-col bg-white shadow-none overflow-hidden ">
             {/* SPREADSHEET HEADER */}
             <div className="bg-gray-50 text-black px-4 py-3 text-sm font-bold uppercase tracking-wide border-b border-gray-300">
                 FACULTY DATA RECORDS (E2)

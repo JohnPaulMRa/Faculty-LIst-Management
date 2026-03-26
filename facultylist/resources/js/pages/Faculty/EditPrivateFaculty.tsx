@@ -132,11 +132,11 @@ const Edit: FC<EditProps> = ({ faculty, referenceData }) => {
         }
 
         const isComplete = requiredFields.every(field => field && String(field).trim() !== '');
-        
+
         // If already 'Completed' (from submission), don't downgrade it unless it's genuinely incomplete
         // Otherwise, mark as 'Updated' if all required fields are present.
         let newStatus = formData.status;
-        
+
         if (!isComplete) {
             newStatus = 'Not Updated';
         } else if (formData.status !== 'Completed') {

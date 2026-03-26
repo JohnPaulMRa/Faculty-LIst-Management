@@ -9,6 +9,7 @@ import FacultyFormE2 from '@/components/faculty/facultyE2/FacultyFormE2';
 import { PublicFaculty } from '@/types/faculty';
 import { update } from '@/routes/faculty';
 import { facultyprofile } from '@/routes';
+import { IMPORT_GROUPS } from '@/types/faculty/constants';
 
 interface EditProps {
     faculty: PublicFaculty;
@@ -18,6 +19,14 @@ interface EditProps {
 const EditPublicFaculty: FC<EditProps> = ({ faculty, referenceData }) => {
     const [formData, setFormData] = useState<Partial<PublicFaculty>>(faculty);
     const [processing, setProcessing] = useState(false);
+
+    const selectedGroup = IMPORT_GROUPS.find(g =>
+        g.value === formData.import_group ||
+        g.value === `GROUP ${formData.import_group}` ||
+        g.value.replace('GROUP ', '') === formData.import_group
+    );
+    const groupLabel = selectedGroup ? selectedGroup.label : (formData.import_group || 'Form E-2 Entry');
+    const groupRemarks = selectedGroup?.remarks;
 
     const handleChange = (field: keyof PublicFaculty, value: string) => {
         setFormData(prev => ({ ...prev, [field]: value }));
@@ -55,15 +64,19 @@ const EditPublicFaculty: FC<EditProps> = ({ faculty, referenceData }) => {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={`Edit Faculty - ${faculty.name}`} />
 
-            <div className="flex flex-1 flex-col gap-6 w-full py-18 px-2 md:px-20 max-w-8xl mx-auto">
+            <div className="flex flex-1 flex-col gap-5 w-full py-18 px-2 md:px-20 max-w-8xl mx-auto">
                 <div className="flex justify-between items-center">
                     <div>
-                        <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-100">
-                            Edit Faculty Details
-                        </h1>
-                        <p className="text-gray-500 mt-1 uppercase text-xs font-semibold tracking-wider">
-                            {faculty.import_group || 'Form E-2 Entry'}
-                        </p>
+                        <div className="flex flex-col mt-1">
+                            <p className="text-gray-500 uppercase text-[20px] font-semibold tracking-wider">
+                                {groupLabel}
+                            </p>
+                            {groupRemarks && (
+                                <p className="text-gray-400 text-[15px] italic mt-0.5 max-w-2px leading-tight">
+                                    {groupRemarks}
+                                </p>
+                            )}
+                        </div>
                     </div>
                     <Button
                         onClick={handleSave}
@@ -75,7 +88,7 @@ const EditPublicFaculty: FC<EditProps> = ({ faculty, referenceData }) => {
                     </Button>
                 </div>
 
-                <FacultyFormE2 
+                <FacultyFormE2
                     formData={formData}
                     onChange={handleChange}
                     referenceData={referenceData}

@@ -177,14 +177,13 @@
 ---
 
 **Date Generated:** 2026-03-24
-
-## Backend Development
+// Backend Development
 
 - **Admin Dashboard Logic:** Updated `AdminController.php` to partition data separately for employment trends and distribution overviews.
 - **Faculty Management:** Enhanced `FacultyController.php` and `Faculty.php` models to support new public faculty editing capabilities.
 - **Application Routing:** Added new route definitions in `routes/web.php` for `EditPublicFaculty` and related routes.
 
-## UI Development
+// UI Development
 
 - **Admin Dashboard Trends:** Separated the admin analytics into distinct components (`EmploymentTrends.tsx`, `AnalyticsOverview.tsx`) and updated `AdminDashboard.tsx`.
 - **Syncing E2 Table UI:** Synchronized the `FacultyListTableE2` component layout and features with the premium E5 table design.
@@ -192,7 +191,7 @@
 - **Public Faculty Editor:** Developed `EditPublicFaculty.tsx` and integrated `tabs.tsx` for public HEI faculty profile updates.
 - **Accounts & Modals Polishing:** Refined `CreateFacultyAccountModal.tsx`, `HeisAccountsModule.tsx`, and `UserAccountsTable.tsx` for visual consistency.
 
-## Bug Fixes & Improvements
+// Bug Fixes & Improvements
 
 - **Suppressing IDE Vendor Errors:** Configured `.vscode/settings.json` to enforce PHP 8.2 parsing, resolving false-positive syntax warnings across vendor directories.
 - **Dependency Setup:** Updated `package.json`, `package-lock.json`, and `composer.json` for build tools and formatting compliance.
@@ -201,19 +200,19 @@
 
 **Date Generated:** 2026-03-24
 
-## Backend Development
+// Backend Development
 
 - **Faculty Dashboard Trends:** Updated `DashboardController.php` to conditionally aggregate metrics based on HEI type, enabling differentiated analytics for Public and Private institutions.
 - **Role-Based Context:** Enhanced backend responses to include `schoolType` metadata, supporting filtered UI capabilities.
 
-## UI Development
+// UI Development
 
 - **Conditional Import/Download Access:** Restricted template selection and download buttons based on institution type (E2 vs E5) across `FacultyImportModal.tsx` and `FacultyDownloadModal.tsx`.
 - **Refining Import Workflow:** Simplified the faculty import process by replacing selection dropdowns with static, read-only labels when the form type is pre-defined.
 - **Dynamic Dashboard Visualization:** Updated `FacultyTrends.tsx` to dynamically switch between "Group" and "Employment" views, featuring context-aware titles, icons, and data series.
 - **Enhanced Faculty Edit Headers:** Refined `EditPublicFaculty.tsx` to display the faculty member's specific Group identifier (e.g., GROUP A1) directly in the header for immediate context.
 
-## Bug Fixes & Improvements
+//# Bug Fixes & Improvements
 
 - **TypeScript Type Safety:** Resolved core type errors in `FacultyProfileCardsE2.tsx` and `dashboard.tsx` by implementing explicit type guarding and narrowing for faculty models.
 - **Robust Data Comparison:** Implemented normalized (trimmed and case-insensitive) string comparisons for role-based logic to ensure UI consistency regardless of backend data formatting.
