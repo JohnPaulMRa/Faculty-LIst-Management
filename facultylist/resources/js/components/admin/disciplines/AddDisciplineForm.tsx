@@ -82,6 +82,7 @@ export default function AddDisciplineForm({ onCancel, onSubmit, majors = [], pro
         const finalCode = hasSpecific ? specificCode : majorCode;
         onSubmit({
             code: finalCode,
+            groupName: groupDesc,
             majorName: majorDesc,
             specificDiscipline: specificDesc || null,
         });
@@ -157,6 +158,7 @@ export default function AddDisciplineForm({ onCancel, onSubmit, majors = [], pro
                             onInputChange={(typed) => {
                                 setGroupDesc(typed);
                             }}
+                            allowFreeInput
                             placeholder=""
                             containerClassName="w-full h-10"
                             className="h-full rounded-none border border-gray-500 text-sm"

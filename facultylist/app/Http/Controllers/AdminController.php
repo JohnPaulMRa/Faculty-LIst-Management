@@ -444,6 +444,7 @@ class AdminController extends Controller
         \Log::info('storeDiscipline reached', $request->all());
         $validated = $request->validate([
             'code' => 'required|string|min:3|max:10',
+            'groupName' => 'nullable|string|max:255',
             'majorName' => 'nullable|string|max:255',
             'specificDiscipline' => 'nullable|string|max:255',
         ]);
@@ -451,6 +452,7 @@ class AdminController extends Controller
         \Log::info('Discipline Store Attempt:', $validated);
 
         $code = $validated['code'];
+        $groupName = $validated['groupName'] ?? null;
         $majorName = $validated['majorName'] ?? null;
         $specificName = $validated['specificDiscipline'] ?? null;
 
@@ -460,6 +462,13 @@ class AdminController extends Controller
                 $groupCode = substr($code, 0, 2);
                 $majorPrefix6 = substr($code, 0, 6);
                 $majorPrefix4 = substr($code, 0, 4);
+
+                if (!empty($groupName)) {
+                    RefDisciplineGroup::updateOrCreate(
+                        ['code' => $groupCode],
+                        ['description' => $groupName]
+                    );
+                }
                 
                 // If majorName is provided, we create it. If not, we just check if it exists in DB.
                 if (!empty($majorName)) {
@@ -498,6 +507,14 @@ class AdminController extends Controller
                     );
                 }
             } elseif (!empty($majorName)) {
+                $groupCode = substr($code, 0, 2);
+                if (!empty($groupName)) {
+                    RefDisciplineGroup::updateOrCreate(
+                        ['code' => $groupCode],
+                        ['description' => $groupName]
+                    );
+                }
+
                 // Save only the major discipline
                 RefMajorDiscipline::updateOrCreate(
                     ['code' => $code],

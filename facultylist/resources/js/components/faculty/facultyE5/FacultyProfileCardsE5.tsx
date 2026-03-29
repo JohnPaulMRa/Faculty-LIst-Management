@@ -1,6 +1,9 @@
-import type { FC } from 'react';
+import React, { type FC } from 'react';
+import { User, GraduationCap, Briefcase, Clock, Award, ChevronRight } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Combobox } from "@/components/ui/combobox";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
 import DisciplineSelector from '../DisciplineSelector';
 import {
     FT_PT_OPTIONS,
@@ -19,6 +22,36 @@ type FacultyProfileCardsProps = {
     readOnly?: boolean;
     referenceData: any;
 };
+
+interface SectionHeaderProps {
+    icon: React.ReactNode;
+    title: string;
+    variant?: 'default' | 'white';
+}
+
+// Section Header Component for consistent styling
+const SectionHeader: FC<SectionHeaderProps> = ({ icon, title, variant = 'default' }) => (
+    <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+            <div className={cn(
+                "p-2.5 rounded-xl shadow-sm transition-transform duration-200 hover:scale-105",
+                variant === 'white'
+                    ? "bg-white text-[#003468]"
+                    : "bg-linear-to-br from-[#003468] to-[#1a4f8c] text-white"
+            )}>
+                {React.cloneElement(icon as React.ReactElement<any>, { className: 'h-5 w-5' })}
+            </div>
+            <div>
+                <h3 className={cn(
+                    "font-bold uppercase tracking-wider",
+                    variant === 'white' ? "text-white text-lg" : "text-[#003468] text-base"
+                )}>
+                    {title}
+                </h3>
+            </div>
+        </div>
+    </div>
+);
 
 export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, handleChange, readOnly = false, referenceData }) => {
 
@@ -52,280 +85,303 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
     };
 
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
 
             {/* Faculty Details Card */}
-            <div className="bg-white p-5 space-y-3 border">
-
-                <div className="flex flex-col gap-4">
-                    <div className="grid gap-3">
-                        <label className="text-sm font-semibold text-gray-600">Faculty Name (LN, FN, MI)</label>
-                        <Input
-                            value={formData.name || ''}
-                            onChange={(e) => onErrorSafeChange('name', e.target.value)}
-                            className="uppercase focus-visible:ring-0 disabled:opacity-100 disabled:bg-white rounded-none min-h-[40px]"
-                            readOnly={readOnly}
-                            disabled={readOnly}
-                        />
-                    </div>
-
-
-                    <div className="grid gap-3">
-                        <label className="text-sm font-semibold text-gray-600">Full-Time/Part-Time </label>
-                        <div className="flex gap-2">
+            <Card className="border border-gray-200 shadow-md overflow-hidden rounded-xl bg-white">
+                <CardHeader className="bg-linear-to-r from-[#003468] to-[#1a4f8c] pb-6 pt-6 px-6 border-b-0">
+                    <SectionHeader
+                        icon={<User />}
+                        title="Personal & Institutional Information"
+                        variant="white"
+                    />
+                </CardHeader>
+                <CardContent className="pt-6 space-y-6">
+                    <div className="flex flex-col gap-6">
+                        <div className="grid gap-3">
+                            <label className="text-base font-bold text-gray-600">Faculty Name (LN, FN, MI)</label>
                             <Input
-                                readOnly
-                                className="w-24 shrink-0 bg-gray-50 text-center font-mono focus-visible:ring-0 disabled:opacity-100 disabled:bg-white rounded-none h-auto"
-                                value={lookupCode(FT_PT_OPTIONS, formData.fullTimeCode)}
-                                placeholder="Code"
-                            />
-
-                            <Combobox
-                                options={mapToOptions(FT_PT_OPTIONS)}
-                                value={formData.fullTimeCode}
-                                onChange={(val) => onErrorSafeChange('fullTimeCode', val)}
+                                value={formData.name || ''}
+                                onChange={(e) => onErrorSafeChange('name', e.target.value)}
+                                className="uppercase focus-visible:ring-0 disabled:opacity-100 disabled:bg-white rounded-md border border-input h-12 px-3 text-sm"
+                                readOnly={readOnly}
                                 disabled={readOnly}
-                                placeholder="Select Status"
-                                searchPlaceholder="Search status..."
-                                className="flex-1 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900 rounded-none h-auto min-h-[40px] whitespace-normal text-left"
                             />
                         </div>
-                    </div>
-                    <div className="grid gap-3">
-                        <label className="text-sm font-semibold text-gray-600">Gender </label>
-                        <div className="flex gap-2">
-                            <Input
-                                readOnly
-                                className="w-24 shrink-0 bg-gray-50 text-center font-mono focus-visible:ring-0 disabled:opacity-100 disabled:bg-white rounded-none h-auto"
-                                value={lookupCode(GENDER_OPTIONS, formData.genderCode)}
-                                placeholder="Code"
-                            />
 
-                            <Combobox
-                                options={mapToOptions(GENDER_OPTIONS)}
-                                value={formData.genderCode}
-                                onChange={(val) => onErrorSafeChange('genderCode', val)}
-                                disabled={readOnly}
-                                placeholder="Select Gender"
-                                searchPlaceholder="Search gender..."
-                                className="flex-1 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900 rounded-none h-auto min-h-[40px] whitespace-normal text-left"
+
+                        <div className="grid gap-3">
+                            <label className="text-base font-bold text-gray-600">Full-Time/Part-Time </label>
+                            <div className="flex gap-2">
+                                <Input
+                                    readOnly
+                                    className="w-32 shrink-0 bg-gray-50 text-center font-bold focus-visible:ring-0 disabled:opacity-100 disabled:bg-white border border-input rounded-md h-12 px-3 text-sm flex items-center"
+                                    value={lookupCode(FT_PT_OPTIONS, formData.fullTimeCode)}
+                                    placeholder="Code"
+                                />
+
+                                <Combobox
+                                    options={mapToOptions(FT_PT_OPTIONS)}
+                                    value={formData.fullTimeCode}
+                                    onChange={(val) => onErrorSafeChange('fullTimeCode', val)}
+                                    disabled={readOnly}
+                                    placeholder="Select Status"
+                                    searchPlaceholder="Search status..."
+                                    className="flex-1 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900"
+                                />
+                            </div>
+                        </div>
+                        <div className="grid gap-3">
+                            <label className="text-base font-bold text-gray-600">Gender </label>
+                            <div className="flex gap-2">
+                                <Input
+                                    readOnly
+                                    className="w-32 shrink-0 bg-gray-50 text-center font-bold focus-visible:ring-0 disabled:opacity-100 disabled:bg-white border border-input rounded-md h-12 px-3 text-sm flex items-center"
+                                    value={lookupCode(GENDER_OPTIONS, formData.genderCode)}
+                                    placeholder="Code"
+                                />
+
+                                <Combobox
+                                    options={mapToOptions(GENDER_OPTIONS)}
+                                    value={formData.genderCode}
+                                    onChange={(val) => onErrorSafeChange('genderCode', val)}
+                                    disabled={readOnly}
+                                    placeholder="Select Gender"
+                                    searchPlaceholder="Search gender..."
+                                    className="flex-1 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900"
+                                />
+                            </div>
+                        </div>
+                        <div className="grid gap-3">
+                            <label className="text-base font-bold text-gray-600">Primary Teaching Discipline</label>
+                            <DisciplineSelector
+                                value={formData.disciplineCode}
+                                onChange={(code, desc) => {
+                                    onErrorSafeChange('disciplineCode', code);
+                                    onErrorSafeChange('discipline', desc);
+                                }}
+                                referenceData={referenceData}
+                                placeholder="Select Primary Discipline"
+                                showGroup={false}
                             />
                         </div>
-                    </div>
-                    <div className="grid gap-3">
-                        <label className="text-sm font-semibold text-gray-600">Primary Teaching Discipline</label>
-                        <DisciplineSelector
-                            value={formData.disciplineCode}
-                            onChange={(code, desc) => onErrorSafeChange('disciplineCode', code)}
-                            disabled={readOnly}
-                            className="opacity-100 disabled:opacity-100 disabled:bg-white text-gray-900 rounded-none"
-                            referenceData={referenceData}
-                            showGroup={false}
-                        />
-                    </div>
 
-                </div>
-            </div>
+                    </div>
+                </CardContent>
+            </Card>
 
             {/* Educational Credential Earned Card */}
-            <div className="bg-white p-5 space-y-3 border">
-                <h3 className="font-bold text-gray-900 border-b pb-2">Educational Credential Earned</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-3">
-                    <div className="grid gap-1 col-span-2">
-                        <label className="text-sm font-semibold text-gray-600">Highest Degree Attained</label>
-                        <div className="flex gap-2">
-                            <Input
-                                readOnly
-                                className="w-24 shrink-0 bg-gray-50 text-center font-mono focus-visible:ring-0 disabled:opacity-100 disabled:bg-white rounded-none h-auto"
-                                value={lookupCode(HIGHEST_DEGREE_OPTIONS, formData.degree)}
-                                placeholder="Code"
-                            />
+            <Card className="border border-gray-200 shadow-md overflow-hidden rounded-xl bg-white">
+                <CardHeader className="bg-linear-to-r from-[#003468] to-[#1a4f8c] pb-6 pt-6 px-6 border-b-0">
+                    <SectionHeader
+                        icon={<GraduationCap />}
+                        title="Educational Credential Earned"
+                        variant="white"
+                    />
+                </CardHeader>
+                <CardContent className="pt-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8.5">
+                        <div className="grid gap-1 col-span-2">
+                            <label className="text-base font-bold text-gray-600">Highest Degree Attained</label>
+                            <div className="flex gap-3">
+                                <Input
+                                    readOnly
+                                    className="w-32 shrink-0 bg-gray-50 text-center font-bold focus-visible:ring-0 disabled:opacity-100 disabled:bg-white border border-input rounded-md h-12 px-3 text-sm flex items-center"
+                                    value={lookupCode(HIGHEST_DEGREE_OPTIONS, formData.degree)}
+                                    placeholder="Code"
+                                />
 
-                            <Combobox
-                                options={mapToOptions(HIGHEST_DEGREE_OPTIONS)}
-                                value={formData.degree}
-                                onChange={(val) => onErrorSafeChange('degree', val)}
-                                disabled={readOnly}
-                                placeholder="Select Degree"
-                                searchPlaceholder="Search degree..."
-                                className="flex-1 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900 rounded-none h-auto min-h-[40px] whitespace-normal text-left"
+                                <Combobox
+                                    options={mapToOptions(HIGHEST_DEGREE_OPTIONS)}
+                                    value={formData.degree}
+                                    onChange={(val) => onErrorSafeChange('degree', val)}
+                                    disabled={readOnly}
+                                    placeholder="Select Degree"
+                                    searchPlaceholder="Search degree..."
+                                    className="flex-1 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900"
+                                />
+                            </div>
+                        </div>
+                        <div className="grid gap-1 col-span-2">
+                            <label className="text-base font-bold text-gray-600">Specific Discipline of Bachelors Degree</label>
+                            <DisciplineSelector
+                                value={formData.bachelorsCode}
+                                onChange={(code, desc) => {
+                                    onErrorSafeChange('bachelorsCode', code);
+                                    onErrorSafeChange('bachelors', desc);
+                                }}
+                                referenceData={referenceData}
+                                placeholder="Select Bachelors Discipline"
+                                showGroup={false}
                             />
                         </div>
-                    </div>
-                    <div className="grid gap-1 col-span-2">
-                        <label className="text-sm font-semibold text-gray-600">Specific Discipline of Bachelors Degree</label>
-                        <DisciplineSelector
-                            value={formData.bachelorsCode}
-                            onChange={(code, desc) => {
-                                onErrorSafeChange('bachelorsCode', code);
-                                onErrorSafeChange('bachelors', desc);
-                            }}
-                            disabled={readOnly}
-                            className="opacity-100 disabled:opacity-100 disabled:bg-white text-gray-900 rounded-none"
-                            referenceData={referenceData}
-                            showGroup={false}
-                        />
-                    </div>
-                    <div className="grid gap-1 col-span-2">
-                        <label className="text-sm font-semibold text-gray-600">Specific Discipline of Masters Degree</label>
-                        <DisciplineSelector
-                            value={formData.mastersCode}
-                            onChange={(code, desc) => {
-                                onErrorSafeChange('mastersCode', code);
-                                onErrorSafeChange('masters', desc);
-                            }}
-                            disabled={readOnly}
-                            className="opacity-100 disabled:opacity-100 disabled:bg-white text-gray-900 rounded-none"
-                            referenceData={referenceData}
-                            showGroup={false}
-                        />
-                    </div>
-                    <div className="grid gap-1 col-span-2">
-                        <label className="text-sm font-semibold text-gray-600">Specific Discipline of Doctorate Degree</label>
-                        <DisciplineSelector
-                            value={formData.doctorateCode}
-                            onChange={(code, desc) => {
-                                onErrorSafeChange('doctorateCode', code);
-                                onErrorSafeChange('doctorate', desc);
-                            }}
-                            disabled={readOnly}
-                            className="opacity-100 disabled:opacity-100 disabled:bg-white text-gray-900 rounded-none"
-                            referenceData={referenceData}
-                            showGroup={false}
-                        />
-                    </div>
+                        <div className="grid gap-1 col-span-2">
+                            <label className="text-base font-bold text-gray-600">Specific Discipline of Masters Degree</label>
+                            <DisciplineSelector
+                                value={formData.mastersCode}
+                                onChange={(code, desc) => {
+                                    onErrorSafeChange('mastersCode', code);
+                                    onErrorSafeChange('masters', desc);
+                                }}
+                                referenceData={referenceData}
+                                placeholder="Select Masters Discipline"
+                                showGroup={false}
+                            />
+                        </div>
+                        <div className="grid gap-1 col-span-2">
+                            <label className="text-base font-bold text-gray-600">Specific Discipline of Doctorate Degree</label>
+                            <DisciplineSelector
+                                value={formData.doctorateCode}
+                                onChange={(code, desc) => {
+                                    onErrorSafeChange('doctorateCode', code);
+                                    onErrorSafeChange('doctorate', desc);
+                                }}
+                                referenceData={referenceData}
+                                placeholder="Select Doctorate Discipline"
+                                showGroup={false}
+                            />
+                        </div>
 
-                </div>
-
-            </div>
+                    </div>
+                </CardContent>
+            </Card>
 
             {/* Employment & Teaching Details Card */}
-            <div className={`bg-white p-5 space-y-3 lg:col-span-2 mt-2 border`}>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
-                    {/* Row 1 */}
-                    <div className="grid gap-3">
-                        <label className="text-sm font-semibold text-gray-600">Professional License</label>
-                        <div className="flex gap-2">
-                            <Input
-                                readOnly
-                                className="w-24 shrink-0 bg-gray-50 text-center font-mono focus-visible:ring-0 disabled:opacity-100 disabled:bg-white rounded-none h-auto"
-                                value={lookupCode(PROFESSIONAL_LICENSE_OPTIONS, formData.licenseCode)}
-                                placeholder="Code"
-                            />
+            <Card className="border border-gray-200 shadow-md overflow-hidden rounded-xl bg-white lg:col-span-2 mt-4">
+                <CardHeader className="bg-linear-to-r from-[#003468] to-[#1a4f8c] pb-6 pt-6 px-6 border-b-0">
+                    <SectionHeader
+                        icon={<Briefcase />}
+                        title="Employment & Teaching Details"
+                        variant="white"
+                    />
+                </CardHeader>
+                <CardContent className="pt-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
+                        {/* Row 1 */}
+                        <div className="grid gap-3">
+                            <label className="text-base font-bold text-gray-600">Professional License</label>
+                            <div className="flex gap-2">
+                                <Input
+                                    readOnly
+                                    className="w-32 shrink-0 bg-gray-50 text-center font-bold focus-visible:ring-0 disabled:opacity-100 disabled:bg-white border border-input rounded-md h-12 px-3 text-sm flex items-center"
+                                    value={lookupCode(PROFESSIONAL_LICENSE_OPTIONS, formData.licenseCode)}
+                                    placeholder="Code"
+                                />
 
-                            <Combobox
-                                options={mapToOptions(PROFESSIONAL_LICENSE_OPTIONS)}
-                                value={formData.licenseCode}
-                                onChange={(val) => onErrorSafeChange('licenseCode', val)}
+                                <Combobox
+                                    options={mapToOptions(PROFESSIONAL_LICENSE_OPTIONS)}
+                                    value={formData.licenseCode}
+                                    onChange={(val) => onErrorSafeChange('licenseCode', val)}
+                                    disabled={readOnly}
+                                    placeholder="Select License"
+                                    searchPlaceholder="Search license..."
+                                    className="flex-1 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900"
+                                />
+                            </div>
+                        </div>
+                        {/* Row 2 */}
+                        <div className="grid gap-3">
+                            <label className="text-base font-bold text-gray-600">Faculty Rank</label>
+                            <div className="flex gap-2">
+                                <Input
+                                    readOnly
+                                    className="w-32 shrink-0 bg-gray-50 text-center font-bold focus-visible:ring-0 disabled:opacity-100 disabled:bg-white border border-input rounded-md h-12 px-3 text-sm flex items-center"
+                                    value={lookupCode(FACULTY_RANK_OPTIONS, formData.rankCode)}
+                                    placeholder="Code"
+                                />
+
+                                <Combobox
+                                    options={mapToOptions(FACULTY_RANK_OPTIONS)}
+                                    value={formData.rankCode}
+                                    onChange={(val) => onErrorSafeChange('rankCode', val)}
+                                    disabled={readOnly}
+                                    placeholder="Select Rank"
+                                    searchPlaceholder="Search rank..."
+                                    className="flex-1 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Row 3 */}
+                        <div className="grid gap-3">
+                            <label className="text-base font-bold text-gray-600">Teaching Load</label>
+                            <div className="flex gap-2">
+                                <Input
+                                    readOnly
+                                    className="w-32 shrink-0 bg-gray-50 text-center font-bold focus-visible:ring-0 disabled:opacity-100 disabled:bg-white rounded-md h-12 text-sm"
+                                    value={lookupCode(TEACHING_LOAD_OPTIONS, formData.loadCode)}
+                                    placeholder="Code"
+                                />
+
+                                <Combobox
+                                    options={mapToOptions(TEACHING_LOAD_OPTIONS)}
+                                    value={formData.loadCode}
+                                    onChange={(val) => onErrorSafeChange('loadCode', val)}
+                                    disabled={readOnly}
+                                    placeholder="Select Load"
+                                    searchPlaceholder="Search load..."
+                                    className="flex-1 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900 rounded-md h-12"
+                                />
+                            </div>
+                        </div>
+                        <div className="grid gap-3">
+                            <label className="text-base font-bold text-gray-600">Annual Salary</label>
+                            <div className="flex gap-2">
+                                <Input
+                                    readOnly
+                                    className="w-32 shrink-0 bg-gray-50 text-center font-bold focus-visible:ring-0 disabled:opacity-100 disabled:bg-white rounded-md h-12 text-sm"
+                                    value={lookupCode(ANNUAL_SALARY_OPTIONS, formData.salaryCode)}
+                                    placeholder="Code"
+                                />
+
+                                <Combobox
+                                    options={mapToOptions(ANNUAL_SALARY_OPTIONS)}
+                                    value={formData.salaryCode}
+                                    onChange={(val) => onErrorSafeChange('salaryCode', val)}
+                                    disabled={readOnly}
+                                    placeholder="Select Salary"
+                                    searchPlaceholder="Search salary..."
+                                    className="flex-1 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900 rounded-md h-12"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Row 4 */}
+                        <div className="grid gap-3">
+                            <label className="text-base font-bold text-gray-600">Tenure of Employment</label>
+                            <div className="flex gap-2">
+                                <Input
+                                    readOnly
+                                    className="w-32 shrink-0 bg-gray-50 text-center font-bold focus-visible:ring-0 disabled:opacity-100 disabled:bg-white rounded-md h-12 text-sm"
+                                    value={lookupCode(TENURE_OPTIONS, formData.tenureCode)}
+                                    placeholder="Code"
+                                />
+
+                                <Combobox
+                                    options={mapToOptions(TENURE_OPTIONS)}
+                                    value={formData.tenureCode}
+                                    onChange={(val) => onErrorSafeChange('tenureCode', val)}
+                                    disabled={readOnly}
+                                    placeholder="Select Tenure"
+                                    searchPlaceholder="Search tenure..."
+                                    className="flex-1 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900 rounded-md h-12"
+                                />
+                            </div>
+                        </div>
+                        <div className="grid gap-3">
+                            <label className="text-base font-bold text-gray-600">Subjects Taught</label>
+                            <Input
+                                value={formData.subjects || ''}
+                                onChange={(e) => onErrorSafeChange('subjects', e.target.value)}
+                                readOnly={readOnly}
+                                className={`focus-visible:ring-0 ${readOnly ? 'cursor-default disabled:opacity-100 disabled:bg-white text-gray-900' : ''} rounded-md h-12 px-3 text-sm`}
+                                placeholder={readOnly ? '' : 'Enumerate subjects...'}
                                 disabled={readOnly}
-                                placeholder="Select License"
-                                searchPlaceholder="Search license..."
-                                className="flex-1 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900 rounded-none h-auto min-h-[40px] whitespace-normal text-left"
                             />
                         </div>
                     </div>
-                    {/* Row 2 */}
-                    <div className="grid gap-3">
-                        <label className="text-sm font-semibold text-gray-600">Faculty Rank</label>
-                        <div className="flex gap-2">
-                            <Input
-                                readOnly
-                                className="w-24 shrink-0 bg-gray-50 text-center font-mono focus-visible:ring-0 disabled:opacity-100 disabled:bg-white rounded-none h-auto"
-                                value={lookupCode(FACULTY_RANK_OPTIONS, formData.rankCode)}
-                                placeholder="Code"
-                            />
-
-                            <Combobox
-                                options={mapToOptions(FACULTY_RANK_OPTIONS)}
-                                value={formData.rankCode}
-                                onChange={(val) => onErrorSafeChange('rankCode', val)}
-                                disabled={readOnly}
-                                placeholder="Select Rank"
-                                searchPlaceholder="Search rank..."
-                                className="flex-1 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900 rounded-none h-auto min-h-[40px] whitespace-normal text-left"
-                            />
-                        </div>
-                    </div>
-
-                    {/* Row 3 */}
-                    <div className="grid gap-3">
-                        <label className="text-sm font-semibold text-gray-600">Teaching Load</label>
-                        <div className="flex gap-2">
-                            <Input
-                                readOnly
-                                className="w-24 shrink-0 bg-gray-50 text-center font-mono focus-visible:ring-0 disabled:opacity-100 disabled:bg-white rounded-none h-auto"
-                                value={lookupCode(TEACHING_LOAD_OPTIONS, formData.loadCode)}
-                                placeholder="Code"
-                            />
-
-                            <Combobox
-                                options={mapToOptions(TEACHING_LOAD_OPTIONS)}
-                                value={formData.loadCode}
-                                onChange={(val) => onErrorSafeChange('loadCode', val)}
-                                disabled={readOnly}
-                                placeholder="Select Load"
-                                searchPlaceholder="Search load..."
-                                className="flex-1 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900 rounded-none h-auto min-h-[40px] whitespace-normal text-left"
-                            />
-                        </div>
-                    </div>
-                    <div className="grid gap-3">
-                        <label className="text-sm font-semibold text-gray-600">Annual Salary</label>
-                        <div className="flex gap-2">
-                            <Input
-                                readOnly
-                                className="w-24 shrink-0 bg-gray-50 text-center font-mono focus-visible:ring-0 disabled:opacity-100 disabled:bg-white rounded-none h-auto"
-                                value={lookupCode(ANNUAL_SALARY_OPTIONS, formData.salaryCode)}
-                                placeholder="Code"
-                            />
-
-                            <Combobox
-                                options={mapToOptions(ANNUAL_SALARY_OPTIONS)}
-                                value={formData.salaryCode}
-                                onChange={(val) => onErrorSafeChange('salaryCode', val)}
-                                disabled={readOnly}
-                                placeholder="Select Salary"
-                                searchPlaceholder="Search salary..."
-                                className="flex-1 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900 rounded-none h-auto min-h-[40px] whitespace-normal text-left"
-                            />
-                        </div>
-                    </div>
-
-                    {/* Row 4 */}
-                    <div className="grid gap-3">
-                        <label className="text-sm font-semibold text-gray-600">Tenure of Employment</label>
-                        <div className="flex gap-2">
-                            <Input
-                                readOnly
-                                className="w-24 shrink-0 bg-gray-50 text-center font-mono focus-visible:ring-0 disabled:opacity-100 disabled:bg-white rounded-none h-auto"
-                                value={lookupCode(TENURE_OPTIONS, formData.tenureCode)}
-                                placeholder="Code"
-                            />
-
-                            <Combobox
-                                options={mapToOptions(TENURE_OPTIONS)}
-                                value={formData.tenureCode}
-                                onChange={(val) => onErrorSafeChange('tenureCode', val)}
-                                disabled={readOnly}
-                                placeholder="Select Tenure"
-                                searchPlaceholder="Search tenure..."
-                                className="flex-1 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900 rounded-none h-auto min-h-[40px] whitespace-normal text-left"
-                            />
-                        </div>
-                    </div>
-                    <div className="grid gap-3">
-                        <label className="text-sm font-semibold text-gray-600">Subjects Taught</label>
-                        <Input
-                            value={formData.subjects || ''}
-                            onChange={(e) => onErrorSafeChange('subjects', e.target.value)}
-                            readOnly={readOnly}
-                            className={`focus-visible:ring-0 ${readOnly ? 'cursor-default disabled:opacity-100 disabled:bg-white text-gray-900' : ''} rounded-none min-h-[40px]`}
-                            placeholder={readOnly ? '' : 'Enumerate subjects...'}
-                            disabled={readOnly}
-                        />
-                    </div>
-                </div>
-            </div>
+                </CardContent>
+            </Card>
         </div>
     );
 };

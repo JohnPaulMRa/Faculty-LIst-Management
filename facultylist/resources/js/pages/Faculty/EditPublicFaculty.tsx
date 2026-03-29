@@ -68,7 +68,7 @@ const EditPublicFaculty: FC<EditProps> = ({ faculty, referenceData }) => {
                 <div className="flex justify-between items-center">
                     <div>
                         <div className="flex flex-col mt-1">
-                            <p className="text-gray-500 uppercase text-[20px] font-semibold tracking-wider">
+                            <p className="text-3xl font-bold text-gray-00 dark:text-gray-100 tracking-wider">
                                 {groupLabel}
                             </p>
                             {groupRemarks && (

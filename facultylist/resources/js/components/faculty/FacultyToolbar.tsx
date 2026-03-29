@@ -35,7 +35,7 @@ export function FacultyToolbar({
                 <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
                     placeholder="Search Name, Degree, or Rank..."
-                    className="pl-9 bg-white text-xs"
+                    className="pl-9 bg-white text-[12px]!"
                     value={searchQuery}
                     onChange={(e) => onSearchChange(e.target.value)}
                 />

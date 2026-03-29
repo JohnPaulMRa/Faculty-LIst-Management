@@ -72,17 +72,17 @@ export function Combobox({
                 <PopoverPrimitive.Anchor asChild>
                     <div
                         className={cn(
-                            "flex w-full items-stretch rounded-md border border-input bg-white text-sm shadow-xs transition-colors focus-within:ring-1 focus-within:ring-ring disabled:cursor-not-allowed disabled:opacity-50 overflow-hidden h-9",
+                            "flex w-full items-center rounded-md border border-input bg-white text-sm shadow-xs transition-colors focus-within:ring-1 focus-within:ring-ring disabled:cursor-not-allowed disabled:opacity-50 overflow-hidden h-12 px-3",
                             disabled && "opacity-50 pointer-events-none",
                             className
                         )}
                     >
                         {showCodePrefix && (
-                            <div className="shrink-0 w-[60px] bg-[#F8F9FA] border-r border-input flex items-center justify-center text-[11px] font-semibold text-[#6B7280] select-none tracking-wide uppercase">
+                            <div className="shrink-0 h-full w-[80px] bg-[#F8F9FA] rounded-l-md border-r border-input flex items-center justify-center text-sm font-bold text-[#6B7280] select-none tracking-wide uppercase -ml-3 mr-3">
                                 {selectedOption ? String(selectedOption.value) : "Code"}
                             </div>
                         )}
-                        <div className="flex flex-1 items-center min-w-0 px-3">
+                        <div className="flex flex-1 items-center h-full min-w-0">
                             <CommandPrimitive.Input
                                 value={inputValue}
                                 onValueChange={(val) => {
@@ -146,7 +146,7 @@ export function Combobox({
                                         setInputValue(String(option.label))
                                         setOpen(false)
                                     }}
-                                    className="flex items-start wrap-break-word"
+                                    className="flex items-start wrap-break-word py-3"
                                 >
                                     <Check
                                         className={cn(
@@ -154,7 +154,7 @@ export function Combobox({
                                             String(value) === String(option.value) ? "opacity-100" : "opacity-0"
                                         )}
                                     />
-                                    <span className="flex-1 text-left">{option.label}</span>
+                                    <span className="flex-1 text-left text-sm">{option.label}</span>
                                 </CommandItem>
                             ))}
                         </CommandGroup>

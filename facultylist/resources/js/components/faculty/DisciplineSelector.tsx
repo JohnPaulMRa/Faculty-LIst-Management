@@ -17,6 +17,7 @@ type Props = {
     disabled?: boolean;
     referenceData?: any;
     showGroup?: boolean;
+    hideCode?: boolean;
 };
 
 const DisciplineSelector: FC<Props> = ({
@@ -26,7 +27,8 @@ const DisciplineSelector: FC<Props> = ({
     className,
     disabled,
     referenceData,
-    showGroup = true
+    showGroup = true,
+    hideCode = false
 }) => {
     const [selectedGroup, setSelectedGroup] = useState<string>("");
 
@@ -124,9 +126,10 @@ const DisciplineSelector: FC<Props> = ({
         ? allDisciplines.filter(d => d.major_group_code === selectedGroup)
         : allDisciplines;
 
-    if (groups.length === 0) {
+    const hasData = showGroup ? groups.length > 0 : allDisciplines.length > 0;
+    if (!hasData) {
         return (
-            <div className={`text-red-500 text-xs ${className}`}>
+            <div className={`text-red-500 text-[10px] font-medium py-2 ${className}`}>
                 Error: Reference data not loaded.
             </div>
         );
@@ -149,19 +152,21 @@ const DisciplineSelector: FC<Props> = ({
                     disabled={disabled}
                     placeholder="Select Major Group"
                     searchPlaceholder="Search groups..."
-                    className="w-full shrink-0 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900 rounded-none h-auto min-h-[40px] whitespace-normal text-left"
+                    className="w-full shrink-0 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900 rounded-md h-12 whitespace-normal text-left text-sm"
                 />
             )}
 
             {/* Row 2: Code + Specific Discipline */}
-            <div className="flex gap-2 w-full">
+            <div className={`flex ${hideCode ? 'gap-0 w-full' : 'gap-2 w-full'}`}>
                 {/* Code Input (Read-only) */}
-                <Input
-                    value={value || ''}
-                    readOnly
-                    className="w-24 shrink-0 bg-gray-50 text-center font-mono disabled:opacity-100 rounded-none h-auto"
-                    placeholder="Code"
-                />
+                {!hideCode && (
+                    <Input
+                        value={value || ''}
+                        readOnly
+                        className="w-32 shrink-0 bg-gray-50 text-center font-bold disabled:opacity-100 rounded-md border border-input h-12 text-sm flex items-center justify-center"
+                        placeholder="Code"
+                    />
+                )}
 
                 {/* Specific Discipline Select */}
                 <Combobox
@@ -171,7 +176,7 @@ const DisciplineSelector: FC<Props> = ({
                     disabled={disabled || (showGroup && !selectedGroup)}
                     placeholder={placeholder}
                     searchPlaceholder="Search disciplines..."
-                    className="flex-1 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900 rounded-none h-auto min-h-[40px] whitespace-normal text-left"
+                    className="flex-1 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900 rounded-md h-12 whitespace-normal text-left text-sm"
                 />
             </div>
         </div>

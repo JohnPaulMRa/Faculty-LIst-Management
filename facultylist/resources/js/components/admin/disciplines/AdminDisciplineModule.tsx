@@ -44,6 +44,7 @@ export default function AdminDisciplineModule({ disciplines = [] }: AdminDiscipl
     const [selectedMajor, setSelectedMajor] = useState<string | null>(null);
     // New state for filtering by discipline group
     const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
+    const [formResetKey, setFormResetKey] = useState(0);
 
     // Compute flat list of all groups for the filter dropdown
     const allGroups = useMemo(() => {
@@ -225,10 +226,11 @@ export default function AdminDisciplineModule({ disciplines = [] }: AdminDiscipl
                 setProcessing(false);
                 const flash = (page.props as any).flash;
                 if (flash?.error) {
-                    alert('Error: ' + flash.error);
+                    setTimeout(() => alert('Error: ' + flash.error), 10);
                 } else {
                     setSelectedMajor(null);
-                    alert('Discipline added successfully.');
+                    setFormResetKey(prev => prev + 1);
+                    setTimeout(() => alert('Discipline added successfully.'), 10);
                 }
             },
             onError: (errors) => {
@@ -289,6 +291,7 @@ export default function AdminDisciplineModule({ disciplines = [] }: AdminDiscipl
                 <div className="flex flex-col w-full">
                     {/* Add Discipline Form */}
                     <AddDisciplineForm
+                        key={formResetKey}
                         onSubmit={handleAddSubmit}
                         majors={disciplines}
                         processing={processing}

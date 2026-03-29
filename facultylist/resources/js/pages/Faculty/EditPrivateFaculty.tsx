@@ -179,9 +179,6 @@ const Edit: FC<EditProps> = ({ faculty, referenceData }) => {
             ...formData,
             rank: getDesc(referenceData?.facultyRank, formData.rankCode) || (faculty.form_type === 'E2' ? (faculty as any).rank : (faculty.form_type === 'E5' ? (faculty as any).rankCode : '')) || '',
             employment: getDesc(referenceData?.fullTimePartTime, formData.fullTimeCode) || (faculty.form_type === 'E2' ? (faculty as any).employment : '') || '',
-            bachelors: getDisciplineDesc(formData.bachelorsCode) || (faculty.form_type === 'E5' ? (faculty as any).bachelors : '') || '',
-            masters: getDisciplineDesc(formData.mastersCode) || (faculty.form_type === 'E5' ? (faculty as any).masters : '') || '',
-            doctorate: getDisciplineDesc(formData.doctorateCode) || (faculty.form_type === 'E5' ? (faculty as any).doctorate : '') || ''
         };
 
         router.put(update({ id: faculty.id }).url, syncedData, {
@@ -212,8 +209,8 @@ const Edit: FC<EditProps> = ({ faculty, referenceData }) => {
 
             <div className="flex flex-1 flex-col gap-6 w-full py-18 px-2 md:px-20 max-w-8xl mx-auto">
                 <div className="flex justify-between items-center">
-                    <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-100">
-                        Edit Faculty Details
+                    <h1 className="text-3xl font-bold tracking-tight text-gray-00 dark:text-gray-100">
+                        FACULTY OR TEACHING STAFF IN HIGHER EDUCATION PROGRAMS
                     </h1>
                     <Button
                         onClick={handleSave}

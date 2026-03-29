@@ -9,8 +9,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Combobox } from '@/components/ui/combobox';
+import DisciplineSelector from '../DisciplineSelector';
 import type { PublicFaculty } from '@/types/faculty';
-import { IMPORT_GROUPS } from '@/types/faculty/constants';
 import { cn } from '@/lib/utils';
 import {
     GENERIC_RANK_OPTIONS,
@@ -37,18 +37,41 @@ type Props = {
 };
 
 // Section Header Component for consistent styling
-const SectionHeader: FC<{ icon: React.ReactNode; title: string; badge?: string }> = ({ icon, title, badge }) => (
+const SectionHeader: FC<{ icon: React.ReactNode; title: string; badge?: string; variant?: 'default' | 'white' }> = ({ icon, title, badge, variant = 'default' }) => (
     <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-            <div className="p-2 bg-linear-to-br from-[#003468] to-[#1a4f8c] text-white rounded-lg shadow-sm">
-                {icon}
+        <div className="flex items-center gap-3">
+            <div className={cn(
+                "p-2.5 rounded-xl shadow-sm transition-transform duration-200 hover:scale-105",
+                variant === 'white'
+                    ? "bg-white text-[#003468]"
+                    : "bg-linear-to-br from-[#003468] to-[#1a4f8c] text-white"
+            )}>
+                {React.cloneElement(icon as React.ReactElement<any>, { className: 'h-5 w-5' })}
             </div>
             <div>
-                <h3 className="font-bold text-lg text-[#003468]">{title}</h3>
-                {badge && <p className="text-xs text-gray-500">{badge}</p>}
+                <h3 className={cn(
+                    "font-bold text-lg tracking-tight",
+                    variant === 'white' ? "text-white" : "text-[#003468]"
+                )}>{title}</h3>
+                {badge && <p className={cn(
+                    "text-xs",
+                    variant === 'white' ? "text-blue-100" : "text-gray-500"
+                )}>{badge}</p>}
             </div>
         </div>
-        {badge && <Badge variant="outline" className="text-xs bg-gray-50 border-gray-200">{badge}</Badge>}
+        {badge && (
+            <Badge
+                variant="outline"
+                className={cn(
+                    "text-xs border-0",
+                    variant === 'white'
+                        ? "bg-white/20 text-white backdrop-blur-md"
+                        : "bg-gray-50 text-gray-600"
+                )}
+            >
+                {badge}
+            </Badge>
+        )}
     </div>
 );
 
@@ -68,20 +91,20 @@ const FormField: FC<{
 }> = ({ label, value, onChange, placeholder, type = 'text', className = '', required, hint, error, readOnly, showCodePrefix = false }) => (
     <div className="space-y-1.5">
         <div className="flex items-center justify-between">
-            <label className="text-[14px] font-semibold text-gray-600 uppercase tracking-wider">
+            <label className="text-base font-bold text-gray-600 uppercase tracking-wider">
                 {label}
                 {required && <span className="text-red-500 ml-1">*</span>}
             </label>
-            {hint && <span className="text-[10px] text-gray-400 italic">{hint}</span>}
+            {hint && <span className="text-[11px] text-gray-400 italic">{hint}</span>}
         </div>
         <div className="flex items-center gap-2">
             {showCodePrefix && (
-                <div className="shrink-0 h-10 w-[65px] bg-[#F8F9FA] border border-gray-200 flex items-center justify-center text-[13px] font-medium text-gray-700 uppercase rounded-sm">
+                <div className="shrink-0 h-12 w-32 bg-gray-50 border border-input flex items-center justify-center text-sm font-bold text-gray-700 uppercase rounded-md px-3 text-center">
                     CODE
                 </div>
             )}
             <div className={cn(
-                "flex flex-1 items-stretch rounded-4px border border-gray-300 bg-white transition-all duration-200 overflow-hidden",
+                "flex flex-1 items-center rounded-md border border-gray-300 bg-white transition-all duration-200 overflow-hidden h-12",
                 readOnly ? "bg-gray-50/50 border-gray-200" : "focus-within:border-[#003468] focus-within:ring-1 focus-within:ring-[#003468]/20 hover:border-gray-400",
                 error ? "border-red-500 focus-within:border-red-500 focus-within:ring-red-500/20" : ""
             )}>
@@ -92,7 +115,7 @@ const FormField: FC<{
                     placeholder={placeholder}
                     readOnly={readOnly}
                     className={cn(
-                        "border-0 focus-visible:ring-0 shadow-none h-10 flex-1",
+                        "border-0 focus-visible:ring-0 shadow-none h-full flex-1 px-3 text-sm",
                         readOnly && "cursor-not-allowed text-gray-500",
                         className
                     )}
@@ -115,17 +138,17 @@ const FormCombobox: FC<{
     showCodePrefix?: boolean;
 }> = ({ label, value, onChange, options, placeholder, required, error, showCodePrefix = true }) => {
     const selectedOption = options.find((opt) => String(opt.value) === String(value));
-    const codeValue = selectedOption ? String(selectedOption.value) : "CODE";
+    const codeValue = selectedOption ? String(selectedOption.value) : "Code";
 
     return (
         <div className="space-y-1.5">
-            <label className="text-[15px] font-semibold text-gray-600 uppercase tracking-wider">
+            <label className="text-base font-bold text-gray-600 uppercase tracking-wider">
                 {label}
                 {required && <span className="text-red-500 ml-1">*</span>}
             </label>
             <div className="flex items-center gap-2">
                 {showCodePrefix && (
-                    <div className="shrink-0 h-11 w-[75px] bg-[#F8F9FA] border border-gray-200 flex items-center justify-center text-[13px] font-medium text-gray-700 uppercase rounded-4px">
+                    <div className="shrink-0 h-12 w-32 bg-gray-50 border border-input flex items-center justify-center text-sm font-bold text-gray-700 uppercase rounded-md px-3 text-center">
                         {codeValue}
                     </div>
                 )}
@@ -137,7 +160,7 @@ const FormCombobox: FC<{
                         placeholder={placeholder}
                         showCodePrefix={false}
                         className={cn(
-                            'border-gray-300 hover:border-gray-400 focus-within:border-[#003468] focus-within:ring-1 focus-within:ring-[#003468]/20 rounded-4px shadow-none h-10',
+                            'border-gray-300 hover:border-gray-400 focus-within:border-[#003468] focus-within:ring-1 focus-within:ring-[#003468]/20 rounded-md shadow-none h-12',
                             error ? 'border-red-500 focus-within:ring-red-500/20 focus-within:border-red-500' : ''
                         )}
                     />
@@ -164,25 +187,25 @@ const WorkloadGrid: FC<{
     <div className="space-y-3">
         <div className="flex items-center gap-2">
             <ChevronRight className="h-4 w-4 text-[#003468]" />
-            <span className="text-xs font-bold text-[#003468] uppercase tracking-wider">{title}</span>
+            <span className="text-sm font-bold text-[#003468] uppercase tracking-wider">{title}</span>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {items.map((item, index) => (
                 <div key={index} className="space-y-1">
                     <div className="flex items-center justify-between">
-                        <label className="text-[14px] font-semibold text-gray-500 uppercase leading-tight">
+                        <label className="text-base font-bold text-gray-600 uppercase leading-tight">
                             {item.label}
                         </label>
-                        {item.hint && <span className="text-[8px] text-gray-400">{item.hint}</span>}
+                        {item.hint && <span className="text-[10px] text-gray-400 font-medium">{item.hint}</span>}
                     </div>
                     <div className="flex items-center gap-2">
                         {item.showCodePrefix && (
-                            <div className="shrink-0 h-10 w-[65px] bg-[#F8F9FA] border border-gray-200 flex items-center justify-center text-[13px] font-medium text-gray-700 uppercase rounded-4px">
+                            <div className="shrink-0 h-12 w-32 bg-gray-50 border border-input flex items-center justify-center text-sm font-bold text-gray-700 uppercase rounded-md px-3 text-center">
                                 CODE
                             </div>
                         )}
                         <div className={cn(
-                            "flex flex-1 items-stretch rounded-4px border overflow-hidden h-10",
+                            "flex flex-1 items-center rounded-md border overflow-hidden h-12",
                             item.highlighted
                                 ? 'bg-blue-50/50 border-blue-200'
                                 : 'bg-white border-gray-300 hover:border-gray-400'
@@ -192,7 +215,7 @@ const WorkloadGrid: FC<{
                                 onChange={(e) => item.onChange && item.onChange(e.target.value)}
                                 readOnly={item.readOnly || item.highlighted}
                                 className={cn(
-                                    "border-0 focus-visible:ring-0 shadow-none h-full w-full flex-1 text-center",
+                                    "border-0 focus-visible:ring-0 shadow-none h-full w-full flex-1 text-center px-3 text-sm",
                                     item.highlighted
                                         ? 'font-bold text-[#003468] cursor-default bg-transparent'
                                         : 'bg-transparent'
@@ -212,7 +235,8 @@ const FacultyFormE2: FC<Props> = ({
     onCancel,
     hideHeader = false,
     formData: externalFormData,
-    onChange: externalOnChange
+    onChange: externalOnChange,
+    referenceData
 }) => {
     const [internalFormData, setInternalFormData] = useState<Partial<PublicFaculty>>({});
     const [errors, setErrors] = useState<Record<string, string>>({});
@@ -304,15 +328,16 @@ const FacultyFormE2: FC<Props> = ({
     const formFields = (
         <div className="space-y-6">
             {/* Section 1: General Information */}
-            <Card className="border border-gray-200 shadow-sm">
-                <CardHeader className="bg-linear-to-r from-gray-50 to-white border-b border-gray-100 pb-4">
+            <Card className="border border-gray-200 shadow-md overflow-hidden rounded-4px bg-white">
+                <CardHeader className="bg-linear-to-r from-[#003468] to-[#1a4f8c] pb-6 pt-6 px-6 border-b-0">
                     <SectionHeader
-                        icon={<User className="h-5 w-5" />}
+                        icon={<User />}
                         title="General Information"
+                        variant="white"
                     />
                 </CardHeader>
                 <CardContent className="pt-5">
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         <FormField
                             label="Name of Faculty (Last, First, M.I.)"
                             value={formData.name || ''}
@@ -331,36 +356,21 @@ const FacultyFormE2: FC<Props> = ({
                             showCodePrefix={true}
                             error={errors.rank}
                         />
-                        <FormCombobox
-                            label="FACULTY GROUP"
-                            value={formData.import_group || ''}
-                            onChange={(value) => handleChange('import_group', value)}
-                            options={IMPORT_GROUPS.map(group => ({
-                                label: group.label,
-                                value: group.value
-                            }))}
-                            placeholder="Select Group"
-                            showCodePrefix={true}
-                        />
                         <FormField
                             label="Home College"
                             value={formData.college || ''}
                             onChange={(value) => handleChange('college', value)}
-                            placeholder="College code"
-                            showCodePrefix={true}
                         />
                         <FormField
                             label="Home Department"
                             value={formData.department || ''}
                             onChange={(value) => handleChange('department', value)}
-                            placeholder="Department code"
-                            showCodePrefix={true}
                         />
                     </div>
 
                     <Separator className="my-6" />
 
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                         <FormCombobox
                             label="Is Faculty Member Tenured?"
                             value={formData.is_tenured || ''}
@@ -398,7 +408,6 @@ const FacultyFormE2: FC<Props> = ({
                             value={formData.fte || ''}
                             onChange={(value) => handleChange('fte', value)}
                             options={FTE_OPTIONS.map(opt => ({ label: opt.desc, value: opt.code }))}
-                            placeholder="1.00"
                             showCodePrefix={true}
                         />
                         <FormCombobox
@@ -416,15 +425,16 @@ const FacultyFormE2: FC<Props> = ({
             </Card>
             <Separator className="my-6" />
             {/* Section 2: Educational Attainment */}
-            <Card className="border border-gray-200 shadow-sm">
-                <CardHeader className="bg-linear-to-r from-gray-50 to-white border-b border-gray-100 pb-4">
+            <Card className="border border-gray-200 shadow-md overflow-hidden rounded-xl bg-white">
+                <CardHeader className="bg-linear-to-r from-[#003468] to-[#1a4f8c] pb-6 pt-6 px-6 border-b-0">
                     <SectionHeader
-                        icon={<GraduationCap className="h-5 w-5" />}
+                        icon={<GraduationCap />}
                         title="Educational Attainment"
+                        variant="white"
                     />
                 </CardHeader>
                 <CardContent className="pt-6">
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         <FormCombobox
                             label="Highest Degree Attained"
                             value={formData.degree || ''}
@@ -448,20 +458,24 @@ const FacultyFormE2: FC<Props> = ({
                     <div className="space-y-4">
                         <h4 className="text-sm font-semibold text-[#003468]">Teaching Load Disciplines</h4>
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                            <FormField
-                                label="Primary Discipline (1)"
-                                value={formData.discipline_load_1 || ''}
-                                onChange={(value) => handleChange('discipline_load_1', value)}
-                                placeholder="Use 6-digit code"
-                                showCodePrefix={true}
-                            />
-                            <FormField
-                                label="Primary Discipline (2)"
-                                value={formData.discipline_load_2 || ''}
-                                onChange={(value) => handleChange('discipline_load_2', value)}
-                                placeholder="Use 6-digit code"
-                                showCodePrefix={true}
-                            />
+                            <div className="space-y-1.5">
+                                <label className="text-base font-bold text-gray-600 uppercase tracking-wider">Primary Discipline (1)</label>
+                                <DisciplineSelector
+                                    value={formData.discipline_load_1}
+                                    onChange={(code) => handleChange('discipline_load_1', code)}
+                                    referenceData={referenceData}
+                                    placeholder="Select Primary Discipline (1)"
+                                />
+                            </div>
+                            <div className="space-y-1.5">
+                                <label className="text-base font-bold text-gray-600 uppercase tracking-wider">Primary Discipline (2)</label>
+                                <DisciplineSelector
+                                    value={formData.discipline_load_2}
+                                    onChange={(code) => handleChange('discipline_load_2', code)}
+                                    referenceData={referenceData}
+                                    placeholder="Select Primary Discipline (2)"
+                                />
+                            </div>
                         </div>
                     </div>
 
@@ -469,34 +483,40 @@ const FacultyFormE2: FC<Props> = ({
 
                     <div className="space-y-4">
                         <h4 className="text-sm font-semibold text-[#003468]">Degree Disciplines</h4>
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                            <FormField
-                                label="Bachelors Degree"
-                                value={formData.discipline_bachelors || ''}
-                                onChange={(value) => handleChange('discipline_bachelors', value)}
-                                placeholder="6-digit code"
-                                showCodePrefix={true}
-                            />
-                            <FormField
-                                label="Masters Degree"
-                                value={formData.discipline_masters || ''}
-                                onChange={(value) => handleChange('discipline_masters', value)}
-                                placeholder="6-digit code"
-                                showCodePrefix={true}
-                            />
-                            <FormField
-                                label="Doctorate"
-                                value={formData.discipline_doctorate || ''}
-                                onChange={(value) => handleChange('discipline_doctorate', value)}
-                                placeholder="6-digit code"
-                                showCodePrefix={true}
-                            />
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                            <div className="space-y-1.5">
+                                <label className="text-base font-bold text-gray-600 uppercase tracking-wider">Bachelors Discipline</label>
+                                <DisciplineSelector
+                                    value={formData.discipline_bachelors}
+                                    onChange={(code) => handleChange('discipline_bachelors', code)}
+                                    referenceData={referenceData}
+                                    placeholder="Select Bachelors Discipline"
+                                />
+                            </div>
+                            <div className="space-y-1.5">
+                                <label className="text-base font-bold text-gray-600 uppercase tracking-wider">Masters Discipline</label>
+                                <DisciplineSelector
+                                    value={formData.discipline_masters}
+                                    onChange={(code) => handleChange('discipline_masters', code)}
+                                    referenceData={referenceData}
+                                    placeholder="Select Masters Discipline"
+                                />
+                            </div>
+                            <div className="space-y-1.5">
+                                <label className="text-base font-bold text-gray-600 uppercase tracking-wider">Doctorate Discipline</label>
+                                <DisciplineSelector
+                                    value={formData.discipline_doctorate}
+                                    onChange={(code) => handleChange('discipline_doctorate', code)}
+                                    referenceData={referenceData}
+                                    placeholder="Select Doctorate Discipline"
+                                />
+                            </div>
                         </div>
                     </div>
 
                     <Separator className="my-6" />
 
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         <FormCombobox
                             label="Masters Degree with Thesis?"
                             value={formData.masters_thesis || ''}
@@ -518,11 +538,12 @@ const FacultyFormE2: FC<Props> = ({
             </Card>
 
             {/* Section 3: Undergraduate Workload */}
-            <Card className="border border-gray-200 shadow-sm">
-                <CardHeader className="bg-linear-to-r from-gray-50 to-white border-b border-gray-100 pb-4">
+            <Card className="border border-gray-200 shadow-md overflow-hidden rounded-xl bg-white">
+                <CardHeader className="bg-linear-to-r from-[#003468] to-[#1a4f8c] pb-6 pt-6 px-6 border-b-0">
                     <SectionHeader
-                        icon={<Clock className="h-5 w-5" />}
+                        icon={<Clock />}
                         title="Undergraduate Workload"
+                        variant="white"
                     />
                 </CardHeader>
                 <CardContent className="pt-6 space-y-8">
@@ -595,11 +616,12 @@ const FacultyFormE2: FC<Props> = ({
             </Card>
 
             {/* Section 4: Graduate Workload */}
-            <Card className="border border-gray-200 shadow-sm">
-                <CardHeader className="bg-linear-to-r from-gray-50 to-white border-b border-gray-100 pb-4">
+            <Card className="border border-gray-200 shadow-md overflow-hidden rounded-xl bg-white">
+                <CardHeader className="bg-linear-to-r from-[#003468] to-[#1a4f8c] pb-6 pt-6 px-6 border-b-0">
                     <SectionHeader
-                        icon={<Briefcase className="h-5 w-5" />}
+                        icon={<Briefcase />}
                         title="Graduate Workload"
+                        variant="white"
                     />
                 </CardHeader>
                 <CardContent className="pt-6 space-y-8">
@@ -650,11 +672,12 @@ const FacultyFormE2: FC<Props> = ({
             </Card>
 
             {/* Section 5: Official Credit Load */}
-            <Card className="border border-gray-200 shadow-sm">
-                <CardHeader className="bg-linear-to-r from-gray-50 to-white border-b border-gray-100 pb-4">
+            <Card className="border border-gray-200 shadow-md overflow-hidden rounded-xl bg-white">
+                <CardHeader className="bg-linear-to-r from-[#003468] to-[#1a4f8c] pb-6 pt-6 px-6 border-b-0">
                     <SectionHeader
-                        icon={<Award className="h-5 w-5" />}
+                        icon={<Award />}
                         title="Official Credit Load"
+                        variant="white"
                     />
                 </CardHeader>
                 <CardContent className="pt-6">
@@ -693,7 +716,7 @@ const FacultyFormE2: FC<Props> = ({
                             },
                         ]}
                     />
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     </div>
 
                     <Separator className="my-6" />
@@ -701,7 +724,7 @@ const FacultyFormE2: FC<Props> = ({
                     <div className="bg-linear-to-r from-blue-50 to-indigo-50 p-6 rounded-4px border border-blue-200">
                         <div className="flex items-center justify-between">
                             <div>
-                                <label className="text-sm font-bold text-[#003468] uppercase tracking-wider">
+                                <label className="text-lg font-bold text-[#003468] uppercase tracking-wider">
                                     Total Work Load
                                 </label>
                                 <p className="text-xs text-gray-600 mt-1">Sum of all official loads</p>
@@ -710,7 +733,7 @@ const FacultyFormE2: FC<Props> = ({
                                 <Input
                                     value={formData.load_total || '0.00'}
                                     readOnly
-                                    className="text-xl font-bold text-[#003468] bg-white border-blue-300 w-32 text-center rounded-lg focus-visible:ring-0 cursor-default"
+                                    className="text-2xl! font-semibold h-12 text-[#003468] bg-white border-blue-300 w-44 text-center rounded-lg focus-visible:ring-0 cursor-default"
                                 />
                             </div>
                         </div>
@@ -722,14 +745,14 @@ const FacultyFormE2: FC<Props> = ({
 
     if (hideHeader) {
         return (
-            <div className="w-full bg-gray-50/50 p-6">
+            <div className="w-full bg-gray-50/50 p-2">
                 {formFields}
             </div>
         );
     }
 
     return (
-        <div className="flex flex-col h-[90vh] md:h-[85vh] w-full bg-gray-50 overflow-hidden rounded-4px">
+        <div className="flex flex-col h-[90vh] md:h-[85vh] w-full bg-gray-50 overflow-hidden rounded-md">
             <div className="bg-linear-to-r from-[#003468] to-[#1a4f8c] text-white px-6 py-4 flex justify-between items-center shrink-0 shadow-sm z-10">
                 <div>
                     <h2 className="text-xl font-bold tracking-tight flex items-center gap-2">
@@ -738,7 +761,7 @@ const FacultyFormE2: FC<Props> = ({
                             Tertiary Faculty Profile
                         </Badge>
                     </h2>
-                    <p className="text-sm text-blue-100 mt-1">Faculty Registration • Academic Year 2025-2026</p>
+
                 </div>
                 <div className="flex items-center gap-3">
                     <Button
