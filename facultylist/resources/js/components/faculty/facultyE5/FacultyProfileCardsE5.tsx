@@ -103,7 +103,7 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                             <Input
                                 value={formData.name || ''}
                                 onChange={(e) => onErrorSafeChange('name', e.target.value)}
-                                className="uppercase focus-visible:ring-0 disabled:opacity-100 disabled:bg-white rounded-md border border-input h-12 px-3 text-[15px]"
+                                className="uppercase focus-visible:ring-0 disabled:opacity-100 disabled:bg-white rounded-md border border-input h-12 px-3 text-[12px]"
                                 readOnly={readOnly}
                                 disabled={readOnly}
                             />
@@ -127,7 +127,7 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                                     disabled={readOnly}
                                     placeholder="Select Status"
                                     searchPlaceholder="Search status..."
-                                    className="flex-1 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900 text-[15px]"
+                                    className="flex-1 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900 text-[12px]"
                                 />
                             </div>
                         </div>
@@ -263,7 +263,7 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                             <div className="flex gap-2">
                                 <Input
                                     readOnly
-                                    className="w-32 shrink-0 bg-gray-50 text-center font-bold focus-visible:ring-0 disabled:opacity-100 disabled:bg-white border border-input rounded-md h-12 px-3 text-[15px] flex items-center"
+                                    className="w-32 shrink-0 bg-gray-50 text-center font-bold focus-visible:ring-0 disabled:opacity-100 disabled:bg-white border border-input rounded-md h-12 px-3 text-[12px] flex items-center"
                                     value={lookupCode(PROFESSIONAL_LICENSE_OPTIONS, formData.licenseCode)}
                                     placeholder="Code"
                                 />
@@ -285,7 +285,7 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                             <div className="flex gap-2">
                                 <Input
                                     readOnly
-                                    className="w-32 shrink-0 bg-gray-50 text-center font-bold focus-visible:ring-0 disabled:opacity-100 disabled:bg-white border border-input rounded-md h-12 px-3 text-[15px] flex items-center"
+                                    className="w-32 shrink-0 bg-gray-50 text-center font-bold focus-visible:ring-0 disabled:opacity-100 disabled:bg-white border border-input rounded-md h-12 px-3 text-[12px] flex items-center"
                                     value={lookupCode(FACULTY_RANK_OPTIONS, formData.rankCode)}
                                     placeholder="Code"
                                 />
@@ -308,7 +308,7 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                             <div className="flex gap-2">
                                 <Input
                                     readOnly
-                                    className="w-32 shrink-0 bg-gray-50 text-center font-bold focus-visible:ring-0 disabled:opacity-100 disabled:bg-white rounded-md h-12 text-[15px]"
+                                    className="w-32 shrink-0 bg-gray-50 text-center font-bold focus-visible:ring-0 disabled:opacity-100 disabled:bg-white rounded-md h-12 text-[12px]"
                                     value={lookupCode(TEACHING_LOAD_OPTIONS, formData.loadCode)}
                                     placeholder="Code"
                                 />
@@ -329,7 +329,7 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                             <div className="flex gap-2">
                                 <Input
                                     readOnly
-                                    className="w-32 shrink-0 bg-gray-50 text-center font-bold focus-visible:ring-0 disabled:opacity-100 disabled:bg-white rounded-md h-12 text-[15px]"
+                                    className="w-32 shrink-0 bg-gray-50 text-center font-bold focus-visible:ring-0 disabled:opacity-100 disabled:bg-white rounded-md h-12 text-[12px]"
                                     value={lookupCode(ANNUAL_SALARY_OPTIONS, formData.salaryCode)}
                                     placeholder="Code"
                                 />
@@ -341,7 +341,7 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                                     disabled={readOnly}
                                     placeholder="Select Salary"
                                     searchPlaceholder="Search salary..."
-                                    className="flex-1 disabled:opacity-100 disabled:bg-white text-lg disabled:cursor-default disabled:border-gray-200 text-gray-900 rounded-md h-12"
+                                    className="flex-1 disabled:opacity-100 disabled:bg-white text-sm disabled:cursor-default disabled:border-gray-200 text-gray-900 rounded-md h-12"
                                 />
                             </div>
                         </div>
@@ -352,7 +352,7 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                             <div className="flex gap-2">
                                 <Input
                                     readOnly
-                                    className="w-32 shrink-0 bg-gray-50 text-center font-bold focus-visible:ring-0 disabled:opacity-100 disabled:bg-white rounded-md h-12 text-[15px]"
+                                    className="w-32 shrink-0 bg-gray-50 text-center font-bold focus-visible:ring-0 disabled:opacity-100 disabled:bg-white rounded-md h-12 text-[12px]"
                                     value={lookupCode(TENURE_OPTIONS, formData.tenureCode)}
                                     placeholder="Code"
                                 />

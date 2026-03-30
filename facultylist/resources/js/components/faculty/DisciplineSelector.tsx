@@ -163,7 +163,7 @@ const DisciplineSelector: FC<Props> = ({
                     <Input
                         value={value || ''}
                         readOnly
-                        className="w-32 shrink-0 bg-gray-50 text-center font-semibold   disabled:opacity-100 rounded-md border border-input h-12 text-lg flex items-center justify-center"
+                        className="w-32 shrink-0 bg-gray-50 text-center font-semibold  disabled:opacity-100 rounded-md border border-input h-12 text-sm flex items-center justify-center"
                         placeholder="Code"
                     />
                 )}
@@ -176,7 +176,7 @@ const DisciplineSelector: FC<Props> = ({
                     disabled={disabled || (showGroup && !selectedGroup)}
                     placeholder={placeholder}
                     searchPlaceholder="Search disciplines..."
-                    className="flex-1 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900 rounded-md h-12 whitespace-normal text-left text-lg"
+                    className="flex-1 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900 rounded-md h-12 whitespace-normal text-left text-sm"
                 />
             </div>
         </div>

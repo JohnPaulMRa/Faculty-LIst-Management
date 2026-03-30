@@ -78,7 +78,7 @@ export function Combobox({
                         )}
                     >
                         {showCodePrefix && (
-                            <div className="shrink-0 h-12 w-[80px] bg-[#F8F9FA] rounded-l-md border-r border-input flex items-center justify-center text-[12px]font-bold text-[#6B7280] select-none tracking-wide uppercase -ml-3 mr-3">
+                            <div className="shrink-0 h-12 w-[80px] bg-[#F8F9FA] rounded-l-md border-r border-input flex items-center justify-center font-bold text-[#6B7280] select-none tracking-wide uppercase -ml-3 mr-3">
                                 {selectedOption ? String(selectedOption.value) : "Code"}
                             </div>
                         )}
@@ -110,7 +110,7 @@ export function Combobox({
                                 }}
                                 placeholder={placeholder}
                                 disabled={disabled}
-                                className="flex-1 min-w-0 bg-transparent outline-none placeholder:text-muted-foreground text-[12px] "
+                                className="flex-1 min-w-0 bg-transparent outline-none placeholder:text-muted-foreground text-[15px] "
                             />
                             <ChevronsUpDown
                                 className="ml-2 h-4 w-4 shrink-0 opacity-40 cursor-pointer hover:opacity-70 transition-opacity"
