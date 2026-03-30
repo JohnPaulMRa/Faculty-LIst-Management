@@ -465,6 +465,7 @@ const FacultyFormE2: FC<Props> = ({
                                     onChange={(code) => handleChange('discipline_load_1', code)}
                                     referenceData={referenceData}
                                     placeholder="Select Primary Discipline (1)"
+                                    showGroup={false}
                                 />
                             </div>
                             <div className="space-y-1.5">
@@ -474,6 +475,7 @@ const FacultyFormE2: FC<Props> = ({
                                     onChange={(code) => handleChange('discipline_load_2', code)}
                                     referenceData={referenceData}
                                     placeholder="Select Primary Discipline (2)"
+                                    showGroup={false}
                                 />
                             </div>
                         </div>
@@ -491,6 +493,7 @@ const FacultyFormE2: FC<Props> = ({
                                     onChange={(code) => handleChange('discipline_bachelors', code)}
                                     referenceData={referenceData}
                                     placeholder="Select Bachelors Discipline"
+                                    showGroup={false}
                                 />
                             </div>
                             <div className="space-y-1.5">
@@ -500,6 +503,7 @@ const FacultyFormE2: FC<Props> = ({
                                     onChange={(code) => handleChange('discipline_masters', code)}
                                     referenceData={referenceData}
                                     placeholder="Select Masters Discipline"
+                                    showGroup={false}
                                 />
                             </div>
                             <div className="space-y-1.5">
@@ -509,6 +513,7 @@ const FacultyFormE2: FC<Props> = ({
                                     onChange={(code) => handleChange('discipline_doctorate', code)}
                                     referenceData={referenceData}
                                     placeholder="Select Doctorate Discipline"
+                                    showGroup={false}
                                 />
                             </div>
                         </div>

@@ -72,17 +72,17 @@ export function Combobox({
                 <PopoverPrimitive.Anchor asChild>
                     <div
                         className={cn(
-                            "flex w-full items-center rounded-md border border-input bg-white text-sm shadow-xs transition-colors focus-within:ring-1 focus-within:ring-ring disabled:cursor-not-allowed disabled:opacity-50 overflow-hidden h-12 px-3",
+                            "flex w-full items-center rounded-md border border-input bg-white text-lg shadow-xs transition-colors focus-within:ring-1 focus-within:ring-ring disabled:cursor-not-allowed disabled:opacity-50 overflow-hidden h-12 px-3",
                             disabled && "opacity-50 pointer-events-none",
                             className
                         )}
                     >
                         {showCodePrefix && (
-                            <div className="shrink-0 h-full w-[80px] bg-[#F8F9FA] rounded-l-md border-r border-input flex items-center justify-center text-sm font-bold text-[#6B7280] select-none tracking-wide uppercase -ml-3 mr-3">
+                            <div className="shrink-0 h-12 w-[80px] bg-[#F8F9FA] rounded-l-md border-r border-input flex items-center justify-center text-lg font-bold text-[#6B7280] select-none tracking-wide uppercase -ml-3 mr-3">
                                 {selectedOption ? String(selectedOption.value) : "Code"}
                             </div>
                         )}
-                        <div className="flex flex-1 items-center h-full min-w-0">
+                        <div className="flex flex-1 items-center h-12 min-w-0">
                             <CommandPrimitive.Input
                                 value={inputValue}
                                 onValueChange={(val) => {
