@@ -1,13 +1,7 @@
 import { Link, usePage } from '@inertiajs/react';
-import { Monitor, Menu, BookOpen, User, UserCog, LogOut, LayoutDashboard } from 'lucide-react';
+import { Monitor, Menu, User, UserCog, LogOut, LayoutDashboard } from 'lucide-react';
 import { Breadcrumbs } from '@/components/breadcrumbs';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import {
     Sheet,
     SheetContent,
@@ -15,9 +9,9 @@ import {
     SheetTitle,
     SheetTrigger,
 } from '@/components/ui/sheet';
-import { UserMenuContent } from '@/components/user-menu-content';
+
 import { useCurrentUrl } from '@/hooks/use-current-url';
-import { useInitials } from '@/hooks/use-initials';
+
 import { cn } from '@/lib/utils';
 import { dashboard, facultyprofile, logout } from '@/routes';
 import admin from '@/routes/admin';
@@ -31,7 +25,7 @@ type Props = {
 export function AppHeader({ breadcrumbs = [] }: Props) {
     const page = usePage<SharedData>();
     const { auth } = page.props;
-    const getInitials = useInitials();
+
     const { isCurrentUrl, currentUrl } = useCurrentUrl();
 
     const navItems: NavItem[] = auth.user.role === 'Admin'

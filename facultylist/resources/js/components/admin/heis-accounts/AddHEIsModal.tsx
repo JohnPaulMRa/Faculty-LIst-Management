@@ -1,5 +1,8 @@
-import { FC, useEffect, useState } from 'react';
 import { useForm } from '@inertiajs/react';
+import type { FC} from 'react';
+import { useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
     Dialog,
     DialogContent,
@@ -8,11 +11,9 @@ import {
     DialogTitle,
     DialogFooter,
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Hei } from '@/types/hei';
+import type { Hei } from '@/types/hei';
 
 interface Props {
     isOpen: boolean;
@@ -46,6 +47,7 @@ const AddHEIsModal: FC<Props> = ({ isOpen, onOpenChange, hei, onSave }) => {
         } else {
             reset();
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [hei, isOpen]);
 
     const handleSubmit = (e: React.FormEvent) => {

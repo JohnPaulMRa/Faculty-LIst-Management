@@ -1,5 +1,5 @@
-import { PublicFaculty } from './public-faculty';
-import { PrivateFaculty } from './private-faculty';
+import type { PrivateFaculty } from './private-faculty';
+import type { PublicFaculty } from './public-faculty';
 
 export * from './base';
 export * from './public-faculty';

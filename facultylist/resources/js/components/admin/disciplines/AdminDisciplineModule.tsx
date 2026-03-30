@@ -1,21 +1,11 @@
-import { useState, useMemo } from 'react';
-import { Search, Plus, Filter, X } from 'lucide-react';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { router } from '@inertiajs/react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Badge } from '@/components/ui/badge';
-import DisciplineTable from './DisciplineTable';
+import { useState, useMemo } from 'react';
 import AddDisciplineForm from './AddDisciplineForm';
+import DisciplineTable from './DisciplineTable';
 import EditDisciplineModal from './EditDisciplineModal';
+
 
 interface SpecificDiscipline {
     code: string;
@@ -73,7 +63,7 @@ export default function AdminDisciplineModule({ disciplines = [] }: AdminDiscipl
     const filteredDisciplines = useMemo(() => {
         if (!Array.isArray(disciplines)) return [];
 
-        let allPrograms: any[] = [];
+        const allPrograms: any[] = [];
 
         // Flatten all groups, majors, and specifics into a single array first
         disciplines.forEach(major => {

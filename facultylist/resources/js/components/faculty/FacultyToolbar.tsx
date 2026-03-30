@@ -1,6 +1,5 @@
 import { Calendar, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import {
     DropdownMenu,
     DropdownMenuCheckboxItem,
@@ -8,6 +7,7 @@ import {
     DropdownMenuLabel,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
 
 interface FacultyToolbarProps {
     searchQuery: string;

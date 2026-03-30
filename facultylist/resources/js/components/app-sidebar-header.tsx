@@ -1,6 +1,6 @@
-import { SidebarTrigger } from '@/components/ui/sidebar';
 import { Menu } from 'lucide-react';
 import { NavUser } from '@/components/nav-user';
+import { SidebarTrigger } from '@/components/ui/sidebar';
 
 export function AppSidebarHeader() {
     return (

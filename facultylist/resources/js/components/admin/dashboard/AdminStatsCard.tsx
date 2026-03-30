@@ -1,4 +1,4 @@
-import { TrendingUp, ArrowUpRight, Users, School } from 'lucide-react';
+import { TrendingUp, Users, School } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface AdminStatsCardProps {

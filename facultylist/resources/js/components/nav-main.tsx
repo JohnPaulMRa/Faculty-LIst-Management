@@ -1,8 +1,9 @@
 import { Link } from '@inertiajs/react';
+import { ChevronRight } from 'lucide-react';
 import { useState } from 'react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import {
     SidebarGroup,
-    SidebarGroupLabel,
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
@@ -10,8 +11,6 @@ import {
     SidebarMenuSubButton,
     SidebarMenuSubItem,
 } from '@/components/ui/sidebar';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ChevronRight } from 'lucide-react';
 import { useCurrentUrl } from '@/hooks/use-current-url';
 import type { NavItem } from '@/types';
 
@@ -24,7 +23,10 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
             try {
                 const saved = sessionStorage.getItem('sidebar-open-states');
                 if (saved) parsed = JSON.parse(saved);
-            } catch (e) { }
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            } catch (_e) {
+                // ignore
+            }
         }
 
         const initial = { ...parsed };
@@ -45,7 +47,8 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
         setOpenStates(prev => {
             const next = { ...prev, [title]: open };
             if (typeof window !== 'undefined') {
-                try { sessionStorage.setItem('sidebar-open-states', JSON.stringify(next)); } catch (e) { }
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                try { sessionStorage.setItem('sidebar-open-states', JSON.stringify(next)); } catch (_e) { /* ignore */ }
             }
             return next;
         });

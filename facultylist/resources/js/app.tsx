@@ -16,9 +16,8 @@ createInertiaApp({
             import.meta.glob('./pages/**/*.tsx'),
         ),
     setup({ el, App, props }) {
-        // @ts-ignore
         window.route = (name, params, absolute, config = props.initialPage.props.ziggy) =>
-            // @ts-ignore
+            // @ts-expect-error – route is a Ziggy global
             route(name, params, absolute, config);
 
         const root = createRoot(el);

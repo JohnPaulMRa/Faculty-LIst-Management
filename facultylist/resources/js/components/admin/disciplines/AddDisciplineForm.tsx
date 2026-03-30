@@ -1,13 +1,16 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Plus, X } from "lucide-react";
+import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
+import { Combobox } from "@/components/ui/combobox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Combobox } from "@/components/ui/combobox";
-import { useState, useMemo, useEffect } from "react";
-import { Plus, X } from "lucide-react";
 
 interface AddDisciplineFormProps {
     onCancel?: () => void;
+     
     onSubmit: (data: any) => void;
+     
     majors: any[];
     processing?: boolean;
 }

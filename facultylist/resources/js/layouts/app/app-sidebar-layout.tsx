@@ -6,7 +6,6 @@ import type { AppLayoutProps } from '@/types';
 
 export default function AppSidebarLayout({
     children,
-    breadcrumbs = [],
 }: AppLayoutProps) {
     return (
         <AppShell variant="sidebar">

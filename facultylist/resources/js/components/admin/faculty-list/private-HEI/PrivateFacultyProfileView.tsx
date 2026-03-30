@@ -1,9 +1,36 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
 
 interface PrivateFacultyProfileViewProps {
     formData: any;
     referenceData: any;
 }
+
+const DataItem = ({ label, code, desc, value }: { label: string, code?: string, desc?: string, value?: string }) => {
+    if (value !== undefined) {
+        return (
+            <div className="flex flex-col gap-1.5 mb-6">
+                <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">{label}</span>
+                <span className="text-[15px] font-medium text-gray-900 border-b border-gray-200 pb-2 bg-transparent">{value || "-"}</span>
+            </div>
+        );
+    }
+
+    return (
+        <div className="flex flex-col gap-1.5 mb-6">
+            <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">{label}</span>
+            <div className="flex items-start gap-3 border-b border-gray-200 pb-2 bg-transparent min-h-[30px]">
+                <div className="w-14 shrink-0 flex justify-center pt-0.5">
+                    <span className="text-[13px] font-bold text-gray-900 text-center">{code || "-"}</span>
+                </div>
+                <span className="text-[12px] font-bold text-gray-600 pt-0.5">:</span>
+                <div className="flex-1 text-left">
+                    <span className="text-[13px] font-medium text-gray-900 wrap-break-word leading-tight block">{desc || "-"}</span>
+                </div>
+            </div>
+        </div>
+    );
+};
 
 export function PrivateFacultyProfileView({ formData, referenceData }: PrivateFacultyProfileViewProps) {
     const getDescStrict = (list: any[], code?: string) => {
@@ -25,31 +52,6 @@ export function PrivateFacultyProfileView({ formData, referenceData }: PrivateFa
         return '';
     };
 
-    const DataItem = ({ label, code, desc, value }: { label: string, code?: string, desc?: string, value?: string }) => {
-        if (value !== undefined) {
-            return (
-                <div className="flex flex-col gap-1.5 mb-6">
-                    <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">{label}</span>
-                    <span className="text-[15px] font-medium text-gray-900 border-b border-gray-200 pb-2 bg-transparent">{value || "-"}</span>
-                </div>
-            );
-        }
-
-        return (
-            <div className="flex flex-col gap-1.5 mb-6">
-                <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">{label}</span>
-                <div className="flex items-start gap-3 border-b border-gray-200 pb-2 bg-transparent min-h-[30px]">
-                    <div className="w-14 shrink-0 flex justify-center pt-0.5">
-                        <span className="text-[13px] font-bold text-gray-900 text-center">{code || "-"}</span>
-                    </div>
-                    <span className="text-[12px] font-bold text-gray-600 pt-0.5">:</span>
-                    <div className="flex-1 text-left">
-                        <span className="text-[13px] font-medium text-gray-900 wrap-break-word leading-tight block">{desc || "-"}</span>
-                    </div>
-                </div>
-            </div>
-        );
-    };
 
     return (
         <div className="space-y-5 p-3">

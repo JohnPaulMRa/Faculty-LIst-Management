@@ -1,28 +1,26 @@
-import { Head, useForm, router } from '@inertiajs/react';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable react-hooks/exhaustive-deps */
+import { Head, router } from '@inertiajs/react';
 import { Save, Loader2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import type { FC } from 'react';
 
-import AppLayout from '@/layouts/app-layout';
-import { Button } from '@/components/ui/button';
 import { FacultyProfileCardsE5 } from '@/components/faculty/facultyE5/FacultyProfileCardsE5';
-import { Faculty } from '@/types/faculty';
-import { update } from '@/routes/faculty';
+import { Button } from '@/components/ui/button';
+import AppLayout from '@/layouts/app-layout';
 import { facultyprofile } from '@/routes';
+import { update } from '@/routes/faculty';
+import type { Faculty } from '@/types/faculty';
 
 interface EditProps {
     faculty: Faculty;
+     
     referenceData: any;
 }
 
 const Edit: FC<EditProps> = ({ faculty, referenceData }) => {
     // Helper to check if it's E5
     const isE5 = faculty.form_type === 'E5';
-
-    // Type casting helper for safe access to shared fields or narrow based on form_type
-    const getInitialValue = <K extends keyof any>(f: any, key: K): string => {
-        return f[key] || '';
-    };
 
     const [formData, setFormData] = useState({
         name: faculty.name || '',
@@ -60,6 +58,7 @@ const Edit: FC<EditProps> = ({ faculty, referenceData }) => {
     useEffect(() => {
         if (faculty) {
             if (faculty.form_type === 'E5') {
+                 
                 setFormData({
                     name: faculty.name || '',
                     fullTimeCode: normalizeCode(referenceData?.fullTimePartTime, (faculty as any).fullTimeCode),
@@ -83,6 +82,7 @@ const Edit: FC<EditProps> = ({ faculty, referenceData }) => {
                 });
             } else {
                 // Public Faculty (E2) - shared fields only
+                 
                 setFormData({
                     name: faculty.name || '',
                     fullTimeCode: '',
@@ -106,6 +106,7 @@ const Edit: FC<EditProps> = ({ faculty, referenceData }) => {
                 });
             }
         }
+         
     }, [faculty, referenceData]);
 
     const handleChange = (field: string, value: string) => {
@@ -144,6 +145,7 @@ const Edit: FC<EditProps> = ({ faculty, referenceData }) => {
         }
 
         if (formData.status !== newStatus) {
+             
             setFormData(prev => ({ ...prev, status: newStatus }));
         }
     }, [
@@ -159,6 +161,7 @@ const Edit: FC<EditProps> = ({ faculty, referenceData }) => {
         formData.salaryCode,
         formData.subjects,
         faculty.id
+         
     ]);
 
     const handleSave = () => {
@@ -167,11 +170,6 @@ const Edit: FC<EditProps> = ({ faculty, referenceData }) => {
         // Helper to get description for syncing legacy string fields
         const getDesc = (list: { code: string, desc: string }[], code?: string) => {
             return list?.find(item => item.code === code)?.desc || '';
-        };
-
-        const getDisciplineDesc = (code?: string) => {
-            const disciplines = referenceData?.disciplines as { code: string, desc: string }[];
-            return disciplines?.find(item => item.code === code)?.desc || '';
         };
 
         // Sync legacy string fields

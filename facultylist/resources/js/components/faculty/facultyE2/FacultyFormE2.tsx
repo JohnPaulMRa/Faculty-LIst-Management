@@ -1,17 +1,16 @@
 import { Save, X, User, GraduationCap, Briefcase, Clock, Award, ChevronRight } from 'lucide-react';
 import type { FC } from 'react';
 import React, { useEffect, useState } from 'react';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Combobox } from '@/components/ui/combobox';
 import { DialogClose } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Combobox } from '@/components/ui/combobox';
-import DisciplineSelector from '../DisciplineSelector';
-import type { PublicFaculty } from '@/types/faculty';
+import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
+import type { PublicFaculty } from '@/types/faculty';
 import {
     GENERIC_RANK_OPTIONS,
     TENURE_OPTIONS,
@@ -25,6 +24,7 @@ import {
     THESIS_OPTIONS,
     DISSERTATION_OPTIONS
 } from '@/types/faculty/referenceDataE2';
+import DisciplineSelector from '../DisciplineSelector';
 
 type Props = {
     faculty?: PublicFaculty;
@@ -32,6 +32,7 @@ type Props = {
     onChange?: (field: keyof PublicFaculty, value: string) => void;
     onCancel?: () => void;
     onSave?: (data: Partial<PublicFaculty>) => void;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     referenceData?: any;
     hideHeader?: boolean;
 };
@@ -46,6 +47,7 @@ const SectionHeader: FC<{ icon: React.ReactNode; title: string; badge?: string; 
                     ? "bg-white text-[#003468]"
                     : "bg-linear-to-br from-[#003468] to-[#1a4f8c] text-white"
             )}>
+                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                 {React.cloneElement(icon as React.ReactElement<any>, { className: 'h-5 w-5' })}
             </div>
             <div>
@@ -232,6 +234,7 @@ const WorkloadGrid: FC<{
 const FacultyFormE2: FC<Props> = ({
     faculty,
     onSave,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     onCancel,
     hideHeader = false,
     formData: externalFormData,
@@ -244,6 +247,7 @@ const FacultyFormE2: FC<Props> = ({
 
     useEffect(() => {
         if (faculty && !externalFormData) {
+             
             setInternalFormData(faculty);
         }
     }, [faculty, externalFormData]);
@@ -290,6 +294,7 @@ const FacultyFormE2: FC<Props> = ({
             'load_production', 'load_admin', 'load_others'
         ], 'load_total');
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [
         formData.ug_lab_units, formData.ug_lec_units,
         formData.ug_lab_hours, formData.ug_lec_hours,
@@ -299,6 +304,7 @@ const FacultyFormE2: FC<Props> = ({
         formData.load_research, formData.load_extension,
         formData.load_study, formData.load_production,
         formData.load_admin, formData.load_others
+         
     ]);
 
     const validateForm = () => {

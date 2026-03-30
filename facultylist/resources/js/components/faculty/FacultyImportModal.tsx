@@ -1,4 +1,5 @@
-import { ChevronDown, FileSpreadsheet, UploadCloud } from 'lucide-react';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { FileSpreadsheet, UploadCloud } from 'lucide-react';
 import type { FC, ChangeEvent } from 'react';
 import { useRef } from 'react';
 import { Button } from '@/components/ui/button';
@@ -19,8 +20,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { Faculty, IMPORT_GROUPS, IMPORT_GROUP_OPTIONS } from '@/types/faculty';
-import AcademicYearSelect from '@/components/common/AcademicYearSelect';
+import { IMPORT_GROUPS } from '@/types/faculty';
 
 
 type Props = {

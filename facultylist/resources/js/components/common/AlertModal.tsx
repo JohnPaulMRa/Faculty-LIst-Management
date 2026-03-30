@@ -1,4 +1,5 @@
-import { FC } from 'react';
+import type { FC } from 'react';
+import { Button } from '@/components/ui/button';
 import {
     Dialog,
     DialogContent,
@@ -7,7 +8,6 @@ import {
     DialogFooter,
     DialogDescription,
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
 
 interface AlertModalProps {
     open: boolean;

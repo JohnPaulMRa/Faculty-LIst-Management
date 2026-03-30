@@ -1,11 +1,11 @@
-import { useState } from 'react';
-import { Search, Plus, Building, Users } from 'lucide-react';
 import { router } from '@inertiajs/react';
+import { Search, Plus, Building, Users } from 'lucide-react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import type { Hei } from '@/types/hei';
 import AddHEIsModal from './AddHEIsModal';
 import CreateFacultyAccountModal from './CreateFacultyAccountModal';
-import { Hei } from '@/types/hei';
 import { HeisTable } from './HeisTable';
 import { UserAccountsTable } from './UserAccountsTable';
 

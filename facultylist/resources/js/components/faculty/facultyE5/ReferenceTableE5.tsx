@@ -11,10 +11,11 @@ import {
 } from '@/types/faculty/referenceDataE5';
 
 type ReferenceTableProps = {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     referenceData?: any;
 };
 
-const ReferenceTableE5: FC<ReferenceTableProps> = ({ referenceData }) => {
+const ReferenceTableE5: FC<ReferenceTableProps> = () => {
     // Prefer constants if available, fallback to props
     const fullTimePartTime = FT_PT_OPTIONS;
     const gender = GENDER_OPTIONS;

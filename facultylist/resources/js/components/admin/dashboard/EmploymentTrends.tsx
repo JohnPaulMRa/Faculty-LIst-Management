@@ -1,8 +1,8 @@
-import { FC, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { Briefcase } from 'lucide-react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useState } from 'react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface TrendSeries {
     name: string;
@@ -28,6 +28,7 @@ export function EmploymentTrends({ privateTrends, publicTrends }: EmploymentTren
     const activeTrends = activeTab === 'private' ? privateTrends : publicTrends;
 
     const chartData = activeTrends.series.map((series) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const dataPoint: any = { name: series.name };
         activeTrends.years.forEach((year, index) => {
             dataPoint[year] = series.data[index];

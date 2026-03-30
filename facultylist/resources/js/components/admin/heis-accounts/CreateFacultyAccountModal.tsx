@@ -1,5 +1,8 @@
-import { FC, useState, useEffect } from 'react';
 import { useForm } from '@inertiajs/react';
+import { Eye, EyeOff } from 'lucide-react';
+import type { FC} from 'react';
+import { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
 import {
     Dialog,
     DialogContent,
@@ -8,10 +11,8 @@ import {
     DialogTitle,
     DialogFooter,
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Eye, EyeOff } from 'lucide-react';
 
 interface Hei {
     id: number;
@@ -22,6 +23,7 @@ interface Props {
     isOpen: boolean;
     onOpenChange: (open: boolean) => void;
     heis: Hei[];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     account?: any; // Add account prop
 }
 
@@ -46,6 +48,7 @@ const CreateFacultyAccountModal: FC<Props> = ({ isOpen, onOpenChange, heis, acco
         } else if (!isOpen) {
             reset();
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isOpen, account]);
 
     const handleSubmit = (e: React.FormEvent) => {

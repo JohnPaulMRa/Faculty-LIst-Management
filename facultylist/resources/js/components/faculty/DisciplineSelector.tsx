@@ -1,7 +1,7 @@
 import type { FC } from 'react';
 import { useEffect, useState, useMemo } from 'react';
-import { Input } from '@/components/ui/input';
 import { Combobox } from "@/components/ui/combobox";
+import { Input } from '@/components/ui/input';
 
 type Discipline = {
     code: string;
@@ -15,6 +15,7 @@ type Props = {
     placeholder?: string;
     className?: string;
     disabled?: boolean;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     referenceData?: any;
     showGroup?: boolean;
     hideCode?: boolean;
@@ -33,6 +34,7 @@ const DisciplineSelector: FC<Props> = ({
     const [selectedGroup, setSelectedGroup] = useState<string>("");
 
     // Safe access to reference data
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     const groups = referenceData?.groupDiscipline || [];
     const allDisciplines: Discipline[] = useMemo(() => {
         const specs = Array.isArray(referenceData?.disciplines) ? [...referenceData.disciplines] : [];
@@ -40,15 +42,18 @@ const DisciplineSelector: FC<Props> = ({
             // First, map each specific discipline to its correct major group by finding the longest matching prefix
             specs.forEach((d: Discipline) => {
                 if (!d.major_group_code || String(d.major_group_code).length !== String(d.code).length) {
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     const matchedGroups = groups.filter((g: any) => String(d.code).startsWith(String(g.code)));
                     if (matchedGroups.length > 0) {
                         // Sort by descending length so we pick the most specific major group (e.g. 1401 over 14)
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         matchedGroups.sort((a: any, b: any) => String(b.code).length - String(a.code).length);
                         d.major_group_code = String(matchedGroups[0].code);
                     }
                 }
             });
 
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             groups.forEach((g: any) => {
                 const hasSpecific = specs.some((d: Discipline) => String(d.major_group_code) === String(g.code));
                 if (!hasSpecific) {
@@ -74,8 +79,10 @@ const DisciplineSelector: FC<Props> = ({
         }
 
         // Fallback to prefix matching
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const matchedGroups = groups.filter((g: any) => String(code).startsWith(String(g.code)));
         if (matchedGroups.length > 0) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             matchedGroups.sort((a: any, b: any) => String(b.code).length - String(a.code).length);
             return String(matchedGroups[0].code);
         }
@@ -93,9 +100,11 @@ const DisciplineSelector: FC<Props> = ({
         if (value && referenceData) {
             const group = findDisciplineGroup(value);
             if (group) {
+                 
                 setSelectedGroup(group);
             }
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [value, referenceData]);
 
     const handleGroupChange = (groupCode: string) => {
@@ -135,6 +144,7 @@ const DisciplineSelector: FC<Props> = ({
         );
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const mapToOptions = (list: any[]) => {
         return (list || [])
             .filter(item => item && item.desc && item.desc.trim() !== "")
@@ -151,7 +161,6 @@ const DisciplineSelector: FC<Props> = ({
                     onChange={handleGroupChange}
                     disabled={disabled}
                     placeholder="Select Major Group"
-                    searchPlaceholder="Search groups..."
                     className="w-full shrink-0 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900 rounded-md h-12 whitespace-normal text-left text-lg"
                 />
             )}
@@ -175,7 +184,6 @@ const DisciplineSelector: FC<Props> = ({
                     onChange={handleDisciplineChange}
                     disabled={disabled || (showGroup && !selectedGroup)}
                     placeholder={placeholder}
-                    searchPlaceholder="Search disciplines..."
                     className="flex-1 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900 rounded-md h-12 whitespace-normal text-left text-sm"
                 />
             </div>

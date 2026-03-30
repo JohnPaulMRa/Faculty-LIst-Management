@@ -1,6 +1,6 @@
 import { University, Pencil, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Hei } from '@/types/hei';
+import type { Hei } from '@/types/hei';
 
 interface HeisTableProps {
     heis: Hei[];

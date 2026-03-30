@@ -1,5 +1,5 @@
-import { FC } from 'react';
 import { Calendar } from 'lucide-react';
+import type { FC } from 'react';
 import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,
@@ -18,7 +18,7 @@ interface FacultyOverviewProps {
     availableYears?: string[];
 }
 
-const FacultyOverview: FC<FacultyOverviewProps> = ({ selectedYear, onYearChange, onRefresh, isLoading, availableYears = [] }) => {
+const FacultyOverview: FC<FacultyOverviewProps> = ({ selectedYear, onYearChange, availableYears = [] }) => {
     return (
         <div className="flex flex-col gap-6 md:flex-row md:items-center justify-between mb-8">
             <div>

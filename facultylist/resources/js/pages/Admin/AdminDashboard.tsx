@@ -1,12 +1,10 @@
 import { Head } from '@inertiajs/react';
-import AppSidebarLayout from '@/layouts/app/app-sidebar-layout';
 import AdminOverview from '@/components/admin/dashboard/AdminOverview';
 import AdminStatsCard from '@/components/admin/dashboard/AdminStatsCard';
-import SchoolList from '@/components/admin/dashboard/SchoolList';
-import RecentFacultyUpdates from '@/components/admin/dashboard/RecentFacultyUpdates';
-import SystemActivity from '@/components/admin/dashboard/SystemActivity';
 import { AnalyticsOverview, StatusOverview } from '@/components/admin/dashboard/AnalyticsOverview';
 import EmploymentTrends from '@/components/admin/dashboard/EmploymentTrends';
+import SchoolList from '@/components/admin/dashboard/SchoolList';
+import AppSidebarLayout from '@/layouts/app/app-sidebar-layout';
 
 interface DashboardSchool {
     id: number;
@@ -22,11 +20,7 @@ interface DashboardStat {
     subtext?: string;
 }
 
-interface DashboardActivity {
-    user: string;
-    action: string;
-    time: string;
-}
+
 
 interface DistributionItem {
     name: string;
@@ -39,13 +33,7 @@ interface StatusItem {
     color: string;
 }
 
-interface UpdateItem {
-    id: string | number;
-    user: string;
-    action: string;
-    type: string;
-    time: string;
-}
+
 
 interface TrendSeries {
     name: string;
@@ -61,12 +49,9 @@ interface TrendsData {
 interface AdminDashboardProps {
     heis: DashboardSchool[];
     stats: DashboardStat[];
-    recentActivities: DashboardActivity[];
-    distributionData: DistributionItem[];
     privateDistributionData: DistributionItem[];
     publicDistributionData: DistributionItem[];
     statusData: StatusItem[];
-    disciplineUpdates: UpdateItem[];
     privateEmploymentTrends: TrendsData;
     publicEmploymentTrends: TrendsData;
 }
@@ -74,12 +59,9 @@ interface AdminDashboardProps {
 export default function AdminDashboard({
     heis = [],
     stats = [],
-    recentActivities = [],
-    distributionData = [],
     privateDistributionData = [],
     publicDistributionData = [],
     statusData = [],
-    disciplineUpdates = [],
     privateEmploymentTrends,
     publicEmploymentTrends
 }: AdminDashboardProps) {

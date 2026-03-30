@@ -1,11 +1,11 @@
 import { Head, router } from '@inertiajs/react';
 import React, { useState, useEffect } from 'react';
-import AppLayout from '@/layouts/app-layout';
-import { dashboard } from '@/routes';
-import { type BreadcrumbItem } from '@/types';
 import FacultyOverview from '@/components/faculty/dashboard/FacultyOverview';
 import FacultyStats from '@/components/faculty/dashboard/FacultyStats';
 import FacultyTrends from '@/components/faculty/dashboard/FacultyTrends';
+import AppLayout from '@/layouts/app-layout';
+import { dashboard } from '@/routes';
+import { type BreadcrumbItem } from '@/types';
 
 const breadcrumbs: BreadcrumbItem[] = [];
 

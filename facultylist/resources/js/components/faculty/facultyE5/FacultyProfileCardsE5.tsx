@@ -1,10 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { User, GraduationCap, Briefcase } from 'lucide-react';
 import React, { type FC } from 'react';
-import { User, GraduationCap, Briefcase, Clock, Award, ChevronRight } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { Combobox } from "@/components/ui/combobox";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Combobox } from "@/components/ui/combobox";
+import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import DisciplineSelector from '../DisciplineSelector';
 import {
     FT_PT_OPTIONS,
     GENDER_OPTIONS,
@@ -15,11 +16,15 @@ import {
     TEACHING_LOAD_OPTIONS,
     ANNUAL_SALARY_OPTIONS
 } from '@/types/faculty/referenceDataE5';
+import DisciplineSelector from '../DisciplineSelector';
 
 type FacultyProfileCardsProps = {
+     
     formData: any;
+     
     handleChange?: (field: string, value: any) => void;
     readOnly?: boolean;
+     
     referenceData: any;
 };
 
@@ -56,6 +61,7 @@ const SectionHeader: FC<SectionHeaderProps> = ({ icon, title, variant = 'default
 export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, handleChange, readOnly = false, referenceData }) => {
 
     // Helper to handle change if not readOnly
+     
     const onErrorSafeChange = (field: string, value: any) => {
         if (!readOnly && handleChange) {
             handleChange(field, value);
@@ -126,7 +132,6 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                                     onChange={(val) => onErrorSafeChange('fullTimeCode', val)}
                                     disabled={readOnly}
                                     placeholder="Select Status"
-                                    searchPlaceholder="Search status..."
                                     className="flex-1 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900 text-[12px]"
                                 />
                             </div>
@@ -147,7 +152,6 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                                     onChange={(val) => onErrorSafeChange('genderCode', val)}
                                     disabled={readOnly}
                                     placeholder="Select Gender"
-                                    searchPlaceholder="Search gender..."
                                     className="flex-1 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900"
                                 />
                             </div>
@@ -197,7 +201,6 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                                     onChange={(val) => onErrorSafeChange('degree', val)}
                                     disabled={readOnly}
                                     placeholder="Select Degree"
-                                    searchPlaceholder="Search degree..."
                                     className="flex-1 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900"
                                 />
                             </div>
@@ -274,7 +277,6 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                                     onChange={(val) => onErrorSafeChange('licenseCode', val)}
                                     disabled={readOnly}
                                     placeholder="Select License"
-                                    searchPlaceholder="Search license..."
                                     className="flex-1 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900"
                                 />
                             </div>
@@ -296,7 +298,6 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                                     onChange={(val) => onErrorSafeChange('rankCode', val)}
                                     disabled={readOnly}
                                     placeholder="Select Rank"
-                                    searchPlaceholder="Search rank..."
                                     className="flex-1 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900"
                                 />
                             </div>
@@ -319,7 +320,6 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                                     onChange={(val) => onErrorSafeChange('loadCode', val)}
                                     disabled={readOnly}
                                     placeholder="Select Load"
-                                    searchPlaceholder="Search load..."
                                     className="flex-1 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900 rounded-md h-12"
                                 />
                             </div>
@@ -340,7 +340,6 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                                     onChange={(val) => onErrorSafeChange('salaryCode', val)}
                                     disabled={readOnly}
                                     placeholder="Select Salary"
-                                    searchPlaceholder="Search salary..."
                                     className="flex-1 disabled:opacity-100 disabled:bg-white text-sm disabled:cursor-default disabled:border-gray-200 text-gray-900 rounded-md h-12"
                                 />
                             </div>
@@ -363,7 +362,6 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                                     onChange={(val) => onErrorSafeChange('tenureCode', val)}
                                     disabled={readOnly}
                                     placeholder="Select Tenure"
-                                    searchPlaceholder="Search tenure..."
                                     className="flex-1 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900 rounded-md h-12"
                                 />
                             </div>

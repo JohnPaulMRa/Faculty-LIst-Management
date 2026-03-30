@@ -1,8 +1,8 @@
-import * as React from "react"
-import { Check, ChevronsUpDown } from "lucide-react"
+import * as PopoverPrimitive from "@radix-ui/react-popover"
 import { Command as CommandPrimitive } from "cmdk"
+import { Check, ChevronsUpDown } from "lucide-react"
+import * as React from "react"
 
-import { cn } from "@/lib/utils"
 import {
     Command,
     CommandEmpty,
@@ -14,7 +14,7 @@ import {
     Popover,
     PopoverContent,
 } from "@/components/ui/popover"
-import * as PopoverPrimitive from "@radix-ui/react-popover"
+import { cn } from "@/lib/utils"
 
 interface ComboboxProps {
     options: { label: string; value: string | number }[]
@@ -22,7 +22,6 @@ interface ComboboxProps {
     onChange: (value: string) => void
     onInputChange?: (inputValue: string) => void
     placeholder?: string
-    searchPlaceholder?: string
     emptyText?: string
     disabled?: boolean
     className?: string
@@ -37,7 +36,6 @@ export function Combobox({
     onChange,
     onInputChange,
     placeholder = "Select an option",
-    searchPlaceholder = "Search...",
     emptyText = "No option found.",
     disabled = false,
     className,
@@ -57,10 +55,12 @@ export function Combobox({
     // Sync input value with selected option or clear if value is explicitly cleared
     React.useEffect(() => {
         if (selectedOption) {
+             
             setInputValue(selectedOption.label)
         } else {
             // If there's no selected option and we're not allowing free input, or if the value is explicitly cleared
             if (!allowFreeInput || !value) {
+                 
                 setInputValue("")
             }
         }

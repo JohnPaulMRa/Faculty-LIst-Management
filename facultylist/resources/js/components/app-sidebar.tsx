@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid, LayoutDashboard, Users, LogOut, Building, Settings } from 'lucide-react';
+import { BookOpen, LayoutGrid, LayoutDashboard, Users, LogOut, Building, Settings } from 'lucide-react';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
 import {
@@ -13,10 +13,10 @@ import {
     SidebarSeparator,
 } from '@/components/ui/sidebar';
 import { facultyprofile, logout } from '@/routes';
-import { edit } from '@/routes/profile';
 import admin from '@/routes/admin';
+import { edit } from '@/routes/profile';
 import type { NavItem, SharedData } from '@/types';
-import AppLogo from './app-logo';
+
 
 const mainNavItems: NavItem[] = [
     {

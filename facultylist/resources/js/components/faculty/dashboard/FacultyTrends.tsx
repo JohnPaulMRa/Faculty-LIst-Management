@@ -1,7 +1,7 @@
-import { FC } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { Briefcase, Users } from 'lucide-react';
+import type { FC } from 'react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface TrendSeries {
     name: string;
@@ -23,6 +23,7 @@ const FacultyTrends: FC<FacultyTrendsProps> = ({ trends, schoolType }) => {
     const isPublic = schoolType?.toLowerCase().trim() === 'public';
     // Transform data for Recharts: X-axis = Employment Types (series names), Lines = Years
     const chartData = trends.series.map((series) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const dataPoint: any = { name: series.name };
         trends.years.forEach((year, index) => {
             dataPoint[year] = series.data[index];

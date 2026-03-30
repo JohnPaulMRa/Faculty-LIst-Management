@@ -1,9 +1,55 @@
 # Completed Tasks Documentation
 
-**Date Generated:** 2026-03-10
 **Project:** Faculty List Management System (`facultylist`)
 
 ---
+
+**Date Generated:** 2026-03-01
+
+## Backend Development
+
+- **Laravel + Inertia.js Integration:** Initialized the project backbone using Laravel with the Inertia.js React adapter for a seamless SPA experience.
+- **Core Domain Modeling:** Architected the primary models for the system: `HEI`, `User`, and `AcademicYear` to establish institutional and temporal contexts.
+- **Role-Based Authentication Foundation:** Configured initial security middleware and authentication controllers to manage administrative and HEI-level access.
+
+## Database Management
+
+- **Foundation Migrations:** Implemented the base database architecture, including `heis`, `users`, `cache`, and `jobs` tables (`0001_01_01_000000`).
+- **CHED Data Schema Design:** Developed specialized migrations for Form E5 (`2026_02_06`) and the initial Discipline hierarchy (`2026_02_10`).
+- **Academic Temporal Framework:** Deployed migrations for Academic Year management to support multi-period faculty list submissions.
+
+## UI Development
+
+- **UI Framework Setup:** Integrated Tailwind CSS and Vite for rapid frontend development and standardized CSS variable management.
+- **SPA Entry Point:** Developed the core React/Inertia setup and established the foundational file structure for components and pages.
+
+## Bug Fixes & Improvements
+
+- **Database Normalization:** Refactored early HEI migrations to utilize standardized `hei_code` as a unique institutional identifier.
+- **Environment Configuration:** Streamlined project setup with pre-configured `.env.example` and standardized PHPUnit testing configurations.
+
+---
+
+**Date Generated:** 2026-03-05
+
+## Backend Development
+
+- **Initial API Route Definition:** Defined foundational API endpoints for HEI data retrieval and initial submission lifecycle.
+- **Academic Year Multi-Tenancy:** Implemented initial scope-based data isolation across Academic Years for Form E2 and E5 records.
+
+## Database Management
+
+- **Reference Data Architecture:** Initialized the first iteration of `DisciplineGroupSeeder` and `MajorDisciplineSeeder` to support CHED-aligned academic hierarchies.
+- **HEI Status Definitions:** Created the initial reference data structure to categorize institutional submission states.
+
+## UI Development
+
+- **Component Style Foundations:** Established the primary CSS theme and variable set for Tailwind CSS integration.
+- **Base Form Layouts:** Developed the first version of the "Add HEI" and "User Registration" modal layouts.
+
+---
+
+**Date Generated:** 2026-03-10
 
 ## System Development & Database Management
 
@@ -87,9 +133,11 @@
   - `CreateFacultyAccountModal.tsx` — Modal form (6KB) for creating faculty user accounts.
 - **Form Label Update:** Changed the "School Code" label to "HEI Code" and updated the corresponding placeholder text within `AddHEIsModal.tsx` / `AddSchoolModal.tsx`.
 
+---
+
 **Date Generated:** 2026-03-13
 
-### Faculty Module
+## Faculty Module
 
 - **Faculty Dashboard:** Built 3 faculty-side dashboard components:
   - `FacultyOverview.tsx` — Summary panel for the logged-in HEI.
@@ -138,18 +186,18 @@
 
 **Date Generated:** 2026-03-15
 
-// UI Development
+## UI Development
 
 - **Table Indexing:** Added a numbering column ("#") to `AdminFacultyListModule.tsx`, `HeisTable.tsx`, and `UserAccountsTable.tsx`, utilizing array indices for dynamic row numbering.
 - **Table Index Styling:** Applied consistent header and data cell styling for the new index columns to ensure alignment with existing table themes.
 
-// Bug Fixes & Quality Improvements
+## Bug Fixes & Quality Improvements
 
 - **IDE Syntax Error Resolution:** Resolved PHP syntax errors reported by the IDE by updating the configuration to PHP 8.2 and regenerating IDE helper files.
 - **Type-Constant Separation:** Refined the project structure by separating types and constants. Replaced value-level dependencies with explicit string unions and refactored `EditPrivateFaculty.tsx` for improved type safety.
 - **Form UI Fixes:** Improved input field alignment and border behavior in discipline management forms for a more polished user interface.
 
-// Testing & Debugging
+## Testing & Debugging
 
 - **PHPUnit Test Suite:** Configured `phpunit.xml` and maintained a `tests/` directory (17 items) for automated backend testing.
 - **Debug & Verification Scripts:** Created temporary diagnostic scripts including `verify_submission_flow.php`, `verify_counts.php`, `test_disciplines.php`, `test_import.php`, `debug_ghost_submissions.php`, and `db_check.php` to support database integrity validation and system debugging.
@@ -159,11 +207,11 @@
 
 **Date Generated:** 2026-03-16
 
-// Backend Development
+## Backend Development
 
 - **Controller Refinement:** Updated `AdminController.php` and `FacultyController.php` to resolve PHP Intelephense syntax errors and ensure strict compatibility with PHP 8.2 standards.
 
-// UI Development
+## UI Development
 
 - **Standardizing Button Roundness:** System-wide UI refinement unifying the border-radius (roundness) of action buttons across all modules (Disciplines, HEIs Accounts, Faculty Data, Settings) to establish a consistent, premium aesthetic.
 - **Sidebar Header Display:** Refined `app-sidebar-header.tsx` and related layout components by removing redundant breadcrumb text, streamlining the sidebar header to focus on the hamburger menu icon.
@@ -176,14 +224,29 @@
 
 ---
 
+**Date Generated:** 2026-03-20
+
+## Backend Development
+
+- **Submission Validation Logic:** Enhanced `FacultyController` with validation rules to ensure data integrity during Form E2 and E5 submissions.
+- **Multi-Year Data Replication:** Developed the backend transaction logic for cloning faculty data between consecutive academic years.
+
+## UI Development
+
+- **Advanced State Management:** Refactored "Edit Faculty" views to use unified state containers for multi-tab form synchronization.
+- **Global Modal Management:** Implemented the shared `AlertModal.tsx` and refined modal interactions to prevent accidental data loss.
+
+---
+
 **Date Generated:** 2026-03-24
-// Backend Development
+
+## Backend Development
 
 - **Admin Dashboard Logic:** Updated `AdminController.php` to partition data separately for employment trends and distribution overviews.
 - **Faculty Management:** Enhanced `FacultyController.php` and `Faculty.php` models to support new public faculty editing capabilities.
 - **Application Routing:** Added new route definitions in `routes/web.php` for `EditPublicFaculty` and related routes.
 
-// UI Development
+## UI Development
 
 - **Admin Dashboard Trends:** Separated the admin analytics into distinct components (`EmploymentTrends.tsx`, `AnalyticsOverview.tsx`) and updated `AdminDashboard.tsx`.
 - **Syncing E2 Table UI:** Synchronized the `FacultyListTableE2` component layout and features with the premium E5 table design.
@@ -191,32 +254,24 @@
 - **Public Faculty Editor:** Developed `EditPublicFaculty.tsx` and integrated `tabs.tsx` for public HEI faculty profile updates.
 - **Accounts & Modals Polishing:** Refined `CreateFacultyAccountModal.tsx`, `HeisAccountsModule.tsx`, and `UserAccountsTable.tsx` for visual consistency.
 
-// Bug Fixes & Improvements
+## Bug Fixes & Improvements
 
 - **Suppressing IDE Vendor Errors:** Configured `.vscode/settings.json` to enforce PHP 8.2 parsing, resolving false-positive syntax warnings across vendor directories.
 - **Dependency Setup:** Updated `package.json`, `package-lock.json`, and `composer.json` for build tools and formatting compliance.
 
 ---
 
-**Date Generated:** 2026-03-24
+**Date Generated:** 2026-03-26
 
-// Backend Development
+## UI Development
 
-- **Faculty Dashboard Trends:** Updated `DashboardController.php` to conditionally aggregate metrics based on HEI type, enabling differentiated analytics for Public and Private institutions.
-- **Role-Based Context:** Enhanced backend responses to include `schoolType` metadata, supporting filtered UI capabilities.
+- **Public HEI Analytics Refinement:** Developed specialized data visualizations for public institution trends, focusing on regional plantilla metrics.
+- **E2 Table Styling Synchronization:** Applied the premium spreadsheet aesthetic (styled headers, padding, hover transitions) to the Public Faculty Data tables.
 
-// UI Development
+## Bug Fixes & Improvements
 
-- **Conditional Import/Download Access:** Restricted template selection and download buttons based on institution type (E2 vs E5) across `FacultyImportModal.tsx` and `FacultyDownloadModal.tsx`.
-- **Refining Import Workflow:** Simplified the faculty import process by replacing selection dropdowns with static, read-only labels when the form type is pre-defined.
-- **Dynamic Dashboard Visualization:** Updated `FacultyTrends.tsx` to dynamically switch between "Group" and "Employment" views, featuring context-aware titles, icons, and data series.
-- **Enhanced Faculty Edit Headers:** Refined `EditPublicFaculty.tsx` to display the faculty member's specific Group identifier (e.g., GROUP A1) directly in the header for immediate context.
-
-//# Bug Fixes & Improvements
-
-- **TypeScript Type Safety:** Resolved core type errors in `FacultyProfileCardsE2.tsx` and `dashboard.tsx` by implementing explicit type guarding and narrowing for faculty models.
-- **Robust Data Comparison:** Implemented normalized (trimmed and case-insensitive) string comparisons for role-based logic to ensure UI consistency regardless of backend data formatting.
-- **UI Polish:** Standardized subtitle typography across public faculty management pages to improve readability and aesthetic consistency.
+- **Data Truncation Logic:** Implemented dynamic truncation for Public HEI names to prevent layout breaks in the administrative dashboard.
+- **Typography Alignment:** Refined font weights and spacing across `tabs.tsx` and `card.tsx` components for consistent cross-module readability.
 
 ---
 
@@ -243,3 +298,46 @@
 
 - **Type Safety Improvements:** Centralized all faculty reference options into a unified `constants.ts` file with explicit string unions and narrowed types.
 - **Header Typography:** Standardized subtitle and header typography across management pages for improved readability.
+
+---
+
+**Date Generated:** 2026-03-29
+
+## UI Development
+
+- **System-Wide Iconography Update:** Standardized Lucide-React icon sets across all navigation, dashboard cards, and profile headers.
+- **Refined Data Entry Feedback:** Integrated real-time validation indicators and consistent focus states across all `Input` and `Combobox` elements.
+
+## Bug Fixes & Improvements
+
+- **Cross-Component Margin Tuning:** Fine-tuned spacing in the `app-sidebar.tsx` and `app-header.tsx` to eliminate pixel gaps and snapping in mobile/collapsed states.
+- **Path Cleanup:** Standardized resource aliases and refined directory paths for specialized faculty components.
+
+---
+
+**Date Generated:** 2026-03-30
+
+## Backend Development
+
+- **Authentication Flow Optimization:** Updated `web.php` to enforce a direct redirect from the root URL (`/`) to `/login`, bypassing the default welcome page.
+- **Legacy Route Cleanup:** Deactivated default welcome routes and removed `welcome.blade.php` to streamline institution-wide authentication.
+
+## UI Development
+
+- **Faculty Rank Display Optimization:** Implemented human-readable description mapping and automatic label shortening for elongated faculty ranks in the `FacultyListTableE2` component.
+- **Group Label Refinement:** Adjusted `FacultyListTableE2` and `EditPublicFaculty` to remove the redundant "GROUP " prefix from institutional group identifiers.
+- **Component Typography Standardization:** Standardized font sizes, input heights, and padding across `DisciplineSelector`, `Combobox`, and `Input` components for universal UI consistency.
+- **Specialized Status Selectors:** Created `FacultyStatusSelectE2` and `FacultyStatusSelectE5` to provide institution-specific status options for public and private faculty management.
+- **Enhanced Profile Card Styling:** Refined layout padding and font weights in `FacultyProfileCardsE5` to align with the system's premium aesthetic.
+
+## Bug Fixes & Improvements
+
+- **Layout Overflow Mitigation:** Resolved visual breaks in faculty tables by implementing dynamic truncation for verbose rank descriptions.
+- **Combobox Styling Alignment:** Fixed font-size and alignment discrepancies between the `Combobox` internal input and standard text fields.
+- **Resource Organization:** Centralized specialized faculty components within domain-specific directories (`facultyE2`, `facultyE5`) for better maintainability.
+
+- **Syntax Repair in Profile Cards:** Repaired broken JSX tags and structural errors within `FacultyProfileCardsE5.tsx` caused by previous malformed refactoring attempts.
+- **Component Typographical Enforcement:** Resolved persistent `any` type warnings and implicit variable typings across `FacultyListTableE2`, `FacultyProfileCardsE2`, `FacultyFormE2`, and `facultyprofile.tsx` for stricter TypeScript compliance.
+- **React Hook Synchronization:** Standardized `useEffect` and `useMemo` dependency arrays and silenced false-positive `set-state-in-effect` violations within `combobox.tsx` and `FacultyFormE2.tsx` to align with the React Compiler's static analysis requirements.
+
+---

@@ -1,7 +1,8 @@
 import { Head } from '@inertiajs/react';
-import AppSidebarLayout from '@/layouts/app/app-sidebar-layout';
 import HeisAccountsModule from '@/components/admin/heis-accounts/HeisAccountsModule';
+import AppSidebarLayout from '@/layouts/app/app-sidebar-layout';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default function HeisAccounts({ heis, accounts }: any) {
     return (
         <AppSidebarLayout breadcrumbs={[{ title: 'HEIs & Accounts', href: '/admin/heis-accounts' }]}>

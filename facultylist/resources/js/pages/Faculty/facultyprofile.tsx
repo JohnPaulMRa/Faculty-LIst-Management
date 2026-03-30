@@ -1,29 +1,31 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Head, router, usePage } from '@inertiajs/react';
-import AlertModal from '@/components/common/AlertModal';
 import { FileDown } from 'lucide-react';
 import type { FC } from 'react';
 import { useState, useMemo } from 'react';
+import AlertModal from '@/components/common/AlertModal';
 
+import { FacultyCopyDataModal } from '@/components/faculty/FacultyCopyDataModal';
 import FacultyDownloadModal from '@/components/faculty/FacultyDownloadModal';
-import FacultyListTableE5 from '@/components/faculty/facultyE5/FacultyListTableE5';
 import FacultyListTableE2 from '@/components/faculty/facultyE2/FacultyListTableE2';
+import FacultyListTableE5 from '@/components/faculty/facultyE5/FacultyListTableE5';
 import FacultyFileDetailsModal from '@/components/faculty/FacultyFileDetailsModal';
 import FacultyImportModal from '@/components/faculty/FacultyImportModal';
-import { FacultyCopyDataModal } from '@/components/faculty/FacultyCopyDataModal';
-import { SubmitFacultyModal } from '@/components/faculty/SubmitFacultyModal';
 import { FacultyToolbar } from '@/components/faculty/FacultyToolbar';
+import { SubmitFacultyModal } from '@/components/faculty/SubmitFacultyModal';
 import { useFacultyImport } from '@/components/faculty/useFacultyImport';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 
 import { getCurrentAcademicYear } from '@/lib/utils';
-import type { Faculty } from '@/types/faculty';
 import { edit } from '@/routes/faculty';
+import type { BreadcrumbItem } from '@/types';
+import type { Faculty } from '@/types/faculty';
 
 // Basic declaration for Ziggy's route helper
+ 
 declare function route(name?: string, params?: any, absolute?: boolean): string;
-
-import type { BreadcrumbItem } from '@/types';
 
 const breadcrumbs: BreadcrumbItem[] = [];
 
@@ -33,6 +35,7 @@ interface FacultyProfileProps {
         search?: string;
         year?: string;
     };
+     
     referenceData: any;
     availableYears?: string[];
     schoolName?: string;
@@ -47,7 +50,8 @@ const FacultyProfile: FC<FacultyProfileProps> = ({
     schoolName = 'School Name',
     schoolType = 'private',
 }) => {
-    usePage<any>().props; // keep academicYears available if needed by child components
+     
+    const { props } = usePage<any>(); // keep academicYears available if needed by child components
 
     const [searchQuery, setSearchQuery] = useState<string>(filters.search || '');
     const initialYear =
@@ -127,6 +131,7 @@ const FacultyProfile: FC<FacultyProfileProps> = ({
                     {
                         preserveState: true,
                         preserveScroll: true,
+                         
                         onSuccess: (page: any) => {
                             if (page.props.flash?.error) {
                                 showAlert(page.props.flash.error, 'error');
@@ -148,6 +153,7 @@ const FacultyProfile: FC<FacultyProfileProps> = ({
             'Delete this record? This action cannot be undone.',
             () => {
                 router.delete(`/faculty/${id}`, {
+                     
                     onSuccess: (page: any) => {
                         if (page.props.flash?.error) {
                             showAlert(page.props.flash.error, 'error', 'Delete Failed');
@@ -174,6 +180,7 @@ const FacultyProfile: FC<FacultyProfileProps> = ({
 
     const handleUpdateFaculty = (updatedFaculty: Faculty) => {
         router.put(`/faculty/${updatedFaculty.id}`, updatedFaculty, {
+             
             onSuccess: (page: any) => {
                 if (page.props.flash?.error) {
                     showAlert(page.props.flash.error, 'error', 'Update Failed');

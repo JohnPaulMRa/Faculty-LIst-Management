@@ -1,3 +1,4 @@
+import { Link } from '@inertiajs/react';
 import {
     Trash2,
     Pencil,
@@ -5,9 +6,8 @@ import {
 } from 'lucide-react';
 import type { FC } from 'react';
 import { useState, useMemo } from 'react';
-import { Link } from '@inertiajs/react';
-import type { Faculty } from '@/types/faculty';
 import { edit } from '@/routes/faculty';
+import type { Faculty } from '@/types/faculty';
 import { IMPORT_GROUPS } from '@/types/faculty/constants';
 
 type Props = {
@@ -16,12 +16,13 @@ type Props = {
     onFileClick: (faculty: Faculty) => void;
     onDelete: (id: string) => void;
     onEdit: (faculty: Faculty) => void;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     referenceData?: any;
 };
 
 const PAGE_SIZE_OPTIONS = [10, 15, 25, 50];
 
-const FacultyListTableE2: FC<Props> = ({ facultyList, yearFilter, onFileClick, onDelete, onEdit, referenceData }) => {
+const FacultyListTableE2: FC<Props> = ({ facultyList, yearFilter, onDelete, referenceData }) => {
     const [pageSize, setPageSize] = useState(25);
     const [currentPage, setCurrentPage] = useState(1);
     const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
@@ -52,12 +53,14 @@ const FacultyListTableE2: FC<Props> = ({ facultyList, yearFilter, onFileClick, o
 
     const getGender = (code?: string) => {
         if (!code) return 'N/A';
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const found = referenceData?.gender?.find((g: any) => g.code == code);
         return found ? found.desc : code;
     };
 
     const getTenured = (code?: string) => {
         if (!code) return 'N/A';
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const found = referenceData?.tenured?.find((g: any) => g.code == code);
         return found ? found.desc : code;
     };
@@ -82,8 +85,9 @@ const FacultyListTableE2: FC<Props> = ({ facultyList, yearFilter, onFileClick, o
         const code = faculty.rank;
         if (!code) return 'N/A';
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const found = referenceData?.facultyRank?.find((r: any) => r.code == code);
-        let desc = found ? found.desc : code;
+        const desc = found ? found.desc : code;
 
         // Shorten long adjunct or affiliate faculty description
         if (desc && desc.toString().toLowerCase().includes("adjunct or affiliate faculty")) {
@@ -96,6 +100,7 @@ const FacultyListTableE2: FC<Props> = ({ facultyList, yearFilter, onFileClick, o
     const sortedFacultyList = useMemo(() => {
         if (!sortConfig) return facultyList;
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         return [...facultyList].sort((a: any, b: any) => {
             let aValue = a[sortConfig.key];
             let bValue = b[sortConfig.key];
@@ -115,6 +120,7 @@ const FacultyListTableE2: FC<Props> = ({ facultyList, yearFilter, onFileClick, o
             if (aStr > bStr) return sortConfig.direction === 'asc' ? 1 : -1;
             return 0;
         });
+         
     }, [facultyList, sortConfig]);
 
     const totalPages = Math.ceil(sortedFacultyList.length / pageSize);

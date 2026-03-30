@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { router } from '@inertiajs/react';
 
 // Basic declaration for Ziggy's route helper

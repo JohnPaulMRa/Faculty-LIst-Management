@@ -1,9 +1,9 @@
+import { BarChart3, PieChart as PieChartIcon, ArrowLeft } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { BarChart3, PieChart as PieChartIcon, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface DistributionItem {
     name: string;
@@ -26,6 +26,7 @@ interface StatusOverviewProps {
     statusData: StatusItem[];
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
         return (
@@ -48,11 +49,14 @@ export function AnalyticsOverview({ privateDistributionData = [], publicDistribu
 
     useEffect(() => {
         // Reset to top level if parent data completely changes or tab changes
+         
         setHistory([{ name: 'All Groups', data: activeDistributionData }]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [activeTab, privateDistributionData, publicDistributionData]);
 
     const currentData = history[history.length - 1].data || [];
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handleBarClick = (data: any) => {
         const item = data?.payload || data;
         if (item && item.children && item.children.length > 0) {

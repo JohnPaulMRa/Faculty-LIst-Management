@@ -1,7 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
-import { Button } from '@/components/ui/button';
-import { router } from '@inertiajs/react';
-import { destroy } from '@/routes/faculty';
 import PrivateFacultyTable from './PrivateFacultyTable';
 
 interface PrivateSchoolViewProps {

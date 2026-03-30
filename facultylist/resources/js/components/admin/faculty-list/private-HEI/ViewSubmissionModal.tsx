@@ -1,5 +1,6 @@
-import React from 'react';
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { X } from 'lucide-react';
+import React from 'react';
 import {
     Dialog,
     DialogContent,

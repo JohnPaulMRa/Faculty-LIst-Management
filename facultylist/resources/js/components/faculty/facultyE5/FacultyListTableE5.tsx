@@ -2,8 +2,8 @@ import { Link } from '@inertiajs/react';
 import { Trash2, Pencil, ArrowUpDown } from 'lucide-react';
 import type { FC } from 'react';
 import { useState, useMemo } from 'react';
-import type { Faculty } from '@/types/faculty';
 import { edit } from '@/routes/faculty';
+import type { Faculty } from '@/types/faculty';
 
 type Props = {
     facultyList: Faculty[];
@@ -11,12 +11,13 @@ type Props = {
     onFileClick: (faculty: Faculty) => void;
     onDelete: (id: string) => void;
     onEdit: (faculty: Faculty) => void;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     referenceData: any;
 };
 
 const PAGE_SIZE_OPTIONS = [10, 15, 25, 50];
 
-const FacultyListTableE5: FC<Props> = ({ facultyList, yearFilter, onFileClick, onDelete, onEdit, referenceData }) => {
+const FacultyListTableE5: FC<Props> = ({ facultyList, yearFilter, onDelete, referenceData }) => {
     const [pageSize, setPageSize] = useState(25);
     const [currentPage, setCurrentPage] = useState(1);
     const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
@@ -46,12 +47,14 @@ const FacultyListTableE5: FC<Props> = ({ facultyList, yearFilter, onFileClick, o
 
     const getGender = (code?: string) => {
         if (!code) return 'N/A';
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const found = referenceData?.gender?.find((g: any) => g.code == code);
         return found ? found.desc : code;
     };
 
     const getEmploymentStatus = (faculty: Faculty) => {
         if (faculty.form_type === 'E5' && faculty.fullTimeCode) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const found = referenceData?.fullTimePartTime?.find((f: any) => f.code == faculty.fullTimeCode);
             if (found) {
                 return found.desc;
@@ -67,6 +70,7 @@ const FacultyListTableE5: FC<Props> = ({ facultyList, yearFilter, onFileClick, o
     const sortedFacultyList = useMemo(() => {
         if (!sortConfig) return facultyList;
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         return [...facultyList].sort((a: any, b: any) => {
             let aValue = a[sortConfig.key];
             let bValue = b[sortConfig.key];
@@ -92,6 +96,7 @@ const FacultyListTableE5: FC<Props> = ({ facultyList, yearFilter, onFileClick, o
             if (aStr > bStr) return sortConfig.direction === 'asc' ? 1 : -1;
             return 0;
         });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [facultyList, sortConfig, referenceData]);
 
     const totalPages = Math.ceil(sortedFacultyList.length / pageSize);

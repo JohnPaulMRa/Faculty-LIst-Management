@@ -1,4 +1,4 @@
-import { BaseFaculty } from './base';
+import type { BaseFaculty } from './base';
 
 export type PrivateFaculty = BaseFaculty & {
     form_type: 'E5';

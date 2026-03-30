@@ -1,7 +1,8 @@
 import { Head } from '@inertiajs/react';
-import AppSidebarLayout from '@/layouts/app/app-sidebar-layout';
 import AdminDisciplineModule from '@/components/admin/disciplines/AdminDisciplineModule';
+import AppSidebarLayout from '@/layouts/app/app-sidebar-layout';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default function Disciplines({ disciplines }: any) {
     return (
         <AppSidebarLayout breadcrumbs={[{ title: 'Disciplines', href: '/admin/disciplines' }]}>

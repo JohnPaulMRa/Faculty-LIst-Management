@@ -3,16 +3,17 @@ import { Save, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import type { FC } from 'react';
 
-import AppLayout from '@/layouts/app-layout';
-import { Button } from '@/components/ui/button';
 import FacultyFormE2 from '@/components/faculty/facultyE2/FacultyFormE2';
-import { PublicFaculty } from '@/types/faculty';
-import { update } from '@/routes/faculty';
+import { Button } from '@/components/ui/button';
+import AppLayout from '@/layouts/app-layout';
 import { facultyprofile } from '@/routes';
+import { update } from '@/routes/faculty';
+import type { PublicFaculty } from '@/types/faculty';
 import { IMPORT_GROUPS } from '@/types/faculty/constants';
 
 interface EditProps {
     faculty: PublicFaculty;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     referenceData: any;
 }
 

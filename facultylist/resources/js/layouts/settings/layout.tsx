@@ -4,13 +4,13 @@ import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { useCurrentUrl } from '@/hooks/use-current-url';
+import AppSidebarLayout from '@/layouts/app/app-sidebar-layout';
+import AppLayout from '@/layouts/app-layout';
 import { cn, toUrl } from '@/lib/utils';
 import { edit as editAppearance } from '@/routes/appearance';
 import { edit } from '@/routes/profile';
 import { show } from '@/routes/two-factor';
 import { edit as editPassword } from '@/routes/user-password';
-import AppLayout from '@/layouts/app-layout';
-import AppSidebarLayout from '@/layouts/app/app-sidebar-layout';
 import type { BreadcrumbItem, NavItem, SharedData } from '@/types';
 
 const sidebarNavItems: NavItem[] = [

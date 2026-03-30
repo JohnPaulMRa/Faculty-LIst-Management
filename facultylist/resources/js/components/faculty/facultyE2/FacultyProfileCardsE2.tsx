@@ -4,6 +4,7 @@ import type { PublicFaculty } from '@/types/faculty';
 
 type FacultyProfileCardsE2Props = {
     formData: Partial<PublicFaculty>;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     handleChange?: (field: keyof PublicFaculty, value: any) => void;
     readOnly?: boolean;
 };
@@ -11,6 +12,7 @@ type FacultyProfileCardsE2Props = {
 export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({ formData, handleChange, readOnly = false }) => {
     
     // Helper to handle change if not readOnly
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const onErrorSafeChange = (field: keyof PublicFaculty, value: any) => {
         if (!readOnly && handleChange) {
             handleChange(field, value);

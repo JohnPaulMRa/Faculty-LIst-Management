@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { usePage } from '@inertiajs/react';
 import type { FC } from 'react';
 import {
     Select,
@@ -6,7 +8,6 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { usePage } from '@inertiajs/react';
 
 type Props = {
     value?: string;

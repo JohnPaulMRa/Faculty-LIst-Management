@@ -1,11 +1,12 @@
-import { useState, useEffect, useCallback } from 'react';
-import { Search, Plus, Filter, LayoutGrid, X, University, Users, ArrowLeft } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { router } from '@inertiajs/react';
-import { useDebounce } from '@/hooks/use-debounce';
+import { Search, X, University, Users, ArrowLeft } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
 import { PrivateSchoolView } from '@/components/admin/faculty-list/private-HEI/PrivateSchoolView';
 import { PublicSchoolView } from '@/components/admin/faculty-list/public-HEI/PublicSchoolView';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { useDebounce } from '@/hooks/use-debounce';
 
 interface School {
     id: number;

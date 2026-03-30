@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
-import { FileText, Loader2 } from "lucide-react";
-import { Link } from '@inertiajs/react';
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from 'axios';
-import { edit } from '@/routes/faculty';
+import { FileText, Loader2 } from "lucide-react";
+import React, { useState } from 'react';
 import { ViewSubmissionModal } from './ViewSubmissionModal';
 
 interface FacultyMember {

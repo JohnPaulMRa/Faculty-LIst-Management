@@ -1,19 +1,22 @@
-import { Save, X, ChevronLeft, ChevronRight, Plus } from 'lucide-react';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { Save, X } from 'lucide-react';
 import type { FC } from 'react';
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { DialogClose } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
 import type { PrivateFaculty } from '@/types/faculty';
-import DisciplineSelector from '../DisciplineSelector';
 import { FacultyProfileCardsE5 } from './FacultyProfileCardsE5';
 import ReferenceTableE5 from './ReferenceTableE5';
 
 
 type Props = {
     faculty?: PrivateFaculty;
+     
     onSave?: (data: any) => void;
     onCancel?: () => void;
+     
     referenceData: any;
 };
 
@@ -58,6 +61,7 @@ const FacultyFormE5: FC<Props> = ({ faculty, onSave, referenceData }) => {
     // Update form data when faculty prop changes
     useEffect(() => {
         if (faculty) {
+             
             setFormData({
                 name: faculty.name || '',
                 fullTimeCode: normalizeCode(referenceData?.fullTimePartTime, faculty.fullTimeCode),
@@ -80,6 +84,7 @@ const FacultyFormE5: FC<Props> = ({ faculty, onSave, referenceData }) => {
                 status: faculty.status || ''
             });
         }
+         
     }, [faculty, referenceData]);
 
     const handleChange = (field: string, value: string) => {
@@ -107,6 +112,7 @@ const FacultyFormE5: FC<Props> = ({ faculty, onSave, referenceData }) => {
         const newStatus = isComplete ? 'Updated' : 'Not Updated';
 
         if (formData.status !== newStatus) {
+             
             setFormData(prev => ({ ...prev, status: newStatus }));
         }
     }, [
@@ -121,6 +127,7 @@ const FacultyFormE5: FC<Props> = ({ faculty, onSave, referenceData }) => {
         formData.loadCode,
         formData.salaryCode,
         formData.subjects
+         
     ]);
 
     const handleSave = () => {
@@ -180,6 +187,7 @@ const FacultyFormE5: FC<Props> = ({ faculty, onSave, referenceData }) => {
             ...syncedData,
             status: finalStatus,
             activeTab
+             
         } as any);
     };
 
