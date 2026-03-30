@@ -95,11 +95,11 @@ const FormField: FC<{
                 {label}
                 {required && <span className="text-red-500 ml-1">*</span>}
             </label>
-            {hint && <span className="text-[11px] text-gray-400 italic">{hint}</span>}
+            {hint && <span className="text-[12px] text-gray-400 italic">{hint}</span>}
         </div>
         <div className="flex items-center gap-2">
             {showCodePrefix && (
-                <div className="shrink-0 h-12 w-32 bg-gray-50 border border-input flex items-center justify-center text-sm font-bold text-gray-700 uppercase rounded-md px-3 text-center">
+                <div className="shrink-0 h-12 w-32 bg-gray-50 border border-input flex items-center justify-center text-lg font-bold text-gray-700 uppercase rounded-md px-3 text-center">
                     CODE
                 </div>
             )}
@@ -115,14 +115,14 @@ const FormField: FC<{
                     placeholder={placeholder}
                     readOnly={readOnly}
                     className={cn(
-                        "border-0 focus-visible:ring-0 shadow-none h-full flex-1 px-3 text-sm",
+                        "border-0 focus-visible:ring-0 shadow-none h-full flex-1 px-3 text-lg",
                         readOnly && "cursor-not-allowed text-gray-500",
                         className
                     )}
                 />
             </div>
         </div>
-        {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
+        {error && <p className="text-lg text-red-500 mt-1">{error}</p>}
     </div>
 );
 
@@ -148,7 +148,7 @@ const FormCombobox: FC<{
             </label>
             <div className="flex items-center gap-2">
                 {showCodePrefix && (
-                    <div className="shrink-0 h-12 w-32 bg-gray-50 border border-input flex items-center justify-center text-sm font-bold text-gray-700 uppercase rounded-md px-3 text-center">
+                    <div className="shrink-0 h-12 w-32 bg-gray-50 border border-input flex items-center justify-center text-[12px] font-bold text-gray-700 uppercase rounded-md px-3 text-center">
                         {codeValue}
                     </div>
                 )}
@@ -166,7 +166,7 @@ const FormCombobox: FC<{
                     />
                 </div>
             </div>
-            {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
+            {error && <p className="text-[12px] text-red-500 mt-1">{error}</p>}
         </div>
     );
 };
@@ -200,7 +200,7 @@ const WorkloadGrid: FC<{
                     </div>
                     <div className="flex items-center gap-2">
                         {item.showCodePrefix && (
-                            <div className="shrink-0 h-12 w-32 bg-gray-50 border border-input flex items-center justify-center text-sm font-bold text-gray-700 uppercase rounded-md px-3 text-center">
+                            <div className="shrink-0 h-12 w-32 bg-gray-50 border border-input flex items-center justify-center text-[12px] font-bold text-gray-700 uppercase rounded-md px-3 text-center">
                                 CODE
                             </div>
                         )}
@@ -215,7 +215,7 @@ const WorkloadGrid: FC<{
                                 onChange={(e) => item.onChange && item.onChange(e.target.value)}
                                 readOnly={item.readOnly || item.highlighted}
                                 className={cn(
-                                    "border-0 focus-visible:ring-0 shadow-none h-full w-full flex-1 text-center px-3 text-sm",
+                                    "border-0 focus-visible:ring-0 shadow-none h-full w-full flex-1 text-center px-3 text-lg",
                                     item.highlighted
                                         ? 'font-bold text-[#003468] cursor-default bg-transparent'
                                         : 'bg-transparent'

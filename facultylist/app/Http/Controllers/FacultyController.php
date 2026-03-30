@@ -124,7 +124,7 @@ class FacultyController extends Controller
         }
         $availableYears = $yearsE2->concat($yearsE5)->unique()->sortDesc()->values();
 
-        return \Inertia\Inertia::render('facultyprofile', [
+        return \Inertia\Inertia::render('Faculty/facultyprofile', [
             'initialFacultyData' => $facultyData,
             'filters' => $request->only(['search', 'year']),
             'referenceData' => $referenceData,
@@ -187,7 +187,7 @@ class FacultyController extends Controller
 
         $referenceData = $this->getReferenceData();
 
-        $component = $isE5 ? 'Faculty/EditPrivateFaculty' : 'Faculty/EditPublicFaculty';
+        $component = $isE5 ? 'EditFaculty/EditPrivateFaculty' : 'EditFaculty/EditPublicFaculty';
 
         return \Inertia\Inertia::render($component, [
             'faculty' => $faculty,

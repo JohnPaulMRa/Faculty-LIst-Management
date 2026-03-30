@@ -14,7 +14,7 @@ class DashboardController extends Controller
     {
         $user = \Illuminate\Support\Facades\Auth::user();
         if (!$user || !$user->hei_id) {
-            return Inertia::render('dashboard', [
+            return Inertia::render('Faculty/dashboard', [
                 'overview' => [
                     'totalFaculty' => 0,
                     'licensedFaculty' => 0,
@@ -313,7 +313,7 @@ class DashboardController extends Controller
             'notUpdated' => max(0, $notUpdated),
         ];
 
-        return Inertia::render('dashboard', [
+        return Inertia::render('Faculty/dashboard', [
             'overview' => [
                 'totalFaculty' => $totalFaculty,
                 'licensedFaculty' => $licensedFaculty,

@@ -25,7 +25,7 @@ const EditPublicFaculty: FC<EditProps> = ({ faculty, referenceData }) => {
         g.value === `GROUP ${formData.import_group}` ||
         g.value.replace('GROUP ', '') === formData.import_group
     );
-    const groupLabel = selectedGroup ? selectedGroup.label : (formData.import_group || 'Form E-2 Entry');
+    const groupLabel = (selectedGroup ? selectedGroup.label : (formData.import_group || 'Form E-2 Entry')).replace(/^GROUP\s+/, '');
     const groupRemarks = selectedGroup?.remarks;
 
     const handleChange = (field: keyof PublicFaculty, value: string) => {
@@ -68,7 +68,7 @@ const EditPublicFaculty: FC<EditProps> = ({ faculty, referenceData }) => {
                 <div className="flex justify-between items-center">
                     <div>
                         <div className="flex flex-col mt-1">
-                            <p className="text-3xl font-bold text-gray-00 dark:text-gray-100 tracking-wider">
+                            <p className="text-2xl font-bold text-gray-00 dark:text-gray-100 tracking-wider">
                                 {groupLabel}
                             </p>
                             {groupRemarks && (

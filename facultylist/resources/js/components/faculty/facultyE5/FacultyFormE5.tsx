@@ -199,7 +199,7 @@ const FacultyFormE5: FC<Props> = ({ faculty, onSave, referenceData }) => {
                 {activeTab === 'Reference' ? (
                     <ReferenceTableE5 referenceData={referenceData} />
                 ) : (
-                    <div className="h-full overflow-auto p-4 bg-gray-50">
+                    <div className="h-full overflow-auto p-2 bg-gray-50">
                         <FacultyProfileCardsE5
                             formData={formData}
                             handleChange={handleChange}

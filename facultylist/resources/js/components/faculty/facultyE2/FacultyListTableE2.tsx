@@ -66,19 +66,31 @@ const FacultyListTableE2: FC<Props> = ({ facultyList, yearFilter, onFileClick, o
         if (faculty.form_type !== 'E2') return 'N/A';
         const groupValue = faculty.import_group;
         if (!groupValue) return 'N/A';
-        
-        const found = IMPORT_GROUPS.find(g => 
-            g.value === groupValue || 
+
+        const found = IMPORT_GROUPS.find(g =>
+            g.value === groupValue ||
             g.value === `GROUP ${groupValue}` ||
             g.value.replace('GROUP ', '') === groupValue
         );
-        
-        return found ? found.value : groupValue;
+
+        const finalValue = found ? found.value : groupValue;
+        return finalValue.replace('GROUP ', '');
     };
 
     const getGenericFacultyRank = (faculty: Faculty) => {
         if (faculty.form_type !== 'E2') return 'N/A';
-        return faculty.rank || 'N/A';
+        const code = faculty.rank;
+        if (!code) return 'N/A';
+
+        const found = referenceData?.facultyRank?.find((r: any) => r.code == code);
+        let desc = found ? found.desc : code;
+
+        // Shorten long adjunct or affiliate faculty description
+        if (desc && desc.toString().toLowerCase().includes("adjunct or affiliate faculty")) {
+            return "Adjunct or Affiliate Faculty...";
+        }
+
+        return desc || 'N/A';
     };
 
     const sortedFacultyList = useMemo(() => {
