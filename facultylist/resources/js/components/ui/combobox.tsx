@@ -110,7 +110,7 @@ export function Combobox({
                                 }}
                                 placeholder={placeholder}
                                 disabled={disabled}
-                                className="flex-1 min-w-0 bg-transparent outline-none placeholder:text-muted-foreground text-[12px]"
+                                className="flex-1 min-w-0 bg-transparent outline-none placeholder:text-muted-foreground text-[12px] "
                             />
                             <ChevronsUpDown
                                 className="ml-2 h-4 w-4 shrink-0 opacity-40 cursor-pointer hover:opacity-70 transition-opacity"
