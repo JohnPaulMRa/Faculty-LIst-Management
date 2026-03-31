@@ -57,7 +57,7 @@ export function FacultyCopyDataModal({ isOpen, onOpenChange, availableYears, onS
 
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
-            <DialogContent 
+            <DialogContent
                 className="sm:max-w-xl p-0 overflow-hidden border-0 shadow-lg rounded-none"
                 onInteractOutside={(e) => e.preventDefault()}
             >
