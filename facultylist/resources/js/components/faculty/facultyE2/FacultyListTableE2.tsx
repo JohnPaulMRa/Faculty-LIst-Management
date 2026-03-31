@@ -29,14 +29,14 @@ const PAGE_SIZE_OPTIONS = [10, 15, 25, 50];
 
 // --- MAIN COMPONENT ---
 
-const FacultyListTableE2: FC<FacultyListTableE2Props> = ({ 
-    facultyList, 
-    yearFilter, 
-    onDelete, 
-    referenceData 
+const FacultyListTableE2: FC<FacultyListTableE2Props> = ({
+    facultyList,
+    yearFilter,
+    onDelete,
+    referenceData
 }) => {
     // --- HOOKS ---
-    
+
     const [pageSize, setPageSize] = useState(25);
     const [currentPage, setCurrentPage] = useState(1);
     const [sortConfig, setSortConfig] = useState<SortConfig | null>(null);
@@ -210,7 +210,7 @@ const FacultyListTableE2: FC<FacultyListTableE2Props> = ({
                     const start = Math.max(1, Math.min(currentPage - 2, totalPages - 4));
                     const page = start + i;
                     if (page <= 0 || page > totalPages) return null;
-                    
+
                     const isPageActive = currentPage === page;
                     const pageButtonClass = `px-3 py-1.5 border rounded-none text-sm font-medium ${isPageActive ? 'bg-blue-500 text-white border-blue-500' : 'border-gray-300 hover:bg-gray-100'}`;
 
