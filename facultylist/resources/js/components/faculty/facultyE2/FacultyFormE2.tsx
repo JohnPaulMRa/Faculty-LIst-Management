@@ -1,6 +1,16 @@
-import { Save, X, User, GraduationCap, Briefcase, Clock, Award, ChevronRight } from 'lucide-react';
-import type { FC } from 'react';
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState } from 'react';
+import type { FC } from 'react';
+import { 
+    Save, 
+    X, 
+    User, 
+    GraduationCap, 
+    Briefcase, 
+    Clock, 
+    Award, 
+    ChevronRight 
+} from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -26,59 +36,26 @@ import {
 } from '@/types/faculty/referenceDataE2';
 import DisciplineSelector from '../DisciplineSelector';
 
-type Props = {
+// --- TYPES / INTERFACES ---
+
+interface FacultyFormE2Props {
     faculty?: PublicFaculty;
     formData?: Partial<PublicFaculty>;
     onChange?: (field: keyof PublicFaculty, value: string) => void;
     onCancel?: () => void;
     onSave?: (data: Partial<PublicFaculty>) => void;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     referenceData?: any;
     hideHeader?: boolean;
-};
+}
 
-// Section Header Component for consistent styling
-const SectionHeader: FC<{ icon: React.ReactNode; title: string; badge?: string; variant?: 'default' | 'white' }> = ({ icon, title, badge, variant = 'default' }) => (
-    <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-            <div className={cn(
-                "p-2.5 rounded-xl shadow-sm transition-transform duration-200 hover:scale-105",
-                variant === 'white'
-                    ? "bg-white text-[#003468]"
-                    : "bg-linear-to-br from-[#003468] to-[#1a4f8c] text-white"
-            )}>
-                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                {React.cloneElement(icon as React.ReactElement<any>, { className: 'h-5 w-5' })}
-            </div>
-            <div>
-                <h3 className={cn(
-                    "font-bold text-lg tracking-tight",
-                    variant === 'white' ? "text-white" : "text-[#003468]"
-                )}>{title}</h3>
-                {badge && <p className={cn(
-                    "text-xs",
-                    variant === 'white' ? "text-blue-100" : "text-gray-500"
-                )}>{badge}</p>}
-            </div>
-        </div>
-        {badge && (
-            <Badge
-                variant="outline"
-                className={cn(
-                    "text-xs border-0",
-                    variant === 'white'
-                        ? "bg-white/20 text-white backdrop-blur-md"
-                        : "bg-gray-50 text-gray-600"
-                )}
-            >
-                {badge}
-            </Badge>
-        )}
-    </div>
-);
+interface SectionHeaderProps {
+    icon: React.ReactNode;
+    title: string;
+    badge?: string;
+    variant?: 'default' | 'white';
+}
 
-// Form Field Component for consistency
-const FormField: FC<{
+interface FormFieldProps {
     label: string;
     value: string;
     onChange?: (value: string) => void;
@@ -90,46 +67,9 @@ const FormField: FC<{
     error?: string;
     readOnly?: boolean;
     showCodePrefix?: boolean;
-}> = ({ label, value, onChange, placeholder, type = 'text', className = '', required, hint, error, readOnly, showCodePrefix = false }) => (
-    <div className="space-y-1.5">
-        <div className="flex items-center justify-between">
-            <label className="text-base font-bold text-gray-600 uppercase tracking-wider">
-                {label}
-                {required && <span className="text-red-500 ml-1">*</span>}
-            </label>
-            {hint && <span className="text-[12px] text-gray-400 italic">{hint}</span>}
-        </div>
-        <div className="flex items-center gap-2">
-            {showCodePrefix && (
-                <div className="shrink-0 h-12 w-32 bg-gray-50 border border-input flex items-center justify-center text-lg font-bold text-gray-700 uppercase rounded-md px-3 text-center">
-                    CODE
-                </div>
-            )}
-            <div className={cn(
-                "flex flex-1 items-center rounded-md border border-gray-300 bg-white transition-all duration-200 overflow-hidden h-12",
-                readOnly ? "bg-gray-50/50 border-gray-200" : "focus-within:border-[#003468] focus-within:ring-1 focus-within:ring-[#003468]/20 hover:border-gray-400",
-                error ? "border-red-500 focus-within:border-red-500 focus-within:ring-red-500/20" : ""
-            )}>
-                <Input
-                    type={type}
-                    value={value || ''}
-                    onChange={(e) => onChange && onChange(e.target.value)}
-                    placeholder={placeholder}
-                    readOnly={readOnly}
-                    className={cn(
-                        "border-0 focus-visible:ring-0 shadow-none h-full flex-1 px-3 text-lg",
-                        readOnly && "cursor-not-allowed text-gray-500",
-                        className
-                    )}
-                />
-            </div>
-        </div>
-        {error && <p className="text-lg text-red-500 mt-1">{error}</p>}
-    </div>
-);
+}
 
-// Form Combobox Component for consistency
-const FormCombobox: FC<{
+interface FormComboboxProps {
     label: string;
     value: string;
     onChange: (value: string) => void;
@@ -138,9 +78,155 @@ const FormCombobox: FC<{
     required?: boolean;
     error?: string;
     showCodePrefix?: boolean;
-}> = ({ label, value, onChange, options, placeholder, required, error, showCodePrefix = true }) => {
+}
+
+interface WorkloadGridProps {
+    title: string;
+    items: Array<{
+        label: string;
+        value: string;
+        onChange?: (value: string) => void;
+        highlighted?: boolean;
+        hint?: string;
+        readOnly?: boolean;
+        showCodePrefix?: boolean;
+    }>;
+}
+
+// --- SUB-COMPONENTS ---
+
+const SectionHeader: FC<SectionHeaderProps> = ({ 
+    icon, 
+    title, 
+    badge, 
+    variant = 'default' 
+}) => {
+    const isWhite = variant === 'white';
+    
+    const iconWrapperClass = cn(
+        "p-2.5 rounded-xl shadow-sm transition-transform duration-200 hover:scale-105",
+        isWhite ? "bg-white text-[#003468]" : "bg-linear-to-br from-[#003468] to-[#1a4f8c] text-white"
+    );
+    
+    const titleClass = cn(
+        "font-bold text-lg tracking-tight",
+        isWhite ? "text-white" : "text-[#003468]"
+    );
+    
+    const badgeTextClass = cn(
+        "text-xs",
+        isWhite ? "text-blue-100" : "text-gray-500"
+    );
+    
+    const badgeVariantClass = cn(
+        "text-xs border-0",
+        isWhite ? "bg-white/20 text-white backdrop-blur-md" : "bg-gray-50 text-gray-600"
+    );
+
+    const iconElement = React.isValidElement(icon) 
+        ? React.cloneElement(icon as React.ReactElement<any>, { className: 'h-5 w-5' })
+        : icon;
+
+    return (
+        <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+                <div className={iconWrapperClass}>
+                    {iconElement}
+                </div>
+                <div>
+                    <h3 className={titleClass}>{title}</h3>
+                    {badge && <p className={badgeTextClass}>{badge}</p>}
+                </div>
+            </div>
+            {badge && (
+                <Badge 
+                    variant="outline" 
+                    className={badgeVariantClass}
+                >
+                    {badge}
+                </Badge>
+            )}
+        </div>
+    );
+};
+
+const FormField: FC<FormFieldProps> = ({ 
+    label, 
+    value, 
+    onChange, 
+    placeholder, 
+    type = 'text', 
+    className = '', 
+    required, 
+    hint, 
+    error, 
+    readOnly, 
+    showCodePrefix = false 
+}) => {
+    const containerClass = cn(
+        "flex flex-1 items-center rounded-md border border-gray-300 bg-white transition-all duration-200 overflow-hidden h-12",
+        readOnly ? "bg-gray-50/50 border-gray-200" : "focus-within:border-[#003468] focus-within:ring-1 focus-within:ring-[#003468]/20 hover:border-gray-400",
+        error ? "border-red-500 focus-within:border-red-500 focus-within:ring-red-500/20" : ""
+    );
+    
+    const inputClass = cn(
+        "border-0 focus-visible:ring-0 shadow-none h-full flex-1 px-3 text-lg",
+        readOnly && "cursor-not-allowed text-gray-500",
+        className
+    );
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (onChange) onChange(e.target.value);
+    };
+
+    return (
+        <div className="space-y-1.5">
+            <div className="flex items-center justify-between">
+                <label className="text-base font-bold text-gray-600 uppercase tracking-wider">
+                    {label}
+                    {required && <span className="text-red-500 ml-1">*</span>}
+                </label>
+                {hint && <span className="text-[12px] text-gray-400 italic">{hint}</span>}
+            </div>
+            <div className="flex items-center gap-2">
+                {showCodePrefix && (
+                    <div className="shrink-0 h-12 w-32 bg-gray-50 border border-input flex items-center justify-center text-lg font-bold text-gray-700 uppercase rounded-md px-3 text-center">
+                        CODE
+                    </div>
+                )}
+                <div className={containerClass}>
+                    <Input
+                        type={type}
+                        value={value || ''}
+                        onChange={handleInputChange}
+                        placeholder={placeholder}
+                        readOnly={readOnly}
+                        className={inputClass}
+                    />
+                </div>
+            </div>
+            {error && <p className="text-lg text-red-500 mt-1">{error}</p>}
+        </div>
+    );
+};
+
+const FormCombobox: FC<FormComboboxProps> = ({ 
+    label, 
+    value, 
+    onChange, 
+    options, 
+    placeholder, 
+    required, 
+    error, 
+    showCodePrefix = true 
+}) => {
     const selectedOption = options.find((opt) => String(opt.value) === String(value));
     const codeValue = selectedOption ? String(selectedOption.value) : "Code";
+    
+    const comboboxClass = cn(
+        'border-gray-300 hover:border-gray-400 focus-within:border-[#003468] focus-within:ring-1 focus-within:ring-[#003468]/20 rounded-md shadow-none h-12',
+        error ? 'border-red-500 focus-within:ring-red-500/20 focus-within:border-red-500' : ''
+    );
 
     return (
         <div className="space-y-1.5">
@@ -161,10 +247,7 @@ const FormCombobox: FC<{
                         options={options}
                         placeholder={placeholder}
                         showCodePrefix={false}
-                        className={cn(
-                            'border-gray-300 hover:border-gray-400 focus-within:border-[#003468] focus-within:ring-1 focus-within:ring-[#003468]/20 rounded-md shadow-none h-12',
-                            error ? 'border-red-500 focus-within:ring-red-500/20 focus-within:border-red-500' : ''
-                        )}
+                        className={comboboxClass}
                     />
                 </div>
             </div>
@@ -173,86 +256,85 @@ const FormCombobox: FC<{
     );
 };
 
-// Workload Grid Component for consistent workload sections
-const WorkloadGrid: FC<{
-    title: string;
-    items: Array<{
-        label: string;
-        value: string;
-        onChange?: (value: string) => void;
-        highlighted?: boolean;
-        hint?: string;
-        readOnly?: boolean;
-        showCodePrefix?: boolean;
-    }>;
-}> = ({ title, items }) => (
+const WorkloadGrid: FC<WorkloadGridProps> = ({ 
+    title, 
+    items 
+}) => (
     <div className="space-y-3">
         <div className="flex items-center gap-2">
             <ChevronRight className="h-4 w-4 text-[#003468]" />
             <span className="text-sm font-bold text-[#003468] uppercase tracking-wider">{title}</span>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {items.map((item, index) => (
-                <div key={index} className="space-y-1">
-                    <div className="flex items-center justify-between">
-                        <label className="text-base font-bold text-gray-600 uppercase leading-tight">
-                            {item.label}
-                        </label>
-                        {item.hint && <span className="text-[10px] text-gray-400 font-medium">{item.hint}</span>}
-                    </div>
-                    <div className="flex items-center gap-2">
-                        {item.showCodePrefix && (
-                            <div className="shrink-0 h-12 w-32 bg-gray-50 border border-input flex items-center justify-center text-[12px] font-bold text-gray-700 uppercase rounded-md px-3 text-center">
-                                CODE
+            {items.map((item, index) => {
+                const containerClass = cn(
+                    "flex flex-1 items-center rounded-md border overflow-hidden h-12",
+                    item.highlighted ? 'bg-blue-50/50 border-blue-200' : 'bg-white border-gray-300 hover:border-gray-400'
+                );
+                
+                const inputClass = cn(
+                    "border-0 focus-visible:ring-0 shadow-none h-full w-full flex-1 text-center px-3 text-lg",
+                    item.highlighted ? 'font-bold text-[#003468] cursor-default bg-transparent' : 'bg-transparent'
+                );
+
+                const handleItemChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+                    if (item.onChange) item.onChange(e.target.value);
+                };
+
+                return (
+                    <div key={index} className="space-y-1">
+                        <div className="flex items-center justify-between">
+                            <label className="text-base font-bold text-gray-600 uppercase leading-tight">
+                                {item.label}
+                            </label>
+                            {item.hint && <span className="text-[10px] text-gray-400 font-medium">{item.hint}</span>}
+                        </div>
+                        <div className="flex items-center gap-2">
+                            {item.showCodePrefix && (
+                                <div className="shrink-0 h-12 w-32 bg-gray-50 border border-input flex items-center justify-center text-[12px] font-bold text-gray-700 uppercase rounded-md px-3 text-center">
+                                    CODE
+                                </div>
+                            )}
+                            <div className={containerClass}>
+                                <Input
+                                    value={item.value || ''}
+                                    onChange={handleItemChange}
+                                    readOnly={item.readOnly || item.highlighted}
+                                    className={inputClass}
+                                />
                             </div>
-                        )}
-                        <div className={cn(
-                            "flex flex-1 items-center rounded-md border overflow-hidden h-12",
-                            item.highlighted
-                                ? 'bg-blue-50/50 border-blue-200'
-                                : 'bg-white border-gray-300 hover:border-gray-400'
-                        )}>
-                            <Input
-                                value={item.value || ''}
-                                onChange={(e) => item.onChange && item.onChange(e.target.value)}
-                                readOnly={item.readOnly || item.highlighted}
-                                className={cn(
-                                    "border-0 focus-visible:ring-0 shadow-none h-full w-full flex-1 text-center px-3 text-lg",
-                                    item.highlighted
-                                        ? 'font-bold text-[#003468] cursor-default bg-transparent'
-                                        : 'bg-transparent'
-                                )}
-                            />
                         </div>
                     </div>
-                </div>
-            ))}
+                );
+            })}
         </div>
     </div>
 );
 
-const FacultyFormE2: FC<Props> = ({
+// --- MAIN COMPONENT ---
+
+const FacultyFormE2: FC<FacultyFormE2Props> = ({
     faculty,
-    onSave,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    onCancel,
     hideHeader = false,
     formData: externalFormData,
     onChange: externalOnChange,
+    onCancel,
     referenceData
 }) => {
+    // --- HOOKS ---
+    
     const [internalFormData, setInternalFormData] = useState<Partial<PublicFaculty>>({});
     const [errors, setErrors] = useState<Record<string, string>>({});
-    const [isSaving, setIsSaving] = useState(false);
 
     useEffect(() => {
         if (faculty && !externalFormData) {
-             
             setInternalFormData(faculty);
         }
     }, [faculty, externalFormData]);
 
     const formData = externalFormData || internalFormData;
+
+    // --- HANDLERS ---
 
     const handleChange = (field: keyof PublicFaculty, value: string) => {
         if (errors[field]) {
@@ -270,15 +352,23 @@ const FacultyFormE2: FC<Props> = ({
         }
     };
 
+    // --- DERIVED VARIABLES ---
+
+    const calculateAndSync = (fields: string[], targetField: keyof PublicFaculty) => {
+        const total = fields.reduce((sum, field) => 
+            sum + (parseFloat(formData[field as keyof PublicFaculty] as string || '0') || 0), 
+            0
+        ).toFixed(2);
+        
+        if (total !== formData[targetField]) {
+            handleChange(targetField, total);
+        }
+    };
+
+    // --- SECONDARY HOOKS (EFFECTS) ---
+
     // Auto-calculate totals
     useEffect(() => {
-        const calculateAndSync = (fields: string[], targetField: keyof PublicFaculty) => {
-            const total = fields.reduce((sum, field) => sum + (parseFloat(formData[field as keyof PublicFaculty] as string || '0') || 0), 0).toFixed(2);
-            if (total !== formData[targetField]) {
-                handleChange(targetField, total);
-            }
-        };
-
         // Undergraduate Totals
         calculateAndSync(['ug_lab_units', 'ug_lec_units'], 'ug_total_units');
         calculateAndSync(['ug_lab_hours', 'ug_lec_hours'], 'ug_total_hours');
@@ -304,32 +394,100 @@ const FacultyFormE2: FC<Props> = ({
         formData.load_research, formData.load_extension,
         formData.load_study, formData.load_production,
         formData.load_admin, formData.load_others
-         
     ]);
 
-    const validateForm = () => {
-        const newErrors: Record<string, string> = {};
-        if (!formData.name?.trim()) newErrors.name = "Faculty name is required";
-        if (!formData.rank?.trim()) newErrors.rank = "Faculty rank is required";
-        if (!formData.gender?.trim()) newErrors.gender = "Gender is required";
+    // Auto-calculate status
+    useEffect(() => {
+        const requiredFields = [
+            formData.name,
+            formData.rank,
+            formData.college,
+            formData.department,
+            formData.is_tenured,
+            formData.salary_grade,
+            formData.annual_salary,
+            formData.on_leave,
+            formData.fte,
+            formData.gender,
+            formData.degree,
+            formData.pursuing_degree,
+            formData.discipline_load_1,
+            formData.discipline_load_2,
+            formData.discipline_bachelors,
+            formData.discipline_masters,
+            formData.discipline_doctorate,
+            formData.masters_thesis,
+            formData.doctorate_dissertation,
+            formData.ug_lab_units,
+            formData.ug_lec_units,
+            formData.ug_lab_hours,
+            formData.ug_lec_hours,
+            formData.ug_lab_contact,
+            formData.ug_lec_contact,
+            formData.grad_lab_units,
+            formData.grad_lec_units,
+            formData.grad_lab_contact,
+            formData.grad_lec_contact,
+            formData.load_research,
+            formData.load_extension,
+            formData.load_study,
+            formData.load_production,
+            formData.load_admin,
+            formData.load_others
+        ];
 
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
-    };
+        const isComplete = requiredFields.every(field => field !== undefined && field !== null && field.toString().trim() !== '');
+        let newStatus = formData.status;
 
-    const handleSave = async (e?: React.FormEvent) => {
-        if (e) e.preventDefault();
-        if (!validateForm()) return;
-
-        setIsSaving(true);
-        try {
-            if (onSave) {
-                await onSave(formData);
-            }
-        } finally {
-            setIsSaving(false);
+        if (!isComplete) {
+            newStatus = 'Not Yet Completed';
+        } else if (formData.status !== 'Completed' && formData.status !== 'Submitted') {
+            newStatus = 'Updated';
         }
-    };
+
+        if (formData.status !== newStatus) {
+            handleChange('status', newStatus || 'Not Yet Completed');
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [
+        formData.name,
+        formData.rank,
+        formData.college,
+        formData.department,
+        formData.is_tenured,
+        formData.salary_grade,
+        formData.annual_salary,
+        formData.on_leave,
+        formData.fte,
+        formData.gender,
+        formData.degree,
+        formData.pursuing_degree,
+        formData.discipline_load_1,
+        formData.discipline_load_2,
+        formData.discipline_bachelors,
+        formData.discipline_masters,
+        formData.discipline_doctorate,
+        formData.masters_thesis,
+        formData.doctorate_dissertation,
+        formData.ug_lab_units,
+        formData.ug_lec_units,
+        formData.ug_lab_hours,
+        formData.ug_lec_hours,
+        formData.ug_lab_contact,
+        formData.ug_lec_contact,
+        formData.grad_lab_units,
+        formData.grad_lec_units,
+        formData.grad_lab_contact,
+        formData.grad_lec_contact,
+        formData.load_research,
+        formData.load_extension,
+        formData.load_study,
+        formData.load_production,
+        formData.load_admin,
+        formData.load_others
+    ]);
+
+    // --- JSX FRAGMENTS ---
 
     const formFields = (
         <div className="space-y-6">
@@ -429,7 +587,9 @@ const FacultyFormE2: FC<Props> = ({
                     </div>
                 </CardContent>
             </Card>
+
             <Separator className="my-6" />
+
             {/* Section 2: Educational Attainment */}
             <Card className="border border-gray-200 shadow-md overflow-hidden rounded-xl bg-white">
                 <CardHeader className="bg-linear-to-r from-[#003468] to-[#1a4f8c] pb-6 pt-6 px-6 border-b-0">
@@ -697,39 +857,37 @@ const FacultyFormE2: FC<Props> = ({
                         items={[
                             {
                                 label: "OFFICIAL RESEARCH LOAD",
-                                value: formData.grad_lab_units || '',
-                                onChange: (value) => handleChange('grad_lab_units', value),
+                                value: formData.load_research || '',
+                                onChange: (value) => handleChange('load_research', value),
                             },
                             {
                                 label: "OFFICIAL EXTENSION LOAD",
-                                value: formData.grad_lec_units || '',
-                                onChange: (value) => handleChange('grad_lec_units', value),
+                                value: formData.load_extension || '',
+                                onChange: (value) => handleChange('load_extension', value),
                             },
                             {
                                 label: "OFFICIAL STUDY LOAD",
-                                value: formData.grad_lec_units || '',
-                                onChange: (value) => handleChange('grad_lec_units', value),
+                                value: formData.load_study || '',
+                                onChange: (value) => handleChange('load_study', value),
                             },
                             {
                                 label: "OFFICIAL LOAD FOR PRODUCTION",
-                                value: formData.grad_lec_units || '',
-                                onChange: (value) => handleChange('grad_lec_units', value),
+                                value: formData.load_production || '',
+                                onChange: (value) => handleChange('load_production', value),
                             },
                             {
                                 label: "OFFICIAL ADMINISTRATIVE LOAD",
-                                value: formData.grad_lec_units || '',
-                                onChange: (value) => handleChange('grad_lec_units', value),
+                                value: formData.load_admin || '',
+                                onChange: (value) => handleChange('load_admin', value),
                             },
                             {
                                 label: "OTHER OFFICIAL LOAD CREDITS",
-                                value: formData.grad_lec_units || '',
-                                onChange: (value) => handleChange('grad_lec_units', value),
+                                value: formData.load_others || '',
+                                onChange: (value) => handleChange('load_others', value),
                             },
                         ]}
                     />
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    </div>
-
+                    
                     <Separator className="my-6" />
 
                     <div className="bg-linear-to-r from-blue-50 to-indigo-50 p-6 rounded-4px border border-blue-200">
@@ -754,6 +912,8 @@ const FacultyFormE2: FC<Props> = ({
         </div>
     );
 
+    // --- MAIN RENDER ---
+
     if (hideHeader) {
         return (
             <div className="w-full bg-gray-50/50 p-2">
@@ -772,18 +932,8 @@ const FacultyFormE2: FC<Props> = ({
                             Tertiary Faculty Profile
                         </Badge>
                     </h2>
-
                 </div>
                 <div className="flex items-center gap-3">
-                    <Button
-                        variant="secondary"
-                        size="sm"
-                        onClick={() => handleSave()}
-                        disabled={isSaving}
-                        className="h-9 font-bold uppercase text-xs bg-white text-[#003468] hover:bg-gray-100 shadow-xs"
-                    >
-                        <Save className="h-4 w-4 mr-2" /> {isSaving ? 'Saving...' : 'Quick Save'}
-                    </Button>
                     <DialogClose className="h-9 w-9 flex items-center justify-center hover:bg-white/10 rounded-md transition-all duration-200">
                         <X className="h-5 w-5" />
                     </DialogClose>
@@ -791,9 +941,9 @@ const FacultyFormE2: FC<Props> = ({
             </div>
 
             <ScrollArea className="flex-1 px-8 py-6">
-                <form onSubmit={handleSave} className="max-w-7xl mx-auto pb-8">
+                <div className="max-w-7xl mx-auto pb-8">
                     {formFields}
-                </form>
+                </div>
             </ScrollArea>
         </div>
     );

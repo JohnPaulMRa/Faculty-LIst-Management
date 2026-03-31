@@ -14,9 +14,27 @@ import type { Faculty } from '@/types/faculty';
 
 interface EditProps {
     faculty: Faculty;
-     
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     referenceData: any;
 }
+
+const E5_FIELD_LABELS: Record<string, string> = {
+    name: 'Faculty Name (LN, FN, MI)',
+    fullTimeCode: 'Full-Time/Part-Time',
+    genderCode: 'Gender',
+    disciplineCode: 'Primary Teaching Discipline',
+    degree: 'Highest Degree Attained',
+    bachelorsCode: "Specific Discipline of Bachelors Degree",
+    mastersCode: "Specific Discipline of Masters Degree",
+    doctorateCode: "Specific Discipline of Doctorate Degree",
+    licenseCode: 'Professional License',
+    tenureCode: 'Tenure of Employment',
+    rankCode: 'Faculty Rank',
+    loadCode: 'Teaching Load',
+    salaryCode: 'Annual Salary',
+    subjects: 'Subjects Taught',
+    joined_year: 'Joined Year'
+};
 
 const Edit: FC<EditProps> = ({ faculty, referenceData }) => {
     // Helper to check if it's E5
@@ -119,11 +137,16 @@ const Edit: FC<EditProps> = ({ faculty, referenceData }) => {
             formData.name,
             formData.fullTimeCode,
             formData.degree,
+            formData.bachelorsCode,
+            formData.mastersCode,
+            formData.doctorateCode,
             formData.licenseCode,
             formData.tenureCode,
             formData.rankCode,
             formData.loadCode,
             formData.salaryCode,
+            formData.joined_year,
+            formData.subjects
         ];
 
         // E5 specific required fields
@@ -132,7 +155,7 @@ const Edit: FC<EditProps> = ({ faculty, referenceData }) => {
             requiredFields.push(formData.disciplineCode);
         }
 
-        const isComplete = requiredFields.every(field => field && String(field).trim() !== '');
+        const isComplete = requiredFields.every(field => field !== undefined && field !== null && field.toString().trim() !== '');
 
         // If already 'Completed' (from submission), don't downgrade it unless it's genuinely incomplete
         // Otherwise, mark as 'Updated' if all required fields are present.
@@ -140,13 +163,12 @@ const Edit: FC<EditProps> = ({ faculty, referenceData }) => {
 
         if (!isComplete) {
             newStatus = 'Not Updated';
-        } else if (formData.status !== 'Completed') {
+        } else if (formData.status !== 'Completed' && formData.status !== 'Submitted') {
             newStatus = 'Updated';
         }
 
         if (formData.status !== newStatus) {
-             
-            setFormData(prev => ({ ...prev, status: newStatus }));
+            setFormData(prev => ({ ...prev, status: newStatus || 'Not Updated' }));
         }
     }, [
         formData.name,
@@ -154,17 +176,37 @@ const Edit: FC<EditProps> = ({ faculty, referenceData }) => {
         formData.genderCode,
         formData.disciplineCode,
         formData.degree,
+        formData.bachelorsCode,
+        formData.mastersCode,
+        formData.doctorateCode,
         formData.licenseCode,
         formData.tenureCode,
         formData.rankCode,
         formData.loadCode,
         formData.salaryCode,
         formData.subjects,
+        formData.joined_year,
         faculty.id
-         
     ]);
 
     const handleSave = () => {
+        const missingFields: string[] = [];
+        
+        Object.entries(E5_FIELD_LABELS).forEach(([key, label]) => {
+            // Skill check: Gender and Discipline only for E5 form type
+            if (!isE5 && (key === 'genderCode' || key === 'disciplineCode')) return;
+            
+            const value = (formData as any)[key];
+            if (value === undefined || value === null || value.toString().trim() === '') {
+                missingFields.push(label);
+            }
+        });
+
+        if (missingFields.length > 0) {
+            alert(`Missing Details:\n\n• ${missingFields.join('\n• ')}\n\nAll fields must be filled out before saving.`);
+            return;
+        }
+
         setProcessing(true);
 
         // Helper to get description for syncing legacy string fields
@@ -172,11 +214,22 @@ const Edit: FC<EditProps> = ({ faculty, referenceData }) => {
             return list?.find(item => item.code === code)?.desc || '';
         };
 
+        // Helper for discipline descriptions (from flat list)
+        const getDisciplineDesc = (code?: string) => {
+            const disciplines = referenceData?.disciplines as { code: string, desc: string }[];
+            return disciplines?.find(item => item.code === code)?.desc || '';
+        };
+
         // Sync legacy string fields
         const syncedData = {
             ...formData,
             rank: getDesc(referenceData?.facultyRank, formData.rankCode) || (faculty.form_type === 'E2' ? (faculty as any).rank : (faculty.form_type === 'E5' ? (faculty as any).rankCode : '')) || '',
             employment: getDesc(referenceData?.fullTimePartTime, formData.fullTimeCode) || (faculty.form_type === 'E2' ? (faculty as any).employment : '') || '',
+
+            // Sync Degree Strings
+            bachelors: getDisciplineDesc(formData.bachelorsCode) || (faculty as any).bachelors || '',
+            masters: getDisciplineDesc(formData.mastersCode) || (faculty as any).masters || '',
+            doctorate: getDisciplineDesc(formData.doctorateCode) || (faculty as any).doctorate || ''
         };
 
         router.put(update({ id: faculty.id }).url, syncedData, {

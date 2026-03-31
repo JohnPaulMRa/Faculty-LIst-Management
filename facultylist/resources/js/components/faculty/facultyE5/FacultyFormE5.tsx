@@ -13,14 +13,13 @@ import ReferenceTableE5 from './ReferenceTableE5';
 
 type Props = {
     faculty?: PrivateFaculty;
-     
-    onSave?: (data: any) => void;
     onCancel?: () => void;
-     
+    hideHeader?: boolean;
     referenceData: any;
+    onChange?: (field: string, value: string) => void;
 };
 
-const FacultyFormE5: FC<Props> = ({ faculty, onSave, referenceData }) => {
+const FacultyFormE5: FC<Props> = ({ faculty, referenceData, hideHeader = false, onChange }) => {
     const [activeTab, setActiveTab] = useState('DataEntry');
     // ... (rest of state omitted for brevity, logic remains same)
     const [formData, setFormData] = useState({
@@ -89,6 +88,9 @@ const FacultyFormE5: FC<Props> = ({ faculty, onSave, referenceData }) => {
 
     const handleChange = (field: string, value: string) => {
         setFormData(prev => ({ ...prev, [field]: value }));
+        if (onChange) {
+            onChange(field, value);
+        }
     };
 
     // Auto-calculate status based on form completion
@@ -99,21 +101,30 @@ const FacultyFormE5: FC<Props> = ({ faculty, onSave, referenceData }) => {
             formData.genderCode,
             formData.disciplineCode,
             formData.degree,
+            formData.bachelorsCode,
+            formData.mastersCode,
+            formData.doctorateCode,
             formData.licenseCode,
             formData.tenureCode,
             formData.rankCode,
             formData.loadCode,
             formData.salaryCode,
-            formData.subjects
+            formData.subjects,
+            formData.joined_year
         ];
 
         // Check if all required fields are truthy and not empty strings
-        const isComplete = requiredFields.every(field => field && field.trim() !== '');
-        const newStatus = isComplete ? 'Updated' : 'Not Updated';
+        const isComplete = requiredFields.every(field => field !== undefined && field !== null && field.toString().trim() !== '');
+        let newStatus = formData.status;
+
+        if (!isComplete) {
+            newStatus = 'Not Updated';
+        } else if (formData.status !== 'Completed' && formData.status !== 'Submitted') {
+            newStatus = 'Updated';
+        }
 
         if (formData.status !== newStatus) {
-             
-            setFormData(prev => ({ ...prev, status: newStatus }));
+            setFormData(prev => ({ ...prev, status: newStatus || 'Not Updated' }));
         }
     }, [
         formData.name,
@@ -121,87 +132,35 @@ const FacultyFormE5: FC<Props> = ({ faculty, onSave, referenceData }) => {
         formData.genderCode,
         formData.disciplineCode,
         formData.degree,
+        formData.bachelorsCode,
+        formData.mastersCode,
+        formData.doctorateCode,
         formData.licenseCode,
         formData.tenureCode,
         formData.rankCode,
         formData.loadCode,
         formData.salaryCode,
-        formData.subjects
-         
+        formData.subjects,
+        formData.joined_year
     ]);
 
-    const handleSave = () => {
-        // If status is manually set (and valid), use it.
-        // Otherwise, fallback to auto-calculation logic (or keep as is if we want strict manual control now)
-        // Let's defer to user selection if present.
-
-        let finalStatus = formData.status;
-
-        // If no status is selected/set, we can try to auto-calculate or default to "Not Updated"
-        if (!finalStatus) {
-            // Required fields based on "Form E5" completeness
-            const requiredFields = [
-                formData.name,
-                formData.fullTimeCode,
-                formData.genderCode,
-                formData.disciplineCode, // Primary Discipline
-                // formData.degree, // Not strictly a code, but maybe required
-                formData.licenseCode,
-                formData.tenureCode,
-                formData.rankCode,
-                formData.loadCode,
-                formData.salaryCode,
-                formData.subjects
-            ];
-
-            // Check if all required fields are truthy and not empty strings
-            const isComplete = requiredFields.every(field => field && field.trim() !== '');
-            finalStatus = isComplete ? 'Updated' : 'Not Updated';
-        }
-
-        // Helper to get description for syncing legacy string fields
-        const getDesc = (list: { code: string, desc: string }[], code?: string) => {
-            return list?.find(item => item.code === code)?.desc || '';
-        };
-
-        // Helper for discipline descriptions (from flat list)
-        const getDisciplineDesc = (code?: string) => {
-            const disciplines = referenceData?.disciplines as { code: string, desc: string }[];
-            return disciplines?.find(item => item.code === code)?.desc || '';
-        };
-
-        // Sync legacy string fields
-        const syncedData = {
-            ...formData,
-            rank: getDesc(referenceData?.facultyRank, formData.rankCode) || faculty?.rankCode || '',
-            employment: getDesc(referenceData?.fullTimePartTime, formData.fullTimeCode) || (faculty?.form_type === 'E5' ? (faculty as any).employment : '') || '',
-
-            // Sync Degree Strings
-            bachelors: getDisciplineDesc(formData.bachelorsCode) || faculty?.bachelors || '',
-            masters: getDisciplineDesc(formData.mastersCode) || faculty?.masters || '',
-            doctorate: getDisciplineDesc(formData.doctorateCode) || faculty?.doctorate || ''
-        };
-
-        onSave?.({
-            ...faculty,
-            ...syncedData,
-            status: finalStatus,
-            activeTab
-             
-        } as any);
+    const validateStatus = () => {
+        // Status logic is already handled by useEffect, nothing to do here.
     };
 
     return (
         <div className="flex flex-col h-full w-full bg-gray-50">
             {/* Header */}
-            <div className="bg-white text-gray-900 px-6 py-4 flex justify-between items-center border-b border-gray-200 shrink-0">
-                <h2 className="text-lg font-bold uppercase tracking-tight">Faculty Details</h2>
-                <div className="flex items-center gap-2">
-                    <DialogClose className="h-8 w-8 flex items-center justify-center text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-none transition-colors">
-                        <X className="h-5 w-5" />
-                    </DialogClose>
+            {!hideHeader && (
+                <div className="bg-white text-gray-900 px-6 py-4 flex justify-between items-center border-b border-gray-200 shrink-0">
+                    <h2 className="text-lg font-bold uppercase tracking-tight">Faculty Details</h2>
+                    <div className="flex items-center gap-2">
+                        <DialogClose className="h-8 w-8 flex items-center justify-center text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-none transition-colors">
+                            <X className="h-5 w-5" />
+                        </DialogClose>
+                    </div>
                 </div>
-            </div>
+            )}
 
             <div className="flex-1 overflow-hidden relative">
                 {activeTab === 'Reference' ? (
@@ -219,15 +178,13 @@ const FacultyFormE5: FC<Props> = ({ faculty, onSave, referenceData }) => {
             </div>
 
             {/* Footer */}
-            <div className="bg-white p-4 border-t border-gray-200 flex justify-end shrink-0">
-                <Button
-                    size="sm"
-                    className="bg-[#003468] hover:bg-[#002a54] text-white h-9 px-6 border-0 rounded-none font-semibold flex items-center gap-2 shadow-sm transition-all"
-                    onClick={handleSave}
-                >
-                    <Save className="h-4 w-4" /> Update
-                </Button>
-            </div>
+            {!hideHeader && (
+                <div className="bg-white p-4 border-t border-gray-200 flex justify-end shrink-0">
+                    <div className="text-xs text-gray-400 italic">
+                        Viewing/Editing Faculty Details
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

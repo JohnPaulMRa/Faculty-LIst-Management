@@ -1,4 +1,4 @@
-export type FacultyStatus = 'Completed' | 'No Submission' | 'Not Yet Completed' | 'Updated' | 'Not Updated';
+export type FacultyStatus = 'Completed' | 'Submitted' | 'No Submission' | 'Not Yet Completed' | 'Updated' | 'Not Updated';
 
 export type BaseFaculty = {
     id: string;

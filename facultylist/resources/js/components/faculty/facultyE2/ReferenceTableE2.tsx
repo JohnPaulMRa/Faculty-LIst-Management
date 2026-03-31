@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React from 'react';
 import type { FC } from 'react';
 import { 
     GENERIC_RANK_OPTIONS, 
@@ -13,7 +15,11 @@ import {
     DISSERTATION_OPTIONS 
 } from '@/types/faculty/referenceDataE2';
 
+// --- MAIN COMPONENT ---
+
 const ReferenceTableE2: FC = () => {
+    // --- CONSTANTS ---
+
     const col1 = GENERIC_RANK_OPTIONS;
     const col2 = TENURE_OPTIONS;
     const col3 = SALARY_GRADE_OPTIONS;
@@ -30,6 +36,64 @@ const ReferenceTableE2: FC = () => {
         col1.length, col2.length, col3.length, col4.length, col5.length, 
         col6.length, col7.length, col8.length, col9.length, col10.length, col11.length
     );
+
+    // --- RENDER HELPERS ---
+
+    const renderRows = [...Array(maxRows)].map((_, index) => {
+        const rowClass = "hover:bg-gray-50 align-top transition-colors";
+        const codeCellClass = "border border-gray-200 px-1.5 py-1 font-bold w-12 text-center bg-gray-50/50";
+        const descCellClass = "border border-gray-200 px-1.5 py-1 whitespace-normal text-left";
+        
+        return (
+            <tr key={index} className={rowClass}>
+                {/* Generic Rank */}
+                <td className={cn(codeCellClass, "w-16")}>{col1[index]?.code}</td>
+                <td className={cn(descCellClass, "max-w-[150px]")}>{col1[index]?.desc}</td>
+
+                {/* Tenure */}
+                <td className={cn(codeCellClass, "w-12")}>{col2[index]?.code}</td>
+                <td className={descCellClass}>{col2[index]?.desc}</td>
+
+                {/* Salary Grade */}
+                <td className={cn(codeCellClass, "w-8")}>{col3[index]?.code}</td>
+                <td className={cn(descCellClass, "max-w-[150px]")}>{col3[index]?.desc}</td>
+
+                {/* Annual Salary */}
+                <td className={cn(codeCellClass, "w-8")}>{col4[index]?.code}</td>
+                <td className={descCellClass}>{col4[index]?.desc}</td>
+
+                {/* On Leave Pay */}
+                <td className={cn(codeCellClass, "w-8")}>{col5[index]?.code}</td>
+                <td className={cn(descCellClass, "max-w-[150px]")}>{col5[index]?.desc}</td>
+
+                {/* FTE */}
+                <td className={cn(codeCellClass, "w-12")}>{col6[index]?.code}</td>
+                <td className={descCellClass}>{col6[index]?.desc}</td>
+
+                {/* Sex */}
+                <td className={cn(codeCellClass, "w-12")}>{col7[index]?.code}</td>
+                <td className={descCellClass}>{col7[index]?.desc}</td>
+
+                {/* Highest Degree */}
+                <td className={cn(codeCellClass, "w-10")}>{col8[index]?.code}</td>
+                <td className={cn(descCellClass, "max-w-[180px] text-[9px]")}>{col8[index]?.desc}</td>
+
+                {/* Next Degree */}
+                <td className={cn(codeCellClass, "w-8")}>{col9[index]?.code}</td>
+                <td className={cn(descCellClass, "max-w-[200px] text-[9px]")}>{col9[index]?.desc}</td>
+
+                {/* Thesis */}
+                <td className={cn(codeCellClass, "w-8")}>{col10[index]?.code}</td>
+                <td className={cn(descCellClass, "max-w-[120px]")}>{col10[index]?.desc}</td>
+
+                {/* Dissertation */}
+                <td className={cn(codeCellClass, "w-8")}>{col11[index]?.code}</td>
+                <td className={cn(descCellClass, "max-w-[120px]")}>{col11[index]?.desc}</td>
+            </tr>
+        );
+    });
+
+    // --- MAIN RENDER ---
 
     return (
         <div className="h-full overflow-auto bg-white border border-gray-200 shadow-sm rounded-4px">
@@ -50,46 +114,17 @@ const ReferenceTableE2: FC = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {[...Array(maxRows)].map((_, i) => (
-                        <tr key={i} className="hover:bg-gray-50 align-top transition-colors">
-                            <td className="border border-gray-200 px-1.5 py-1 font-bold w-16 text-center bg-gray-50/50">{col1[i]?.code}</td>
-                            <td className="border border-gray-200 px-1.5 py-1 whitespace-normal text-left max-w-[150px]">{col1[i]?.desc}</td>
-
-                            <td className="border border-gray-200 px-1.5 py-1 font-bold w-12 text-center bg-gray-50/50">{col2[i]?.code}</td>
-                            <td className="border border-gray-200 px-1.5 py-1 whitespace-normal text-left">{col2[i]?.desc}</td>
-
-                            <td className="border border-gray-200 px-1.5 py-1 font-bold w-8 text-center bg-gray-50/50">{col3[i]?.code}</td>
-                            <td className="border border-gray-200 px-1.5 py-1 whitespace-normal text-left max-w-[150px]">{col3[i]?.desc}</td>
-
-                            <td className="border border-gray-200 px-1.5 py-1 font-bold w-8 text-center bg-gray-50/50">{col4[i]?.code}</td>
-                            <td className="border border-gray-200 px-1.5 py-1 whitespace-normal text-left">{col4[i]?.desc}</td>
-
-                            <td className="border border-gray-200 px-1.5 py-1 font-bold w-8 text-center bg-gray-50/50">{col5[i]?.code}</td>
-                            <td className="border border-gray-200 px-1.5 py-1 whitespace-normal text-left max-w-[150px]">{col5[i]?.desc}</td>
-
-                            <td className="border border-gray-200 px-1.5 py-1 font-bold w-12 text-center bg-gray-50/50">{col6[i]?.code}</td>
-                            <td className="border border-gray-200 px-1.5 py-1 whitespace-normal text-left">{col6[i]?.desc}</td>
-
-                            <td className="border border-gray-200 px-1.5 py-1 font-bold w-12 text-center bg-gray-50/50">{col7[i]?.code}</td>
-                            <td className="border border-gray-200 px-1.5 py-1 whitespace-normal text-left">{col7[i]?.desc}</td>
-
-                            <td className="border border-gray-200 px-1.5 py-1 font-bold w-10 text-center bg-gray-50/50">{col8[i]?.code}</td>
-                            <td className="border border-gray-200 px-1.5 py-1 whitespace-normal text-left max-w-[180px] text-[9px]">{col8[i]?.desc}</td>
-
-                            <td className="border border-gray-200 px-1.5 py-1 font-bold w-8 text-center bg-gray-50/50">{col9[i]?.code}</td>
-                            <td className="border border-gray-200 px-1.5 py-1 whitespace-normal text-left max-w-[200px] text-[9px]">{col9[i]?.desc}</td>
-
-                            <td className="border border-gray-200 px-1.5 py-1 font-bold w-8 text-center bg-gray-50/50">{col10[i]?.code}</td>
-                            <td className="border border-gray-200 px-1.5 py-1 whitespace-normal text-left max-w-[120px]">{col10[i]?.desc}</td>
-
-                            <td className="border border-gray-200 px-1.5 py-1 font-bold w-8 text-center bg-gray-50/50">{col11[i]?.code}</td>
-                            <td className="border border-gray-200 px-1.5 py-1 whitespace-normal text-left max-w-[120px]">{col11[i]?.desc}</td>
-                        </tr>
-                    ))}
+                    {renderRows}
                 </tbody>
             </table>
         </div>
     );
 };
+
+// --- HELPERS ---
+
+function cn(...classes: any[]) {
+    return classes.filter(Boolean).join(' ');
+}
 
 export default ReferenceTableE2;

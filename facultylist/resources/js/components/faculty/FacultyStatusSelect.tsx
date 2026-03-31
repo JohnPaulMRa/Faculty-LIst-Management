@@ -16,13 +16,11 @@ type Props = {
 };
 
 const STATUS_OPTIONS = [
-    "Updated",
-    "Not Yet Completed",
-    "Submitted",
-    "No Submission"
+    "Not Updated",
+    "Submitted"
 ];
 
-const FacultyStatusSelectE2: FC<Props> = ({
+const FacultyStatusSelect: FC<Props> = ({
     value,
     onValueChange,
     disabled = false,
@@ -45,4 +43,4 @@ const FacultyStatusSelectE2: FC<Props> = ({
     );
 };
 
-export default FacultyStatusSelectE2;
+export default FacultyStatusSelect;

@@ -1,25 +1,29 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Head, router, usePage } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import { FileDown } from 'lucide-react';
 import type { FC } from 'react';
-import { useState, useMemo } from 'react';
 import AlertModal from '@/components/common/AlertModal';
 
 import { FacultyCopyDataModal } from '@/components/faculty/FacultyCopyDataModal';
 import FacultyDownloadModal from '@/components/faculty/FacultyDownloadModal';
-import FacultyListTableE2 from '@/components/faculty/facultyE2/FacultyListTableE2';
+import FacultyListTableE2 from '@/features/faculty/components/tables/FacultyListTableE2';
 import FacultyListTableE5 from '@/components/faculty/facultyE5/FacultyListTableE5';
 import FacultyFileDetailsModal from '@/components/faculty/FacultyFileDetailsModal';
 import FacultyImportModal from '@/components/faculty/FacultyImportModal';
 import { FacultyToolbar } from '@/components/faculty/FacultyToolbar';
 import { SubmitFacultyModal } from '@/components/faculty/SubmitFacultyModal';
-import { useFacultyImport } from '@/components/faculty/useFacultyImport';
+import { 
+    useAlertModal, 
+    AlertType, 
+    useFacultyFilters, 
+    useFacultyActions, 
+    useFacultyModals 
+} from '@/components/faculty/hooks';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 
 import { getCurrentAcademicYear } from '@/lib/utils';
-import { edit } from '@/routes/faculty';
 import type { BreadcrumbItem } from '@/types';
 import type { Faculty } from '@/types/faculty';
 
@@ -51,167 +55,55 @@ const FacultyProfile: FC<FacultyProfileProps> = ({
     schoolType = 'private',
 }) => {
      
-    const { props } = usePage<any>(); // keep academicYears available if needed by child components
+    // --- Custom Hooks ---
+    const { alertModal, showAlert, showConfirm, closeAlert } = useAlertModal();
+    
+    const {
+        searchQuery,
+        setSearchQuery,
+        yearFilter,
+        setYearFilter,
+        filteredFacultyList,
+        handleYearChange,
+    } = useFacultyFilters({ initialFacultyData, filters, availableYears: availableYears || [] });
 
-    const [searchQuery, setSearchQuery] = useState<string>(filters.search || '');
-    const initialYear =
-        filters.year || (availableYears && availableYears.length > 0 ? availableYears[0] : getCurrentAcademicYear());
-    const [yearFilter, setYearFilter] = useState<string>(initialYear);
+    const {
+        isImportModalOpen, setIsImportModalOpen,
+        isDownloadModalOpen, setIsDownloadModalOpen,
+        importType, setImportType,
+        importGroup, setImportGroup,
+        importYear, setImportYear,
+        submitYear, setSubmitYear,
+        isSubmitModalOpen, setIsSubmitModalOpen,
+        selectedFile, setSelectedFile,
+        isFileModalOpen, setIsFileModalOpen,
+        isCopyModalOpen, setIsCopyModalOpen,
+    } = useFacultyModals({ schoolType: schoolType || 'private' });
 
-    // --- Client-side filtered list ---
-    const filteredFacultyList = useMemo(() => {
-        let list = initialFacultyData;
-
-        if (yearFilter) {
-            list = list.filter((f) => f.joined_year === yearFilter);
-        }
-
-        if (searchQuery.trim()) {
-            const q = searchQuery.toLowerCase();
-            list = list.filter(
-                (f) =>
-                    (f.name && f.name.toLowerCase().includes(q)) ||
-                    (f.degree && f.degree.toLowerCase().includes(q)) ||
-                    (f.form_type === 'E2' && f.rank && f.rank.toLowerCase().includes(q)) ||
-                    (f.form_type === 'E2' && f.import_group && f.import_group.toLowerCase().includes(q)) ||
-                    (f.form_type === 'E5' && f.rankCode && f.rankCode.toLowerCase().includes(q))
-            );
-        }
-
-        return list;
-    }, [initialFacultyData, yearFilter, searchQuery]);
-
-    // --- Modal / UI state ---
-    const [isImportModalOpen, setIsImportModalOpen] = useState<boolean>(false);
-    const [isDownloadModalOpen, setIsDownloadModalOpen] = useState<boolean>(false);
-    const [importType, setImportType] = useState<'E2' | 'E5'>(schoolType?.toLowerCase() === 'public' ? 'E2' : 'E5');
-    const [importGroup, setImportGroup] = useState<string>('');
-    const [importYear, setImportYear] = useState<string>(getCurrentAcademicYear());
-    const [submitYear, setSubmitYear] = useState<string>(getCurrentAcademicYear());
-    const [isSubmitModalOpen, setIsSubmitModalOpen] = useState<boolean>(false);
-    const [selectedFile, setSelectedFile] = useState<Faculty | null>(null);
-    const [isFileModalOpen, setIsFileModalOpen] = useState<boolean>(false);
-    const [isCopyModalOpen, setIsCopyModalOpen] = useState<boolean>(false);
-
-    // --- Alert / Confirm modal ---
-    const [alertModal, setAlertModal] = useState<{
-        open: boolean;
-        title?: string;
-        message: string;
-        type: 'info' | 'success' | 'error' | 'confirm';
-        onConfirm?: () => void;
-    }>({ open: false, message: '', type: 'info' });
-
-    const showAlert = (message: string, type: 'info' | 'success' | 'error' = 'info', title?: string) => {
-        setAlertModal({ open: true, message, type, title });
-    };
-
-    const showConfirm = (message: string, onConfirm: () => void, title?: string) => {
-        setAlertModal({ open: true, message, type: 'confirm', onConfirm, title });
-    };
-
-    // --- Submit handlers ---
-    const handleSubmit = () => {
-        setSubmitYear('');
-        setIsSubmitModalOpen(true);
-    };
-
-    const confirmSubmit = () => {
-        if (!submitYear) {
-            showAlert('Please select a specific Academic Year before submitting.', 'info', 'Notice');
-            return;
-        }
-        setIsSubmitModalOpen(false);
-        showConfirm(
-            `Are you sure you want to SUBMIT the faculty list for ${submitYear}? This will mark records as Submitted.`,
-            () => {
-                router.post(
-                    route('faculty.submit'),
-                    { year: submitYear },
-                    {
-                        preserveState: true,
-                        preserveScroll: true,
-                         
-                        onSuccess: (page: any) => {
-                            if (page.props.flash?.error) {
-                                showAlert(page.props.flash.error, 'error');
-                                return;
-                            }
-                            showAlert(page.props.flash?.success || 'Faculty list submitted successfully!', 'success');
-                        },
-                        onError: () => showAlert('Failed to submit faculty list.', 'error'),
-                    }
-                );
-            },
-            'Submit Faculty List'
-        );
-    };
-
-    // --- Delete handler ---
-    const handleDelete = (id: string): void => {
-        showConfirm(
-            'Delete this record? This action cannot be undone.',
-            () => {
-                router.delete(`/faculty/${id}`, {
-                     
-                    onSuccess: (page: any) => {
-                        if (page.props.flash?.error) {
-                            showAlert(page.props.flash.error, 'error', 'Delete Failed');
-                        } else {
-                            showAlert(page.props.flash?.success || 'Record deleted successfully.', 'success');
-                        }
-                    },
-                    onError: () => showAlert('Failed to delete faculty. Please check connection.', 'error'),
-                });
-            },
-            'Delete Record'
-        );
-    };
-
-    // --- File detail handlers ---
-    const handleFileClick = (faculty: Faculty): void => {
-        setSelectedFile(faculty);
-        setIsFileModalOpen(true);
-    };
-
-    const handleEdit = (faculty: Faculty) => {
-        router.visit(edit(faculty.id).url);
-    };
-
-    const handleUpdateFaculty = (updatedFaculty: Faculty) => {
-        router.put(`/faculty/${updatedFaculty.id}`, updatedFaculty, {
-             
-            onSuccess: (page: any) => {
-                if (page.props.flash?.error) {
-                    showAlert(page.props.flash.error, 'error', 'Update Failed');
-                    return;
-                }
-                showAlert(page.props.flash?.success || 'Faculty details updated successfully.', 'success');
-                setIsFileModalOpen(false);
-                setSelectedFile(updatedFaculty);
-            },
-            onError: () => showAlert('Failed to update faculty details.', 'error'),
-        });
-    };
-
-    // --- Import hook ---
-    const { handleFileImport } = useFacultyImport({
+    const {
+        handleSubmit,
+        confirmSubmit,
+        handleDelete,
+        handleFileClick,
+        handleEdit,
+        handleUpdateFaculty,
+        handleFileImport,
+    } = useFacultyActions({
+        showAlert,
+        showConfirm,
+        setIsSubmitModalOpen,
+        setIsFileModalOpen,
+        setIsImportModalOpen,
+        setSelectedFile,
+        setImportGroup,
+        submitYear,
+        setSubmitYear,
         importType,
         importGroup,
         importYear,
         searchQuery,
-        showAlert,
-        showConfirm,
-        setIsImportModalOpen,
-        setImportGroup,
         setYearFilter,
     });
-
-    // --- Year change (toolbar) ---
-    const handleYearChange = (year: string) => {
-        setYearFilter(year);
-        router.get(route('facultyprofile'), { search: searchQuery, year }, { preserveScroll: true });
-    };
 
     return (
         <>
@@ -220,7 +112,7 @@ const FacultyProfile: FC<FacultyProfileProps> = ({
                 message={alertModal.message}
                 type={alertModal.type}
                 title={alertModal.title}
-                onClose={() => setAlertModal((prev) => ({ ...prev, open: false }))}
+                onClose={closeAlert}
                 onConfirm={alertModal.onConfirm}
                 confirmLabel="Confirm"
             />
