@@ -14,7 +14,7 @@ import type { Faculty } from '@/types/faculty';
 
 interface EditProps {
     faculty: Faculty;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     referenceData: any;
 }
 

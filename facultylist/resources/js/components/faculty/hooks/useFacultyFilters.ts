@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react';
 import { router } from '@inertiajs/react';
+import { useState, useMemo } from 'react';
 import { getCurrentAcademicYear } from '@/lib/utils';
 import type { Faculty } from '@/types/faculty';
 

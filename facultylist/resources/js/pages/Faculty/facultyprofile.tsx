@@ -1,4 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+// Vite touch: Re-evaluating FacultyListTableE2 after refactoring to ensure import resolution.
+
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Head, router } from '@inertiajs/react';
 import { FileDown } from 'lucide-react';
@@ -7,28 +9,27 @@ import AlertModal from '@/components/common/AlertModal';
 
 import { FacultyCopyDataModal } from '@/components/faculty/FacultyCopyDataModal';
 import FacultyDownloadModal from '@/components/faculty/FacultyDownloadModal';
-import FacultyListTableE2 from '@/features/faculty/components/tables/FacultyListTableE2';
+import FacultyListTableE2 from '@/components/faculty/facultyE2/FacultyListTableE2';
 import FacultyListTableE5 from '@/components/faculty/facultyE5/FacultyListTableE5';
 import FacultyFileDetailsModal from '@/components/faculty/FacultyFileDetailsModal';
 import FacultyImportModal from '@/components/faculty/FacultyImportModal';
 import { FacultyToolbar } from '@/components/faculty/FacultyToolbar';
-import { SubmitFacultyModal } from '@/components/faculty/SubmitFacultyModal';
-import { 
-    useAlertModal, 
-    AlertType, 
-    useFacultyFilters, 
-    useFacultyActions, 
-    useFacultyModals 
+import {
+    useAlertModal,
+    AlertType,
+    useFacultyFilters,
+    useFacultyActions,
+    useFacultyModals
 } from '@/components/faculty/hooks';
+import { SubmitFacultyModal } from '@/components/faculty/SubmitFacultyModal';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 
-import { getCurrentAcademicYear } from '@/lib/utils';
 import type { BreadcrumbItem } from '@/types';
 import type { Faculty } from '@/types/faculty';
 
 // Basic declaration for Ziggy's route helper
- 
+
 declare function route(name?: string, params?: any, absolute?: boolean): string;
 
 const breadcrumbs: BreadcrumbItem[] = [];
@@ -39,7 +40,7 @@ interface FacultyProfileProps {
         search?: string;
         year?: string;
     };
-     
+
     referenceData: any;
     availableYears?: string[];
     schoolName?: string;
@@ -54,10 +55,10 @@ const FacultyProfile: FC<FacultyProfileProps> = ({
     schoolName = 'School Name',
     schoolType = 'private',
 }) => {
-     
+
     // --- Custom Hooks ---
     const { alertModal, showAlert, showConfirm, closeAlert } = useAlertModal();
-    
+
     const {
         searchQuery,
         setSearchQuery,

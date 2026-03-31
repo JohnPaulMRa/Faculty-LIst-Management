@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { FC, useState, useEffect } from 'react';
+ 
+import type { FC} from 'react';
+import { useState, useEffect } from 'react';
 import {
     Dialog,
     DialogContent,
@@ -79,6 +80,7 @@ const FacultyFileDetailsModal: FC<Props> = ({ isOpen, onOpenChange, faculty, onS
 
     useEffect(() => {
         if (isOpen && faculty) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setLocalFormData({ ...faculty });
         }
     }, [isOpen, faculty]);

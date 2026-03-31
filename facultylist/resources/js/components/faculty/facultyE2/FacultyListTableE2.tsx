@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState, useMemo } from 'react';
-import type { FC } from 'react';
 import { Link } from '@inertiajs/react';
 import { Trash2, Pencil, ArrowUpDown } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import type { FC } from 'react';
 import { edit } from '@/routes/faculty';
 import type { Faculty } from '@/types/faculty';
 import { IMPORT_GROUPS } from '@/types/faculty/constants';

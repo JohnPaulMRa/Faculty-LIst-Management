@@ -75,7 +75,7 @@ const EditPublicFaculty: FC<EditProps> = ({ faculty, referenceData }) => {
         const missingFields: string[] = [];
         
         Object.entries(E2_FIELD_LABELS).forEach(([key, label]) => {
-            const value = (formData as any)[key];
+            const value = (formData as Record<string, unknown>)[key];
             if (value === undefined || value === null || value.toString().trim() === '') {
                 missingFields.push(label);
             }
