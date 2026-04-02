@@ -36,13 +36,16 @@ const FacultyListTableE5: FC<Props> = ({ facultyList, yearFilter, onDelete, refe
     };
 
     const getStatusBadge = (status: string): string => {
-        const s = status?.trim();
-        const styles: Record<string, string> = {
-            'Updated': 'bg-green-400 text-white border-green-600 shadow-sm',
-            'Submitted': 'bg-green-500 text-white border-green-700 shadow-sm',
-            'Not Updated': 'bg-red-400 text-white border-red-600 shadow-sm',
-        };
-        return styles[s] || 'bg-gray-100 text-gray-800 border border-gray-300 shadow-sm';
+        const s = (status || '').trim();
+        const lower = s.toLowerCase();
+
+        if (lower === 'updated') return 'bg-green-400 text-white border-green-600 shadow-sm';
+        if (lower === 'submitted') return 'bg-green-500 text-white border-green-700 shadow-sm';
+        if (lower === 'not updated' || lower === 'not yet completed' || lower === 'no submission') {
+            return 'bg-red-400 text-white border-red-600 shadow-sm';
+        }
+
+        return 'bg-gray-100 text-gray-800 border border-gray-300 shadow-sm';
     };
 
     const getGender = (code?: string) => {

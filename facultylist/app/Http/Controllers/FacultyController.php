@@ -14,6 +14,7 @@ class FacultyController extends Controller
             'highestDegree' => DB::table('e5_ref_highest_degree')->select('code', 'description as desc')->get(),
             'professionalLicense' => DB::table('e5_ref_professional_license')->select('code', 'description as desc')->get(),
             'tenure' => DB::table('e5_ref_tenure')->select('code', 'description as desc')->get(),
+            'tenureE2' => DB::table('e2_ref_tenure')->select('code', 'description as desc')->get(),
             'facultyRank' => DB::table('e5_ref_faculty_rank')->select('code', 'description as desc')->get(),
             'teachingLoad' => DB::table('e5_ref_teaching_load')->select('code', 'description as desc')->get(),
             'annualSalary' => DB::table('e5_ref_annual_salary')->select('code', 'description as desc')->get(),

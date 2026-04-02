@@ -145,6 +145,7 @@ export default function AdminFacultyListModule({ schools = [], faculty = [], fil
                             <PublicSchoolView
                                 schoolName={activeSchoolTitle || ''}
                                 faculty={faculty as any}
+                                referenceData={referenceData}
                             />
                         )}
                     </div>

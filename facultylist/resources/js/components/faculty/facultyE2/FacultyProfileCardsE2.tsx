@@ -212,9 +212,6 @@ const FormCombobox: FC<FormComboboxProps> = ({
     error,
     showCodePrefix = true
 }) => {
-    const selectedOption = options.find((opt) => String(opt.value) === String(value));
-    const codeValue = selectedOption ? String(selectedOption.value) : "Code";
-
     const comboboxClass = cn(
         'border-gray-300 hover:border-gray-400 focus-within:border-[#003468] focus-within:ring-1 focus-within:ring-[#003468]/20 rounded-md shadow-none h-12',
         error ? 'border-red-500 focus-within:ring-red-500/20 focus-within:border-red-500' : ''
@@ -228,9 +225,12 @@ const FormCombobox: FC<FormComboboxProps> = ({
             </label>
             <div className="flex items-center gap-2">
                 {showCodePrefix && (
-                    <div className="shrink-0 h-12 w-32 bg-gray-50 border border-input flex items-center justify-center text-[12px] font-bold text-gray-700 uppercase rounded-md px-3 text-center">
-                        {codeValue}
-                    </div>
+                    <Input
+                        value={value || ''}
+                        onChange={(e) => onChange(e.target.value)}
+                        className="shrink-0 h-12 w-32 bg-gray-50 border border-input flex items-center justify-center text-[12px] font-bold text-gray-700 uppercase rounded-md px-3 text-center focus-visible:ring-0"
+                        placeholder="Code"
+                    />
                 )}
                 <div className="flex-1 min-w-0">
                     <Combobox
@@ -266,7 +266,7 @@ const WorkloadGrid: FC<WorkloadGridProps> = ({
 
                 const inputClass = cn(
                     "border-0 focus-visible:ring-0 shadow-none h-full w-full flex-1 text-center px-3 text-lg",
-                    item.highlighted ? 'font-bold text-[#003468] cursor-default bg-transparent' : 'bg-transparent'
+                    item.highlighted ? 'font-bold text-[#003468] bg-transparent' : 'bg-transparent'
                 );
 
                 const handleItemChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -291,7 +291,7 @@ const WorkloadGrid: FC<WorkloadGridProps> = ({
                                 <Input
                                     value={item.value || ''}
                                     onChange={handleItemChange}
-                                    readOnly={item.readOnly || item.highlighted}
+                                    readOnly={item.readOnly}
                                     className={inputClass}
                                 />
                             </div>
@@ -378,7 +378,7 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                         label="Is Faculty Member Tenured?"
                         value={formData.is_tenured || ''}
                         onChange={(value) => onErrorSafeChange('is_tenured', value)}
-                        options={mapToOptions(TENURE_OPTIONS)}
+                        options={mapToOptions(referenceData?.tenureE2 || TENURE_OPTIONS)}
                         placeholder="Select Option"
                         showCodePrefix={true}
                     />
@@ -572,8 +572,7 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                         {
                             label: "Total Credit Units",
                             value: formData.ug_total_units || '',
-                            highlighted: true,
-                            hint: "Auto-calculated",
+                            onChange: (value) => onErrorSafeChange('ug_total_units', value),
                         }
                     ]}
                 />
@@ -594,8 +593,7 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                         {
                             label: "Total Hours",
                             value: formData.ug_total_hours || '',
-                            highlighted: true,
-                            hint: "Auto-calculated"
+                            onChange: (value) => onErrorSafeChange('ug_total_hours', value),
                         }
                     ]}
                 />
@@ -616,8 +614,7 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                         {
                             label: "Total Contact Hours",
                             value: formData.ug_total_contact || '',
-                            highlighted: true,
-                            hint: "Auto-calculated"
+                            onChange: (value) => onErrorSafeChange('ug_total_contact', value),
                         }
                     ]}
                 />
@@ -651,8 +648,7 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                         {
                             label: "Total Units",
                             value: formData.grad_total_units || '',
-                            highlighted: true,
-                            hint: "Auto-calculated"
+                            onChange: (value) => onErrorSafeChange('grad_total_units', value),
                         }
                     ]}
                 />
@@ -673,8 +669,7 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                         {
                             label: "Total Contact",
                             value: formData.grad_total_contact || '',
-                            highlighted: true,
-                            hint: "Auto-calculated"
+                            onChange: (value) => onErrorSafeChange('grad_total_contact', value),
                         }
                     ]}
                 />
@@ -725,28 +720,13 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                             value: formData.load_others || '',
                             onChange: (value) => onErrorSafeChange('load_others', value),
                         },
+                        {
+                            label: "TOTAL WORK LOAD",
+                            value: formData.load_total || '',
+                            onChange: (value) => onErrorSafeChange('load_total', value),
+                        },
                     ]}
                 />
-
-                <Separator className="my-6" />
-
-                <div className="bg-linear-to-r from-blue-50 to-indigo-50 p-6 rounded-4px border border-blue-200">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <label className="text-lg font-bold text-[#003468] uppercase tracking-wider">
-                                Total Work Load
-                            </label>
-                            <p className="text-xs text-gray-600 mt-1">Sum of all official loads</p>
-                        </div>
-                        <div className="text-right">
-                            <Input
-                                value={formData.load_total || '0.00'}
-                                readOnly
-                                className="text-2xl! font-semibold h-12 text-[#003468] bg-white border-blue-300 w-44 text-center rounded-lg focus-visible:ring-0 cursor-default"
-                            />
-                        </div>
-                    </div>
-                </div>
             </CardContent>
         </Card>
     );

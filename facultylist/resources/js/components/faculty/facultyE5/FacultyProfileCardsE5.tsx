@@ -19,12 +19,12 @@ import {
 import DisciplineSelector from '../DisciplineSelector';
 
 type FacultyProfileCardsProps = {
-     
+
     formData: any;
-     
+
     handleChange?: (field: string, value: any) => void;
     readOnly?: boolean;
-     
+
     referenceData: any;
 };
 
@@ -61,7 +61,7 @@ const SectionHeader: FC<SectionHeaderProps> = ({ icon, title, variant = 'default
 export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, handleChange, readOnly = false, referenceData }) => {
 
     // Helper to handle change if not readOnly
-     
+
     const onErrorSafeChange = (field: string, value: any) => {
         if (!readOnly && handleChange) {
             handleChange(field, value);
@@ -120,10 +120,11 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                             <label className="text-base font-bold text-gray-600">Full-Time/Part-Time </label>
                             <div className="flex gap-2">
                                 <Input
-                                    readOnly
                                     className="w-32 shrink-0 bg-gray-50 text-center font-bold focus-visible:ring-0 disabled:opacity-100 disabled:bg-white border border-input rounded-md h-12 px-3 text-sm flex items-center"
-                                    value={lookupCode(FT_PT_OPTIONS, formData.fullTimeCode)}
+                                    value={formData.fullTimeCode || ''}
+                                    onChange={(e) => onErrorSafeChange('fullTimeCode', e.target.value)}
                                     placeholder="Code"
+                                    disabled={readOnly}
                                 />
 
                                 <Combobox
@@ -140,10 +141,11 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                             <label className="text-base font-bold text-gray-600">Gender </label>
                             <div className="flex gap-2">
                                 <Input
-                                    readOnly
                                     className="w-32 shrink-0 bg-gray-50 text-center font-bold focus-visible:ring-0 disabled:opacity-100 disabled:bg-white border border-input rounded-md h-12 px-3 text-sm flex items-center"
-                                    value={lookupCode(GENDER_OPTIONS, formData.genderCode)}
+                                    value={formData.genderCode || ''}
+                                    onChange={(e) => onErrorSafeChange('genderCode', e.target.value)}
                                     placeholder="Code"
+                                    disabled={readOnly}
                                 />
 
                                 <Combobox
@@ -189,10 +191,11 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                             <label className="text-base font-bold text-gray-600">Highest Degree Attained</label>
                             <div className="flex gap-3">
                                 <Input
-                                    readOnly
                                     className="w-32 shrink-0 bg-gray-50 text-center font-bold focus-visible:ring-0 disabled:opacity-100 disabled:bg-white border border-input rounded-md h-12 px-3 text-[12px] flex items-center"
-                                    value={lookupCode(HIGHEST_DEGREE_OPTIONS, formData.degree)}
+                                    value={formData.degree || ''}
+                                    onChange={(e) => onErrorSafeChange('degree', e.target.value)}
                                     placeholder="Code"
+                                    disabled={readOnly}
                                 />
 
                                 <Combobox
@@ -265,10 +268,11 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                             <label className="text-base font-bold text-gray-600">Professional License</label>
                             <div className="flex gap-2">
                                 <Input
-                                    readOnly
                                     className="w-32 shrink-0 bg-gray-50 text-center font-bold focus-visible:ring-0 disabled:opacity-100 disabled:bg-white border border-input rounded-md h-12 px-3 text-[12px] flex items-center"
-                                    value={lookupCode(PROFESSIONAL_LICENSE_OPTIONS, formData.licenseCode)}
+                                    value={formData.licenseCode || ''}
+                                    onChange={(e) => onErrorSafeChange('licenseCode', e.target.value)}
                                     placeholder="Code"
+                                    disabled={readOnly}
                                 />
 
                                 <Combobox
@@ -286,10 +290,11 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                             <label className="text-base font-bold text-gray-600">Faculty Rank</label>
                             <div className="flex gap-2">
                                 <Input
-                                    readOnly
                                     className="w-32 shrink-0 bg-gray-50 text-center font-bold focus-visible:ring-0 disabled:opacity-100 disabled:bg-white border border-input rounded-md h-12 px-3 text-[12px] flex items-center"
-                                    value={lookupCode(FACULTY_RANK_OPTIONS, formData.rankCode)}
+                                    value={formData.rankCode || ''}
+                                    onChange={(e) => onErrorSafeChange('rankCode', e.target.value)}
                                     placeholder="Code"
+                                    disabled={readOnly}
                                 />
 
                                 <Combobox
@@ -308,10 +313,11 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                             <label className="text-base font-bold text-gray-600">Teaching Load</label>
                             <div className="flex gap-2">
                                 <Input
-                                    readOnly
                                     className="w-32 shrink-0 bg-gray-50 text-center font-bold focus-visible:ring-0 disabled:opacity-100 disabled:bg-white rounded-md h-12 text-[12px]"
-                                    value={lookupCode(TEACHING_LOAD_OPTIONS, formData.loadCode)}
+                                    value={formData.loadCode || ''}
+                                    onChange={(e) => onErrorSafeChange('loadCode', e.target.value)}
                                     placeholder="Code"
+                                    disabled={readOnly}
                                 />
 
                                 <Combobox
@@ -328,10 +334,11 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                             <label className="text-base font-bold text-gray-600">Annual Salary</label>
                             <div className="flex gap-2">
                                 <Input
-                                    readOnly
                                     className="w-32 shrink-0 bg-gray-50 text-center font-bold focus-visible:ring-0 disabled:opacity-100 disabled:bg-white rounded-md h-12 text-[12px]"
-                                    value={lookupCode(ANNUAL_SALARY_OPTIONS, formData.salaryCode)}
+                                    value={formData.salaryCode || ''}
+                                    onChange={(e) => onErrorSafeChange('salaryCode', e.target.value)}
                                     placeholder="Code"
+                                    disabled={readOnly}
                                 />
 
                                 <Combobox
@@ -350,10 +357,11 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                             <label className="text-base font-bold text-gray-600">Tenure of Employment</label>
                             <div className="flex gap-2">
                                 <Input
-                                    readOnly
                                     className="w-32 shrink-0 bg-gray-50 text-center font-bold focus-visible:ring-0 disabled:opacity-100 disabled:bg-white rounded-md h-12 text-[12px]"
-                                    value={lookupCode(TENURE_OPTIONS, formData.tenureCode)}
+                                    value={formData.tenureCode || ''}
+                                    onChange={(e) => onErrorSafeChange('tenureCode', e.target.value)}
                                     placeholder="Code"
+                                    disabled={readOnly}
                                 />
 
                                 <Combobox

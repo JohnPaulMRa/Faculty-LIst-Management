@@ -30,7 +30,7 @@ const FacultyFormE2: FC<FacultyFormE2Props> = ({
     referenceData
 }) => {
     // --- HOOKS ---
-    
+
     const [internalFormData, setInternalFormData] = useState<Partial<PublicFaculty>>({});
     const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -59,50 +59,6 @@ const FacultyFormE2: FC<FacultyFormE2Props> = ({
             setInternalFormData(prev => ({ ...prev, [field]: value }));
         }
     };
-
-    // --- DERIVED VARIABLES ---
-
-    const calculateAndSync = (fields: string[], targetField: keyof PublicFaculty) => {
-        const total = fields.reduce((sum, field) => 
-            sum + (parseFloat(formData[field as keyof PublicFaculty] as string || '0') || 0), 
-            0
-        ).toFixed(2);
-        
-        if (total !== formData[targetField]) {
-            handleChange(targetField, total);
-        }
-    };
-
-    // --- SECONDARY HOOKS (EFFECTS) ---
-
-    // Auto-calculate totals
-    useEffect(() => {
-        // Undergraduate Totals
-        calculateAndSync(['ug_lab_units', 'ug_lec_units'], 'ug_total_units');
-        calculateAndSync(['ug_lab_hours', 'ug_lec_hours'], 'ug_total_hours');
-        calculateAndSync(['ug_lab_contact', 'ug_lec_contact'], 'ug_total_contact');
-
-        // Graduate Totals
-        calculateAndSync(['grad_lab_units', 'grad_lec_units'], 'grad_total_units');
-        calculateAndSync(['grad_lab_contact', 'grad_lec_contact'], 'grad_total_contact');
-
-        // Official Credit Load Total
-        calculateAndSync([
-            'load_research', 'load_extension', 'load_study',
-            'load_production', 'load_admin', 'load_others'
-        ], 'load_total');
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [
-        formData.ug_lab_units, formData.ug_lec_units,
-        formData.ug_lab_hours, formData.ug_lec_hours,
-        formData.ug_lab_contact, formData.ug_lec_contact,
-        formData.grad_lab_units, formData.grad_lec_units,
-        formData.grad_lab_contact, formData.grad_lec_contact,
-        formData.load_research, formData.load_extension,
-        formData.load_study, formData.load_production,
-        formData.load_admin, formData.load_others
-    ]);
 
     // Auto-calculate status (Validation/Logic)
     useEffect(() => {
@@ -156,7 +112,7 @@ const FacultyFormE2: FC<FacultyFormE2Props> = ({
         if (formData.status !== newStatus) {
             handleChange('status', newStatus || 'Not Yet Completed');
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [
         formData.name,
         formData.rank,

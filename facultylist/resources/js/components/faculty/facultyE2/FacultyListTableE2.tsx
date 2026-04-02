@@ -86,14 +86,16 @@ const FacultyListTableE2: FC<FacultyListTableE2Props> = ({
     };
 
     const getStatusBadgeStyle = (status: string): string => {
-        const s = status?.trim();
-        const styles: Record<string, string> = {
-            'Updated': 'bg-green-400 text-white border-green-600 shadow-sm',
-            'Submitted': 'bg-green-500 text-white border-green-700 shadow-sm',
-            'No Submission': 'bg-red-400 text-white border-red-600 shadow-sm',
-            'Not Yet Completed': 'bg-red-400 text-white border-red-600 shadow-sm',
-        };
-        return styles[s] || 'bg-gray-100 text-gray-800 border border-gray-300 shadow-sm';
+        const s = (status || '').trim();
+        const lower = s.toLowerCase();
+        
+        if (lower === 'updated') return 'bg-green-400 text-white border-green-600 shadow-sm';
+        if (lower === 'submitted') return 'bg-green-500 text-white border-green-700 shadow-sm';
+        if (lower === 'not updated' || lower === 'not yet completed' || lower === 'no submission') {
+            return 'bg-red-400 text-white border-red-600 shadow-sm';
+        }
+
+        return 'bg-gray-100 text-gray-800 border border-gray-300 shadow-sm';
     };
 
     const getGenderLabel = (code?: string) => {
@@ -104,7 +106,7 @@ const FacultyListTableE2: FC<FacultyListTableE2Props> = ({
 
     const getTenuredLabel = (code?: string) => {
         if (!code) return 'N/A';
-        const found = referenceData?.tenured?.find((g: any) => String(g.code) === String(code));
+        const found = referenceData?.tenureE2?.find((g: any) => String(g.code) === String(code));
         return found ? found.desc : code;
     };
 
@@ -146,7 +148,7 @@ const FacultyListTableE2: FC<FacultyListTableE2Props> = ({
             const genderLabel = faculty.form_type === 'E2' ? getGenderLabel(faculty.gender) : 'N/A';
             const groupLabel = getFacultyGroup(faculty);
             const rankLabel = getFacultyRankLabel(faculty);
-            const tenuredLabel = faculty.form_type === 'E2' ? getTenuredLabel(faculty.tenured) : 'N/A';
+            const tenuredLabel = faculty.form_type === 'E2' ? getTenuredLabel(faculty.is_tenured) : 'N/A';
             const statusBadgeClass = `text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-none font-bold ${getStatusBadgeStyle(faculty.status)}`;
             const editUrl = edit({ id: faculty.id }).url;
 
@@ -290,7 +292,7 @@ const FacultyListTableE2: FC<FacultyListTableE2Props> = ({
                                 </button>
                             </th>
                             <th className="px-3 py-2 font-bold text-center w-[10%]">
-                                <button className="flex items-center justify-center w-full gap-1 hover:text-gray-200" onClick={() => handleSort('name')}>
+                                <button className="flex items-center justify-center w-full gap-1 hover:text-gray-200" onClick={() => handleSort('is_tenured')}>
                                     Tenured <ArrowUpDown className="h-4 w-4" />
                                 </button>
                             </th>

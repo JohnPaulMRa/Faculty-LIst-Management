@@ -2,13 +2,15 @@
 import axios from 'axios';
 import { FileText, Loader2 } from "lucide-react";
 import React, { useState } from 'react';
-import { ViewSubmissionModal } from './ViewSubmissionModal';
+import { PrivateViewSubmissionModal } from './PrivateViewSubmissionModal';
 
 interface FacultyMember {
     id: string | number;
     name: string;
-    sex: string;
-    type: string;
+    gender: string;
+    group: string;
+    rank: string;
+    is_tenured: string;
     submissionStatus: 'submitted' | 'pending';
     schoolYear: string;
 }
@@ -36,12 +38,47 @@ export default function PrivateFacultyTable({ faculty, referenceData }: PrivateF
             setIsLoadingId(null);
         }
     };
-    const getStatusBadge = (status: string): string => {
-        const styles: Record<string, string> = {
-            'submitted': 'bg-emerald-100 text-emerald-700 border border-emerald-200',
-            'pending': 'bg-amber-100 text-amber-700 border border-amber-200',
-        };
-        return styles[status] || 'bg-gray-100 text-gray-700 border border-gray-200';
+
+    const getGenderLabel = (code: string) => {
+        if (!code) return 'N/A';
+        const found = referenceData?.gender?.find((g: any) => String(g.code) === String(code));
+        return found ? found.desc : code;
+    };
+
+    const getRankLabel = (code: string) => {
+        if (!code) return 'N/A';
+        const found = referenceData?.facultyRank?.find((r: any) => String(r.code) === String(code));
+        const label = found ? found.desc : code;
+        if (label?.toLowerCase() === 'adjunct or affiliate faculty') {
+            return 'Adjunct or Affiliate Faculty...';
+        }
+        return label;
+    };
+
+    const getTenureLabel = (code: string) => {
+        if (!code) return 'N/A';
+        const found = referenceData?.tenure?.find((t: any) => String(t.code) === String(code));
+        const label = found ? found.desc : code;
+        return label === 'Permanent' ? 'Tenured' : label;
+    };
+
+    const getGroupLabel = (code: string) => {
+        if (!code) return 'N/A';
+        const found = referenceData?.groupDiscipline?.find((g: any) => String(g.code) === String(code));
+        return found ? found.desc : code;
+    };
+
+    const getStatusBadgeStyle = (status: string): string => {
+        const s = (status || '').trim();
+        const lower = s.toLowerCase();
+        
+        if (lower === 'updated') return 'bg-green-400 text-white border-green-600 shadow-sm';
+        if (lower === 'submitted') return 'bg-green-500 text-white border-green-700 shadow-sm';
+        if (lower === 'not updated' || lower === 'not yet completed' || lower === 'no submission' || lower === 'pending') {
+            return 'bg-red-400 text-white border-red-600 shadow-sm';
+        }
+
+        return 'bg-gray-100 text-gray-800 border border-gray-300 shadow-sm';
     };
 
     // Extract unique sorted years
@@ -55,7 +92,7 @@ export default function PrivateFacultyTable({ faculty, referenceData }: PrivateF
     const filteredFaculty = faculty.filter(member => (member.schoolYear || 'Unknown Year') === activeYear);
 
     return (
-        <div className="flex flex-col bg-white shadow-none overflow-hidden rounded-none border border-gray-200">
+        <div className="flex flex-col overflow-hidden">
             {/* SPREADSHEET HEADER */}
             <div className="bg-gray-50 flex items-center justify-between px-4 py-3 border-b border-gray-300">
                 <div className="text-black text-sm font-bold uppercase tracking-wide">
@@ -75,56 +112,63 @@ export default function PrivateFacultyTable({ faculty, referenceData }: PrivateF
                 </div>
             </div>
 
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto border border-gray-300">
                 <table className="w-full border-collapse text-sm whitespace-nowrap font-sans">
                     <thead>
                         <tr className="bg-blue-500 text-white border-b border-gray-300">
-                            <th className="px-3 py-2 font-bold text-center w-[5%]">#</th>
-                            <th className="px-3 py-2 font-bold w-[20%] text-left">Faculty Name</th>
-                            <th className="px-3 py-2 font-bold w-[20%] text-left">Gender</th>
-                            <th className="px-3 py-2 font-bold w-[25%] text-center">Full-Time / Part-Time</th>
-                            <th className="px-3 py-2 font-bold w-[20%] text-center">Submit Status</th>
-                            <th className="px-3 py-2 font-bold text-center w-[10%]">Action</th>
+                            <th className="px-3 py-2 font-bold text-center w-[20px]">#</th>
+                            <th className="px-3 py-2 font-bold text-left">Faculty Name</th>
+                            <th className="px-3 py-2 font-bold text-center">Gender</th>
+                            <th className="px-3 py-2 font-bold text-center">Group</th>
+                            <th className="px-3 py-2 font-bold text-center">GENERIC FACULTY RANK</th>
+                            <th className="px-3 py-2 font-bold text-center">TENURE STATUS</th>
+                            <th className="px-3 py-2 font-bold text-center">Submit Status</th>
+                            <th className="px-3 py-2 font-bold text-center w-[150px]">Action</th>
                         </tr>
                     </thead>
                     <tbody className="bg-white text-sm">
-                        {filteredFaculty.map((member, index) => (
-                            <tr key={member.id} className="border-b border-gray-300 hover:bg-gray-50 transition-colors">
-                                <td className="px-3 py-2 text-center text-black">{index + 1}</td>
-                                <td className="px-3 py-2 text-left font-semibold text-gray-900">{member.name}</td>
-                                <td className="px-3 py-2 text-left text-black">{member.sex}</td>
-                                <td className="px-3 py-2 text-left text-black">
-                                    <div
-                                        className="truncate max-w-[300px] text-sm"
-                                        title={member.type}
-                                    >
-                                        {member.type}
-                                    </div>
-                                </td>
-                                <td className="px-3 py-2 text-center">
-                                    <span className={`text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-none font-bold ${getStatusBadge(member.submissionStatus)}`}>
-                                        {member.submissionStatus}
-                                    </span>
-                                </td>
-                                <td className="px-3 py-2 font-bold text-center">
-                                    <div className="flex items-center justify-center">
-                                        <button
-                                            onClick={() => handleViewProfile(member)}
-                                            disabled={isLoadingId === member.id}
-                                            className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50 px-3 h-8 rounded-xl shadow-md border-b-2 border-blue-800 active:border-b-0 active:translate-y-px transition-all text-xs font-semibold w-full max-w-[140px] justify-center"
-                                            title="View Submission"
-                                        >
-                                            {isLoadingId === member.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileText className="h-3.5 w-3.5" />}
-                                            View Submission
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        ))}
+                        {filteredFaculty.map((member, index) => {
+                            const isSubmitted = member.submissionStatus.toLowerCase() === 'submitted';
+                            const statusBadgeClass = isSubmitted
+                                ? "text-[10px] uppercase tracking-wide px-2 py-1 rounded-none font-bold bg-green-100/80 text-emerald-800 border border-emerald-300"
+                                : `text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-none font-bold ${getStatusBadgeStyle(member.submissionStatus)}`;
+
+                            return (
+                                <tr key={member.id} className="border-b border-gray-300 hover:bg-gray-100 transition-colors">
+                                    <td className="px-3 py-2 text-center text-black border-r border-gray-100">{index + 1}</td>
+                                    <td className="px-3 py-2 text-left font-semibold text-gray-900">{member.name}</td>
+                                    <td className="px-3 py-2 text-center text-black">{getGenderLabel(member.gender)}</td>
+                                    <td className="px-3 py-2 text-center text-black">{getGroupLabel(member.group)}</td>
+                                    <td className="px-3 py-2 text-center text-black">{getRankLabel(member.rank)}</td>
+                                    <td className="px-3 py-2 text-center text-black">{getTenureLabel(member.is_tenured)}</td>
+                                    <td className="px-3 py-2 text-center">
+                                        <span className={statusBadgeClass}>
+                                            {member.submissionStatus}
+                                        </span>
+                                    </td>
+                                    <td className="px-3 py-2 font-bold text-center">
+                                        <div className="flex items-center justify-center">
+                                            <button
+                                                onClick={() => handleViewProfile(member)}
+                                                disabled={isLoadingId === member.id}
+                                                className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50 px-4 h-8 rounded-full shadow-md border-b-2 border-blue-800 active:border-b-0 active:translate-y-px transition-all text-xs font-semibold w-full max-w-[140px] justify-center"
+                                                title="View Submission"
+                                            >
+                                                {isLoadingId === member.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileText className="h-3.5 w-3.5" />}
+                                                View Submission
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            );
+                        })}
                         {filteredFaculty.length === 0 && (
                             <tr>
-                                <td colSpan={6} className="px-6 py-8 text-center text-gray-500 text-sm border border-gray-300 bg-gray-50">
-                                    No records found for the selected view.
+                                <td colSpan={8} className="px-6 py-12 text-center text-gray-500 text-sm border-b border-gray-300 bg-gray-50">
+                                    <div className="flex flex-col items-center justify-center gap-2 text-gray-400">
+                                        <FileText className="h-10 w-10 text-gray-300" />
+                                        <p>No records found for the selected view.</p>
+                                    </div>
                                 </td>
                             </tr>
                         )}
@@ -132,7 +176,7 @@ export default function PrivateFacultyTable({ faculty, referenceData }: PrivateF
                 </table>
             </div>
 
-            <ViewSubmissionModal
+            <PrivateViewSubmissionModal
                 isOpen={isModalOpen}
                 onClose={setIsModalOpen}
                 selectedFaculty={selectedFaculty}

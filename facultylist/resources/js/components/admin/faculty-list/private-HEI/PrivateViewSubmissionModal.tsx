@@ -9,14 +9,15 @@ import {
 } from "@/components/ui/dialog";
 import { PrivateFacultyProfileView } from './PrivateFacultyProfileView';
 
-interface ViewSubmissionModalProps {
+interface PrivateViewSubmissionModalProps {
     isOpen: boolean;
     onClose: (open: boolean) => void;
     selectedFaculty: any;
     referenceData: any;
 }
 
-export function ViewSubmissionModal({ isOpen, onClose, selectedFaculty, referenceData }: ViewSubmissionModalProps) {
+export function PrivateViewSubmissionModal({ isOpen, onClose, selectedFaculty, referenceData }: PrivateViewSubmissionModalProps) {
+
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent

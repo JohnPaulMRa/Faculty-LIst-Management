@@ -357,6 +357,7 @@ class AdminController extends Controller
             'highestDegree' => DB::table('e5_ref_highest_degree')->select('code', 'description as desc')->get(),
             'professionalLicense' => DB::table('e5_ref_professional_license')->select('code', 'description as desc')->get(),
             'tenure' => DB::table('e5_ref_tenure')->select('code', 'description as desc')->get(),
+            'tenureE2' => DB::table('e2_ref_tenure')->select('code', 'description as desc')->get(),
             'facultyRank' => DB::table('e5_ref_faculty_rank')->select('code', 'description as desc')->get(),
             'teachingLoad' => DB::table('e5_ref_teaching_load')->select('code', 'description as desc')->get(),
             'annualSalary' => DB::table('e5_ref_annual_salary')->select('code', 'description as desc')->get(),
@@ -365,7 +366,7 @@ class AdminController extends Controller
                 ->orderBy('code')
                 ->get(),
             'disciplines' => DB::table('specific_discipline')
-                ->select('code', 'description as desc')
+                ->select('code', 'description as desc', 'major_code', 'group_code')
                 ->orderBy('code')
                 ->get()
         ];
@@ -678,8 +679,8 @@ class AdminController extends Controller
                     'original_id' => $f->id,
                     'name' => $f->name,
                     'email' => $f->email,
-                    'sex' => 'N/A', // For display compatibility
-                    'genderCode' => null,
+                    'gender' => $f->gender ?? $f->sex ?? 'N/A',
+                    'genderCode' => $f->gender ?? $f->sex,
                     'type' => $f->employment ?? 'Full-time',
                     'employment' => $f->employment ?? 'Full-time',
                     'submissionStatus' => 'pending',
@@ -690,6 +691,8 @@ class AdminController extends Controller
                     'department' => $f->department ?? '',
                     'degree' => $f->degree ?? '',
                     'rank' => $f->rank ?? '',
+                    'group' => $f->import_group ?? '',
+                    'is_tenured' => $f->is_tenured ?? '',
                     'avatar_initials' => $f->avatar_initials ?? '?',
                 ];
             });
@@ -708,7 +711,7 @@ class AdminController extends Controller
                     'original_id' => $f->id,
                     'name' => $f->name,
                     'email' => $f->email,
-                    'sex' => $f->gender_code === '1' ? 'Male' : ($f->gender_code === '2' ? 'Female' : 'N/A'),
+                    'gender' => $f->gender_code, // Pass code for frontend lookup
                     'genderCode' => $f->gender_code,
                     'fullTimeCode' => $f->ft_pt_code,
                     'disciplineCode' => $f->discipline_code,
@@ -722,6 +725,8 @@ class AdminController extends Controller
                     'department' => '', // E5 might not have dept column readily available or mapped
                     'degree' => $f->highest_degree_code ?? '', // use code or lookup if needed
                     'rank' => $f->rank_code ?? '',
+                    'group' => $f->import_group ?? '',
+                    'is_tenured' => $f->tenure_code ?? '',
                     'avatar_initials' => $f->avatar_initials ?? '?',
                 ];
             });
@@ -826,11 +831,49 @@ class AdminController extends Controller
                     'name' => $faculty->name,
                     'email' => $faculty->email,
                     'status' => $faculty->status ?? 'Not Updated',
+                    'import_group' => $faculty->import_group,
                     'employment' => $faculty->employment,
                     'joined_year' => $faculty->joined_year,
+                    'college' => $faculty->college,
                     'department' => $faculty->department,
+                    'salary_grade' => $faculty->salary_grade,
+                    'annual_salary' => $faculty->annual_salary,
+                    'on_leave' => $faculty->on_leave,
+                    'fte' => $faculty->fte,
+                    'gender' => $faculty->gender,
                     'degree' => $faculty->degree,
                     'rank' => $faculty->rank,
+                    'is_tenured' => $faculty->is_tenured,
+                    'pursuing_degree' => $faculty->pursuing_degree,
+                    'discipline_load_1' => $faculty->discipline_load_1,
+                    'discipline_load_2' => $faculty->discipline_load_2,
+                    'discipline_bachelors' => $faculty->discipline_bachelors,
+                    'discipline_masters' => $faculty->discipline_masters,
+                    'discipline_doctorate' => $faculty->discipline_doctorate,
+                    'masters_thesis' => $faculty->masters_thesis,
+                    'doctorate_dissertation' => $faculty->doctorate_dissertation,
+                    'ug_lab_units' => $faculty->ug_lab_units,
+                    'ug_lec_units' => $faculty->ug_lec_units,
+                    'ug_total_units' => $faculty->ug_total_units,
+                    'ug_lab_hours' => $faculty->ug_lab_hours,
+                    'ug_lec_hours' => $faculty->ug_lec_hours,
+                    'ug_total_hours' => $faculty->ug_total_hours,
+                    'ug_lab_contact' => $faculty->ug_lab_contact,
+                    'ug_lec_contact' => $faculty->ug_lec_contact,
+                    'ug_total_contact' => $faculty->ug_total_contact,
+                    'grad_lab_units' => $faculty->grad_lab_units,
+                    'grad_lec_units' => $faculty->grad_lec_units,
+                    'grad_total_units' => $faculty->grad_total_units,
+                    'grad_lab_contact' => $faculty->grad_lab_contact,
+                    'grad_lec_contact' => $faculty->grad_lec_contact,
+                    'grad_total_contact' => $faculty->grad_total_contact,
+                    'load_research' => $faculty->load_research,
+                    'load_extension' => $faculty->load_extension,
+                    'load_study' => $faculty->load_study,
+                    'load_production' => $faculty->load_production,
+                    'load_admin' => $faculty->load_admin,
+                    'load_others' => $faculty->load_others,
+                    'load_total' => $faculty->load_total,
                     'form_type' => 'E2',
                 ]);
             }
