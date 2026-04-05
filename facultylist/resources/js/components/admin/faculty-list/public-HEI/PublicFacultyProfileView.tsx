@@ -107,20 +107,20 @@ export function PublicFacultyProfileView({ formData, referenceData }: PublicFacu
                 <h3 className="text-xl font-bold text-blue-900 border-b-2 border-blue-200 pb-3 mb-5">General Information</h3>
                 <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 gap-x-8">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-x-8">
-                        <DataItem label="Name of Faculty (Last, First, M.I.)" value={formData.name} />
+                        <DataItem label="NAME OF FACULTY ( Last name, first name, middle initial)" value={formData.name} />
                         <DataItem label="Generic Faculty Rank" code={formData.rank} desc={getDescStrict(GENERIC_RANK_OPTIONS, formData.rank)} />
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-x-8">
-                        <DataItem label="Home College" value={formData.college} />
-                        <DataItem label="Home Department" value={formData.department} />
+                        <DataItem label="HOME COLLEGE" value={formData.college} />
+                        <DataItem label="HOME DEPARTMENT" value={formData.department} />
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8">
-                        <DataItem label="Is Faculty Member Tenured?" code={formData.is_tenured} desc={getDescStrict(TENURE_OPTIONS, formData.is_tenured)} />
+                        <DataItem label="IS FACULTY MEMBER TENURED?" code={formData.is_tenured} desc={getDescStrict(TENURE_OPTIONS, formData.is_tenured)} />
                         <DataItem label="SSL Salary Grade" code={formData.salary_grade} desc={getDescStrict(SALARY_GRADE_OPTIONS, formData.salary_grade)} />
-                        <DataItem label="Annual Basic Salary" code={formData.annual_salary} desc={getDescStrict(ANNUAL_SALARY_OPTIONS, formData.annual_salary)} />
-                        <DataItem label="On Leave Without Pay?" code={formData.on_leave} desc={getDescStrict(ON_LEAVE_PAY_OPTIONS, formData.on_leave)} />
-                        <DataItem label="Full-Time Equivalent (FTE)" code={formData.fte} desc={getDescStrict(FTE_OPTIONS, formData.fte)} />
-                        <DataItem label="Gender of Faculty" code={formData.gender} desc={getDescStrict(GENDER_OPTIONS, formData.gender)} />
+                        <DataItem label="ANNUAL BASIC SALARY" code={formData.annual_salary} desc={getDescStrict(ANNUAL_SALARY_OPTIONS, formData.annual_salary)} />
+                        <DataItem label="ON LEAVE WITHOUT PAY?" code={formData.on_leave} desc={getDescStrict(ON_LEAVE_PAY_OPTIONS, formData.on_leave)} />
+                        <DataItem label="FULL-TIME EQUIVALENT (FTE)" code={formData.fte} desc={getDescStrict(FTE_OPTIONS, formData.fte)} />
+                        <DataItem label="GENDER OF FACULTY" code={formData.gender} desc={getDescStrict(GENDER_OPTIONS, formData.gender)} />
                     </div>
                 </div>
             </div>
@@ -134,74 +134,66 @@ export function PublicFacultyProfileView({ formData, referenceData }: PublicFacu
                         <DataItem label="Actively Pursuing Next Degree?" code={formData.pursuing_degree} desc={getDescStrict(PURSUING_DEGREE_OPTIONS, formData.pursuing_degree)} />
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-x-8">
-                        <DataItem label="Primary Discipline (1)" code={formData.discipline_load_1} desc={getDisciplineDescWithGroup(formData.discipline_load_1)} />
-                        <DataItem label="Primary Discipline (2)" code={formData.discipline_load_2} desc={getDisciplineDescWithGroup(formData.discipline_load_2)} />
+                        <DataItem label="SPECIFIC DISCIPLINE (1) OF PRIMARY TEACHING LOAD" code={formData.discipline_load_1} desc={getDisciplineDescWithGroup(formData.discipline_load_1)} />
+                        <DataItem label="SPECIFIC DISCIPLINE (2) OF PRIMARY TEACHING LOAD" code={formData.discipline_load_2} desc={getDisciplineDescWithGroup(formData.discipline_load_2)} />
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8">
-                        <DataItem label="Bachelors Discipline" code={formData.discipline_bachelors} desc={getDisciplineDescWithGroup(formData.discipline_bachelors)} />
-                        <DataItem label="Masters Discipline" code={formData.discipline_masters} desc={getDisciplineDescWithGroup(formData.discipline_masters)} />
-                        <DataItem label="Doctorate Discipline" code={formData.discipline_doctorate} desc={getDisciplineDescWithGroup(formData.discipline_doctorate)} />
+                        <DataItem label="SPECIFIC DISCIPLINE OF BACHELORS DEGREE" code={formData.discipline_bachelors} desc={getDisciplineDescWithGroup(formData.discipline_bachelors)} />
+                        <DataItem label="SPECIFIC DISCIPLINE OF MASTERS DEGREE" code={formData.discipline_masters} desc={getDisciplineDescWithGroup(formData.discipline_masters)} />
+                        <DataItem label="SPECIFIC DISCIPLINE OF DOCTORATE DEGREE" code={formData.discipline_doctorate} desc={getDisciplineDescWithGroup(formData.discipline_doctorate)} />
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-x-8">
-                        <DataItem label="Masters Degree with Thesis?" code={formData.masters_thesis} desc={getDescStrict(THESIS_OPTIONS, formData.masters_thesis)} />
-                        <DataItem label="Doctorate with Dissertation?" code={formData.doctorate_dissertation} desc={getDescStrict(DISSERTATION_OPTIONS, formData.doctorate_dissertation)} />
+                        <DataItem label="MASTERS DEGREE WITH THESIS?" code={formData.masters_thesis} desc={getDescStrict(THESIS_OPTIONS, formData.masters_thesis)} />
+                        <DataItem label="DOCTORATE WITH DISSERTATION?" code={formData.doctorate_dissertation} desc={getDescStrict(DISSERTATION_OPTIONS, formData.doctorate_dissertation)} />
                     </div>
                 </div>
             </div>
 
             {/* Undergraduate & Graduate Workload */}
             <div>
-                <h3 className="text-xl font-bold text-blue-900 border-b-2 border-blue-200 pb-3 mb-5">Undergraduate</h3>
+                <h3 className="text-xl font-bold text-blue-900 border-b-2 border-blue-200 pb-3 mb-5">Workload</h3>
                 <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 gap-x-8">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8">
-                        <DataItem label="Lab Units" value={formData.ug_lab_units} />
-                        <DataItem label="Lecture Units" value={formData.ug_lec_units} />
-                        <DataItem label="Total Units" value={formData.ug_total_units} />
+                        <DataItem label="LAB CREDIT UNITS TEACHING Undergrad" value={formData.ug_lab_units} />
+                        <DataItem label="LECTURE CREDIT UNITS TEACHING Undergrad" value={formData.ug_lec_units} />
+                        <DataItem label="TOTAL TEACHING CREDIT UNITS Undergrad (Lab+Lect)" value={formData.ug_total_units} />
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8">
-                        <DataItem label="Lab Hours" value={formData.ug_lab_hours} />
-                        <DataItem label="Lecture Hours" value={formData.ug_lec_hours} />
-                        <DataItem label="Total Hours" value={formData.ug_total_hours} />
+                        <DataItem label="LAB HOURS PER WEEK TEACHING Undergrad" value={formData.ug_lab_hours} />
+                        <DataItem label="LECTURE HOURS PER WEEK TEACHING Undergrad" value={formData.ug_lec_hours} />
+                        <DataItem label="TOTAL TEACHING HOURS PER WEEK Undergrad" value={formData.ug_total_hours} />
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8">
-                        <DataItem label="Lab Contact" value={formData.ug_lab_contact} />
-                        <DataItem label="Lecture Contact" value={formData.ug_lec_contact} />
-                        <DataItem label="Total Contact" value={formData.ug_total_contact} />
+                        <DataItem label="Student Contact Hours Lab Undergrad" value={formData.ug_lab_contact} />
+                        <DataItem label="Student Contact Hours Lecture Undergrad" value={formData.ug_lec_contact} />
+                        <DataItem label="STUDENT CONTACT-HOURS  Undergrad (Lab+Lect)" value={formData.ug_total_contact} />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8">
+                        <DataItem label="LAB CREDIT UNITS TEACHING Graduate Level" value={formData.grad_lab_units} />
+                        <DataItem label="LECTURE CREDIT UNITS TEACHING Graduate Level" value={formData.grad_lec_units} />
+                        <DataItem label="TOTAL TEACHING CREDIT UNITS Graduate (Lab+Lect)" value={formData.grad_total_units} />
+                        <DataItem label="Student Contact Hours Lab Graduate" value={formData.grad_lab_contact} />
+                        <DataItem label="Student Contact Hours Lecture Graduate" value={formData.grad_lec_contact} />
+                        <DataItem label="STUDENT CONTACT-HOURS Graduate (Lab+Lect)" value={formData.grad_total_contact} />
                     </div>
                 </div>
             </div>
-            <div>
-                <h3 className="text-xl font-bold text-blue-900 border-b-2 border-blue-200 pb-3 mb-5">Graduate Workload</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12">
-                    <DataItem label="Lab Units" value={formData.grad_lab_units} />
-                    <DataItem label="Lecture Units" value={formData.grad_lec_units} />
-                    <DataItem label="Total Units" value={formData.grad_total_units} />
 
-                    <DataItem label="Lab Contact" value={formData.grad_lab_contact} />
-                    <DataItem label="Lecture Contact" value={formData.grad_lec_contact} />
-                    <DataItem label="Total Contact" value={formData.grad_total_contact} />
-                </div>
-            </div>
 
             {/* Official Credit Load */}
             <div>
                 <h3 className="text-xl font-bold text-blue-900 border-b-2 border-blue-200 pb-3 mb-5">Official Credit Load</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12">
-                    <DataItem label="Official Research Load" value={formData.load_research} />
-                    <DataItem label="Official Extension Load" value={formData.load_extension} />
-                    <DataItem label="Official Study Load" value={formData.load_study} />
-                    <DataItem label="Official Load for Production" value={formData.load_production} />
-                    <DataItem label="Official Administrative Load" value={formData.load_admin} />
-                    <DataItem label="Other Official Load Credits" value={formData.load_others} />
-                    <div className="col-span-1 md:col-span-3">
-                        <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg flex items-center justify-between">
-                            <span className="text-sm font-bold text-gray-700 uppercase">Total Work Load</span>
-                            <span className="text-2xl font-bold text-blue-900">{formData.load_total || '0'}</span>
-                        </div>
-                    </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-15 ">
+                    <DataItem label="OFFICIAL RESEARCH LOAD" value={formData.load_research} />
+                    <DataItem label="OFFICIAL EXTENSION LOAD" value={formData.load_extension} />
+                    <DataItem label="OFFICIAL STUDY LOAD" value={formData.load_study} />
+                    <DataItem label="OFFICIAL LOAD FOR PRODUCTION" value={formData.load_production} />
+                    <DataItem label="OFFICIAL ADMINISTRATIVE LOAD" value={formData.load_admin} />
+                    <DataItem label="OTHER OFFICIAL LOAD CREDITS" value={formData.load_others} />
+                    <DataItem label="TOTAL WORK LOAD" value={formData.load_total} />
                 </div>
             </div>
 
-        </div>
+        </div >
     );
 }

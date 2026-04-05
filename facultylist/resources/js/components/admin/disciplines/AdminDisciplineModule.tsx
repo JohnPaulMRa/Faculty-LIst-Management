@@ -2,9 +2,12 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { router } from '@inertiajs/react';
 import { useState, useMemo } from 'react';
+import { FileSpreadsheet, X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import AddDisciplineForm from './AddDisciplineForm';
-import DisciplineTable from './DisciplineTable';
+import DisciplineTable, { type Program } from './DisciplineTable';
 import EditDisciplineModal from './EditDisciplineModal';
+import ImportDisciplineModal, { type ParsedDisciplineRow } from './ImportDisciplineModal';
 
 
 interface SpecificDiscipline {
@@ -32,9 +35,37 @@ interface AdminDisciplineModuleProps {
 export default function AdminDisciplineModule({ disciplines = [] }: AdminDisciplineModuleProps) {
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedMajor, setSelectedMajor] = useState<string | null>(null);
-    // New state for filtering by discipline group
     const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
     const [formResetKey, setFormResetKey] = useState(0);
+    const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+    /** Rows parsed from Excel — shown in DisciplineTable as a preview */
+    const [importPreviewRows, setImportPreviewRows] = useState<Program[] | null>(null);
+
+    /** Map ParsedDisciplineRow[] → Program[] for the DisciplineTable */
+    const handleParsed = (rows: ParsedDisciplineRow[]) => {
+        const mapped: Program[] = rows.map((row, idx) => ({
+            id: row.code || `import-${idx}`,
+            code: row.code,
+            name: row.specificDiscipline,
+            major: row.groupName,
+            disciplineGroup: row.groupName,
+            specificMajor: row.majorName,
+            specificGroup: row.majorName,
+            programLevel: '',
+            originalData: {
+                code: row.code,
+                groupName: row.groupName,
+                majorName: row.majorName,
+                specificDiscipline: row.specificDiscipline,
+                type: 'specific',
+                _importStatus: row._status,
+                _importError: row._error,
+            },
+        }));
+        setImportPreviewRows(mapped);
+    };
+
+    const clearImportPreview = () => setImportPreviewRows(null);
 
     // Compute flat list of all groups for the filter dropdown
     const allGroups = useMemo(() => {
@@ -206,7 +237,7 @@ export default function AdminDisciplineModule({ disciplines = [] }: AdminDiscipl
         }
     };
 
-    const handleAddSubmit = (data: any) => {
+    const handleAddSubmit = (data: any, onSuccess?: () => void) => {
         console.log("router.post starting with data:", data);
         setProcessing(true);
         router.post(route('admin.disciplines.store'), data, {
@@ -219,7 +250,11 @@ export default function AdminDisciplineModule({ disciplines = [] }: AdminDiscipl
                     setTimeout(() => alert('Error: ' + flash.error), 10);
                 } else {
                     setSelectedMajor(null);
-                    setFormResetKey(prev => prev + 1);
+                    if (onSuccess) {
+                        onSuccess();
+                    } else {
+                        setFormResetKey(prev => prev + 1);
+                    }
                     setTimeout(() => alert('Discipline added successfully.'), 10);
                 }
             },
@@ -271,11 +306,20 @@ export default function AdminDisciplineModule({ disciplines = [] }: AdminDiscipl
         <div className="flex flex-col gap-8 w-full text-foreground bg-background">
             {/* Header Section */}
             <div className="flex flex-col gap-6">
-                <div>
-                    <h1 className="text-3xl font-bold tracking-tight text-gray-900">Discipline Management</h1>
-                    <p className="text-muted-foreground text-sm mt-1">
-                        Manage academic disciplines, codes, and groups.
-                    </p>
+                <div className="flex items-start justify-between">
+                    <div>
+                        <h1 className="text-3xl font-bold tracking-tight text-gray-900">Discipline Management</h1>
+                        <p className="text-muted-foreground text-sm mt-1">
+                            Manage academic disciplines, codes, and groups.
+                        </p>
+                    </div>
+                    <Button
+                        onClick={() => setIsImportModalOpen(true)}
+                        className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white h-9 px-5 text-xs font-bold gap-2 shadow-sm"
+                    >
+                        <FileSpreadsheet className="h-4 w-4" />
+                        Import from Excel
+                    </Button>
                 </div>
 
                 <div className="flex flex-col w-full">
@@ -287,12 +331,30 @@ export default function AdminDisciplineModule({ disciplines = [] }: AdminDiscipl
                         processing={processing}
                     />
 
-                    {/* Search block was moved into DisciplineTable */}
-
                     {/* Hierarchy Display */}
                     <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 flex flex-col gap-8">
+
+                        {/* Import preview banner */}
+                        {importPreviewRows !== null && (
+                            <div className="flex items-center justify-between gap-3 bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3">
+                                <div className="flex items-center gap-2">
+                                    <FileSpreadsheet className="h-4 w-4 text-emerald-600 shrink-0" />
+                                    <p className="text-xs font-semibold text-emerald-800">
+                                        Previewing <span className="font-bold">{importPreviewRows.length}</span> rows from Excel import
+                                    </p>
+                                    <span className="text-xs text-emerald-600">— Click <strong>Import</strong> in the modal to save, or clear the preview below.</span>
+                                </div>
+                                <button
+                                    onClick={clearImportPreview}
+                                    className="flex items-center gap-1 text-xs text-emerald-700 hover:text-emerald-900 font-semibold transition-colors"
+                                >
+                                    <X className="h-3.5 w-3.5" /> Clear
+                                </button>
+                            </div>
+                        )}
+
                         <DisciplineTable
-                            programs={filteredDisciplines}
+                            programs={importPreviewRows !== null ? importPreviewRows : filteredDisciplines}
                             onEdit={handleEdit}
                             onDelete={handleDelete}
                             onSort={handleSort}
@@ -311,6 +373,14 @@ export default function AdminDisciplineModule({ disciplines = [] }: AdminDiscipl
                 onSubmit={handleEditSubmit}
                 initialData={editingItem}
                 processing={processing}
+            />
+
+            <ImportDisciplineModal
+                isOpen={isImportModalOpen}
+                onClose={() => {
+                    setIsImportModalOpen(false);
+                }}
+                onParsed={handleParsed}
             />
         </div>
     );

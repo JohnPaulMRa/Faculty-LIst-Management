@@ -7,9 +7,10 @@ interface PublicSchoolViewProps {
     schoolName: string;
     faculty: any[];
     referenceData?: any;
+    submittedYears: string[];
 }
 
-export function PublicSchoolView({ schoolName, faculty, referenceData }: PublicSchoolViewProps) {
+export function PublicSchoolView({ schoolName, faculty = [], referenceData = {}, submittedYears = [] }: PublicSchoolViewProps) {
     return (
         <div className="bg-white p-6 rounded-xl animate-in fade-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between mb-6">
@@ -22,7 +23,7 @@ export function PublicSchoolView({ schoolName, faculty, referenceData }: PublicS
                 </div>
             </div>
 
-            <PublicFacultyTable faculty={faculty} referenceData={referenceData} />
+            <PublicFacultyTable faculty={faculty} referenceData={referenceData} submittedYears={submittedYears} />
         </div>
     );
 }

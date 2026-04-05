@@ -12,29 +12,13 @@ import { facultyprofile } from '@/routes';
 import { update } from '@/routes/faculty';
 import type { Faculty } from '@/types/faculty';
 
+import { getMissingE5Fields, isFormE5Complete } from '@/lib/validationE5';
+
 interface EditProps {
     faculty: Faculty;
      
     referenceData: any;
 }
-
-const E5_FIELD_LABELS: Record<string, string> = {
-    name: 'Faculty Name (LN, FN, MI)',
-    fullTimeCode: 'Full-Time/Part-Time',
-    genderCode: 'Gender',
-    disciplineCode: 'Primary Teaching Discipline',
-    degree: 'Highest Degree Attained',
-    bachelorsCode: "Specific Discipline of Bachelors Degree",
-    mastersCode: "Specific Discipline of Masters Degree",
-    doctorateCode: "Specific Discipline of Doctorate Degree",
-    licenseCode: 'Professional License',
-    tenureCode: 'Tenure of Employment',
-    rankCode: 'Faculty Rank',
-    loadCode: 'Teaching Load',
-    salaryCode: 'Annual Salary',
-    subjects: 'Subjects Taught',
-    joined_year: 'Joined Year'
-};
 
 const Edit: FC<EditProps> = ({ faculty, referenceData }) => {
     // Helper to check if it's E5
@@ -133,29 +117,7 @@ const Edit: FC<EditProps> = ({ faculty, referenceData }) => {
 
     // Auto-calculate status
     useEffect(() => {
-        const requiredFields = [
-            formData.name,
-            formData.fullTimeCode,
-            formData.degree,
-            formData.bachelorsCode,
-            formData.mastersCode,
-            formData.doctorateCode,
-            formData.licenseCode,
-            formData.tenureCode,
-            formData.rankCode,
-            formData.loadCode,
-            formData.salaryCode,
-            formData.joined_year,
-            formData.subjects
-        ];
-
-        // E5 specific required fields
-        if (isE5) {
-            requiredFields.push(formData.genderCode);
-            requiredFields.push(formData.disciplineCode);
-        }
-
-        const isComplete = requiredFields.every(field => field !== undefined && field !== null && field.toString().trim() !== '');
+        const isComplete = isFormE5Complete(formData, isE5);
 
         // If already 'Completed' (from submission), don't downgrade it unless it's genuinely incomplete
         // Otherwise, mark as 'Updated' if all required fields are present.
@@ -170,40 +132,13 @@ const Edit: FC<EditProps> = ({ faculty, referenceData }) => {
         if (formData.status !== newStatus) {
             setFormData(prev => ({ ...prev, status: newStatus || 'Not Updated' }));
         }
-    }, [
-        formData.name,
-        formData.fullTimeCode,
-        formData.genderCode,
-        formData.disciplineCode,
-        formData.degree,
-        formData.bachelorsCode,
-        formData.mastersCode,
-        formData.doctorateCode,
-        formData.licenseCode,
-        formData.tenureCode,
-        formData.rankCode,
-        formData.loadCode,
-        formData.salaryCode,
-        formData.subjects,
-        formData.joined_year,
-        faculty.id
-    ]);
+    }, [formData, isE5, faculty.id]);
 
     const handleSave = () => {
-        const missingFields: string[] = [];
-        
-        Object.entries(E5_FIELD_LABELS).forEach(([key, label]) => {
-            // Skill check: Gender and Discipline only for E5 form type
-            if (!isE5 && (key === 'genderCode' || key === 'disciplineCode')) return;
-            
-            const value = (formData as any)[key];
-            if (value === undefined || value === null || value.toString().trim() === '') {
-                missingFields.push(label);
-            }
-        });
+        const missingFields = getMissingE5Fields(formData, isE5);
 
         if (missingFields.length > 0) {
-            alert(`Missing Details:\n\n• ${missingFields.join('\n• ')}\n\nAll fields must be filled out before saving.`);
+            alert(`Missing Required Details (CHED Compliance):\n\n• ${missingFields.join('\n• ')}\n\nOnly fields applicable to the faculty's degree and workload are required.`);
             return;
         }
 

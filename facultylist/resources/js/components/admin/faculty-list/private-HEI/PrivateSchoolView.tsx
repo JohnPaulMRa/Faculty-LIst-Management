@@ -6,9 +6,10 @@ interface PrivateSchoolViewProps {
     schoolName: string;
     faculty: any[];
     referenceData: any;
+    submittedYears: string[];
 }
 
-export function PrivateSchoolView({ schoolName, faculty, referenceData }: PrivateSchoolViewProps) {
+export function PrivateSchoolView({ schoolName, faculty = [], referenceData = {}, submittedYears = [] }: PrivateSchoolViewProps) {
     return (
         <div className="bg-white p-6 rounded-xl animate-in fade-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between mb-6">
@@ -22,7 +23,7 @@ export function PrivateSchoolView({ schoolName, faculty, referenceData }: Privat
 
             </div>
 
-            <PrivateFacultyTable faculty={faculty} referenceData={referenceData} />
+            <PrivateFacultyTable faculty={faculty} referenceData={referenceData} submittedYears={submittedYears} />
         </div>
     );
 }

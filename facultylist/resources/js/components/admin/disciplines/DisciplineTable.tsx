@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Pencil, Trash2, ArrowUpDown } from "lucide-react";
+import { Pencil, Trash2, ArrowUpDown, CheckCircle2, AlertCircle } from "lucide-react";
 import { Search } from "lucide-react";
 import { useState, useMemo, useEffect } from "react";
 import { Button } from "@/components/ui/button";
@@ -172,39 +172,82 @@ export default function DisciplineTable({ programs, onEdit, onDelete, onSort, so
                                 </TableCell>
                             </TableRow>
                         ) : (
-                            paginatedPrograms.map((program, index) => (
-                                <TableRow key={program.id} className="even:bg-gray-50 hover:bg-blue-50/50 transition-colors border-b border-gray-100">
+                            paginatedPrograms.map((program, index) => {
+                                const importStatus = program.originalData?._importStatus;
+                                const isImportRow = !!importStatus;
+                                return (
+                                <TableRow
+                                    key={program.id}
+                                    className={`border-b border-gray-100 transition-colors
+                                        ${importStatus === 'success' ? 'bg-green-50/50' : ''}
+                                        ${importStatus === 'error' ? 'bg-red-50/50' : ''}
+                                        ${!isImportRow ? 'even:bg-gray-50 hover:bg-blue-50/50' : ''}
+                                    `}
+                                >
                                     <TableCell className="text-center font-medium text-gray-500 text-xs py-2">{startEntry + index}</TableCell>
-                                    <TableCell className="font-medium text-gray-700 text-xs py-2">{program.code}</TableCell>
+                                    <TableCell className="font-medium text-gray-700 text-xs py-2">
+                                        <div className="flex items-center gap-2">
+                                            {program.code}
+                                            {importStatus === 'error' && (
+                                                <span title={program.originalData?._importError}>
+                                                    <AlertCircle className="h-3.5 w-3.5 text-red-500 hover:text-red-700" />
+                                                </span>
+                                            )}
+                                        </div>
+                                    </TableCell>
                                     <TableCell className="text-gray-700 text-xs font-semibold py-2">{program.disciplineGroup || '—'}</TableCell>
                                     <TableCell className="text-gray-700 text-xs font-semibold py-2">{program.specificMajor || '—'}</TableCell>
                                     <TableCell className="text-gray-700 text-xs font-semibold py-2">
                                         {program.name || '—'}
                                     </TableCell>
                                     <TableCell className="text-center py-2">
-                                        <div className="flex items-center justify-center gap-2">
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                onClick={() => onEdit(program.originalData)}
-                                                className="h-8 w-8 bg-amber-400 hover:bg-amber-500 text-amber-950 rounded-xl shadow-md border-b-2 border-amber-600 active:border-b-0 active:translate-y-px transition-all"
-                                                title="Edit"
-                                            >
-                                                <Pencil className="h-4 w-4" />
-                                            </Button>
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                onClick={() => onDelete(program.code)}
-                                                className="h-8 w-8 bg-red-500 hover:bg-red-600 text-white rounded-xl shadow-md border-b-2 border-red-700 active:border-b-0 active:translate-y-px transition-all"
-                                                title="Delete"
-                                            >
-                                                <Trash2 className="h-4 w-4" />
-                                            </Button>
-                                        </div>
+                                        {isImportRow ? (
+                                            <div className="flex items-center justify-center">
+                                                {importStatus === 'pending' && (
+                                                    <span className="px-2 py-0.5 rounded-full bg-gray-200 text-gray-600 text-[10px] font-semibold">
+                                                        Ready
+                                                    </span>
+                                                )}
+                                                {importStatus === 'success' && (
+                                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-200 text-green-800 text-[10px] font-semibold">
+                                                        <CheckCircle2 className="h-2.5 w-2.5" /> OK
+                                                    </span>
+                                                )}
+                                                {importStatus === 'error' && (
+                                                    <span
+                                                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-200 text-red-700 text-[10px] font-semibold cursor-help"
+                                                        title={program.originalData?._importError}
+                                                    >
+                                                        <AlertCircle className="h-2.5 w-2.5" /> Error
+                                                    </span>
+                                                )}
+                                            </div>
+                                        ) : (
+                                            <div className="flex items-center justify-center gap-2">
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    onClick={() => onEdit(program.originalData)}
+                                                    className="h-8 w-8 bg-amber-400 hover:bg-amber-500 text-amber-950 rounded-xl shadow-md border-b-2 border-amber-600 active:border-b-0 active:translate-y-px transition-all"
+                                                    title="Edit"
+                                                >
+                                                    <Pencil className="h-4 w-4" />
+                                                </Button>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    onClick={() => onDelete(program.code)}
+                                                    className="h-8 w-8 bg-red-500 hover:bg-red-600 text-white rounded-xl shadow-md border-b-2 border-red-700 active:border-b-0 active:translate-y-px transition-all"
+                                                    title="Delete"
+                                                >
+                                                    <Trash2 className="h-4 w-4" />
+                                                </Button>
+                                            </div>
+                                        )}
                                     </TableCell>
                                 </TableRow>
-                            ))
+                                );
+                            })
                         )}
                     </TableBody>
                 </Table>

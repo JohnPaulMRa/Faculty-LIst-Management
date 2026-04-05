@@ -19,6 +19,8 @@ type Props = {
     referenceData?: any;
     showGroup?: boolean;
     hideCode?: boolean;
+    filterKeyword?: string;
+    filterCategory?: 'primary' | 'bachelors' | 'masters' | 'doctorate';
 };
 
 const DisciplineSelector: FC<Props> = ({
@@ -29,7 +31,9 @@ const DisciplineSelector: FC<Props> = ({
     disabled,
     referenceData,
     showGroup = true,
-    hideCode = false
+    hideCode = false,
+    filterKeyword,
+    filterCategory
 }) => {
     const [selectedGroup, setSelectedGroup] = useState<string>("");
 
@@ -130,10 +134,73 @@ const DisciplineSelector: FC<Props> = ({
         }
     };
 
-    // Filter disciplines for the selected group
-    const currentDisciplines = showGroup
-        ? allDisciplines.filter(d => d.major_group_code === selectedGroup)
-        : allDisciplines;
+    // Filter disciplines for the selected group and apply keyword/category filters
+    const currentDisciplines = useMemo(() => {
+        let filtered = showGroup
+            ? allDisciplines.filter(d => d.major_group_code === selectedGroup)
+            : allDisciplines;
+
+        // Apply Category Filtering
+        if (filterCategory) {
+            const code = (d: Discipline) => String(d.code || '');
+            const desc = (d: Discipline) => d.desc || '';
+
+            if (filterCategory === 'bachelors') {
+                filtered = filtered.filter(d => 
+                    /\bbachelor(s)?\b/i.test(desc(d)) || 
+                    /\bab\b/i.test(desc(d)) ||
+                    /\bbs\b/i.test(desc(d)) ||
+                    /\bassociate\b/i.test(desc(d)) ||
+                    /\b(?:certificate|cert)\b/i.test(desc(d)) ||
+                    /\bdiploma\b/i.test(desc(d)) ||
+                    /\bpre-/i.test(desc(d)) ||
+                    code(d).startsWith('507')
+                );
+            } else if (filterCategory === 'masters') {
+                filtered = filtered.filter(d => 
+                    /\bmaster(s)?\b/i.test(desc(d)) || 
+                    /\bma\b/i.test(desc(d)) ||
+                    /\bms\b/i.test(desc(d)) ||
+                    /graduate certificate/i.test(desc(d)) ||
+                    /\bprofessional\b/i.test(desc(d)) ||
+                    code(d).startsWith('80')
+                );
+            } else if (filterCategory === 'doctorate') {
+                filtered = filtered.filter(d => 
+                    /\bdoctor(?:ate)?\b/i.test(desc(d)) || 
+                    /\bphd\b/i.test(desc(d)) ||
+                    /post(?:\s|-)graduate/i.test(desc(d)) ||
+                    code(d).startsWith('90')
+                );
+            } else if (filterCategory === 'primary') {
+                // Primary Teaching: Exclude rows that are purely degree-focused based on explicit degree keywords
+                filtered = filtered.filter(d => 
+                    !/\bbachelor(s)?\b/i.test(desc(d)) && 
+                    !/\bmaster(s)?\b/i.test(desc(d)) && 
+                    !/\bdoctor(?:ate)?\b/i.test(desc(d)) &&
+                    !/\bphd\b/i.test(desc(d)) &&
+                    !/\bab\b/i.test(desc(d)) &&
+                    !/\bbs\b/i.test(desc(d)) &&
+                    !/\bma\b/i.test(desc(d)) &&
+                    !/\bms\b/i.test(desc(d)) &&
+                    !/\bassociate\b/i.test(desc(d)) &&
+                    !/post(?:\s|-)graduate/i.test(desc(d)) &&
+                    !code(d).startsWith('507') &&
+                    !code(d).startsWith('80') &&
+                    !code(d).startsWith('90')
+                );
+            }
+        }
+
+        if (filterKeyword) {
+            const lowerFilter = filterKeyword.toLowerCase().trim();
+            filtered = filtered.filter(d => 
+                (d.desc && d.desc.toLowerCase().includes(lowerFilter)) ||
+                (d.code && d.code.toLowerCase().includes(lowerFilter))
+            );
+        }
+        return filtered;
+    }, [allDisciplines, showGroup, selectedGroup, filterKeyword, filterCategory]);
 
     const hasData = showGroup ? groups.length > 0 : allDisciplines.length > 0;
     if (!hasData) {
@@ -170,7 +237,7 @@ const DisciplineSelector: FC<Props> = ({
                 {/* Code Input (Read-only) */}
                 {!hideCode && (
                     <Input
-                        value={value || ''}
+                        value={currentDisciplines.some(d => String(d.code) === String(value)) ? (value || '') : ''}
                         readOnly
                         className="w-32 shrink-0 bg-gray-50 text-center font-semibold  disabled:opacity-100 rounded-md border border-input h-12 text-sm flex items-center justify-center"
                         placeholder="Code"

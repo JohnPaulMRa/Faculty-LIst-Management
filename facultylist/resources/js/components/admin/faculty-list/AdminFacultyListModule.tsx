@@ -6,6 +6,7 @@ import { PrivateSchoolView } from '@/components/admin/faculty-list/private-HEI/P
 import { PublicSchoolView } from '@/components/admin/faculty-list/public-HEI/PublicSchoolView';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/utils';
 import { useDebounce } from '@/hooks/use-debounce';
 
 interface School {
@@ -33,9 +34,16 @@ interface AdminFacultyListModuleProps {
     faculty: FacultyMember[];
     filters: { hei_id?: string; search?: string; type?: string };
     referenceData?: any;
+    submittedYears?: string[];
 }
 
-export default function AdminFacultyListModule({ schools = [], faculty = [], filters = {}, referenceData = {} }: AdminFacultyListModuleProps) {
+export default function AdminFacultyListModule({
+    schools = [],
+    faculty = [],
+    filters = {},
+    referenceData = {},
+    submittedYears = []
+}: AdminFacultyListModuleProps) {
     const [searchQuery, setSearchQuery] = useState(filters.search || "");
     const debouncedSearch = useDebounce(searchQuery, 500);
     const selectedSchoolId = filters.hei_id ? parseInt(filters.hei_id) : null;
@@ -62,7 +70,7 @@ export default function AdminFacultyListModule({ schools = [], faculty = [], fil
         router.get(
             route('admin.faculty-list'),
             { ...filters, search: value },
-            { preserveState: true, preserveScroll: true, only: ['schools', 'faculty', 'filters'] }
+            { preserveState: true, preserveScroll: true, only: ['schools', 'faculty', 'filters', 'submittedYears'] }
         );
     }, [filters]);
 
@@ -85,7 +93,7 @@ export default function AdminFacultyListModule({ schools = [], faculty = [], fil
         router.get(
             route('admin.faculty-list'),
             newFilters,
-            { preserveState: true, preserveScroll: true, only: ['faculty', 'filters'] }
+            { preserveState: true, preserveScroll: true, only: ['faculty', 'filters', 'submittedYears'] }
         );
     };
 
@@ -140,12 +148,14 @@ export default function AdminFacultyListModule({ schools = [], faculty = [], fil
                                 schoolName={activeSchoolTitle || ''}
                                 faculty={faculty as any}
                                 referenceData={referenceData}
+                                submittedYears={submittedYears}
                             />
                         ) : (
                             <PublicSchoolView
                                 schoolName={activeSchoolTitle || ''}
                                 faculty={faculty as any}
                                 referenceData={referenceData}
+                                submittedYears={submittedYears}
                             />
                         )}
                     </div>
@@ -154,18 +164,18 @@ export default function AdminFacultyListModule({ schools = [], faculty = [], fil
                         {/* SPREADSHEET HEADER */}
                         <div className="bg-gray-50 flex items-center justify-between px-4 py-3 border-b border-gray-300">
                             <div className="text-black text-sm font-bold uppercase tracking-wide">
-                                LIST OF HIGHER EDUCATION INSTITUTIONS (HEIs)
+                                LIST OF {filters.type ? `${filters.type.toUpperCase()} (HEIs)` : 'HIGHER EDUCATION INSTITUTIONS (HEIs)'}
                             </div>
                         </div>
+
                         <div className="overflow-x-auto">
                             <table className="w-full border-collapse text-sm whitespace-nowrap font-sans">
                                 <thead>
                                     <tr className="bg-blue-500 text-white border-b border-gray-300">
                                         <th className="px-3 py-2 font-bold w-[40px] text-left">#</th>
-                                        <th className="px-3 py-2 font-bold w-[20%] text-left">HEI Code</th>
-                                        <th className="px-3 py-2 font-bold w-[20%] text-left">List of HEIs</th>
-                                        <th className="px-3 py-2 font-bold w-[20%] text-left">Type of HEIs</th>
-                                        <th className="px-3 py-2 font-bold w-[10%] text-left">Academic Year</th>
+                                        <th className="px-3 py-2 font-bold w-[25%] text-left">HEI Code</th>
+                                        <th className="px-3 py-2 font-bold w-[30%] text-left">List of HEIs</th>
+                                        <th className="px-3 py-2 font-bold w-[20%] text-left">Academic Year</th>
                                         <th className="px-3 py-2 font-bold w-[20%] text-center">Total Faculty</th>
                                     </tr>
                                 </thead>
@@ -187,13 +197,9 @@ export default function AdminFacultyListModule({ schools = [], faculty = [], fil
                                                     <div>{school.name}</div>
                                                 </td>
                                                 <td className="px-3 py-2 text-left text-black">
-                                                    <div className="text-[10px] font-normal text-black tracking-wide -mt-0.5">
-                                                        {school.type} HEIs
-                                                    </div>
-                                                </td>
-                                                <td className="px-3 py-2 text-left text-black">
                                                     {school.academic_year || 'N/A'}
                                                 </td>
+
                                                 <td className="px-3 py-2 font-bold text-center">
                                                     <div className="flex items-center justify-center gap-1.5 text-black">
                                                         <span>{school.faculty}</span>

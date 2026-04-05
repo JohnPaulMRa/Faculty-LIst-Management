@@ -85,10 +85,11 @@ export function SubmitFacultyModal({
                     <Button
                         onClick={onConfirmSubmit}
                         disabled={!submitYear}
-                        className="bg-blue-600 font-medium text-white shadow-sm hover:bg-blue-700 focus-visible:ring-4 focus-visible:ring-blue-600/20"
+                        className="bg-[#003468] text-white hover:bg-[#002a54] font-medium shadow-sm rounded-md h-9 px-6 transition-colors"
                     >
                         Submit List
                     </Button>
+
                 </div>
             </DialogContent>
         </Dialog>

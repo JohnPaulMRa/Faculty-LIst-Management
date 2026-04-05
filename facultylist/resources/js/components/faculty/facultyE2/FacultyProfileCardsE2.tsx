@@ -341,7 +341,7 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
             <CardContent className="pt-5">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     <FormField
-                        label="Name of Faculty (Last, First, M.I.)"
+                        label="NAME OF FACULTY ( Last name, first name, middle initial)"
                         value={formData.name || ''}
                         onChange={(value) => onErrorSafeChange('name', value)}
                         placeholder="e.g. DOE, JOHN A."
@@ -358,13 +358,13 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                         showCodePrefix={true}
                     />
                     <FormField
-                        label="Home College"
+                        label="HOME COLLEGE"
                         value={formData.college || ''}
                         onChange={(value) => onErrorSafeChange('college', value)}
                         readOnly={readOnly}
                     />
                     <FormField
-                        label="Home Department"
+                        label="HOME DEPARTMENT"
                         value={formData.department || ''}
                         onChange={(value) => onErrorSafeChange('department', value)}
                         readOnly={readOnly}
@@ -375,7 +375,7 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <FormCombobox
-                        label="Is Faculty Member Tenured?"
+                        label="IS FACULTY MEMBER TENURED?"
                         value={formData.is_tenured || ''}
                         onChange={(value) => onErrorSafeChange('is_tenured', value)}
                         options={mapToOptions(referenceData?.tenureE2 || TENURE_OPTIONS)}
@@ -391,7 +391,7 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                         showCodePrefix={true}
                     />
                     <FormCombobox
-                        label="Annual Basic Salary"
+                        label="ANNUAL BASIC SALARY"
                         value={formData.annual_salary || ''}
                         onChange={(value) => onErrorSafeChange('annual_salary', value)}
                         options={mapToOptions(ANNUAL_SALARY_OPTIONS)}
@@ -399,7 +399,7 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                         showCodePrefix={true}
                     />
                     <FormCombobox
-                        label="On Leave Without Pay?"
+                        label="ON LEAVE WITHOUT PAY?"
                         value={formData.on_leave || ''}
                         onChange={(value) => onErrorSafeChange('on_leave', value)}
                         options={mapToOptions(ON_LEAVE_PAY_OPTIONS)}
@@ -407,14 +407,14 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                         showCodePrefix={true}
                     />
                     <FormCombobox
-                        label="Full-Time Equivalent (FTE)"
+                        label="FULL-TIME EQUIVALENT (FTE)"
                         value={formData.fte || ''}
                         onChange={(value) => onErrorSafeChange('fte', value)}
                         options={mapToOptions(FTE_OPTIONS)}
                         showCodePrefix={true}
                     />
                     <FormCombobox
-                        label="Gender of Faculty"
+                        label="GENDER OF FACULTY"
                         value={formData.gender || ''}
                         onChange={(value) => onErrorSafeChange('gender', value)}
                         options={mapToOptions(GENDER_OPTIONS)}
@@ -459,26 +459,27 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                 <Separator className="my-6" />
 
                 <div className="space-y-4">
-                    <h4 className="text-sm font-semibold text-[#003468]">Teaching Load Disciplines</h4>
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         <div className="space-y-1.5">
-                            <label className="text-base font-bold text-gray-600 uppercase tracking-wider">Primary Discipline (1)</label>
+                            <label className="text-base font-bold text-gray-600 uppercase tracking-wider">SPECIFIC DISCIPLINE (1) OF PRIMARY TEACHING LOAD</label>
                             <DisciplineSelector
                                 value={formData.discipline_load_1}
                                 onChange={(code) => onErrorSafeChange('discipline_load_1', code)}
                                 referenceData={referenceData}
                                 placeholder="Select Primary Discipline (1)"
                                 showGroup={false}
+                                filterCategory="primary"
                             />
                         </div>
                         <div className="space-y-1.5">
-                            <label className="text-base font-bold text-gray-600 uppercase tracking-wider">Primary Discipline (2)</label>
+                            <label className="text-base font-bold text-gray-600 uppercase tracking-wider">SPECIFIC DISCIPLINE (2) OF PRIMARY TEACHING LOAD</label>
                             <DisciplineSelector
                                 value={formData.discipline_load_2}
                                 onChange={(code) => onErrorSafeChange('discipline_load_2', code)}
                                 referenceData={referenceData}
                                 placeholder="Select Primary Discipline (2)"
                                 showGroup={false}
+                                filterCategory="primary"
                             />
                         </div>
                     </div>
@@ -487,36 +488,38 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                 <Separator className="my-6" />
 
                 <div className="space-y-4">
-                    <h4 className="text-sm font-semibold text-[#003468]">Degree Disciplines</h4>
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                         <div className="space-y-1.5">
-                            <label className="text-base font-bold text-gray-600 uppercase tracking-wider">Bachelors Discipline</label>
+                            <label className="text-base font-bold text-gray-600 uppercase tracking-wider">SPECIFIC DISCIPLINE OF BACHELORS DEGREE</label>
                             <DisciplineSelector
                                 value={formData.discipline_bachelors}
                                 onChange={(code) => onErrorSafeChange('discipline_bachelors', code)}
                                 referenceData={referenceData}
-                                placeholder="Select Bachelors Discipline"
+                                placeholder="Select Bachelors Degree"
                                 showGroup={false}
+                                filterCategory="bachelors"
                             />
                         </div>
                         <div className="space-y-1.5">
-                            <label className="text-base font-bold text-gray-600 uppercase tracking-wider">Masters Discipline</label>
+                            <label className="text-base font-bold text-gray-600 uppercase tracking-wider">SPECIFIC DISCIPLINE OF MASTERS DEGREE</label>
                             <DisciplineSelector
                                 value={formData.discipline_masters}
                                 onChange={(code) => onErrorSafeChange('discipline_masters', code)}
                                 referenceData={referenceData}
-                                placeholder="Select Masters Discipline"
+                                placeholder="Select Masters Degree"
                                 showGroup={false}
+                                filterCategory="masters"
                             />
                         </div>
                         <div className="space-y-1.5">
-                            <label className="text-base font-bold text-gray-600 uppercase tracking-wider">Doctorate Discipline</label>
+                            <label className="text-base font-bold text-gray-600 uppercase tracking-wider">SPECIFIC DISCIPLINE OF DOCTORATE DEGREE</label>
                             <DisciplineSelector
                                 value={formData.discipline_doctorate}
                                 onChange={(code) => onErrorSafeChange('discipline_doctorate', code)}
                                 referenceData={referenceData}
-                                placeholder="Select Doctorate Discipline"
+                                placeholder="Select Doctorate Degree"
                                 showGroup={false}
+                                filterCategory="doctorate"
                             />
                         </div>
                     </div>
@@ -526,7 +529,7 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     <FormCombobox
-                        label="Masters Degree with Thesis?"
+                        label="MASTERS DEGREE WITH THESIS?"
                         value={formData.masters_thesis || ''}
                         onChange={(value) => onErrorSafeChange('masters_thesis', value)}
                         options={mapToOptions(THESIS_OPTIONS)}
@@ -534,7 +537,7 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                         showCodePrefix={true}
                     />
                     <FormCombobox
-                        label="Doctorate with Dissertation?"
+                        label="DOCTORATE WITH DISSERTATION?"
                         value={formData.doctorate_dissertation || ''}
                         onChange={(value) => onErrorSafeChange('doctorate_dissertation', value)}
                         options={mapToOptions(DISSERTATION_OPTIONS)}
@@ -551,26 +554,26 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
             <CardHeader className="bg-linear-to-r from-[#003468] to-[#1a4f8c] pb-6 pt-6 px-6 border-b-0">
                 <SectionHeader
                     icon={<Clock />}
-                    title="Undergraduate Workload"
+                    title="Workload"
                     variant="white"
                 />
             </CardHeader>
             <CardContent className="pt-6 space-y-8">
                 <WorkloadGrid
-                    title="Credit Units"
+                    title="CREDIT UNITS"
                     items={[
                         {
-                            label: "Lab Credit Units",
+                            label: "LAB CREDIT UNITS TEACHING Undergrad",
                             value: formData.ug_lab_units || '',
                             onChange: (value) => onErrorSafeChange('ug_lab_units', value),
                         },
                         {
-                            label: "Lecture Credit Units",
+                            label: "LECTURE CREDIT UNITS TEACHING Undergrad",
                             value: formData.ug_lec_units || '',
                             onChange: (value) => onErrorSafeChange('ug_lec_units', value),
                         },
                         {
-                            label: "Total Credit Units",
+                            label: "TOTAL TEACHING CREDIT UNITS Undergrad (Lab+Lect)",
                             value: formData.ug_total_units || '',
                             onChange: (value) => onErrorSafeChange('ug_total_units', value),
                         }
@@ -578,20 +581,20 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                 />
                 <Separator className="my-6" />
                 <WorkloadGrid
-                    title="Hours Per Week"
+                    title="HOURS PER WEEK TEACHING"
                     items={[
                         {
-                            label: "Lab Hours",
+                            label: "LAB HOURS PER WEEK TEACHING Undergrad",
                             value: formData.ug_lab_hours || '',
                             onChange: (value) => onErrorSafeChange('ug_lab_hours', value)
                         },
                         {
-                            label: "Lecture Hours",
+                            label: "LECTURE HOURS PER WEEK TEACHING Undergrad",
                             value: formData.ug_lec_hours || '',
                             onChange: (value) => onErrorSafeChange('ug_lec_hours', value)
                         },
                         {
-                            label: "Total Hours",
+                            label: "TOTAL TEACHING HOURS PER WEEK Undergrad",
                             value: formData.ug_total_hours || '',
                             onChange: (value) => onErrorSafeChange('ug_total_hours', value),
                         }
@@ -599,54 +602,41 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                 />
                 <Separator className="my-6" />
                 <WorkloadGrid
-                    title="Contact Hours"
+                    title="CONTACT - HOURS"
                     items={[
                         {
-                            label: "Lab Contact Hours",
+                            label: "Student Contact Hours Lab Undergrad",
                             value: formData.ug_lab_contact || '',
                             onChange: (value) => onErrorSafeChange('ug_lab_contact', value)
                         },
                         {
-                            label: "Lecture Contact Hours",
+                            label: "Student Contact Hours Lecture Undergrad",
                             value: formData.ug_lec_contact || '',
                             onChange: (value) => onErrorSafeChange('ug_lec_contact', value)
                         },
                         {
-                            label: "Total Contact Hours",
+                            label: "STUDENT CONTACT-HOURS  Undergrad (Lab+Lect)",
                             value: formData.ug_total_contact || '',
                             onChange: (value) => onErrorSafeChange('ug_total_contact', value),
                         }
                     ]}
                 />
-            </CardContent>
-        </Card>
-    );
-
-    const graduateWorkloadCard = (
-        <Card className="border border-gray-200 shadow-md overflow-hidden rounded-xl bg-white">
-            <CardHeader className="bg-linear-to-r from-[#003468] to-[#1a4f8c] pb-6 pt-6 px-6 border-b-0">
-                <SectionHeader
-                    icon={<Briefcase />}
-                    title="Graduate Workload"
-                    variant="white"
-                />
-            </CardHeader>
-            <CardContent className="pt-6 space-y-8">
+                <Separator className="my-6" />
                 <WorkloadGrid
-                    title="Credit Units"
+                    title="CREDIT UNITS"
                     items={[
                         {
-                            label: "Lab Units",
+                            label: "LAB CREDIT UNITS TEACHING Graduate Level",
                             value: formData.grad_lab_units || '',
                             onChange: (value) => onErrorSafeChange('grad_lab_units', value),
                         },
                         {
-                            label: "Lecture Units",
+                            label: "LECTURE CREDIT UNITS TEACHING Graduate Level",
                             value: formData.grad_lec_units || '',
                             onChange: (value) => onErrorSafeChange('grad_lec_units', value),
                         },
                         {
-                            label: "Total Units",
+                            label: "TOTAL TEACHING CREDIT UNITS Graduate (Lab+Lect)",
                             value: formData.grad_total_units || '',
                             onChange: (value) => onErrorSafeChange('grad_total_units', value),
                         }
@@ -657,17 +647,17 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                     title="Contact - Hours"
                     items={[
                         {
-                            label: "Lab Contact",
+                            label: "Student Contact Hours Lab Graduate",
                             value: formData.grad_lab_contact || '',
                             onChange: (value) => onErrorSafeChange('grad_lab_contact', value),
                         },
                         {
-                            label: "Lecture Contact",
+                            label: "Student Contact Hours Lecture Graduate",
                             value: formData.grad_lec_contact || '',
                             onChange: (value) => onErrorSafeChange('grad_lec_contact', value),
                         },
                         {
-                            label: "Total Contact",
+                            label: "STUDENT CONTACT-HOURS Graduate (Lab+Lect)",
                             value: formData.grad_total_contact || '',
                             onChange: (value) => onErrorSafeChange('grad_total_contact', value),
                         }
@@ -688,7 +678,7 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
             </CardHeader>
             <CardContent className="pt-6">
                 <WorkloadGrid
-                    title="Credit Units"
+                    title="CREDIT UNITS"
                     items={[
                         {
                             label: "OFFICIAL RESEARCH LOAD",
@@ -745,9 +735,7 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                 <div className="lg:col-span-2">
                     {undergraduateWorkloadCard}
                 </div>
-                <div className="lg:col-span-2">
-                    {graduateWorkloadCard}
-                </div>
+
                 <div className="lg:col-span-2">
                     {officialCreditLoadCard}
                 </div>

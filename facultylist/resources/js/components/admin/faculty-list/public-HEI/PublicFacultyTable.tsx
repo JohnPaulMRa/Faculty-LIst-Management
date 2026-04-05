@@ -2,7 +2,117 @@ import axios from 'axios';
 import { FileText, Loader2 } from "lucide-react";
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
+import { router } from '@inertiajs/react';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import { cn } from '@/lib/utils';
 import { PublicViewSubmissionModal } from './PublicViewSubmissionModal';
+
+const FacultyStatusSelect = ({ initialStatus, memberId }: { initialStatus: string, memberId: string | number }) => {
+    const [status, setStatus] = useState(() => {
+        const lower = (initialStatus || '').toLowerCase();
+        if (lower === 'completed') return 'completed';
+        if (lower === 'submitted') return 'submitted';
+        if (lower === 'no_submission' || lower === 'no submission' || lower === 'no_submition') return 'no_submission';
+        return 'pending';
+    });
+    const [isUpdating, setIsUpdating] = useState(false);
+
+    // Sync state with props when server data changes
+    React.useEffect(() => {
+        const lower = (initialStatus || '').toLowerCase();
+        if (lower === 'completed') setStatus('completed');
+        else if (lower === 'submitted') setStatus('submitted');
+        else if (lower === 'no_submission' || lower === 'no submission' || lower === 'no_submition') setStatus('no_submission');
+        else setStatus('pending');
+    }, [initialStatus]);
+
+    // Note: In the admin view, we only show submitted years anyway.
+    const isUnsubmitted = (initialStatus || '').toLowerCase() === 'not updated' || (initialStatus || '').toLowerCase() === 'updated' || !(initialStatus);
+
+    const getStatusConfig = (val: string) => {
+        if (val === 'submitted') return {
+            bg: "bg-blue-50",
+            text: "text-blue-700",
+            border: "border-blue-200",
+            label: "Submitted",
+            dbValue: "Submitted"
+        };
+        if (val === 'completed') return {
+            bg: "bg-emerald-50",
+            text: "text-emerald-700",
+            border: "border-emerald-200",
+            label: "Completed",
+            dbValue: "Completed"
+        };
+        if (val === 'no_submission') return {
+            bg: "bg-rose-50",
+            text: "text-rose-700",
+            border: "border-rose-200",
+            label: "No Submission",
+            dbValue: "No Submission"
+        };
+        return {
+            bg: "bg-amber-50",
+            text: "text-amber-700",
+            border: "border-amber-200",
+            label: "Not yet Completed",
+            dbValue: "Not yet Completed"
+        };
+    };
+
+    const handleStatusChange = (newVal: string) => {
+        const config = getStatusConfig(newVal);
+        setIsUpdating(true);
+        setStatus(newVal);
+
+        router.put(`/faculty/${memberId}`, {
+            status: config.dbValue
+        }, {
+            onFinish: () => setIsUpdating(false),
+            preserveScroll: true,
+            preserveState: true
+        });
+    };
+
+    const config = getStatusConfig(status);
+
+    return (
+        <Select value={status} onValueChange={handleStatusChange} disabled={isUpdating}>
+            <SelectTrigger className={cn(
+                "h-7 w-[180px] px-2.5 border shadow-sm transition-all rounded-md flex items-center justify-between gap-2 mx-auto",
+                isUpdating ? "opacity-70 cursor-not-allowed grayscale-[0.2]" : "hover:bg-gray-50",
+                config.bg, config.text, config.border
+            )}>
+                <div className="flex items-center gap-2 truncate justify-center w-full">
+                    {isUpdating ? (
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                    ) : (
+                        <span className="text-[10px] font-bold uppercase tracking-wider truncate">
+                            {getStatusConfig(status).label}
+                        </span>
+                    )}
+                </div>
+            </SelectTrigger>
+            <SelectContent className="min-w-[180px] p-1">
+                <SelectItem value="completed" className="text-[11px] font-semibold text-emerald-700 focus:bg-emerald-50 focus:text-emerald-700 rounded-sm">
+                    <span>Completed</span>
+                </SelectItem>
+                <SelectItem value="pending" className="text-[11px] font-semibold text-amber-700 focus:bg-amber-50 focus:text-amber-700 rounded-sm">
+                    <span>Not yet Completed</span>
+                </SelectItem>
+                <SelectItem value="no_submission" className="text-[11px] font-semibold text-rose-700 focus:bg-rose-50 focus:text-rose-700 rounded-sm">
+                    <span>No Submission</span>
+                </SelectItem>
+            </SelectContent>
+        </Select>
+    );
+};
 
 interface FacultyMember {
     id: string | number;
@@ -12,16 +122,18 @@ interface FacultyMember {
     rank: string;
     is_tenured: string;
     submissionStatus: 'submitted' | 'pending';
+    status?: string;
     schoolYear: string;
+    joined_year?: string;
 }
 
 interface PublicFacultyTableProps {
     faculty: FacultyMember[];
     referenceData?: any;
+    submittedYears: string[];
 }
 
-export default function PublicFacultyTable({ faculty, referenceData }: PublicFacultyTableProps) {
-    const [selectedYear, setSelectedYear] = useState<string>('');
+export default function PublicFacultyTable({ faculty = [], referenceData = {}, submittedYears = [] }: PublicFacultyTableProps) {
     const [selectedFaculty, setSelectedFaculty] = useState<any>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isLoadingId, setIsLoadingId] = useState<string | number | null>(null);
@@ -57,7 +169,6 @@ export default function PublicFacultyTable({ faculty, referenceData }: PublicFac
 
     const getTenureLabel = (code: string) => {
         if (!code) return 'N/A';
-        // Use tenureE2 for Public HEI
         const found = referenceData?.tenureE2?.find((t: any) => String(t.code) === String(code));
         return found ? found.desc : code;
     };
@@ -81,101 +192,89 @@ export default function PublicFacultyTable({ faculty, referenceData }: PublicFac
         return 'bg-gray-100 text-gray-800 border border-gray-300 shadow-sm';
     };
 
-    // Extract unique sorted years
-    const allYears = Array.from(new Set(faculty.map(member => member.schoolYear || 'Unknown Year')))
-        .sort((a, b) => b.localeCompare(a));
+    // Filter to only show faculty from officially submitted academic years
+    const visibleFaculty = faculty.filter(member => {
+        const year = member.schoolYear || member.joined_year;
+        return year && submittedYears.includes(year);
+    });
 
-    const activeYear = selectedYear && allYears.includes(selectedYear) ? selectedYear : (allYears[0] || '');
+    // Show all faculty grouped by year
+    const groupedFaculty = visibleFaculty.reduce((acc, member) => {
+        const year = member.schoolYear || 'Unknown Year';
+        if (!acc[year]) acc[year] = [];
+        acc[year].push(member);
+        return acc;
+    }, {} as Record<string, FacultyMember[]>);
 
-    // Filter faculty based on selected year
-    const filteredFaculty = faculty.filter(member => (member.schoolYear || 'Unknown Year') === activeYear);
+    const sortedYears = Object.keys(groupedFaculty).sort((a, b) => b.localeCompare(a));
 
     return (
-        <div className="flex flex-col overflow-hidden mt-2">
-            {/* SPREADSHEET HEADER */}
-            <div className="bg-gray-50 flex items-center justify-between px-4 py-3 border-b border-gray-300">
-                <div className="text-black text-sm font-bold uppercase tracking-wide">
-                    FACULTY DATA RECORDS
-                </div>
-                <div className="flex items-center gap-2">
-                    <label className="text-sm font-semibold text-gray-700">Academic Year:</label>
-                    <select
-                        value={activeYear}
-                        onChange={(e) => setSelectedYear(e.target.value)}
-                        className="text-sm border border-gray-300 rounded-[2px] px-2 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 shadow-sm font-medium w-30"
-                    >
-                        {allYears.map(year => (
-                            <option key={year} value={year}>{year}</option>
-                        ))}
-                    </select>
-                </div>
-            </div>
-
-            <div className="overflow-x-auto border border-gray-300">
-                <table className="w-full border-collapse text-sm whitespace-nowrap font-sans">
-                    <thead>
-                        <tr className="bg-blue-500 text-white border-b border-gray-300">
-                            <th className="px-3 py-2 font-bold text-center w-[20px]">#</th>
-                            <th className="px-3 py-2 font-bold text-center">Faculty Name</th>
-                            <th className="px-3 py-2 font-bold text-center w-[200px]">Gender</th>
-                            <th className="px-3 py-2 font-bold text-center w-[240px]">Group</th>
-                            <th className="px-3 py-2 font-bold text-center">GENERIC FACULTY RANK</th>
-                            <th className="px-3 py-2 font-bold text-center">Tenured</th>
-                            <th className="px-3 py-2 font-bold text-center">Submit Status</th>
-                            <th className="px-3 py-2 font-bold text-center w-[150px]">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody className="bg-white text-sm">
-                        {filteredFaculty.map((member, index) => {
-                            const isSubmitted = member.submissionStatus.toLowerCase() === 'submitted';
-                            const statusBadgeClass = isSubmitted
-                                ? "text-[10px] uppercase tracking-wide px-2 py-1 rounded-none font-bold bg-green-100/80 text-emerald-800 border border-emerald-300"
-                                : `text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-none font-bold ${getStatusBadgeStyle(member.submissionStatus)}`;
-
-                            return (
-                                <tr key={member.id} className="border-b border-gray-300 hover:bg-gray-100 transition-colors">
-                                    <td className="px-3 py-2 text-center text-black border-r border-gray-100">{index + 1}</td>
-                                    <td className="px-3 py-2 text-center font-semibold text-gray-900">{member.name}</td>
-                                    <td className="px-3 py-2 text-center text-black">{getGenderLabel(member.gender)}</td>
-                                    <td className="px-3 py-2 text-center text-black">{getGroupLabel(member.group)}</td>
-                                    <td className="px-3 py-2 text-center text-black">{getRankLabel(member.rank)}</td>
-                                    <td className="px-3 py-2 text-center text-black">{getTenureLabel(member.is_tenured)}</td>
-                                    <td className="px-3 py-2 text-center">
-                                        <span className={statusBadgeClass}>
-                                            {member.submissionStatus}
-                                        </span>
-                                    </td>
-                                    <td className="px-3 py-2 font-bold text-center">
-                                        <div className="flex items-center justify-center gap-2">
-                                            <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                onClick={() => handleViewProfile(member)}
-                                                disabled={isLoadingId === member.id}
-                                                className="h-8 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-md border-b-2 border-blue-800 active:border-b-0 active:translate-y-px transition-all text-xs font-semibold flex items-center gap-2"
-                                                title="View Submission"
-                                            >
-                                                {isLoadingId === member.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileText className="h-4 w-4" />}
-                                                View Submission
-                                            </Button>
-                                        </div>
-                                    </td>
+        <div className="flex flex-col gap-8 mt-2">
+            {sortedYears.map(year => (
+                <div key={year} className="flex flex-col overflow-hidden">
+                    <div className="bg-gray-100 px-4 py-2 border-t border-l border-r border-gray-300 font-bold text-gray-700">
+                        Academic Year: {year}
+                    </div>
+                    <div className="overflow-x-auto border border-gray-300">
+                        <table className="w-full border-collapse text-sm whitespace-nowrap font-sans">
+                            <thead>
+                                <tr className="bg-blue-500 text-white border-b border-gray-300">
+                                    <th className="px-3 py-2 font-bold text-center w-[20px]">#</th>
+                                    <th className="px-3 py-2 font-bold text-center">Faculty Name</th>
+                                    <th className="px-3 py-2 font-bold text-center w-[200px]">Gender</th>
+                                    <th className="px-3 py-2 font-bold text-center w-[240px]">Group</th>
+                                    <th className="px-3 py-2 font-bold text-center">GENERIC FACULTY RANK</th>
+                                    <th className="px-3 py-2 font-bold text-center">Tenured Status</th>
+                                    <th className="px-3 py-2 font-bold text-center text-blue-100 italic">SUBMITTED FILE</th>
+                                    <th className="px-3 py-2 font-bold text-center w-[170px]">Action</th>
                                 </tr>
-                            );
-                        })}
-                        {filteredFaculty.length === 0 && (
-                            <tr>
-                                <td colSpan={8} className="px-6 py-12 text-center text-gray-500 text-sm border-b border-gray-300 bg-gray-50">
-                                    <div className="flex flex-col items-center justify-center gap-2 text-gray-400">
-                                        <FileText className="h-10 w-10 text-gray-300" />
-                                        <p>No records found for the selected view.</p>
-                                    </div>
-                                </td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
-            </div>
+                            </thead>
+                            <tbody className="bg-white text-sm">
+                                {groupedFaculty[year].map((member, index) => {
+                                    return (
+                                        <tr key={member.id} className="border-b border-gray-300 hover:bg-gray-100 transition-colors">
+                                            <td className="px-3 py-2 text-center text-black border-r border-gray-100">{index + 1}</td>
+                                            <td className="px-3 py-2 text-center font-semibold text-gray-900">{member.name}</td>
+                                            <td className="px-3 py-2 text-center text-black">{getGenderLabel(member.gender)}</td>
+                                            <td className="px-3 py-2 text-center text-black">{getGroupLabel(member.group)}</td>
+                                            <td className="px-3 py-2 text-center text-black">{getRankLabel(member.rank)}</td>
+                                            <td className="px-3 py-2 text-center text-black">{getTenureLabel(member.is_tenured)}</td>
+                                            <td className="px-3 py-2 text-center">
+                                                <div className="flex items-center justify-center">
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        onClick={() => handleViewProfile(member)}
+                                                        disabled={isLoadingId === member.id}
+                                                        className="h-7 px-3 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-sm border-b-2 border-blue-800 active:border-b-0 active:translate-y-px transition-all text-[10px] font-bold flex items-center gap-1.5"
+                                                        title="View Submission"
+                                                    >
+                                                        {isLoadingId === member.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileText className="h-3.5 w-3.5" />}
+                                                        VIEW SUBMISSION
+                                                    </Button>
+                                                </div>
+                                            </td>
+                                            <td className="px-3 py-2 text-center">
+                                                <FacultyStatusSelect initialStatus={member.status || ''} memberId={member.id} />
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                                {groupedFaculty[year].length === 0 && (
+                                    <tr>
+                                        <td colSpan={8} className="px-6 py-12 text-center text-gray-500 text-sm border-b border-gray-300 bg-gray-50">
+                                            <div className="flex flex-col items-center justify-center gap-2 text-gray-400">
+                                                <FileText className="h-10 w-10 text-gray-300" />
+                                                <p>No records found for this academic year.</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            ))}
 
             <PublicViewSubmissionModal
                 isOpen={isModalOpen}

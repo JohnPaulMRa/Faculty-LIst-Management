@@ -169,8 +169,10 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                                 referenceData={referenceData}
                                 placeholder="Select Primary Discipline"
                                 showGroup={false}
+                                filterCategory="primary"
                             />
                         </div>
+
 
                     </div>
                 </CardContent>
@@ -219,6 +221,7 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                                 referenceData={referenceData}
                                 placeholder="Select Bachelors Discipline"
                                 showGroup={false}
+                                filterCategory="bachelors"
                             />
                         </div>
                         <div className="grid gap-1 col-span-2">
@@ -232,6 +235,7 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                                 referenceData={referenceData}
                                 placeholder="Select Masters Discipline"
                                 showGroup={false}
+                                filterCategory="masters"
                             />
                         </div>
                         <div className="grid gap-1 col-span-2">
@@ -245,6 +249,7 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                                 referenceData={referenceData}
                                 placeholder="Select Doctorate Discipline"
                                 showGroup={false}
+                                filterCategory="doctorate"
                             />
                         </div>
 

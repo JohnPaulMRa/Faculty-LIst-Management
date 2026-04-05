@@ -40,10 +40,10 @@ const FacultyListTableE5: FC<Props> = ({ facultyList, yearFilter, onDelete, refe
         const lower = s.toLowerCase();
 
         if (lower === 'updated') return 'bg-green-400 text-white border-green-600 shadow-sm';
-        if (lower === 'submitted') return 'bg-green-500 text-white border-green-700 shadow-sm';
-        if (lower === 'not updated' || lower === 'not yet completed' || lower === 'no submission') {
-            return 'bg-red-400 text-white border-red-600 shadow-sm';
-        }
+        if (lower === 'submitted' || lower === 'completed') return 'bg-green-500 text-white border-green-700 shadow-sm';
+        if (lower === 'not yet completed') return 'bg-amber-400 text-white border-amber-600 shadow-sm';
+        if (lower === 'no submission') return 'bg-red-400 text-white border-red-600 shadow-sm';
+        if (lower === 'not updated') return 'bg-red-400 text-white border-red-600 shadow-sm';
 
         return 'bg-gray-100 text-gray-800 border border-gray-300 shadow-sm';
     };
@@ -158,7 +158,7 @@ const FacultyListTableE5: FC<Props> = ({ facultyList, yearFilter, onDelete, refe
                                     Status <ArrowUpDown className="h-4 w-4" />
                                 </div>
                             </th>
-                            <th className="px-3 py-2 font-bold text-center w-[10%]">Action</th>
+                            <th className="px-3 py-2 font-bold text-center w-[5%]">Action</th>
                         </tr>
                     </thead>
                     <tbody className="bg-white text-sm">

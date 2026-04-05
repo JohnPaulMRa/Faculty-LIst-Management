@@ -90,10 +90,10 @@ const FacultyListTableE2: FC<FacultyListTableE2Props> = ({
         const lower = s.toLowerCase();
         
         if (lower === 'updated') return 'bg-green-400 text-white border-green-600 shadow-sm';
-        if (lower === 'submitted') return 'bg-green-500 text-white border-green-700 shadow-sm';
-        if (lower === 'not updated' || lower === 'not yet completed' || lower === 'no submission') {
-            return 'bg-red-400 text-white border-red-600 shadow-sm';
-        }
+        if (lower === 'submitted' || lower === 'completed') return 'bg-green-500 text-white border-green-700 shadow-sm';
+        if (lower === 'not yet completed') return 'bg-amber-400 text-white border-amber-600 shadow-sm';
+        if (lower === 'no submission') return 'bg-red-400 text-white border-red-600 shadow-sm';
+        if (lower === 'not updated') return 'bg-red-400 text-white border-red-600 shadow-sm';
 
         return 'bg-gray-100 text-gray-800 border border-gray-300 shadow-sm';
     };

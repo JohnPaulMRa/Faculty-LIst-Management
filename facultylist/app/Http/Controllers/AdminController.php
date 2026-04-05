@@ -378,17 +378,28 @@ class AdminController extends Controller
         $referenceData = $this->getReferenceData();
 
         $faculty = [];
+        $submittedYears = [];
         if ($request->has('hei_id') && $request->hei_id) {
+            $heiId = $request->hei_id;
             $search = $request->input('search');
-            $facultyE2 = $this->getFacultyE2($request->hei_id, $search);
-            $facultyE5 = $this->getFacultyE5($request->hei_id, $search);
+            $facultyE2 = $this->getFacultyE2($heiId, $search);
+            $facultyE5 = $this->getFacultyE5($heiId, $search);
 
             $faculty = collect($facultyE2)->concat($facultyE5)->sortBy('name')->values();
+
+            // Get all academic years that have been officially submitted for this HEI
+            $submittedYears = \App\Models\HeiSubmission::where('hei_id', $heiId)
+                ->where('status', 'submitted')
+                ->pluck('academic_year')
+                ->unique()
+                ->values()
+                ->toArray();
         }
 
         return Inertia::render('Admin/FacultyList', [
             'heis' => $schools,
             'faculty' => $faculty,
+            'submittedYears' => $submittedYears,
             'referenceData' => $referenceData,
             'filters' => $request->only(['hei_id', 'search', 'type']),
         ]);
@@ -484,16 +495,14 @@ class AdminController extends Controller
                     }
                 }
 
-                // Save the specific discipline
-                RefSpecificDiscipline::updateOrCreate(
-                    ['code' => $code],
-                    [
-                        'description' => $specificName,
-                        'slug' => Str::slug($specificName, '_'),
-                        'group_code' => $groupCode,
-                        'major_code' => $majorCode,
-                    ]
-                );
+                // Save the specific discipline as a new row always
+                RefSpecificDiscipline::create([
+                    'code'        => $code,
+                    'description' => $specificName,
+                    'slug'        => Str::slug($specificName, '_'),
+                    'group_code'  => $groupCode,
+                    'major_code'  => $majorCode,
+                ]);
 
                 $saved = true;
 
@@ -625,26 +634,45 @@ class AdminController extends Controller
     private function getSchools(Request $request)
     {
         $search = $request->input('search');
-        $heisQuery = Hei::with('latestSubmission')
-            ->withCount(['faculties', 'facultiesE5'])
-            ->when($search, function ($query, $search) {
+
+        // Get the latest submission record per HEI (true latest academic year)
+        // We use a subquery to find the MAX academic_year for each HEI, then join back to get the count
+        $latestSubmissions = HeiSubmission::where('status', 'submitted')
+            ->whereIn(DB::raw('(hei_id, academic_year)'), function ($query) {
+                $query->select('hei_id', DB::raw('MAX(academic_year)'))
+                    ->from('hei_submissions')
+                    ->where('status', 'submitted')
+                    ->groupBy('hei_id');
+            })
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->unique('hei_id')
+            ->keyBy('hei_id');
+
+
+        $heisQuery = Hei::when($search, function ($query, $search) {
                 return $query->where('name', 'like', '%' . $search . '%');
             })
             ->orderBy('name')
             ->get();
 
-        return $heisQuery->map(function ($s) {
+        return $heisQuery->map(function ($s) use ($latestSubmissions) {
+            $latestSub = $latestSubmissions[$s->id] ?? null;
+
             return [
-                'id' => (int) $s->id,
-                'name' => $s->name,
-                'hei_code' => $s->hei_code,
-                'faculty' => $s->faculties_count + $s->faculties_e5_count,
-                'type' => $s->type,
-                'academic_year' => $s->latestSubmission ? $s->latestSubmission->academic_year : 'N/A',
-                'status' => $s->is_active ? 'Active' : 'Inactive',
+                'id'            => (int) $s->id,
+                'name'          => $s->name,
+                'hei_code'      => $s->hei_code,
+                'faculty'       => $latestSub ? (int)$latestSub->total_faculty : 0,
+                'type'          => $s->type,
+                'academic_year' => $latestSub ? $latestSub->academic_year : 'N/A',
+                'status'        => $s->is_active ? 'Active' : 'Inactive',
             ];
         });
     }
+
+
+
 
     public function heisAccounts(Request $request)
     {
@@ -683,8 +711,8 @@ class AdminController extends Controller
                     'genderCode' => $f->gender ?? $f->sex,
                     'type' => $f->employment ?? 'Full-time',
                     'employment' => $f->employment ?? 'Full-time',
-                    'submissionStatus' => 'pending',
-                    'status' => 'Not Updated', // Default
+                    'submissionStatus' => (isset($f->status) && strtolower($f->status) === 'submitted') ? 'submitted' : 'pending',
+                    'status' => $f->status ?? 'Not Updated', // Use actual status from DB
                     'schoolYear' => $f->joined_year ?? 'N/A',
                     'joined_year' => $f->joined_year,
                     'form_type' => 'E2',
@@ -717,7 +745,7 @@ class AdminController extends Controller
                     'disciplineCode' => $f->discipline_code,
                     'type' => $f->employment ?? 'Full-time',
                     'employment' => $f->employment ?? 'Full-time',
-                    'submissionStatus' => 'submitted',
+                    'submissionStatus' => (isset($f->status) && strtolower($f->status) === 'submitted') ? 'submitted' : 'pending',
                     'status' => $f->status ?? 'Not Updated',
                     'schoolYear' => $f->joined_year ?? 'N/A',
                     'joined_year' => $f->joined_year,

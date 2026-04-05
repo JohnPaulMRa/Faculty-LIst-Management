@@ -8,9 +8,7 @@ import { Label } from "@/components/ui/label";
 
 interface AddDisciplineFormProps {
     onCancel?: () => void;
-     
-    onSubmit: (data: any) => void;
-     
+    onSubmit: (data: any, onSuccess?: () => void) => void;
     majors: any[];
     processing?: boolean;
 }
@@ -72,13 +70,13 @@ export default function AddDisciplineForm({ onCancel, onSubmit, majors = [], pro
             return;
         }
 
-        if (majorDesc && (!majorCode || majorCode.length < 4)) {
-            alert("Major Discipline code must be at least 4 digits.");
+        if (majorDesc && !majorCode) {
+            alert("Major Discipline code is required.");
             return;
         }
 
-        if (specificDesc && (!specificCode || specificCode.length < 6)) {
-            alert("Specific Discipline code must be at least 6 digits.");
+        if (specificDesc && !specificCode) {
+            alert("Specific Discipline code is required.");
             return;
         }
 
@@ -88,11 +86,15 @@ export default function AddDisciplineForm({ onCancel, onSubmit, majors = [], pro
             groupName: groupDesc,
             majorName: majorDesc,
             specificDiscipline: specificDesc || null,
+        }, () => {
+             // On success: preserve group + major selection, clear only the specific code/name
+             // so the admin can quickly add another specific under the same group/major
+             setSpecificCode("");
+             setSpecificDesc("");
         });
     };
 
     const clearForm = () => {
-        setGroupCode(""); setGroupDesc("");
         setMajorCode(""); setMajorDesc("");
         setSpecificCode(""); setSpecificDesc("");
     };
@@ -123,7 +125,7 @@ export default function AddDisciplineForm({ onCancel, onSubmit, majors = [], pro
                         <Input
                             value={specificCode}
                             onChange={(e) => {
-                                const val = e.target.value.replace(/\D/g, "").slice(0, 10);
+                                const val = e.target.value.replace(/[^A-Za-z0-9]/g, "").slice(0, 10).toUpperCase();
                                 setSpecificCode(val);
 
                                 // Sync parent codes

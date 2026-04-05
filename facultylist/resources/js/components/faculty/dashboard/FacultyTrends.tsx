@@ -50,7 +50,7 @@ const FacultyTrends: FC<FacultyTrendsProps> = ({ trends, schoolType }) => {
             </CardHeader>
             <CardContent className="p-6">
                 <div className="h-[350px] w-full">
-                    <ResponsiveContainer width="100%" height="100%">
+                    <ResponsiveContainer width="100%" height="100%" debounce={100}>
                         <LineChart
                             data={chartData}
                             margin={{

@@ -57,7 +57,7 @@ const FacultyStats: FC<FacultyStatsProps> = ({ stats }) => {
                     <CardTitle className="text-sm font-medium text-gray-500 uppercase tracking-wider">Total Faculty</CardTitle>
                 </CardHeader>
                 <CardContent className="h-[180px] relative">
-                    <ResponsiveContainer width="100%" height="100%">
+                    <ResponsiveContainer width="100%" height="100%" debounce={100}>
                         <PieChart>
                             <Pie
                                 data={[{ name: 'Total', value: stats.totalFaculty, color: '#3b82f6' }]}
@@ -91,7 +91,7 @@ const FacultyStats: FC<FacultyStatsProps> = ({ stats }) => {
                     <CardTitle className="text-sm font-medium text-gray-500 uppercase tracking-wider">Gender Distribution</CardTitle>
                 </CardHeader>
                 <CardContent className="h-[180px] relative">
-                    <ResponsiveContainer width="100%" height="100%">
+                    <ResponsiveContainer width="100%" height="100%" debounce={100}>
                         <PieChart>
                             <Pie
                                 data={genderData}
@@ -142,7 +142,7 @@ const FacultyStats: FC<FacultyStatsProps> = ({ stats }) => {
                     <CardTitle className="text-sm font-medium text-gray-500 uppercase tracking-wider">Profile Status</CardTitle>
                 </CardHeader>
                 <CardContent className="h-[180px] relative">
-                    <ResponsiveContainer width="100%" height="100%">
+                    <ResponsiveContainer width="100%" height="100%" debounce={100}>
                         <PieChart>
                             <Pie
                                 data={statusData}

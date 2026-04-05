@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { DialogClose } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import type { PublicFaculty } from '@/types/faculty';
+import { isFormE2Complete } from '@/lib/validationE2';
 import { FacultyProfileCardsE2 } from './FacultyProfileCardsE2';
 
 // --- TYPES / INTERFACES ---
@@ -62,45 +63,7 @@ const FacultyFormE2: FC<FacultyFormE2Props> = ({
 
     // Auto-calculate status (Validation/Logic)
     useEffect(() => {
-        const requiredFields = [
-            formData.name,
-            formData.rank,
-            formData.college,
-            formData.department,
-            formData.is_tenured,
-            formData.salary_grade,
-            formData.annual_salary,
-            formData.on_leave,
-            formData.fte,
-            formData.gender,
-            formData.degree,
-            formData.pursuing_degree,
-            formData.discipline_load_1,
-            formData.discipline_load_2,
-            formData.discipline_bachelors,
-            formData.discipline_masters,
-            formData.discipline_doctorate,
-            formData.masters_thesis,
-            formData.doctorate_dissertation,
-            formData.ug_lab_units,
-            formData.ug_lec_units,
-            formData.ug_lab_hours,
-            formData.ug_lec_hours,
-            formData.ug_lab_contact,
-            formData.ug_lec_contact,
-            formData.grad_lab_units,
-            formData.grad_lec_units,
-            formData.grad_lab_contact,
-            formData.grad_lec_contact,
-            formData.load_research,
-            formData.load_extension,
-            formData.load_study,
-            formData.load_production,
-            formData.load_admin,
-            formData.load_others
-        ];
-
-        const isComplete = requiredFields.every(field => field !== undefined && field !== null && field.toString().trim() !== '');
+        const isComplete = isFormE2Complete(formData);
         let newStatus = formData.status;
 
         if (!isComplete) {
@@ -113,43 +76,7 @@ const FacultyFormE2: FC<FacultyFormE2Props> = ({
             handleChange('status', newStatus || 'Not Yet Completed');
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [
-        formData.name,
-        formData.rank,
-        formData.college,
-        formData.department,
-        formData.is_tenured,
-        formData.salary_grade,
-        formData.annual_salary,
-        formData.on_leave,
-        formData.fte,
-        formData.gender,
-        formData.degree,
-        formData.pursuing_degree,
-        formData.discipline_load_1,
-        formData.discipline_load_2,
-        formData.discipline_bachelors,
-        formData.discipline_masters,
-        formData.discipline_doctorate,
-        formData.masters_thesis,
-        formData.doctorate_dissertation,
-        formData.ug_lab_units,
-        formData.ug_lec_units,
-        formData.ug_lab_hours,
-        formData.ug_lec_hours,
-        formData.ug_lab_contact,
-        formData.ug_lec_contact,
-        formData.grad_lab_units,
-        formData.grad_lec_units,
-        formData.grad_lab_contact,
-        formData.grad_lec_contact,
-        formData.load_research,
-        formData.load_extension,
-        formData.load_study,
-        formData.load_production,
-        formData.load_admin,
-        formData.load_others
-    ]);
+    }, [formData]);
 
     // --- MAIN RENDER ---
 
