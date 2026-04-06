@@ -1,4 +1,3 @@
-import { FACULTY_RANK_OPTIONS } from '@/types/faculty/referenceDataE5';
 
 export const E5_FIELD_LABELS: Record<string, string> = {
     name: 'Faculty Name (LN, FN, MI)',
@@ -21,11 +20,11 @@ export const E5_FIELD_LABELS: Record<string, string> = {
 /**
  * Returns an array of field labels that are missing based on CHED Form E-5 conditional rules.
  */
-export const getMissingE5Fields = (formData: any, isE5: boolean): string[] => {
+export const getMissingE5Fields = (formData: unknown, isE5: boolean): string[] => {
     const missing: string[] = [];
 
-    const isFilled = (val: any) => val !== undefined && val !== null && val.toString().trim() !== '';
-    const getVal = (key: string) => (formData as Record<string, any>)[key];
+    const isFilled = (val: unknown) => val !== undefined && val !== null && String(val).trim() !== '';
+    const getVal = (key: string) => (formData as Record<string, string | undefined>)[key];
     const check = (key: string) => {
         if (!isFilled(getVal(key))) {
             missing.push(E5_FIELD_LABELS[key] || key);
@@ -73,6 +72,6 @@ export const getMissingE5Fields = (formData: any, isE5: boolean): string[] => {
 /**
  * Returns true if the form is complete based on CHED E-5 rules.
  */
-export const isFormE5Complete = (formData: any, isE5: boolean): boolean => {
+export const isFormE5Complete = (formData: unknown, isE5: boolean): boolean => {
     return getMissingE5Fields(formData, isE5).length === 0;
 };

@@ -1,0 +1,10 @@
+
+> lint
+> eslint . --fix
+
+
+C:\Users\Acer\Desktop\Faculty-LIst-Management\facultylist\resources\js\pages\EditFaculty\EditPrivateFaculty.tsx
+  5:20  error  'useEffect' is defined but never used  @typescript-eslint/no-unused-vars
+
+Γ£û 1 problem (1 error, 0 warnings)
+

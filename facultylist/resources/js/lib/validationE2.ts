@@ -50,8 +50,8 @@ export const E2_FIELD_LABELS: Record<string, string> = {
 export const getMissingE2Fields = (formData: Partial<PublicFaculty>): string[] => {
     const missing: string[] = [];
 
-    const isFilled = (val: any) => val !== undefined && val !== null && val.toString().trim() !== '';
-    const getVal = (key: string) => (formData as Record<string, any>)[key];
+    const isFilled = (val: unknown) => val !== undefined && val !== null && String(val).trim() !== '';
+    const getVal = (key: string) => (formData as Record<string, string | undefined>)[key];
     const check = (key: string) => {
         if (!isFilled(getVal(key))) {
             missing.push(E2_FIELD_LABELS[key] || key);

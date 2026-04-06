@@ -22,8 +22,9 @@ interface DashboardStats {
         female: number;
     };
     status: {
-        updated: number;
-        notUpdated: number;
+        completed: number;
+        noSubmission: number;
+        notYetCompleted: number;
     };
     qualifications: {
         label: string;

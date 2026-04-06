@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { router } from '@inertiajs/react';
 import { Pencil, Trash2, ArrowUpDown, CheckCircle2, AlertCircle } from "lucide-react";
 import { Search } from "lucide-react";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, memo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -21,7 +22,7 @@ import {
 } from "@/components/ui/table";
 
 export interface Program {
-    id: string; // Composite key or specific code
+    id: string; 
     code: string;
     name: string;
     major: string;
@@ -29,7 +30,7 @@ export interface Program {
     specificMajor: string;
     specificGroup: string;
     programLevel: string;
-    originalData: any; // Keep reference for editing
+    originalData: any; 
 }
 
 interface DisciplineTableProps {
@@ -40,28 +41,70 @@ interface DisciplineTableProps {
     sortConfig: { key: string, direction: 'asc' | 'desc' } | null;
     searchQuery: string;
     onSearchQueryChange: (query: string) => void;
+    serverPagination?: any; // Laravel Paginator object
+    serverFilters?: any;
 }
 
-export default function DisciplineTable({ programs, onEdit, onDelete, onSort, sortConfig, searchQuery, onSearchQueryChange }: DisciplineTableProps) {
+export default function DisciplineTable({
+    programs,
+    onEdit,
+    onDelete,
+    onSort,
+    sortConfig,
+    searchQuery,
+    onSearchQueryChange,
+    serverPagination,
+    serverFilters
+}: DisciplineTableProps) {
     const [entriesPerPage, setEntriesPerPage] = useState(50);
-    const [currentPage, setCurrentPage] = useState(1);
+    const [localPage, setLocalPage] = useState(1);
+    
+    // If we have serverPagination, we use Inertia to change pages
+    const isServerSide = !!serverPagination && programs.length > 0;
 
-    // Reset to page 1 if search/filter changes the length
+    // Reset local page if search changes (for local mode)
     useEffect(() => {
-        setCurrentPage(1);
-    }, [programs.length, entriesPerPage]);
+        setLocalPage(1);
+    }, [searchQuery, entriesPerPage]);
+
+    const handlePageChange = (page: number) => {
+        if (isServerSide) {
+            router.get(window.location.pathname, {
+                ...serverFilters,
+                page: page
+            }, {
+                preserveState: true,
+                preserveScroll: true,
+                replace: true
+            });
+        } else {
+            setLocalPage(page);
+        }
+    };
 
     const isAll = entriesPerPage === -1;
-    const totalPages = isAll ? 1 : (Math.ceil(programs.length / entriesPerPage) || 1);
+    
+    // Meta data from server OR local
+    const currentPage = isServerSide ? serverPagination.current_page : localPage;
+    const totalPages = isServerSide 
+        ? serverPagination.last_page 
+        : (isAll ? 1 : (Math.ceil(programs.length / entriesPerPage) || 1));
+    
+    const startEntry = isServerSide 
+        ? serverPagination.from 
+        : (programs.length === 0 ? 0 : (isAll ? 1 : (localPage - 1) * entriesPerPage + 1));
+    
+    const endEntry = isServerSide 
+        ? serverPagination.to 
+        : (isAll ? programs.length : Math.min(localPage * entriesPerPage, programs.length));
+
     const paginatedPrograms = useMemo(() => {
+        if (isServerSide) return programs; // Already paginated by server
         if (isAll) return programs;
-        const start = (currentPage - 1) * entriesPerPage;
+        const start = (localPage - 1) * entriesPerPage;
         const end = start + entriesPerPage;
         return programs.slice(start, end);
-    }, [programs, currentPage, entriesPerPage, isAll]);
-
-    const startEntry = programs.length === 0 ? 0 : (isAll ? 1 : (currentPage - 1) * entriesPerPage + 1);
-    const endEntry = isAll ? programs.length : Math.min(currentPage * entriesPerPage, programs.length);
+    }, [programs, localPage, entriesPerPage, isAll, isServerSide]);
 
     const renderPageNumbers = () => {
         const pages = [];
@@ -81,7 +124,7 @@ export default function DisciplineTable({ programs, onEdit, onDelete, onSort, so
                     key={i}
                     variant={i === currentPage ? "default" : "outline"}
                     className={`h-8 w-8 p-0 rounded-none ${i === currentPage ? 'bg-blue-600 hover:bg-blue-700 text-white border-blue-600' : 'text-gray-600 border-gray-300'}`}
-                    onClick={() => setCurrentPage(i)}
+                    onClick={() => handlePageChange(i)}
                 >
                     {i}
                 </Button>
@@ -172,82 +215,16 @@ export default function DisciplineTable({ programs, onEdit, onDelete, onSort, so
                                 </TableCell>
                             </TableRow>
                         ) : (
-                            paginatedPrograms.map((program, index) => {
-                                const importStatus = program.originalData?._importStatus;
-                                const isImportRow = !!importStatus;
-                                return (
-                                <TableRow
+                            paginatedPrograms.map((program, index) => (
+                                <DisciplineTableRow
                                     key={program.id}
-                                    className={`border-b border-gray-100 transition-colors
-                                        ${importStatus === 'success' ? 'bg-green-50/50' : ''}
-                                        ${importStatus === 'error' ? 'bg-red-50/50' : ''}
-                                        ${!isImportRow ? 'even:bg-gray-50 hover:bg-blue-50/50' : ''}
-                                    `}
-                                >
-                                    <TableCell className="text-center font-medium text-gray-500 text-xs py-2">{startEntry + index}</TableCell>
-                                    <TableCell className="font-medium text-gray-700 text-xs py-2">
-                                        <div className="flex items-center gap-2">
-                                            {program.code}
-                                            {importStatus === 'error' && (
-                                                <span title={program.originalData?._importError}>
-                                                    <AlertCircle className="h-3.5 w-3.5 text-red-500 hover:text-red-700" />
-                                                </span>
-                                            )}
-                                        </div>
-                                    </TableCell>
-                                    <TableCell className="text-gray-700 text-xs font-semibold py-2">{program.disciplineGroup || '—'}</TableCell>
-                                    <TableCell className="text-gray-700 text-xs font-semibold py-2">{program.specificMajor || '—'}</TableCell>
-                                    <TableCell className="text-gray-700 text-xs font-semibold py-2">
-                                        {program.name || '—'}
-                                    </TableCell>
-                                    <TableCell className="text-center py-2">
-                                        {isImportRow ? (
-                                            <div className="flex items-center justify-center">
-                                                {importStatus === 'pending' && (
-                                                    <span className="px-2 py-0.5 rounded-full bg-gray-200 text-gray-600 text-[10px] font-semibold">
-                                                        Ready
-                                                    </span>
-                                                )}
-                                                {importStatus === 'success' && (
-                                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-200 text-green-800 text-[10px] font-semibold">
-                                                        <CheckCircle2 className="h-2.5 w-2.5" /> OK
-                                                    </span>
-                                                )}
-                                                {importStatus === 'error' && (
-                                                    <span
-                                                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-200 text-red-700 text-[10px] font-semibold cursor-help"
-                                                        title={program.originalData?._importError}
-                                                    >
-                                                        <AlertCircle className="h-2.5 w-2.5" /> Error
-                                                    </span>
-                                                )}
-                                            </div>
-                                        ) : (
-                                            <div className="flex items-center justify-center gap-2">
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    onClick={() => onEdit(program.originalData)}
-                                                    className="h-8 w-8 bg-amber-400 hover:bg-amber-500 text-amber-950 rounded-xl shadow-md border-b-2 border-amber-600 active:border-b-0 active:translate-y-px transition-all"
-                                                    title="Edit"
-                                                >
-                                                    <Pencil className="h-4 w-4" />
-                                                </Button>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    onClick={() => onDelete(program.code)}
-                                                    className="h-8 w-8 bg-red-500 hover:bg-red-600 text-white rounded-xl shadow-md border-b-2 border-red-700 active:border-b-0 active:translate-y-px transition-all"
-                                                    title="Delete"
-                                                >
-                                                    <Trash2 className="h-4 w-4" />
-                                                </Button>
-                                            </div>
-                                        )}
-                                    </TableCell>
-                                </TableRow>
-                                );
-                            })
+                                    program={program}
+                                    index={index}
+                                    startEntry={startEntry}
+                                    onEdit={onEdit}
+                                    onDelete={onDelete}
+                                />
+                            ))
                         )}
                     </TableBody>
                 </Table>
@@ -255,13 +232,13 @@ export default function DisciplineTable({ programs, onEdit, onDelete, onSort, so
 
             <div className="flex justify-between items-center text-sm text-gray-600 mt-2 mb-2">
                 <div>
-                    Showing {startEntry} to {endEntry} of {programs.length} entries
+                    Showing {startEntry} to {endEntry} of {isServerSide ? serverPagination.total : programs.length} entries
                 </div>
                 <div className="flex items-center gap-1">
                     <Button
                         variant="outline"
                         className={`h-8 px-3 rounded-none border-gray-300 ${currentPage === 1 ? 'text-gray-300' : 'text-gray-600 hover:bg-gray-50'}`}
-                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                        onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
                         disabled={currentPage === 1}
                     >
                         Previous
@@ -270,7 +247,7 @@ export default function DisciplineTable({ programs, onEdit, onDelete, onSort, so
                     <Button
                         variant="outline"
                         className={`h-8 px-3 rounded-none border-gray-300 ${currentPage === totalPages || totalPages === 0 ? 'text-gray-300' : 'text-gray-600 hover:bg-gray-50'}`}
-                        onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                        onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
                         disabled={currentPage === totalPages || totalPages === 0}
                     >
                         Next
@@ -280,3 +257,96 @@ export default function DisciplineTable({ programs, onEdit, onDelete, onSort, so
         </div>
     );
 }
+
+interface DisciplineTableRowProps {
+    program: Program;
+    index: number;
+    startEntry: number;
+    onEdit: (item: any) => void;
+    onDelete: (id: string) => void;
+}
+
+const DisciplineTableRow = memo(({ program, index, startEntry, onEdit, onDelete }: DisciplineTableRowProps) => {
+    const importStatus = program.originalData?._importStatus;
+    const isImportRow = !!importStatus;
+
+    return (
+        <TableRow
+            className={`border-b border-gray-100 transition-colors
+                ${importStatus === 'success' ? 'bg-green-50/50' : ''}
+                ${importStatus === 'error' ? 'bg-red-50/50' : ''}
+                ${!isImportRow ? 'even:bg-gray-50 hover:bg-blue-50/50' : ''}
+            `}
+        >
+            <TableCell className="text-center font-medium text-gray-500 text-xs py-2">{startEntry + index}</TableCell>
+            <TableCell className="font-medium text-gray-700 text-xs py-2">
+                <div className="flex items-center gap-2">
+                    {program.code}
+                    {importStatus === 'error' && (
+                        <span title={program.originalData?._importError}>
+                            <AlertCircle className="h-3.5 w-3.5 text-red-500 hover:text-red-700" />
+                        </span>
+                    )}
+                </div>
+            </TableCell>
+            <TableCell className="text-gray-700 text-xs font-semibold py-2">{program.disciplineGroup || '—'}</TableCell>
+            <TableCell className="text-gray-700 text-xs font-semibold py-2">{program.specificMajor || '—'}</TableCell>
+            <TableCell className="text-gray-700 text-xs font-semibold py-2">
+                {program.name || '—'}
+            </TableCell>
+            <TableCell className="text-center py-2">
+                {isImportRow ? (
+                    <div className="flex items-center justify-center">
+                        {importStatus === 'pending' && (
+                            <span className="px-2 py-0.5 rounded-full bg-gray-200 text-gray-600 text-[10px] font-semibold">
+                                Ready
+                            </span>
+                        )}
+                        {importStatus === 'success' && (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-200 text-green-800 text-[10px] font-semibold">
+                                <CheckCircle2 className="h-2.5 w-2.5" /> OK
+                            </span>
+                        )}
+                        {importStatus === 'error' && (
+                            <span
+                                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-200 text-red-700 text-[10px] font-semibold cursor-help"
+                                title={program.originalData?._importError}
+                            >
+                                <AlertCircle className="h-2.5 w-2.5" /> Error
+                            </span>
+                        )}
+                    </div>
+                ) : (
+                    <div className="flex items-center justify-center gap-2">
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => onEdit(program.originalData)}
+                            className="h-8 w-8 bg-amber-400 hover:bg-amber-500 text-amber-950 rounded-xl shadow-md border-b-2 border-amber-600 active:border-b-0 active:translate-y-px transition-all"
+                            title="Edit"
+                        >
+                            <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => onDelete(program.code)}
+                            className="h-8 w-8 bg-red-500 hover:bg-red-600 text-white rounded-xl shadow-md border-b-2 border-red-700 active:border-b-0 active:translate-y-px transition-all"
+                            title="Delete"
+                        >
+                            <Trash2 className="h-4 w-4" />
+                        </Button>
+                    </div>
+                )}
+            </TableCell>
+        </TableRow>
+    );
+}, (prevProps, nextProps) => {
+    // Custom deep comparison to prevent re-rendering when callbacks change completely from parent
+    return prevProps.program.id === nextProps.program.id &&
+           prevProps.program.originalData?._importStatus === nextProps.program.originalData?._importStatus &&
+           prevProps.index === nextProps.index &&
+           prevProps.startEntry === nextProps.startEntry;
+});
+
+DisciplineTableRow.displayName = "DisciplineTableRow";

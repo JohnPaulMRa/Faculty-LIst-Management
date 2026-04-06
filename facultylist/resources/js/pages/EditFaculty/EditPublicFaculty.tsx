@@ -6,12 +6,12 @@ import type { FC } from 'react';
 import FacultyFormE2 from '@/components/faculty/facultyE2/FacultyFormE2';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
+import { getMissingE2Fields } from '@/lib/validationE2';
 import { facultyprofile } from '@/routes';
 import { update } from '@/routes/faculty';
 import type { PublicFaculty } from '@/types/faculty';
 import { IMPORT_GROUPS } from '@/types/faculty/constants';
 
-import { getMissingE2Fields } from '@/lib/validationE2';
 
 interface EditProps {
     faculty: PublicFaculty;

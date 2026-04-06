@@ -1,14 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { router } from '@inertiajs/react';
 import axios from 'axios';
 import { FileText, Loader2 } from "lucide-react";
 import React, { useState } from 'react';
-import { router } from '@inertiajs/react';
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
-    SelectValue,
 } from "@/components/ui/select";
 import { cn } from '@/lib/utils';
 import { PrivateViewSubmissionModal } from './PrivateViewSubmissionModal';
@@ -32,8 +31,6 @@ const FacultyStatusSelect = ({ initialStatus, memberId }: { initialStatus: strin
         else setStatus('pending');
     }, [initialStatus]);
 
-    // Note: In the admin view, we only show submitted years anyway.
-    const isUnsubmitted = (initialStatus || '').toLowerCase() === 'not updated' || (initialStatus || '').toLowerCase() === 'updated' || !(initialStatus);
 
     const getStatusConfig = (val: string) => {
         if (val === 'submitted') return {
@@ -175,24 +172,6 @@ export default function PrivateFacultyTable({ faculty = [], referenceData = {}, 
         return label === 'Permanent' ? 'Tenured' : label;
     };
 
-    const getGroupLabel = (code: string) => {
-        if (!code) return 'N/A';
-        const found = referenceData?.groupDiscipline?.find((g: any) => String(g.code) === String(code));
-        return found ? found.desc : code;
-    };
-
-    const getStatusBadgeStyle = (status: string): string => {
-        const s = (status || '').trim();
-        const lower = s.toLowerCase();
-
-        if (lower === 'updated') return 'bg-green-400 text-white border-green-600 shadow-sm';
-        if (lower === 'submitted') return 'bg-green-500 text-white border-green-700 shadow-sm';
-        if (lower === 'not updated' || lower === 'not yet completed' || lower === 'no submission' || lower === 'pending') {
-            return 'bg-red-400 text-white border-red-600 shadow-sm';
-        }
-
-        return 'bg-gray-100 text-gray-800 border border-gray-300 shadow-sm';
-    };
 
     // Filter to only show faculty from officially submitted academic years
     const visibleFaculty = faculty.filter(member => {

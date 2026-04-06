@@ -233,16 +233,16 @@ class AdminController extends Controller
         $getTrendsByType = function ($type) {
             $trendDataE2 = Faculty::join('heis', 'faculty_e2.hei_id', '=', 'heis.id')
                 ->where('heis.type', $type)
-                ->select('faculty_e2.joined_year', 'faculty_e2.employment', DB::raw('count(*) as count'))
+                ->select('faculty_e2.joined_year', 'faculty_e2.employment', 'faculty_e2.import_group', DB::raw('count(*) as count'))
                 ->whereNotNull('faculty_e2.joined_year')
-                ->groupBy('faculty_e2.joined_year', 'faculty_e2.employment')
+                ->groupBy('faculty_e2.joined_year', 'faculty_e2.employment', 'faculty_e2.import_group')
                 ->get();
 
             $trendDataE5 = FacultyE5::join('heis', 'faculty_e5.hei_id', '=', 'heis.id')
                 ->where('heis.type', $type)
-                ->select('faculty_e5.joined_year', 'faculty_e5.ft_pt_code', DB::raw('count(*) as count'))
+                ->select('faculty_e5.joined_year', 'faculty_e5.ft_pt_code', 'faculty_e5.import_group', DB::raw('count(*) as count'))
                 ->whereNotNull('faculty_e5.joined_year')
-                ->groupBy('faculty_e5.joined_year', 'faculty_e5.ft_pt_code')
+                ->groupBy('faculty_e5.joined_year', 'faculty_e5.ft_pt_code', 'faculty_e5.import_group')
                 ->get();
 
             $years = $trendDataE2->pluck('joined_year')->merge($trendDataE5->pluck('joined_year'))->unique()->sort()->values()->all();
@@ -255,19 +255,7 @@ class AdminController extends Controller
                 5 => ['label' => 'Part-time', 'color' => '#ef4444'],
             ];
 
-            $totalSeriesData = [];
-            foreach ($years as $year) {
-                $countE2 = $trendDataE2->where('joined_year', $year)->sum('count');
-                $countE5 = $trendDataE5->where('joined_year', $year)->sum('count');
-                $totalSeriesData[] = $countE2 + $countE5;
-            }
-
             $series = [];
-            $series[] = [
-                'name' => 'Total Faculty',
-                'color' => '#000000',
-                'data' => $totalSeriesData
-            ];
 
             foreach ($categories as $code => $meta) {
                 $dataPoints = [];
@@ -388,7 +376,7 @@ class AdminController extends Controller
             $faculty = collect($facultyE2)->concat($facultyE5)->sortBy('name')->values();
 
             // Get all academic years that have been officially submitted for this HEI
-            $submittedYears = \App\Models\HeiSubmission::where('hei_id', $heiId)
+            $submittedYears = HeiSubmission::where('hei_id', $heiId)
                 ->where('status', 'submitted')
                 ->pluck('academic_year')
                 ->unique()
@@ -407,48 +395,74 @@ class AdminController extends Controller
 
     public function disciplines(Request $request)
     {
-        $groups = RefDisciplineGroup::orderBy('code')->get();
-        $majors = RefMajorDiscipline::orderBy('code')->get();
-        $specifics = RefSpecificDiscipline::orderBy('code')->get();
+        $search = $request->input('search');
+        $sort = $request->input('sort', 'code'); // Default sort by code
+        $direction = $request->input('direction', 'asc');
+        $perPage = $request->input('per_page', 50);
 
-        $disciplines = $groups->map(function ($group) use ($majors, $specifics) {
-            // Get all specific disciplines directly under this group (no major)
-            $groupSpecifics = $specifics
-                ->filter(fn($s) => $s->group_code === $group->code && empty($s->major_code))
-                ->map(fn($s) => [
-                    'code' => $s->code,
-                    'description' => $s->description,
-                ])->values()->toArray();
+        // Fetch paginated flattened programs directly from DB using JOINs
+        $programs = DB::table('specific_discipline')
+            ->leftJoin('major_discipline', 'specific_discipline.major_code', '=', 'major_discipline.code')
+            ->leftJoin('discipline_group', 'specific_discipline.group_code', '=', 'discipline_group.code')
+            ->select([
+                'specific_discipline.code as code',
+                'specific_discipline.description as name',
+                'discipline_group.description as disciplineGroup',
+                'major_discipline.description as specificMajor',
+                'specific_discipline.group_code as group_code',
+                'specific_discipline.major_code as major_code',
+                'specific_discipline.id as id'
+            ])
+            ->when($search, function ($query, $search) {
+                return $query->where(function ($q) use ($search) {
+                    $q->where('specific_discipline.description', 'like', '%' . $search . '%')
+                      ->orWhere('specific_discipline.code', 'like', '%' . $search . '%')
+                      ->orWhere('major_discipline.description', 'like', '%' . $search . '%')
+                      ->orWhere('discipline_group.description', 'like', '%' . $search . '%');
+                });
+            })
+            ->orderBy($sort, $direction)
+            ->paginate($perPage)
+            ->withQueryString();
 
-            // Get all majors under this group
-            $groupMajors = $majors
-                ->filter(fn($m) => str_starts_with($m->code, $group->code) && $m->code !== '0000')
-                ->map(function ($major) use ($specifics) {
-                    // Specifics whose major_code matches this major
-                    $majorSpecifics = $specifics
-                        ->filter(fn($s) => $s->major_code === $major->code)
-                        ->map(fn($s) => [
-                            'code' => $s->code,
-                            'description' => $s->description,
-                        ])->values();
+        // Transform paginated items to the format expected by the frontend
+        $programs->getCollection()->transform(function ($item) {
+            return [
+                'id' => "db-{$item->id}",
+                'code' => $item->code,
+                'name' => $item->name,
+                'disciplineGroup' => $item->disciplineGroup ?? '—',
+                'specificMajor' => $item->specificMajor ?? '—',
+                'originalData' => [
+                    'code' => $item->code,
+                    'specificDiscipline' => $item->name,
+                    'majorName' => $item->specificMajor,
+                    'groupName' => $item->disciplineGroup,
+                    'majorCode' => $item->major_code,
+                    'groupCode' => $item->group_code,
+                    'type' => 'specific'
+                ]
+            ];
+        });
 
-                    return [
-                        'code' => $major->code,
-                        'description' => $major->description,
-                        'specifics' => $majorSpecifics->toArray(),
-                    ];
-                })->values()->toArray();
+        // Reference data for Add/Edit forms (majors/groups)
+        $referenceMajors = DB::table('major_discipline')->orderBy('description')->get();
+        $referenceGroups = DB::table('discipline_group')->orderBy('description')->get();
 
+        $formMajors = $referenceGroups->map(function ($group) use ($referenceMajors) {
             return [
                 'code' => $group->code,
                 'description' => $group->description,
-                'groups' => collect($groupMajors)->values(),
-                'specifics' => $groupSpecifics,
+                'groups' => $referenceMajors->filter(fn($m) => str_starts_with($m->code, $group->code))
+                    ->map(fn($m) => ['code' => $m->code, 'description' => $m->description])
+                    ->values()
             ];
-        })->values();
+        });
 
         return Inertia::render('Admin/Disciplines', [
-            'disciplines' => $disciplines,
+            'programs' => $programs,
+            'disciplines' => $formMajors, // Full structure for dropdowns
+            'filters' => $request->only(['search', 'sort', 'direction', 'per_page']),
         ]);
     }
     public function storeDiscipline(Request $request)

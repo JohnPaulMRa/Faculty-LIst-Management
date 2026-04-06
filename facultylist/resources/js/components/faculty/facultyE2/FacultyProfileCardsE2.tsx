@@ -3,7 +3,6 @@ import {
     User,
     GraduationCap,
     Clock,
-    Briefcase,
     Award,
     ChevronRight
 } from 'lucide-react';

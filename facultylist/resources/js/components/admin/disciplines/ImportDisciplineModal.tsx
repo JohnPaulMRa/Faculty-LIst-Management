@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { router } from "@inertiajs/react";
+import { Upload, FileSpreadsheet, X, AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
 import { useRef, useState, useCallback } from "react";
 import * as XLSX from "xlsx";
-import { Upload, FileSpreadsheet, X, AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { router } from "@inertiajs/react";
 
 export interface ParsedDisciplineRow {
     code: string;
@@ -52,7 +52,7 @@ export default function ImportDisciplineModal({ isOpen, onClose, onParsed }: Imp
         onClose();
     };
 
-    const parseFile = (file: File) => {
+    const parseFile = useCallback((file: File) => {
         setParseError(null);
         setRows([]);
         setImportDone(false);
@@ -81,7 +81,7 @@ export default function ImportDisciplineModal({ isOpen, onClose, onParsed }: Imp
 
                 const parsed: ParsedDisciplineRow[] = [];
 
-                jsonRows.forEach((row, idx) => {
+                jsonRows.forEach((row) => {
                     const rawCode = String(row["C"] ?? "").trim();
                     // Skip actual header rows or empty rows
                     if (!rawCode || rawCode.toLowerCase().includes("progdis") || rawCode.toLowerCase() === "code") {
@@ -120,7 +120,7 @@ export default function ImportDisciplineModal({ isOpen, onClose, onParsed }: Imp
             }
         };
         reader.readAsArrayBuffer(file);
-    };
+    }, [onParsed]);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -132,7 +132,7 @@ export default function ImportDisciplineModal({ isOpen, onClose, onParsed }: Imp
         setIsDragging(false);
         const file = e.dataTransfer.files?.[0];
         if (file) parseFile(file);
-    }, []);
+    }, [parseFile]);
 
     const validRows = rows.filter((r) => r._status === "pending");
     const invalidRows = rows.filter((r) => r._status === "error");

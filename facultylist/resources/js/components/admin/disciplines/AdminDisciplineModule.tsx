@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
 import { router } from '@inertiajs/react';
-import { useState, useMemo } from 'react';
 import { FileSpreadsheet, X } from 'lucide-react';
+import { useState, useMemo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import AddDisciplineForm from './AddDisciplineForm';
 import DisciplineTable, { type Program } from './DisciplineTable';
@@ -30,21 +30,32 @@ interface MajorDiscipline {
 
 interface AdminDisciplineModuleProps {
     disciplines: MajorDiscipline[];
+    serverPrograms?: any;
+    serverFilters?: any;
 }
 
-export default function AdminDisciplineModule({ disciplines = [] }: AdminDisciplineModuleProps) {
-    const [searchQuery, setSearchQuery] = useState("");
-    const [selectedMajor, setSelectedMajor] = useState<string | null>(null);
-    const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
+export default function AdminDisciplineModule({ 
+    disciplines = [], 
+    serverPrograms, 
+    serverFilters 
+}: AdminDisciplineModuleProps) {
+    // Sync search query with URL, using local state for immediate responsiveness
+    const [searchQuery, setSearchQuery] = useState(serverFilters?.search || "");
     const [formResetKey, setFormResetKey] = useState(0);
     const [isImportModalOpen, setIsImportModalOpen] = useState(false);
     /** Rows parsed from Excel — shown in DisciplineTable as a preview */
     const [importPreviewRows, setImportPreviewRows] = useState<Program[] | null>(null);
 
+    // Inertia state for sorting
+    const sortConfig = useMemo(() => ({
+        key: serverFilters?.sort || 'code',
+        direction: (serverFilters?.direction || 'asc') as 'asc' | 'desc'
+    }), [serverFilters]);
+
     /** Map ParsedDisciplineRow[] → Program[] for the DisciplineTable */
     const handleParsed = (rows: ParsedDisciplineRow[]) => {
         const mapped: Program[] = rows.map((row, idx) => ({
-            id: row.code || `import-${idx}`,
+            id: `import-${idx}-${row.code || 'no-code'}`,
             code: row.code,
             name: row.specificDiscipline,
             major: row.groupName,
@@ -67,159 +78,51 @@ export default function AdminDisciplineModule({ disciplines = [] }: AdminDiscipl
 
     const clearImportPreview = () => setImportPreviewRows(null);
 
-    // Compute flat list of all groups for the filter dropdown
-    const allGroups = useMemo(() => {
-        const groups: { code: string; description: string }[] = [];
-        disciplines.forEach((major) => {
-            major.groups.forEach((g) => {
-                groups.push({ code: g.code, description: g.description });
-            });
-        });
-        return groups;
-    }, [disciplines]);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [editingItem, setEditingItem] = useState<any>(null);
-    const [sortConfig, setSortConfig] = useState<{ key: string, direction: 'asc' | 'desc' } | null>(null);
     const [processing, setProcessing] = useState(false);
 
+    // Debounce search input to avoid hitting the server on every keystroke
+    useEffect(() => {
+        if (searchQuery === (serverFilters?.search || "")) return;
+
+        const timer = setTimeout(() => {
+            router.get(route('admin.disciplines'), {
+                ...serverFilters,
+                search: searchQuery,
+                page: 1 // Reset to first page on new search
+            }, {
+                preserveState: true,
+                preserveScroll: true,
+                replace: true
+            });
+        }, 400); // 400ms debounce
+
+        return () => clearTimeout(timer);
+    }, [searchQuery, serverFilters]);
+
     const handleSort = (key: string) => {
-        let direction: 'asc' | 'desc' = 'asc';
-        if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
+        let direction = 'asc';
+        if (sortConfig.key === key && sortConfig.direction === 'asc') {
             direction = 'desc';
         }
-        setSortConfig({ key, direction });
+
+        router.get(route('admin.disciplines'), {
+            ...serverFilters,
+            sort: key,
+            direction: direction
+        }, {
+            preserveState: true,
+            preserveScroll: true
+        });
     };
 
-    // Filtering logic
-    const filteredDisciplines = useMemo(() => {
-        if (!Array.isArray(disciplines)) return [];
-
-        const allPrograms: any[] = [];
-
-        // Flatten all groups, majors, and specifics into a single array first
-        disciplines.forEach(major => {
-            const groups = Array.isArray(major.groups) ? major.groups : [];
-            const directSpecifics = Array.isArray(major.specifics) ? major.specifics : [];
-
-            // Specifics that belong directly to the Discipline Group
-            directSpecifics.forEach(specific => {
-                allPrograms.push({
-                    id: String(specific.code),
-                    code: String(specific.code),
-                    name: String(specific.description || ''),
-                    major: String(major.description || ''),
-                    disciplineGroup: String(major.description || ''),
-                    specificMajor: '—',
-                    specificGroup: '—',
-                    originalData: {
-                        code: specific.code,
-                        group: major.code,
-                        groupCode: major.code,
-                        groupName: major.description,
-                        majorCode: '',
-                        majorName: '',
-                        majorDiscipline: major.description,
-                        specificDiscipline: specific.description,
-                        type: 'specific'
-                    }
-                });
-            });
-
-            groups.forEach(group => {
-                const specifics = Array.isArray(group.specifics) ? group.specifics : [];
-
-                if (specifics.length === 0) {
-                    allPrograms.push({
-                        id: String(group.code),
-                        code: String(group.code),
-                        name: '',
-                        major: String(major.description || ''),
-                        disciplineGroup: String(major.description || ''),
-                        specificMajor: String(group.description || ''),
-                        specificGroup: String(group.description || ''),
-                        originalData: {
-                            code: group.code,
-                            group: group.code,
-                            groupCode: major.code,
-                            groupName: major.description,
-                            majorCode: group.code,
-                            majorName: group.description,
-                            majorDiscipline: major.description,
-                            specificDiscipline: '',
-                            groupDescription: group.description,
-                            type: 'major'
-                        }
-                    });
-                    return;
-                }
-
-                specifics.forEach(specific => {
-                    allPrograms.push({
-                        id: String(specific.code),
-                        code: String(specific.code),
-                        name: String(specific.description || ''),
-                        major: String(major.description || ''),
-                        disciplineGroup: String(major.description || ''),
-                        specificMajor: String(group.description || ''),
-                        specificGroup: String(group.description || ''),
-                        originalData: {
-                            code: specific.code,
-                            group: group.code,
-                            groupCode: major.code,
-                            groupName: major.description,
-                            majorCode: group.code,
-                            majorName: group.description,
-                            majorDiscipline: major.description,
-                            specificDiscipline: specific.description,
-                            type: 'specific'
-                        }
-                    });
-                });
-            });
-        });
-
-        const q = (searchQuery || "").toLowerCase().trim();
-
-        // Apply filters on the flattened array
-        let result = allPrograms;
-
-        if (selectedMajor) {
-            // "The first two codes are the same"
-            // Reverting back to native `.startsWith` on the `program.code` string since this is the only reliable way to filter accurately by prefix
-            // when backend `groupCode` relationships might be missing for orphan specific disciplines or empty major groups.
-            result = result.filter(program => String(program.code).startsWith(String(selectedMajor)));
-        }
-
-        if (q) {
-            result = result.filter(program =>
-                String(program.name).toLowerCase().includes(q) ||
-                String(program.code).toLowerCase().includes(q) ||
-                String(program.disciplineGroup).toLowerCase().includes(q) ||
-                String(program.specificMajor).toLowerCase().includes(q) ||
-                String(program.originalData?.groupCode || "").toLowerCase().includes(q)
-            );
-        }
-
-        // Apply sorting
-        if (sortConfig) {
-            result.sort((a, b) => {
-                const aValue = String(a[sortConfig.key] || "").toLowerCase();
-                const bValue = String(b[sortConfig.key] || "").toLowerCase();
-
-                if (aValue < bValue) {
-                    return sortConfig.direction === 'asc' ? -1 : 1;
-                }
-                if (aValue > bValue) {
-                    return sortConfig.direction === 'asc' ? 1 : -1;
-                }
-                return 0;
-            });
-        }
-
-        return result;
-    }, [disciplines, searchQuery, selectedMajor, sortConfig]);
-
-    const activeMajorName = disciplines.find(m => m.code === selectedMajor)?.description;
+    // Correctly identifying the actual rows to display
+    // If import preview is active, USE that (all rows). Otherwise use server provided paginated programs.
+    const displayPrograms = useMemo(() => {
+        if (importPreviewRows !== null) return importPreviewRows;
+        return serverPrograms?.data || [];
+    }, [importPreviewRows, serverPrograms]);
 
 
     const handleEdit = (item: any) => {
@@ -230,26 +133,20 @@ export default function AdminDisciplineModule({ disciplines = [] }: AdminDiscipl
     const handleDelete = (id: string) => {
         if (confirm('Are you sure you want to delete this discipline?')) {
             router.delete(route('admin.disciplines.destroy', id), {
-                onSuccess: () => {
-                    // Success toast
-                }
+                onSuccess: () => {}
             });
         }
     };
 
     const handleAddSubmit = (data: any, onSuccess?: () => void) => {
-        console.log("router.post starting with data:", data);
         setProcessing(true);
         router.post(route('admin.disciplines.store'), data, {
-            onStart: () => console.log("Inertia request started"),
             onSuccess: (page: any) => {
-                console.log("Inertia request success:", page);
                 setProcessing(false);
                 const flash = (page.props as any).flash;
                 if (flash?.error) {
                     setTimeout(() => alert('Error: ' + flash.error), 10);
                 } else {
-                    setSelectedMajor(null);
                     if (onSuccess) {
                         onSuccess();
                     } else {
@@ -259,14 +156,11 @@ export default function AdminDisciplineModule({ disciplines = [] }: AdminDiscipl
                 }
             },
             onError: (errors) => {
-                console.log("Inertia request error:", errors);
                 setProcessing(false);
                 const messages = Object.values(errors).join('\n');
                 alert('Validation error:\n' + messages);
-                console.error(errors);
             },
             onFinish: () => {
-                console.log("Inertia request finished");
                 setProcessing(false);
             },
         });
@@ -275,7 +169,6 @@ export default function AdminDisciplineModule({ disciplines = [] }: AdminDiscipl
     const handleEditSubmit = (data: any) => {
         if (!editingItem) return;
         setProcessing(true);
-        // Determine type: 'specific' or 'major' based on originalData
         const type = editingItem.type === 'specific' ? 'specific' : 'major';
         const description = data.specificDiscipline || data.majorName || data.groupDescription || '';
         const newCode = data.code || editingItem.code;
@@ -304,7 +197,6 @@ export default function AdminDisciplineModule({ disciplines = [] }: AdminDiscipl
 
     return (
         <div className="flex flex-col gap-8 w-full text-foreground bg-background">
-            {/* Header Section */}
             <div className="flex flex-col gap-6">
                 <div className="flex items-start justify-between">
                     <div>
@@ -323,7 +215,6 @@ export default function AdminDisciplineModule({ disciplines = [] }: AdminDiscipl
                 </div>
 
                 <div className="flex flex-col w-full">
-                    {/* Add Discipline Form */}
                     <AddDisciplineForm
                         key={formResetKey}
                         onSubmit={handleAddSubmit}
@@ -331,10 +222,7 @@ export default function AdminDisciplineModule({ disciplines = [] }: AdminDiscipl
                         processing={processing}
                     />
 
-                    {/* Hierarchy Display */}
                     <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 flex flex-col gap-8">
-
-                        {/* Import preview banner */}
                         {importPreviewRows !== null && (
                             <div className="flex items-center justify-between gap-3 bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3">
                                 <div className="flex items-center gap-2">
@@ -342,7 +230,7 @@ export default function AdminDisciplineModule({ disciplines = [] }: AdminDiscipl
                                     <p className="text-xs font-semibold text-emerald-800">
                                         Previewing <span className="font-bold">{importPreviewRows.length}</span> rows from Excel import
                                     </p>
-                                    <span className="text-xs text-emerald-600">— Click <strong>Import</strong> in the modal to save, or clear the preview below.</span>
+                                    <span className="text-xs text-emerald-600">— Click <strong>Import</strong> in the modal to save.</span>
                                 </div>
                                 <button
                                     onClick={clearImportPreview}
@@ -354,18 +242,19 @@ export default function AdminDisciplineModule({ disciplines = [] }: AdminDiscipl
                         )}
 
                         <DisciplineTable
-                            programs={importPreviewRows !== null ? importPreviewRows : filteredDisciplines}
+                            programs={displayPrograms}
                             onEdit={handleEdit}
                             onDelete={handleDelete}
                             onSort={handleSort}
                             sortConfig={sortConfig}
                             searchQuery={searchQuery}
                             onSearchQueryChange={setSearchQuery}
+                            serverPagination={serverPrograms}
+                            serverFilters={serverFilters}
                         />
                     </div>
                 </div>
             </div>
-
 
             <EditDisciplineModal
                 isOpen={isEditModalOpen}
@@ -377,9 +266,7 @@ export default function AdminDisciplineModule({ disciplines = [] }: AdminDiscipl
 
             <ImportDisciplineModal
                 isOpen={isImportModalOpen}
-                onClose={() => {
-                    setIsImportModalOpen(false);
-                }}
+                onClose={() => setIsImportModalOpen(false)}
                 onParsed={handleParsed}
             />
         </div>

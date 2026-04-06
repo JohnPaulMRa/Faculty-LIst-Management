@@ -5,8 +5,8 @@ import type { FC } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { DialogClose } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import type { PublicFaculty } from '@/types/faculty';
 import { isFormE2Complete } from '@/lib/validationE2';
+import type { PublicFaculty } from '@/types/faculty';
 import { FacultyProfileCardsE2 } from './FacultyProfileCardsE2';
 
 // --- TYPES / INTERFACES ---

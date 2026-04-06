@@ -6,7 +6,6 @@ import { PrivateSchoolView } from '@/components/admin/faculty-list/private-HEI/P
 import { PublicSchoolView } from '@/components/admin/faculty-list/public-HEI/PublicSchoolView';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { cn } from '@/lib/utils';
 import { useDebounce } from '@/hooks/use-debounce';
 
 interface School {

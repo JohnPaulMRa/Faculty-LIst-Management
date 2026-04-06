@@ -1,18 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable react-hooks/exhaustive-deps */
+ 
 import { Head, router } from '@inertiajs/react';
 import { Save, Loader2 } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import type { FC } from 'react';
 
 import { FacultyProfileCardsE5 } from '@/components/faculty/facultyE5/FacultyProfileCardsE5';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
+import { getMissingE5Fields, isFormE5Complete } from '@/lib/validationE5';
 import { facultyprofile } from '@/routes';
 import { update } from '@/routes/faculty';
 import type { Faculty } from '@/types/faculty';
 
-import { getMissingE5Fields, isFormE5Complete } from '@/lib/validationE5';
 
 interface EditProps {
     faculty: Faculty;
@@ -24,115 +24,89 @@ const Edit: FC<EditProps> = ({ faculty, referenceData }) => {
     // Helper to check if it's E5
     const isE5 = faculty.form_type === 'E5';
 
-    const [formData, setFormData] = useState({
-        name: faculty.name || '',
-        fullTimeCode: faculty.form_type === 'E5' ? (faculty as any).fullTimeCode || '' : '',
-        genderCode: faculty.form_type === 'E5' ? (faculty as any).genderCode || '' : '',
-        disciplineCode: faculty.form_type === 'E5' ? (faculty as any).disciplineCode || '' : '',
-        degree: faculty.form_type === 'E5' ? (faculty as any).degree : (faculty as any).degree || '',
-        bachelors: faculty.form_type === 'E5' ? (faculty as any).bachelors || '' : '',
-        bachelorsCode: faculty.form_type === 'E5' ? (faculty as any).bachelorsCode || '' : '',
-        masters: faculty.form_type === 'E5' ? (faculty as any).masters || '' : '',
-        mastersCode: faculty.form_type === 'E5' ? (faculty as any).mastersCode || '' : '',
-        doctorate: faculty.form_type === 'E5' ? (faculty as any).doctorate || '' : '',
-        doctorateCode: faculty.form_type === 'E5' ? (faculty as any).doctorateCode || '' : '',
-        licenseCode: faculty.form_type === 'E5' ? (faculty as any).licenseCode || '' : '',
-        tenureCode: faculty.form_type === 'E5' ? (faculty as any).tenureCode || '' : '',
-        rankCode: faculty.form_type === 'E5' ? (faculty as any).rankCode || '' : '',
-        loadCode: faculty.form_type === 'E5' ? (faculty as any).loadCode || '' : '',
-        subjects: faculty.form_type === 'E5' ? (faculty as any).subjects || '' : '',
-        salaryCode: faculty.form_type === 'E5' ? (faculty as any).salaryCode || '' : '',
-        joined_year: faculty.joined_year || '',
-        status: faculty.status || ''
-    });
-
-    const [processing, setProcessing] = useState(false);
-
     // Helper to normalize code/description values (copied from FormE5)
-    const normalizeCode = (list: { code: string, desc: string }[], value?: string) => {
+    const normalizeCode = useCallback((list: { code: string, desc: string }[], value?: string) => {
         if (!value || !list) return value || '';
         if (list.some(item => item.code === value)) return value;
         const found = list.find(item => item.desc.trim().toLowerCase() === value.trim().toLowerCase());
         return found ? found.code : value;
-    };
+    }, []);
 
-    // Initialize/Normalize data
-    useEffect(() => {
-        if (faculty) {
-            if (faculty.form_type === 'E5') {
-                 
-                setFormData({
-                    name: faculty.name || '',
-                    fullTimeCode: normalizeCode(referenceData?.fullTimePartTime, (faculty as any).fullTimeCode),
-                    genderCode: normalizeCode(referenceData?.gender, (faculty as any).genderCode),
-                    disciplineCode: (faculty as any).disciplineCode || '',
-                    degree: normalizeCode(referenceData?.highestDegree, (faculty as any).degree),
-                    bachelors: (faculty as any).bachelors || '',
-                    bachelorsCode: (faculty as any).bachelorsCode || '',
-                    masters: (faculty as any).masters || '',
-                    mastersCode: (faculty as any).mastersCode || '',
-                    doctorate: (faculty as any).doctorate || '',
-                    doctorateCode: (faculty as any).doctorateCode || '',
-                    licenseCode: normalizeCode(referenceData?.professionalLicense, (faculty as any).licenseCode),
-                    tenureCode: normalizeCode(referenceData?.tenure, (faculty as any).tenureCode),
-                    rankCode: normalizeCode(referenceData?.facultyRank, (faculty as any).rankCode),
-                    loadCode: normalizeCode(referenceData?.teachingLoad, (faculty as any).loadCode),
-                    subjects: (faculty as any).subjects || '',
-                    salaryCode: normalizeCode(referenceData?.annualSalary, (faculty as any).salaryCode),
-                    joined_year: faculty.joined_year || '',
-                    status: faculty.status || ''
-                });
-            } else {
-                // Public Faculty (E2) - shared fields only
-                 
-                setFormData({
-                    name: faculty.name || '',
-                    fullTimeCode: '',
-                    genderCode: '',
-                    disciplineCode: '',
-                    degree: normalizeCode(referenceData?.highestDegree, faculty.degree),
-                    bachelors: '',
-                    bachelorsCode: '',
-                    masters: '',
-                    mastersCode: '',
-                    doctorate: '',
-                    doctorateCode: '',
-                    licenseCode: '',
-                    tenureCode: '',
-                    rankCode: normalizeCode(referenceData?.facultyRank, faculty.rank),
-                    loadCode: '',
-                    subjects: '',
-                    salaryCode: '',
-                    joined_year: faculty.joined_year || '',
-                    status: faculty.status || ''
-                });
-            }
+    // Helper to initialize/normalize data
+    const getInitialFormData = useCallback((fac: Faculty, ref: any) => {
+        if (fac.form_type === 'E5') {
+            return {
+                name: fac.name || '',
+                fullTimeCode: normalizeCode(ref?.fullTimePartTime, (fac as any).fullTimeCode),
+                genderCode: normalizeCode(ref?.gender, (fac as any).genderCode),
+                disciplineCode: (fac as any).disciplineCode || '',
+                degree: normalizeCode(ref?.highestDegree, (fac as any).degree),
+                bachelors: (fac as any).bachelors || '',
+                bachelorsCode: (fac as any).bachelorsCode || '',
+                masters: (fac as any).masters || '',
+                mastersCode: (fac as any).mastersCode || '',
+                doctorate: (fac as any).doctorate || '',
+                doctorateCode: (fac as any).doctorateCode || '',
+                licenseCode: normalizeCode(ref?.professionalLicense, (fac as any).licenseCode),
+                tenureCode: normalizeCode(ref?.tenure, (fac as any).tenureCode),
+                rankCode: normalizeCode(ref?.facultyRank, (fac as any).rankCode),
+                loadCode: normalizeCode(ref?.teachingLoad, (fac as any).loadCode),
+                subjects: (fac as any).subjects || '',
+                salaryCode: normalizeCode(ref?.annualSalary, (fac as any).salaryCode),
+                joined_year: fac.joined_year || '',
+                status: fac.status || ''
+            };
+        } else {
+            return {
+                name: fac.name || '',
+                fullTimeCode: '',
+                genderCode: '',
+                disciplineCode: '',
+                degree: normalizeCode(ref?.highestDegree, fac.degree),
+                bachelors: '',
+                bachelorsCode: '',
+                masters: '',
+                mastersCode: '',
+                doctorate: '',
+                doctorateCode: '',
+                licenseCode: '',
+                tenureCode: '',
+                rankCode: normalizeCode(ref?.facultyRank, fac.rank),
+                loadCode: '',
+                subjects: '',
+                salaryCode: '',
+                joined_year: fac.joined_year || '',
+                status: fac.status || ''
+            };
         }
-         
-    }, [faculty, referenceData]);
+    }, [normalizeCode]);
+
+    const [formData, setFormData] = useState(() => getInitialFormData(faculty, referenceData));
+    const [processing, setProcessing] = useState(false);
+
+    // Update state when faculty or referenceData changes (Update during render pattern)
+    const [prevFaculty, setPrevFaculty] = useState(faculty);
+    const [prevRef, setPrevRef] = useState(referenceData);
+
+    if (faculty.id !== prevFaculty.id || referenceData !== prevRef) {
+        setPrevFaculty(faculty);
+        setPrevRef(referenceData);
+        setFormData(getInitialFormData(faculty, referenceData));
+    }
 
     const handleChange = (field: string, value: string) => {
         setFormData(prev => ({ ...prev, [field]: value }));
     };
 
-    // Auto-calculate status
-    useEffect(() => {
-        const isComplete = isFormE5Complete(formData, isE5);
+    // Auto-calculate status (Compute during render instead of effect)
+    const isComplete = isFormE5Complete(formData, isE5);
+    let currentStatus = formData.status;
 
-        // If already 'Completed' (from submission), don't downgrade it unless it's genuinely incomplete
-        // Otherwise, mark as 'Updated' if all required fields are present.
-        let newStatus = formData.status;
-
-        if (!isComplete) {
-            newStatus = 'Not Updated';
-        } else if (formData.status !== 'Completed' && formData.status !== 'Submitted') {
-            newStatus = 'Updated';
-        }
-
-        if (formData.status !== newStatus) {
-            setFormData(prev => ({ ...prev, status: newStatus || 'Not Updated' }));
-        }
-    }, [formData, isE5, faculty.id]);
+    if (!isComplete) {
+        currentStatus = 'Not Updated';
+    } else if (formData.status !== 'Completed' && formData.status !== 'Submitted') {
+        currentStatus = 'Updated';
+    }
 
     const handleSave = () => {
         const missingFields = getMissingE5Fields(formData, isE5);
@@ -158,6 +132,7 @@ const Edit: FC<EditProps> = ({ faculty, referenceData }) => {
         // Sync legacy string fields
         const syncedData = {
             ...formData,
+            status: currentStatus,
             rank: getDesc(referenceData?.facultyRank, formData.rankCode) || (faculty.form_type === 'E2' ? (faculty as any).rank : (faculty.form_type === 'E5' ? (faculty as any).rankCode : '')) || '',
             employment: getDesc(referenceData?.fullTimePartTime, formData.fullTimeCode) || (faculty.form_type === 'E2' ? (faculty as any).employment : '') || '',
 
