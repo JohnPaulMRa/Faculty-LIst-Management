@@ -198,8 +198,8 @@ class AdminController extends Controller
             'private'    => $data,
             'public'     => $data,
             'statusData' => [
-                ['name' => 'Active',   'value' => \App\Models\Hei::where('is_active', true)->count(),  'color' => '#16a34a'],
-                ['name' => 'Inactive', 'value' => \App\Models\Hei::where('is_active', false)->count(), 'color' => '#9ca3af'],
+                ['name' => 'Active',   'value' => Hei::where('is_active', true)->count(),  'color' => '#16a34a'],
+                ['name' => 'Inactive', 'value' => Hei::where('is_active', false)->count(), 'color' => '#9ca3af'],
             ],
         ];
     }

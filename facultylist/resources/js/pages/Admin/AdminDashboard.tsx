@@ -1,9 +1,9 @@
 import { Head } from '@inertiajs/react';
 import AdminOverview from '@/components/admin/dashboard/AdminOverview';
-import AdminStatsCard from '@/components/admin/dashboard/AdminStatsCard';
+
 import { AnalyticsOverview, StatusOverview } from '@/components/admin/dashboard/AnalyticsOverview';
-import SubmittedHeisList from '@/components/admin/dashboard/SubmittedHeisList';
 import SchoolList from '@/components/admin/dashboard/SchoolList';
+import SubmittedHeisList from '@/components/admin/dashboard/SubmittedHeisList';
 import AppSidebarLayout from '@/layouts/app/app-sidebar-layout';
 
 interface DashboardSchool {

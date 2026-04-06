@@ -1,8 +1,8 @@
+import { Link } from '@inertiajs/react';
 import { ClipboardList, ExternalLink, School, Users, Calendar, ArrowRight } from 'lucide-react';
 import type { FC } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Link } from '@inertiajs/react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 
 interface Submission {
     id: number;
