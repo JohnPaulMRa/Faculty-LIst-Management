@@ -55,7 +55,7 @@ class DashboardController extends Controller
                 'status' => $this->getStatusStats($totalFaculty, $totalE2, $totalE5, $filterE2, $filterE5),
                 'qualifications' => $this->getQualificationStats($filterE2, $filterE5),
                 'teachingLoad' => $this->getTeachingLoadStats($filterE5),
-                'employmentTrends' => $this->getEmploymentTrends($heiId, $isPublic)
+                'employmentTrends' => $this->getEmploymentTrends($heiId, $isPublic, $selectedYear)
             ],
             'selectedYear' => $selectedYear,
             'availableYears' => $availableYears,
@@ -198,32 +198,36 @@ class DashboardController extends Controller
         return ['regular' => $regularLoad, 'overload' => $overload, 'underload' => $underload];
     }
 
-    private function getEmploymentTrends($heiId, $isPublic)
+    private function getEmploymentTrends($heiId, $isPublic, $selectedYear = 'All Years')
     {
-        $trendDataE2 = Faculty::where('hei_id', $heiId)
+        $trendDataE2Query = Faculty::where('hei_id', $heiId)
             ->select('joined_year', 'employment', 'import_group', DB::raw('count(*) as count'))
-            ->whereNotNull('joined_year')
-            ->groupBy('joined_year', 'employment', 'import_group')
-            ->get();
+            ->whereNotNull('joined_year');
 
-        $trendDataE5 = FacultyE5::where('hei_id', $heiId)
+        $trendDataE5Query = FacultyE5::where('hei_id', $heiId)
             ->select('joined_year', 'ft_pt_code', 'import_group', DB::raw('count(*) as count'))
-            ->whereNotNull('joined_year')
-            ->groupBy('joined_year', 'ft_pt_code', 'import_group')
-            ->get();
+            ->whereNotNull('joined_year');
+
+        if ($selectedYear && $selectedYear !== 'All Years') {
+            $trendDataE2Query->where('joined_year', $selectedYear);
+            $trendDataE5Query->where('joined_year', $selectedYear);
+        }
+
+        $trendDataE2 = $trendDataE2Query->groupBy('joined_year', 'employment', 'import_group')->get();
+        $trendDataE5 = $trendDataE5Query->groupBy('joined_year', 'ft_pt_code', 'import_group')->get();
 
         $years = $trendDataE2->pluck('joined_year')->merge($trendDataE5->pluck('joined_year'))->unique()->sort()->values()->all();
 
         $categories = $isPublic ? [
-            'GROUP A1' => ['label' => 'GROUP A1', 'color' => '#10b981'],
-            'GROUP A2' => ['label' => 'GROUP A2', 'color' => '#3b82f6'],
-            'GROUP A3' => ['label' => 'GROUP A3', 'color' => '#f59e0b'],
-            'GROUP B'  => ['label' => 'GROUP B', 'color' => '#ef4444'],
-            'GROUP C1' => ['label' => 'GROUP C1', 'color' => '#8b5cf6'],
-            'GROUP C2' => ['label' => 'GROUP C2', 'color' => '#ec4899'],
-            'GROUP C3' => ['label' => 'GROUP C3', 'color' => '#06b6d4'],
-            'GROUP D'  => ['label' => 'GROUP D', 'color' => '#f97316'],
-            'GROUP E'  => ['label' => 'GROUP E', 'color' => '#6b7280'],
+            'A1' => ['label' => 'GROUP A1', 'color' => '#10b981'],
+            'A2' => ['label' => 'GROUP A2', 'color' => '#3b82f6'],
+            'A3' => ['label' => 'GROUP A3', 'color' => '#f59e0b'],
+            'B'  => ['label' => 'GROUP B', 'color' => '#ef4444'],
+            'C1' => ['label' => 'GROUP C1', 'color' => '#8b5cf6'],
+            'C2' => ['label' => 'GROUP C2', 'color' => '#ec4899'],
+            'C3' => ['label' => 'GROUP C3', 'color' => '#06b6d4'],
+            'D'  => ['label' => 'GROUP D', 'color' => '#f97316'],
+            'E'  => ['label' => 'GROUP E', 'color' => '#6b7280'],
         ] : [
             1 => ['label' => 'full-time employee HEI.', 'color' => '#10b981'],
             2 => ['label' => 'half-time employee HEI.', 'color' => '#3b82f6'],
@@ -238,8 +242,20 @@ class DashboardController extends Controller
             $dataPoints = [];
             foreach ($years as $year) {
                 if ($isPublic) {
-                    $dataPoints[] = $trendDataE2->where('joined_year', $year)->where('import_group', $code)->sum('count') +
-                                 $trendDataE5->where('joined_year', $year)->where('import_group', $code)->sum('count');
+                    $yearDataE2 = $trendDataE2->where('joined_year', $year);
+                    $yearDataE5 = $trendDataE5->where('joined_year', $year);
+                    
+                    $e2Count = $yearDataE2->filter(fn($r) => 
+                        strtoupper(trim($r->import_group)) === strtoupper(trim($code)) || 
+                        strtoupper(trim($r->import_group)) === strtoupper(trim("GROUP " . $code))
+                    )->sum('count');
+
+                    $e5Count = $yearDataE5->filter(fn($r) => 
+                        strtoupper(trim($r->import_group)) === strtoupper(trim($code)) || 
+                        strtoupper(trim($r->import_group)) === strtoupper(trim("GROUP " . $code))
+                    )->sum('count');
+
+                    $dataPoints[] = $e2Count + $e5Count;
                 } else {
                     $e5Count = $trendDataE5->where('joined_year', $year)->where('ft_pt_code', $code)->sum('count');
                     $e2Count = 0;

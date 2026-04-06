@@ -1,0 +1,128 @@
+import { ClipboardList, ExternalLink, School, Users, Calendar, ArrowRight } from 'lucide-react';
+import type { FC } from 'react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Link } from '@inertiajs/react';
+
+interface Submission {
+    id: number;
+    hei_id: number;
+    hei_name: string;
+    academic_year: string;
+    total_faculty: number;
+    type: string;
+    submitted_by: string;
+    time: string;
+    date: string;
+}
+
+interface SubmittedHeisListProps {
+    recentSubmissions: Submission[];
+}
+
+export const SubmittedHeisList: FC<SubmittedHeisListProps> = ({ recentSubmissions = [] }) => {
+    return (
+        <Card className="rounded-none border border-gray-200 shadow-none bg-white">
+            <CardHeader className="pb-3 border-b border-gray-100">
+                <div className="flex items-center justify-between">
+                    <div className="flex flex-col gap-1">
+                        <CardTitle className="text-base font-bold text-gray-900 flex items-center gap-2">
+                            <ClipboardList className="h-4 w-4 text-gray-500" />
+                            Submitted HEIs
+                        </CardTitle>
+                        <CardDescription className="text-xs text-gray-500">
+                            Recent official faculty submissions
+                        </CardDescription>
+                    </div>
+                </div>
+            </CardHeader>
+            <CardContent className="p-0">
+                <div className="divide-y divide-gray-100">
+                    {recentSubmissions.length > 0 ? (
+                        recentSubmissions.map((submission) => (
+                            <div key={submission.id} className="flex items-center gap-4 p-5 hover:bg-gray-50/80 transition-all group">
+                                {/* Icon/Avatar Area */}
+                                <div className={`h-10 w-10 rounded-none flex items-center justify-center shrink-0 border transition-colors ${
+                                    submission.type === 'Public' 
+                                    ? 'bg-purple-50 border-purple-100 text-purple-600' 
+                                    : 'bg-blue-50 border-blue-100 text-blue-600'
+                                }`}>
+                                    <School className="h-5 w-5" />
+                                </div>
+
+                                {/* Main Content */}
+                                <div className="flex-1 min-w-0">
+                                    <div className="flex items-center justify-between mb-1">
+                                        <span className={`text-sm font-black truncate transition-colors ${
+                                            submission.type === 'Public' ? 'text-purple-700' : 'text-blue-700'
+                                        }`}>
+                                            {submission.hei_name}
+                                        </span>
+                                        <span className="text-[10px] font-bold text-gray-400 whitespace-nowrap bg-gray-50 px-2 py-0.5 border border-gray-100">
+                                            {submission.time}
+                                        </span>
+                                    </div>
+                                    
+                                    <div className="flex items-center gap-3 mt-1.5">
+                                        <div className="flex items-center gap-1.5">
+                                            <Calendar className="h-3 w-3 text-gray-400" />
+                                            <span className="text-[11px] font-bold text-gray-600 uppercase tracking-tight">
+                                                AY {submission.academic_year}
+                                            </span>
+                                        </div>
+                                        <div className="w-1 h-1 rounded-full bg-gray-300"></div>
+                                        <div className="flex items-center gap-1.5">
+                                            <Users className="h-3 w-3 text-gray-400" />
+                                            <span className="text-[11px] font-bold text-gray-600">
+                                                {submission.total_faculty} Faculty
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center justify-between mt-2.5">
+                                        <div className="flex items-center gap-2">
+                                            <Badge variant="outline" className={`text-[9px] px-1.5 py-0 uppercase font-black border-2 ${
+                                                submission.type === 'Public' 
+                                                ? 'border-purple-200 text-purple-600 bg-white' 
+                                                : 'border-blue-200 text-blue-600 bg-white'
+                                            }`}>
+                                                {submission.type === 'Public' ? 'PUBLIC HEI' : 'PRIVATE HEI'}
+                                            </Badge>
+                                            <span className="text-[10px] text-gray-400 italic">
+                                                by {submission.submitted_by}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                {/* Quick Action */}
+                                <div className="opacity-0 group-hover:opacity-100 transition-opacity pr-2">
+                                    <ArrowRight className="h-4 w-4 text-gray-300" />
+                                </div>
+                            </div>
+                        ))
+                    ) : (
+                        <div className="flex flex-col items-center justify-center p-12 text-center">
+                            <ClipboardList className="h-10 w-10 text-gray-200 mb-3" />
+                            <p className="text-gray-400 italic text-sm font-medium">No recent submissions found.</p>
+                        </div>
+                    )}
+                </div>
+                {recentSubmissions.length > 0 && (
+                    <div className="p-4 border-t border-gray-100 bg-gray-50/50">
+                        <Link
+                            href={`/admin/faculty-list`}
+                            className="text-[11px] font-black text-gray-600 hover:text-blue-600 flex items-center justify-center gap-2 transition-all uppercase tracking-widest"
+                            data-testid="view-details-link"
+                        >
+                            View All Submissions
+                            <ExternalLink className="h-3 w-3" />
+                        </Link>
+                    </div>
+                )}
+            </CardContent>
+        </Card>
+    );
+};
+
+export default SubmittedHeisList;

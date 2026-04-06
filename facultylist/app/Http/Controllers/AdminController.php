@@ -76,19 +76,14 @@ class AdminController extends Controller
     public function dashboard(Request $request)
     {
         $distributionData = $this->getDashboardDistributionData();
-        $employmentTrends = $this->getDashboardEmploymentTrends();
 
         return Inertia::render('Admin/AdminDashboard', [
             'heis' => $this->getDashboardHeis(),
-            'stats' => $this->getDashboardStats(),
             'recentActivities' => $this->getDashboardRecentActivities(),
-            'distributionData' => $distributionData['distributionData'], // For backward compatibility if needed, or we can replace it
-            'privateDistributionData' => $distributionData['private'],
-            'publicDistributionData' => $distributionData['public'],
+            'recentSubmissions' => $this->getRecentSubmissions(),
+            'distributionData' => $distributionData['all'],
             'statusData' => $distributionData['statusData'],
             'disciplineUpdates' => $this->getDashboardDisciplineUpdates(),
-            'privateEmploymentTrends' => $employmentTrends['private'],
-            'publicEmploymentTrends' => $employmentTrends['public'],
         ]);
     }
 
@@ -108,21 +103,33 @@ class AdminController extends Controller
         });
     }
 
-    private function getDashboardStats()
-    {
-        $totalFaculty = Faculty::count() + FacultyE5::count();
-        $totalHeis = Hei::count();
-        $privateHeis = Hei::where('type', 'Private')->count();
-        $publicHeis = Hei::where('type', 'Public')->count();
 
-        return [
-            ['title' => "Total Faculty", 'value' => (string) $totalFaculty, 'trend' => "+0%"],
-            [
-                'title' => "TOTAL SUBMITTED HEIs",
-                'value' => (string) $totalHeis,
-                'subtext' => "{$privateHeis} Private HEIs, {$publicHeis} Public HEIs"
-            ],
-        ];
+    private function getRecentSubmissions()
+    {
+        // Get only the latest submission ID for each HEI that has submitted
+        $latestSubmissionIds = HeiSubmission::where('status', 'submitted')
+            ->select(DB::raw('MAX(id) as id'))
+            ->groupBy('hei_id')
+            ->pluck('id');
+
+        return HeiSubmission::with('hei')
+            ->whereIn('id', $latestSubmissionIds)
+            ->latest()
+            ->take(10)
+            ->get()
+            ->map(function ($submission) {
+                return [
+                    'id' => $submission->id,
+                    'hei_id' => $submission->hei_id,
+                    'hei_name' => $submission->hei_name ?: ($submission->hei ? $submission->hei->name : 'Unknown HEI'),
+                    'academic_year' => $submission->academic_year,
+                    'total_faculty' => $submission->total_faculty,
+                    'type' => $submission->hei ? $submission->hei->type : 'Private',
+                    'submitted_by' => $submission->submitted_by,
+                    'time' => $submission->created_at->diffForHumans(),
+                    'date' => $submission->created_at->format('M d, Y h:i A'),
+                ];
+            });
     }
 
     private function getDashboardRecentActivities()
@@ -142,183 +149,58 @@ class AdminController extends Controller
     private function getDashboardDistributionData()
     {
         $groups = DB::table('discipline_group')->orderBy('code')->get();
-        $majors = DB::table('major_discipline')->orderBy('code')->get();
         $specifics = DB::table('specific_discipline')->orderBy('code')->get();
 
-        // Helper to format distribution data for a specific HEI type
-        $formatDistribution = function ($type) use ($groups, $majors, $specifics) {
+        // Count specific disciplines per group (not faculty members)
+        $formatDistribution = function () use ($groups, $specifics) {
             $distribution = [];
-            
-            // Get actual faculty counts for this HEI type
-            $facultyCounts = DB::table('faculty_e5')
-                ->join('heis', 'faculty_e5.hei_id', '=', 'heis.id')
-                ->where('heis.type', $type)
-                ->whereNotNull('faculty_e5.discipline_code')
-                ->select('faculty_e5.discipline_code', DB::raw('count(*) as count'))
-                ->groupBy('faculty_e5.discipline_code')
-                ->pluck('count', 'faculty_e5.discipline_code');
 
-            // If there's no faculty data yet, we can fallback to just a 0 count structure
-            // Or only show disciplines that have faculty. Let's show all groups with > 0 faculty,
-            // or if it's completely empty, show the reference structure with 0s.
-            
             foreach ($groups as $group) {
-                $groupMajors = $majors->filter(function ($m) use ($group) {
-                    return str_starts_with($m->code, $group->code);
+                // Count all specific disciplines that belong to this group
+                $groupSpecifics = $specifics->filter(function ($s) use ($group) {
+                    return str_starts_with($s->code, $group->code);
                 });
 
-                $children = [];
-                $groupCount = 0;
-
-                foreach ($groupMajors as $major) {
-                    $majorSpecifics = $specifics->filter(function ($s) use ($major) {
-                        return str_starts_with($s->code, $major->code);
-                    });
-                    
-                    $majorCount = 0;
-                    foreach ($majorSpecifics as $s) {
-                        $count = $facultyCounts[$s->code] ?? 0;
-                        $majorCount += $count;
-                    }
-
-                    // Fallback to reference counts if no data exists anywhere (to keep the chart populated with mock data if needed)
-                    // But if they want real data, we just use $majorCount.
-                    // For the sake of the existing mock behavior vs new, we will just show mock data if everything is 0.
-                    if ($majorCount == 0 && count($facultyCounts) == 0) {
-                        $majorCount = $majorSpecifics->count();
-                    }
-
-                    if ($majorCount > 0) {
-                        $children[] = [
-                            'name' => $major->description,
-                            'count' => $majorCount,
-                        ];
-                        $groupCount += $majorCount;
-                    }
-                }
+                $groupCount = $groupSpecifics->count();
 
                 if ($groupCount > 0) {
-                    usort($children, function ($a, $b) {
-                        return $b['count'] <=> $a['count'];
-                    });
-
                     $distribution[] = [
-                        'name' => $group->description,
+                        'name'  => $group->description,
                         'count' => $groupCount,
-                        'children' => $children,
                     ];
                 }
             }
 
+            // Merge duplicates with the same name (e.g. two 'General' groups in the table)
+            $merged = [];
+            foreach ($distribution as $item) {
+                $key = strtolower(trim($item['name']));
+                if (isset($merged[$key])) {
+                    $merged[$key]['count'] += $item['count'];
+                } else {
+                    $merged[$key] = $item;
+                }
+            }
+            $distribution = array_values($merged);
+
+            // Sort descending by count
             usort($distribution, function ($a, $b) {
                 return $b['count'] <=> $a['count'];
             });
-            
+
             return $distribution;
         };
 
+        $data = $formatDistribution();
+
         return [
-            'distributionData' => $formatDistribution('Private'), // Fallback
-            'private' => $formatDistribution('Private'),
-            'public' => $formatDistribution('Public'),
+            'all'        => $data,
+            'private'    => $data,
+            'public'     => $data,
             'statusData' => [
-                ['name' => 'Active', 'value' => Hei::where('is_active', true)->count(), 'color' => '#16a34a'],
-                ['name' => 'Inactive', 'value' => Hei::where('is_active', false)->count(), 'color' => '#9ca3af'],
+                ['name' => 'Active',   'value' => \App\Models\Hei::where('is_active', true)->count(),  'color' => '#16a34a'],
+                ['name' => 'Inactive', 'value' => \App\Models\Hei::where('is_active', false)->count(), 'color' => '#9ca3af'],
             ],
-        ];
-    }
-    
-    private function getDashboardEmploymentTrends()
-    {
-        $getTrendsByType = function ($type) {
-            $trendDataE2 = Faculty::join('heis', 'faculty_e2.hei_id', '=', 'heis.id')
-                ->where('heis.type', $type)
-                ->select('faculty_e2.joined_year', 'faculty_e2.employment', 'faculty_e2.import_group', DB::raw('count(*) as count'))
-                ->whereNotNull('faculty_e2.joined_year')
-                ->groupBy('faculty_e2.joined_year', 'faculty_e2.employment', 'faculty_e2.import_group')
-                ->get();
-
-            $trendDataE5 = FacultyE5::join('heis', 'faculty_e5.hei_id', '=', 'heis.id')
-                ->where('heis.type', $type)
-                ->select('faculty_e5.joined_year', 'faculty_e5.ft_pt_code', 'faculty_e5.import_group', DB::raw('count(*) as count'))
-                ->whereNotNull('faculty_e5.joined_year')
-                ->groupBy('faculty_e5.joined_year', 'faculty_e5.ft_pt_code', 'faculty_e5.import_group')
-                ->get();
-
-            $years = $trendDataE2->pluck('joined_year')->merge($trendDataE5->pluck('joined_year'))->unique()->sort()->values()->all();
-
-            $categories = [
-                1 => ['label' => 'Full-time', 'color' => '#10b981'],
-                2 => ['label' => 'Half-time', 'color' => '#3b82f6'],
-                3 => ['label' => 'Student employee', 'color' => '#f59e0b'],
-                4 => ['label' => 'Teaching Fellow', 'color' => '#8b5cf6'],
-                5 => ['label' => 'Part-time', 'color' => '#ef4444'],
-            ];
-
-            $series = [];
-
-            foreach ($categories as $code => $meta) {
-                $dataPoints = [];
-                $hasData = false;
-                foreach ($years as $year) {
-                    $e5Count = $trendDataE5->where('joined_year', $year)->where('ft_pt_code', $code)->sum('count');
-                    
-                    $e2Count = 0;
-                    $e2Records = $trendDataE2->where('joined_year', $year);
-                    foreach ($e2Records as $rec) {
-                        $emp = strtolower($rec->employment);
-                        $mappedCode = 9;
-                        if (str_contains($emp, 'full')) $mappedCode = 1;
-                        elseif (str_contains($emp, 'part')) $mappedCode = 5;
-
-                        if ($mappedCode === $code) {
-                            $e2Count += $rec->count;
-                        }
-                    }
-                    $pointTotal = $e5Count + $e2Count;
-                    if ($pointTotal > 0) $hasData = true;
-                    $dataPoints[] = $pointTotal;
-                }
-                if ($hasData) {
-                    $series[] = [
-                        'name' => $meta['label'],
-                        'color' => $meta['color'],
-                        'data' => $dataPoints
-                    ];
-                }
-            }
-            
-            // Generate some mock data if completely empty so the chart renders something
-            if (empty($years)) {
-                $years = ['2020', '2021', '2022', '2023', '2024'];
-                $series = [
-                    [
-                        'name' => 'Total Faculty',
-                        'color' => '#000000',
-                        'data' => [120, 150, 180, 210, 250]
-                    ],
-                    [
-                        'name' => 'Full-time',
-                        'color' => '#10b981',
-                        'data' => [80, 100, 120, 150, 180]
-                    ],
-                    [
-                        'name' => 'Part-time',
-                        'color' => '#ef4444',
-                        'data' => [40, 50, 60, 60, 70]
-                    ]
-                ];
-            }
-
-            return [
-                'years' => $years,
-                'series' => $series
-            ];
-        };
-
-        return [
-            'private' => $getTrendsByType('Private'),
-            'public' => $getTrendsByType('Public'),
         ];
     }
 

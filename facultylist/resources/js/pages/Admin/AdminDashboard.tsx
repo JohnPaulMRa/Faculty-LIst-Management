@@ -2,7 +2,7 @@ import { Head } from '@inertiajs/react';
 import AdminOverview from '@/components/admin/dashboard/AdminOverview';
 import AdminStatsCard from '@/components/admin/dashboard/AdminStatsCard';
 import { AnalyticsOverview, StatusOverview } from '@/components/admin/dashboard/AnalyticsOverview';
-import EmploymentTrends from '@/components/admin/dashboard/EmploymentTrends';
+import SubmittedHeisList from '@/components/admin/dashboard/SubmittedHeisList';
 import SchoolList from '@/components/admin/dashboard/SchoolList';
 import AppSidebarLayout from '@/layouts/app/app-sidebar-layout';
 
@@ -13,12 +13,6 @@ interface DashboardSchool {
     status: string;
 }
 
-interface DashboardStat {
-    title: string;
-    value: string;
-    trend?: string;
-    subtext?: string;
-}
 
 
 
@@ -35,35 +29,30 @@ interface StatusItem {
 
 
 
-interface TrendSeries {
-    name: string;
-    color: string;
-    data: number[];
-}
-
-interface TrendsData {
-    years: string[];
-    series: TrendSeries[];
+interface Submission {
+    id: number;
+    hei_id: number;
+    hei_name: string;
+    academic_year: string;
+    total_faculty: number;
+    type: string;
+    submitted_by: string;
+    time: string;
+    date: string;
 }
 
 interface AdminDashboardProps {
     heis: DashboardSchool[];
-    stats: DashboardStat[];
-    privateDistributionData: DistributionItem[];
-    publicDistributionData: DistributionItem[];
+    distributionData: DistributionItem[];
     statusData: StatusItem[];
-    privateEmploymentTrends: TrendsData;
-    publicEmploymentTrends: TrendsData;
+    recentSubmissions: Submission[];
 }
 
 export default function AdminDashboard({
     heis = [],
-    stats = [],
-    privateDistributionData = [],
-    publicDistributionData = [],
+    distributionData = [],
     statusData = [],
-    privateEmploymentTrends,
-    publicEmploymentTrends
+    recentSubmissions = []
 }: AdminDashboardProps) {
     return (
         <AppSidebarLayout breadcrumbs={[{ title: 'Admin Dashboard', href: '/admin/dashboard' }]}>
@@ -77,11 +66,6 @@ export default function AdminDashboard({
                     {/* Stats & School List */}
                     <div className="lg:col-span-2 flex flex-col gap-8">
                         {/* Stats Grid */}
-                        <div className="grid grid-cols-2 gap-4">
-                            {stats.map((stat, index) => (
-                                <AdminStatsCard key={index} {...stat} />
-                            ))}
-                        </div>
 
                         {/* School List */}
                         <div className="flex-1 min-h-[300px]">
@@ -98,13 +82,9 @@ export default function AdminDashboard({
                 {/* Analytics Section */}
                 <div className="mt-8 grid grid-cols-1 xl:grid-cols-2 gap-8">
                     <AnalyticsOverview
-                        privateDistributionData={privateDistributionData}
-                        publicDistributionData={publicDistributionData}
+                        distributionData={distributionData}
                     />
-                    <EmploymentTrends 
-                        privateTrends={privateEmploymentTrends}
-                        publicTrends={publicEmploymentTrends}
-                    />
+                    <SubmittedHeisList recentSubmissions={recentSubmissions} />
                 </div>
             </div>
         </AppSidebarLayout>

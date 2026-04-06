@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import type { FC} from 'react';
+import type { FC } from 'react';
 import { useState } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -28,7 +28,7 @@ const FacultyStats: FC<FacultyStatsProps> = ({ stats }) => {
     ];
 
     const statusData = [
-        { name: 'Completed', value: stats.status.completed, color: '#10b981' }, 
+        { name: 'Completed', value: stats.status.completed, color: '#10b981' },
         { name: 'Not yet Completed', value: stats.status.notYetCompleted, color: '#f59e0b' },
         { name: 'No Submission', value: stats.status.noSubmission, color: '#f43f5e' },
     ];
@@ -53,13 +53,13 @@ const FacultyStats: FC<FacultyStatsProps> = ({ stats }) => {
     return (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             {/* Total Faculty - Donut Chart Style */}
-            <Card className="rounded-none border border-gray-200 shadow-none bg-white">
+            <Card className="rounded-4px border border-gray-200 shadow-none bg-white">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-sm font-medium text-gray-500 uppercase tracking-wider">Total Faculty</CardTitle>
                 </CardHeader>
                 <CardContent className="h-[180px] relative">
-                    <ResponsiveContainer width="100%" height="100%" debounce={100}>
-                        <PieChart>
+                    <ResponsiveContainer width="100%" height="100%" debounce={100} style={{ outline: 'none' }}>
+                        <PieChart style={{ outline: 'none' }} tabIndex={-1}>
                             <Pie
                                 data={[{ name: 'Total', value: stats.totalFaculty, color: '#3b82f6' }]}
                                 cx="50%"
@@ -87,13 +87,13 @@ const FacultyStats: FC<FacultyStatsProps> = ({ stats }) => {
 
 
             {/* Gender Distribution Pie Chart */}
-            <Card className="rounded-none border border-gray-200 shadow-none bg-white">
+            <Card className="rounded-4px border border-gray-200 shadow-none bg-white">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-sm font-medium text-gray-500 uppercase tracking-wider">Gender Distribution</CardTitle>
                 </CardHeader>
                 <CardContent className="h-[180px] relative">
-                    <ResponsiveContainer width="100%" height="100%" debounce={100}>
-                        <PieChart>
+                    <ResponsiveContainer width="100%" height="100%" debounce={100} style={{ outline: 'none' }}>
+                        <PieChart style={{ outline: 'none' }} tabIndex={-1}>
                             <Pie
                                 data={genderData}
                                 cx="50%"
@@ -138,13 +138,13 @@ const FacultyStats: FC<FacultyStatsProps> = ({ stats }) => {
             </Card>
 
             {/* Status Distribution Pie Chart */}
-            <Card className="rounded-none border border-gray-200 shadow-none bg-white">
+            <Card className="rounded-4px border border-gray-200 shadow-none bg-white">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-sm font-medium text-gray-500 uppercase tracking-wider">Submission Status</CardTitle>
                 </CardHeader>
                 <CardContent className="h-[180px] relative">
-                    <ResponsiveContainer width="100%" height="100%" debounce={100}>
-                        <PieChart>
+                    <ResponsiveContainer width="100%" height="100%" debounce={100} style={{ outline: 'none' }}>
+                        <PieChart style={{ outline: 'none' }} tabIndex={-1}>
                             <Pie
                                 data={statusData}
                                 cx="50%"
