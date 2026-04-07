@@ -67,11 +67,20 @@ export default function DisciplineTable({
         setLocalPage(1);
     }, [searchQuery, entriesPerPage]);
 
+    // Sync with serverPagination per_page
+    useEffect(() => {
+        if (isServerSide && serverPagination?.per_page) {
+            const spPpe = Number(serverPagination.per_page);
+            setEntriesPerPage(spPpe === 9999 ? -1 : spPpe);
+        }
+    }, [serverPagination, isServerSide]);
+
     const handlePageChange = (page: number) => {
         if (isServerSide) {
             router.get(window.location.pathname, {
                 ...serverFilters,
-                page: page
+                page: page,
+                per_page: entriesPerPage === -1 ? 'all' : entriesPerPage,
             }, {
                 preserveState: true,
                 preserveScroll: true,
@@ -79,6 +88,23 @@ export default function DisciplineTable({
             });
         } else {
             setLocalPage(page);
+        }
+    };
+
+    const handleEntriesChange = (val: string) => {
+        const num = Number(val);
+        setEntriesPerPage(num);
+        setLocalPage(1);
+        if (isServerSide) {
+            router.get(window.location.pathname, {
+                ...serverFilters,
+                page: 1,
+                per_page: num === -1 ? 'all' : num,
+            }, {
+                preserveState: true,
+                preserveScroll: true,
+                replace: true
+            });
         }
     };
 
@@ -140,7 +166,7 @@ export default function DisciplineTable({
                     <span>Show</span>
                     <Select
                         value={String(entriesPerPage)}
-                        onValueChange={(val) => setEntriesPerPage(Number(val))}
+                        onValueChange={handleEntriesChange}
                     >
                         <SelectTrigger className="mx-2 h-7 w-[65px] rounded-none border-gray-300">
                             <SelectValue placeholder="50" />

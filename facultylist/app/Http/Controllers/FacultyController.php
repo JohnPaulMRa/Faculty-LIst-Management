@@ -337,9 +337,18 @@ class FacultyController extends Controller
             } else {
                 $faculty = \App\Models\Faculty::findOrFail($realId);
                 // For E2, we can mostly update directly from request keys that match column names
-                $faculty->fill($request->only(['name', 'email', 'status', 'department', 'rank', 'degree', 'employment', 'gender', 'is_tenured', 'joined_year']));
+                $faculty->fill($request->only([
+                    'name', 'email', 'status', 'department', 'college', 'rank', 'degree', 'employment', 'gender', 'is_tenured', 'joined_year',
+                    'salary_grade', 'annual_salary', 'on_leave', 'fte', 'pursuing_degree',
+                    'discipline_load_1', 'discipline_load_2', 'discipline_bachelors', 'discipline_masters', 'discipline_doctorate',
+                    'masters_thesis', 'doctorate_dissertation',
+                    'ug_lab_units', 'ug_lec_units', 'ug_total_units', 'ug_lab_hours', 'ug_lec_hours', 'ug_total_hours', 'ug_lab_contact', 'ug_lec_contact', 'ug_total_contact',
+                    'grad_lab_units', 'grad_lec_units', 'grad_total_units', 'grad_lab_contact', 'grad_lec_contact', 'grad_total_contact',
+                    'load_research', 'load_extension', 'load_study', 'load_production', 'load_admin', 'load_others', 'load_total'
+                ]));
                 $faculty->save();
             }
+
 
             \Illuminate\Support\Facades\Log::info("Faculty Update Successful - ID: {$id}");
             return redirect()->back()->with('success', 'Status updated successfully.');

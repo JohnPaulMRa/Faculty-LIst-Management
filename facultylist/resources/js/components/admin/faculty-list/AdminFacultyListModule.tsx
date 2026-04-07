@@ -1,12 +1,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { router } from '@inertiajs/react';
-import { Search, X, University, Users, ArrowLeft } from 'lucide-react';
-import { useState, useEffect, useCallback } from 'react';
+import { Search, X, University, Users, ArrowLeft, ArrowUpDown } from 'lucide-react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { PrivateSchoolView } from '@/components/admin/faculty-list/private-HEI/PrivateSchoolView';
 import { PublicSchoolView } from '@/components/admin/faculty-list/public-HEI/PublicSchoolView';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useDebounce } from '@/hooks/use-debounce';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 
 interface School {
     id: number;
@@ -47,23 +54,98 @@ export default function AdminFacultyListModule({
     const debouncedSearch = useDebounce(searchQuery, 500);
     const selectedSchoolId = filters.hei_id ? parseInt(filters.hei_id) : null;
 
+    const [entriesPerPage, setEntriesPerPage] = useState(25);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [sortConfig, setSortConfig] = useState<{ key: keyof School; direction: "asc" | "desc" } | null>({
+        key: "name",
+        direction: "asc",
+    });
+
+    const onSort = (key: keyof School) => {
+        let direction: "asc" | "desc" = "asc";
+        if (sortConfig?.key === key && sortConfig.direction === "asc") {
+            direction = "desc";
+        }
+        setSortConfig({ key, direction });
+    };
+
     const activeSchoolTitle = schools.find(s => s.id === selectedSchoolId)?.name;
 
     // Filter schools based on sidebar type and search query
-    const filteredSchools = schools.filter(school => {
-        // Filter by Type (Private/Public) if a type is selected in the global sidebar
-        if (filters.type && school.type !== filters.type) {
-            return false;
+    const filteredSchools = useMemo(() => {
+        return schools.filter(school => {
+            // Filter by Type (Private/Public) if a type is selected in the global sidebar
+            if (filters.type && school.type !== filters.type) {
+                return false;
+            }
+
+            // Filter by Search
+            if (!debouncedSearch) return true;
+            const searchLower = debouncedSearch.toLowerCase();
+            return (
+                school.name.toLowerCase().includes(searchLower) ||
+                (school.hei_code && school.hei_code.toLowerCase().includes(searchLower))
+            );
+        });
+    }, [schools, filters.type, debouncedSearch]);
+
+    const sortedSchools = useMemo(() => {
+        if (!sortConfig) return filteredSchools;
+        return [...filteredSchools].sort((a, b) => {
+            const aVal = a[sortConfig.key];
+            const bVal = b[sortConfig.key];
+
+            // Handle nulls or undefined
+            if (aVal === null || aVal === undefined) return 1;
+            if (bVal === null || bVal === undefined) return -1;
+
+            if (aVal < bVal) return sortConfig.direction === "asc" ? -1 : 1;
+            if (aVal > bVal) return sortConfig.direction === "asc" ? 1 : -1;
+            return 0;
+        });
+    }, [filteredSchools, sortConfig]);
+
+    const isAll = entriesPerPage === -1;
+    const paginatedSchools = useMemo(() => {
+        if (isAll) return sortedSchools;
+        const start = (currentPage - 1) * entriesPerPage;
+        return sortedSchools.slice(start, start + entriesPerPage);
+    }, [sortedSchools, currentPage, entriesPerPage, isAll]);
+
+    const totalPages = isAll ? 1 : Math.ceil(sortedSchools.length / entriesPerPage) || 1;
+    const startEntry = sortedSchools.length === 0 ? 0 : (isAll ? 1 : (currentPage - 1) * entriesPerPage + 1);
+    const endEntry = isAll ? sortedSchools.length : Math.min(currentPage * entriesPerPage, sortedSchools.length);
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [debouncedSearch, entriesPerPage]);
+
+    const renderPageNumbers = () => {
+        const pages = [];
+        let startPage = Math.max(1, currentPage - 2);
+        let endPage = Math.min(totalPages, currentPage + 2);
+
+        if (currentPage <= 3) {
+            endPage = Math.min(5, totalPages);
+        }
+        if (currentPage >= totalPages - 2) {
+            startPage = Math.max(1, totalPages - 4);
         }
 
-        // Filter by Search
-        if (!debouncedSearch) return true;
-        const searchLower = debouncedSearch.toLowerCase();
-        return (
-            school.name.toLowerCase().includes(searchLower) ||
-            (school.hei_code && school.hei_code.toLowerCase().includes(searchLower))
-        );
-    });
+        for (let i = startPage; i <= endPage; i++) {
+            pages.push(
+                <Button
+                    key={i}
+                    variant={i === currentPage ? "default" : "outline"}
+                    className={`h-8 w-8 p-0 rounded-none ${i === currentPage ? "bg-blue-600 hover:bg-blue-700 text-white border-blue-600" : "text-gray-600 border-gray-300 shadow-none font-bold"}`}
+                    onClick={() => setCurrentPage(i)}
+                >
+                    {i}
+                </Button>
+            );
+        }
+        return pages;
+    };
 
     const handleSearch = useCallback((value: string) => {
         router.get(
@@ -102,7 +184,7 @@ export default function AdminFacultyListModule({
     };
 
     return (
-        <div className="flex flex-col w-full h-full bg-white overflow-hidden relative rounded-xl shadow-sm border border-gray-100">
+        <div className="flex flex-col w-full h-full bg-white overflow-hidden relative rounded-xl shadow-sm border border-gray-200">
             <div className="flex-1 overflow-y-auto p-6 md:p-8">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
                     <div>
@@ -162,6 +244,24 @@ export default function AdminFacultyListModule({
                     <div className="flex flex-col animate-in fade-in duration-300 bg-white shadow-none overflow-hidden rounded-none border border-gray-300 mt-2">
                         {/* SPREADSHEET HEADER */}
                         <div className="bg-gray-50 flex items-center justify-between px-4 py-3 border-b border-gray-300">
+                            <div className="flex items-center text-[11px] font-bold text-gray-600 uppercase tracking-wider">
+                                <span>Show</span>
+                                <Select
+                                    value={String(entriesPerPage)}
+                                    onValueChange={(val) => setEntriesPerPage(Number(val))}
+                                >
+                                    <SelectTrigger className="mx-2 h-7 w-[65px] rounded-none border-gray-300 bg-white shadow-none focus:ring-0 text-[11px] font-bold">
+                                        <SelectValue placeholder="25" />
+                                    </SelectTrigger>
+                                    <SelectContent className="rounded-none">
+                                        <SelectItem value="-1" className="text-[11px] font-bold">All</SelectItem>
+                                        <SelectItem value="25" className="text-[11px] font-bold">25</SelectItem>
+                                        <SelectItem value="50" className="text-[11px] font-bold">50</SelectItem>
+                                        <SelectItem value="100" className="text-[11px] font-bold">100</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <span>entries</span>
+                            </div>
                             <div className="text-black text-sm font-bold uppercase tracking-wide">
                                 LIST OF {filters.type ? `${filters.type.toUpperCase()} (HEIs)` : 'HIGHER EDUCATION INSTITUTIONS (HEIs)'}
                             </div>
@@ -171,23 +271,39 @@ export default function AdminFacultyListModule({
                             <table className="w-full border-collapse text-sm whitespace-nowrap font-sans">
                                 <thead>
                                     <tr className="bg-blue-500 text-white border-b border-gray-300">
-                                        <th className="px-3 py-2 font-bold w-[40px] text-left">#</th>
-                                        <th className="px-3 py-2 font-bold w-[25%] text-left">HEI Code</th>
-                                        <th className="px-3 py-2 font-bold w-[30%] text-left">List of HEIs</th>
-                                        <th className="px-3 py-2 font-bold w-[20%] text-left">Academic Year</th>
-                                        <th className="px-3 py-2 font-bold w-[20%] text-center">Total Faculty</th>
+                                        <th className="px-3 py-2 font-bold w-[40px] text-left border-r border-blue-400">#</th>
+                                        <th className="px-3 py-2 font-bold w-[25%] text-left">
+                                            <div className="flex items-center gap-1 cursor-pointer hover:text-blue-100 transition-colors" onClick={() => onSort("hei_code")}>
+                                                HEI Code <ArrowUpDown className="h-3 w-3" />
+                                            </div>
+                                        </th>
+                                        <th className="px-3 py-2 font-bold w-[30%] text-left">
+                                            <div className="flex items-center gap-1 cursor-pointer hover:text-blue-100 transition-colors" onClick={() => onSort("name")}>
+                                                List of HEIs <ArrowUpDown className="h-3 w-3" />
+                                            </div>
+                                        </th>
+                                        <th className="px-3 py-2 font-bold w-[20%] text-left">
+                                            <div className="flex items-center gap-1 cursor-pointer hover:text-blue-100 transition-colors" onClick={() => onSort("academic_year")}>
+                                                Academic Year <ArrowUpDown className="h-3 w-3" />
+                                            </div>
+                                        </th>
+                                        <th className="px-3 py-2 font-bold w-[20%] text-center">
+                                            <div className="flex items-center justify-center gap-1 cursor-pointer hover:text-blue-100 transition-colors" onClick={() => onSort("faculty")}>
+                                                Total Faculty <ArrowUpDown className="h-3 w-3" />
+                                            </div>
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody className="bg-white text-sm">
-                                    {filteredSchools.length > 0 ? (
-                                        filteredSchools.map((school, index) => (
+                                    {paginatedSchools.length > 0 ? (
+                                        paginatedSchools.map((school, index) => (
                                             <tr
                                                 key={school.id}
                                                 className="border-b border-gray-300 hover:bg-gray-50 transition-colors cursor-pointer"
                                                 onClick={() => handleSchoolClick(school.id)}
                                             >
-                                                <td className="px-3 py-2 text-left text-gray-500 border-r border-gray-100">
-                                                    {index + 1}
+                                                <td className="px-3 py-2 text-left text-gray-500 ">
+                                                    {startEntry + index}
                                                 </td>
                                                 <td className="px-3 py-2 text-left font-semibold text-gray-900">
                                                     {school.hei_code || <span className="text-gray-400">-</span>}
@@ -195,7 +311,7 @@ export default function AdminFacultyListModule({
                                                 <td className="px-3 py-2 text-left font-semibold text-gray-900">
                                                     <div>{school.name}</div>
                                                 </td>
-                                                <td className="px-3 py-2 text-left text-black">
+                                                <td className="px-3 py-2 text-left  text-blue-700">
                                                     {school.academic_year || 'N/A'}
                                                 </td>
 
@@ -221,6 +337,31 @@ export default function AdminFacultyListModule({
                                     )}
                                 </tbody>
                             </table>
+                        </div>
+
+                        <div className="flex justify-between items-center text-sm text-gray-600 mt-1 mb-2 p-1">
+                            <div>
+                                Showing {startEntry} to {endEntry} of {sortedSchools.length} entries
+                            </div>
+                            <div className="flex items-center gap-1">
+                                <Button
+                                    variant="outline"
+                                    className={`h-8 px-3 rounded-none border-gray-300 shadow-none ${currentPage === 1 ? "text-gray-300" : "text-gray-600 hover:bg-gray-50"}`}
+                                    onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                                    disabled={currentPage === 1}
+                                >
+                                    Previous
+                                </Button>
+                                {renderPageNumbers()}
+                                <Button
+                                    variant="outline"
+                                    className={`h-8 px-3 rounded-none border-gray-300 shadow-none ${currentPage === totalPages || totalPages === 0 ? "text-gray-300" : "text-gray-600 hover:bg-gray-50"}`}
+                                    onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                                    disabled={currentPage === totalPages || totalPages === 0}
+                                >
+                                    Next
+                                </Button>
+                            </div>
                         </div>
                     </div>
                 )}

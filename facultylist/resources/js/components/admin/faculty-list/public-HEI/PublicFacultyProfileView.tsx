@@ -20,12 +20,12 @@ interface PublicFacultyProfileViewProps {
     referenceData: any;
 }
 
-const DataItem = ({ label, code, desc, value }: { label: string, code?: string | number, desc?: string, value?: string | number }) => {
+const DataItem = ({ label, code, desc, value, center }: { label: string, code?: string | number, desc?: string, value?: string | number, center?: boolean }) => {
     if (value !== undefined || (!code && !desc)) {
         return (
             <div className="flex flex-col gap-1.5 mb-6">
                 <span className="text-[13px] font-bold text-gray-500 uppercase tracking-wider">{label}</span>
-                <span className="text-[13px] font-medium text-gray-900 border-b border-gray-200 pb-2 bg-transparent">{value || "-"}</span>
+                <span className={`text-[13px] font-medium text-gray-900 border-b border-gray-200 pb-2 bg-transparent${center ? ' text-center' : ''}`}>{value || "-"}</span>
             </div>
         );
     }
@@ -149,32 +149,32 @@ export function PublicFacultyProfileView({ formData, referenceData }: PublicFacu
                 </div>
             </div>
 
-            {/* Undergraduate & Graduate Workload */}
+            {/* Workload */}
             <div>
                 <h3 className="text-xl font-bold text-blue-900 border-b-2 border-blue-200 pb-3 mb-5">Workload</h3>
                 <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 gap-x-8">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8">
-                        <DataItem label="LAB CREDIT UNITS TEACHING Undergrad" value={formData.ug_lab_units} />
-                        <DataItem label="LECTURE CREDIT UNITS TEACHING Undergrad" value={formData.ug_lec_units} />
-                        <DataItem label="TOTAL TEACHING CREDIT UNITS Undergrad (Lab+Lect)" value={formData.ug_total_units} />
+                        <DataItem center label="LAB CREDIT UNITS TEACHING Undergrad" value={formData.ug_lab_units} />
+                        <DataItem center label="LECTURE CREDIT UNITS TEACHING Undergrad" value={formData.ug_lec_units} />
+                        <DataItem center label="TOTAL TEACHING CREDIT UNITS Undergrad (Lab+Lect)" value={formData.ug_total_units} />
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8">
-                        <DataItem label="LAB HOURS PER WEEK TEACHING Undergrad" value={formData.ug_lab_hours} />
-                        <DataItem label="LECTURE HOURS PER WEEK TEACHING Undergrad" value={formData.ug_lec_hours} />
-                        <DataItem label="TOTAL TEACHING HOURS PER WEEK Undergrad" value={formData.ug_total_hours} />
+                        <DataItem center label="LAB HOURS PER WEEK TEACHING Undergrad" value={formData.ug_lab_hours} />
+                        <DataItem center label="LECTURE HOURS PER WEEK TEACHING Undergrad" value={formData.ug_lec_hours} />
+                        <DataItem center label="TOTAL TEACHING HOURS PER WEEK Undergrad" value={formData.ug_total_hours} />
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8">
-                        <DataItem label="Student Contact Hours Lab Undergrad" value={formData.ug_lab_contact} />
-                        <DataItem label="Student Contact Hours Lecture Undergrad" value={formData.ug_lec_contact} />
-                        <DataItem label="STUDENT CONTACT-HOURS  Undergrad (Lab+Lect)" value={formData.ug_total_contact} />
+                        <DataItem center label="Student Contact Hours Lab Undergrad" value={formData.ug_lab_contact} />
+                        <DataItem center label="Student Contact Hours Lecture Undergrad" value={formData.ug_lec_contact} />
+                        <DataItem center label="STUDENT CONTACT-HOURS  Undergrad (Lab+Lect)" value={formData.ug_total_contact} />
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8">
-                        <DataItem label="LAB CREDIT UNITS TEACHING Graduate Level" value={formData.grad_lab_units} />
-                        <DataItem label="LECTURE CREDIT UNITS TEACHING Graduate Level" value={formData.grad_lec_units} />
-                        <DataItem label="TOTAL TEACHING CREDIT UNITS Graduate (Lab+Lect)" value={formData.grad_total_units} />
-                        <DataItem label="Student Contact Hours Lab Graduate" value={formData.grad_lab_contact} />
-                        <DataItem label="Student Contact Hours Lecture Graduate" value={formData.grad_lec_contact} />
-                        <DataItem label="STUDENT CONTACT-HOURS Graduate (Lab+Lect)" value={formData.grad_total_contact} />
+                        <DataItem center label="LAB CREDIT UNITS TEACHING Graduate Level" value={formData.grad_lab_units} />
+                        <DataItem center label="LECTURE CREDIT UNITS TEACHING Graduate Level" value={formData.grad_lec_units} />
+                        <DataItem center label="TOTAL TEACHING CREDIT UNITS Graduate (Lab+Lect)" value={formData.grad_total_units} />
+                        <DataItem center label="Student Contact Hours Lab Graduate" value={formData.grad_lab_contact} />
+                        <DataItem center label="Student Contact Hours Lecture Graduate" value={formData.grad_lec_contact} />
+                        <DataItem center label="STUDENT CONTACT-HOURS Graduate (Lab+Lect)" value={formData.grad_total_contact} />
                     </div>
                 </div>
             </div>
@@ -184,13 +184,13 @@ export function PublicFacultyProfileView({ formData, referenceData }: PublicFacu
             <div>
                 <h3 className="text-xl font-bold text-blue-900 border-b-2 border-blue-200 pb-3 mb-5">Official Credit Load</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-15 ">
-                    <DataItem label="OFFICIAL RESEARCH LOAD" value={formData.load_research} />
-                    <DataItem label="OFFICIAL EXTENSION LOAD" value={formData.load_extension} />
-                    <DataItem label="OFFICIAL STUDY LOAD" value={formData.load_study} />
-                    <DataItem label="OFFICIAL LOAD FOR PRODUCTION" value={formData.load_production} />
-                    <DataItem label="OFFICIAL ADMINISTRATIVE LOAD" value={formData.load_admin} />
-                    <DataItem label="OTHER OFFICIAL LOAD CREDITS" value={formData.load_others} />
-                    <DataItem label="TOTAL WORK LOAD" value={formData.load_total} />
+                    <DataItem center label="OFFICIAL RESEARCH LOAD" value={formData.load_research} />
+                    <DataItem center label="OFFICIAL EXTENSION LOAD" value={formData.load_extension} />
+                    <DataItem center label="OFFICIAL STUDY LOAD" value={formData.load_study} />
+                    <DataItem center label="OFFICIAL LOAD FOR PRODUCTION" value={formData.load_production} />
+                    <DataItem center label="OFFICIAL ADMINISTRATIVE LOAD" value={formData.load_admin} />
+                    <DataItem center label="OTHER OFFICIAL LOAD CREDITS" value={formData.load_others} />
+                    <DataItem center label="TOTAL WORK LOAD" value={formData.load_total} />
                 </div>
             </div>
 

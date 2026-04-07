@@ -165,7 +165,7 @@ class AdminController extends Controller
 
                 if ($groupCount > 0) {
                     $distribution[] = [
-                        'name'  => $group->description,
+                        'name' => $group->description,
                         'count' => $groupCount,
                     ];
                 }
@@ -194,11 +194,11 @@ class AdminController extends Controller
         $data = $formatDistribution();
 
         return [
-            'all'        => $data,
-            'private'    => $data,
-            'public'     => $data,
+            'all' => $data,
+            'private' => $data,
+            'public' => $data,
             'statusData' => [
-                ['name' => 'Active',   'value' => Hei::where('is_active', true)->count(),  'color' => '#16a34a'],
+                ['name' => 'Active', 'value' => Hei::where('is_active', true)->count(), 'color' => '#16a34a'],
                 ['name' => 'Inactive', 'value' => Hei::where('is_active', false)->count(), 'color' => '#9ca3af'],
             ],
         ];
@@ -280,7 +280,10 @@ class AdminController extends Controller
         $search = $request->input('search');
         $sort = $request->input('sort', 'code'); // Default sort by code
         $direction = $request->input('direction', 'asc');
-        $perPage = $request->input('per_page', 50);
+        $perPage = $request->input('per_page', 25);
+        if ($perPage === 'all') {
+            $perPage = 9999;
+        }
 
         // Fetch paginated flattened programs directly from DB using JOINs
         $programs = DB::table('specific_discipline')
@@ -298,9 +301,9 @@ class AdminController extends Controller
             ->when($search, function ($query, $search) {
                 return $query->where(function ($q) use ($search) {
                     $q->where('specific_discipline.description', 'like', '%' . $search . '%')
-                      ->orWhere('specific_discipline.code', 'like', '%' . $search . '%')
-                      ->orWhere('major_discipline.description', 'like', '%' . $search . '%')
-                      ->orWhere('discipline_group.description', 'like', '%' . $search . '%');
+                        ->orWhere('specific_discipline.code', 'like', '%' . $search . '%')
+                        ->orWhere('major_discipline.description', 'like', '%' . $search . '%')
+                        ->orWhere('discipline_group.description', 'like', '%' . $search . '%');
                 });
             })
             ->orderBy($sort, $direction)
@@ -377,7 +380,7 @@ class AdminController extends Controller
                         ['description' => $groupName]
                     );
                 }
-                
+
                 // If majorName is provided, we create it. If not, we just check if it exists in DB.
                 if (!empty($majorName)) {
                     $majorCode = strlen($code) >= 6 ? $majorPrefix6 : $majorPrefix4;
@@ -393,11 +396,11 @@ class AdminController extends Controller
 
                 // Save the specific discipline as a new row always
                 RefSpecificDiscipline::create([
-                    'code'        => $code,
+                    'code' => $code,
                     'description' => $specificName,
-                    'slug'        => Str::slug($specificName, '_'),
-                    'group_code'  => $groupCode,
-                    'major_code'  => $majorCode,
+                    'slug' => Str::slug($specificName, '_'),
+                    'group_code' => $groupCode,
+                    'major_code' => $majorCode,
                 ]);
 
                 $saved = true;
@@ -480,10 +483,10 @@ class AdminController extends Controller
                     if ($newCode && $newCode !== $code) {
                         $specific->code = $newCode;
                         $specific->group_code = substr($newCode, 0, 2);
-                        
+
                         $mPrefix6 = substr($newCode, 0, 6);
                         $mPrefix4 = substr($newCode, 0, 4);
-                        
+
                         $majorExists6 = RefMajorDiscipline::where('code', $mPrefix6)->exists();
                         if ($majorExists6 && strlen($newCode) >= 6) {
                             $specific->major_code = $mPrefix6;
@@ -547,8 +550,8 @@ class AdminController extends Controller
 
 
         $heisQuery = Hei::when($search, function ($query, $search) {
-                return $query->where('name', 'like', '%' . $search . '%');
-            })
+            return $query->where('name', 'like', '%' . $search . '%');
+        })
             ->orderBy('name')
             ->get();
 
@@ -556,13 +559,13 @@ class AdminController extends Controller
             $latestSub = $latestSubmissions[$s->id] ?? null;
 
             return [
-                'id'            => (int) $s->id,
-                'name'          => $s->name,
-                'hei_code'      => $s->hei_code,
-                'faculty'       => $latestSub ? (int)$latestSub->total_faculty : 0,
-                'type'          => $s->type,
+                'id' => (int) $s->id,
+                'name' => $s->name,
+                'hei_code' => $s->hei_code,
+                'faculty' => $latestSub ? (int) $latestSub->total_faculty : 0,
+                'type' => $s->type,
                 'academic_year' => $latestSub ? $latestSub->academic_year : 'N/A',
-                'status'        => $s->is_active ? 'Active' : 'Inactive',
+                'status' => $s->is_active ? 'Active' : 'Inactive',
             ];
         });
     }

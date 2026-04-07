@@ -1,16 +1,18 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { router } from '@inertiajs/react';
 import axios from 'axios';
-import { FileText, Loader2 } from "lucide-react";
-import React, { useState } from 'react';
+import { FileText, Loader2, ArrowUpDown } from "lucide-react";
+import React, { useState, useMemo } from 'react';
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
+    SelectValue,
 } from "@/components/ui/select";
 import { cn } from '@/lib/utils';
 import { PrivateViewSubmissionModal } from './PrivateViewSubmissionModal';
+import { Button } from "@/components/ui/button";
+
 
 const FacultyStatusSelect = ({ initialStatus, memberId }: { initialStatus: string, memberId: string | number }) => {
     const [status, setStatus] = useState(() => {
@@ -130,23 +132,28 @@ interface PrivateFacultyTableProps {
     submittedYears: string[];
 }
 
-export default function PrivateFacultyTable({ faculty = [], referenceData = {}, submittedYears = [] }: PrivateFacultyTableProps) {
-    const [selectedFaculty, setSelectedFaculty] = useState<any>(null);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [isLoadingId, setIsLoadingId] = useState<string | number | null>(null);
+interface SingleYearPrivateTableProps {
+    faculty: FacultyMember[];
+    schoolYear: string;
+    referenceData: any;
+    onViewSubmission: (member: FacultyMember) => void;
+    isLoadingId: string | number | null;
+}
 
-    const handleViewProfile = async (member: FacultyMember) => {
-        setIsLoadingId(member.id);
-        try {
-            const response = await axios.get(`/admin/faculty/${member.id}`);
-            setSelectedFaculty(response.data);
-            setIsModalOpen(true);
-        } catch (error) {
-            console.error("Failed to fetch faculty details", error);
-            // Fallback or show toast
-        } finally {
-            setIsLoadingId(null);
+const SingleYearPrivateTable = ({ faculty, schoolYear, referenceData, onViewSubmission, isLoadingId }: SingleYearPrivateTableProps) => {
+    const [entriesPerPage, setEntriesPerPage] = useState(25);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [sortConfig, setSortConfig] = useState<{ key: keyof FacultyMember; direction: "asc" | "desc" } | null>({
+        key: "name",
+        direction: "asc",
+    });
+
+    const onSort = (key: keyof FacultyMember) => {
+        let direction: "asc" | "desc" = "asc";
+        if (sortConfig?.key === key && sortConfig.direction === "asc") {
+            direction = "desc";
         }
+        setSortConfig({ key, direction });
     };
 
     const getGenderLabel = (code: string) => {
@@ -172,95 +179,235 @@ export default function PrivateFacultyTable({ faculty = [], referenceData = {}, 
         return label === 'Permanent' ? 'Tenured' : label;
     };
 
+    const sortedFaculty = useMemo(() => {
+        if (!sortConfig) return faculty;
+        return [...faculty].sort((a, b) => {
+            const aVal = String(a[sortConfig.key] || '');
+            const bVal = String(b[sortConfig.key] || '');
+            if (aVal < bVal) return sortConfig.direction === "asc" ? -1 : 1;
+            if (aVal > bVal) return sortConfig.direction === "asc" ? 1 : -1;
+            return 0;
+        });
+    }, [faculty, sortConfig]);
 
-    // Filter to only show faculty from officially submitted academic years
-    const visibleFaculty = faculty.filter(member => {
-        const year = member.schoolYear || member.joined_year;
-        return year && submittedYears.includes(year);
-    });
+    const isAll = entriesPerPage === -1;
+    const paginatedFaculty = useMemo(() => {
+        if (isAll) return sortedFaculty;
+        const start = (currentPage - 1) * entriesPerPage;
+        return sortedFaculty.slice(start, start + entriesPerPage);
+    }, [sortedFaculty, currentPage, entriesPerPage, isAll]);
 
-    // Group faculty by year
-    const groupedFaculty = visibleFaculty.reduce((acc, member) => {
-        const year = member.schoolYear || 'Unknown Year';
-        if (!acc[year]) acc[year] = [];
-        acc[year].push(member);
-        return acc;
-    }, {} as Record<string, FacultyMember[]>);
+    const totalPages = isAll ? 1 : Math.ceil(sortedFaculty.length / entriesPerPage) || 1;
+    const startEntry = sortedFaculty.length === 0 ? 0 : (isAll ? 1 : (currentPage - 1) * entriesPerPage + 1);
+    const endEntry = isAll ? sortedFaculty.length : Math.min(currentPage * entriesPerPage, sortedFaculty.length);
 
-    // Sort years newest first
-    const sortedYears = Object.keys(groupedFaculty).sort((a, b) => b.localeCompare(a));
+    const renderPageNumbers = () => {
+        const pages = [];
+        let startPage = Math.max(1, currentPage - 2);
+        let endPage = Math.min(totalPages, currentPage + 2);
+
+        if (currentPage <= 3) {
+            endPage = Math.min(5, totalPages);
+        }
+        if (currentPage >= totalPages - 2) {
+            startPage = Math.max(1, totalPages - 4);
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+            pages.push(
+                <Button
+                    key={i}
+                    variant={i === currentPage ? "default" : "outline"}
+                    className={`h-8 w-8 p-0 rounded-none ${i === currentPage ? "bg-blue-600 hover:bg-blue-700 text-white border-blue-600" : "text-gray-600 border-gray-300 shadow-none font-bold"}`}
+                    onClick={() => setCurrentPage(i)}
+                >
+                    {i}
+                </Button>
+            );
+        }
+        return pages;
+    };
 
     return (
-        <div className="flex flex-col gap-8">
-            {sortedYears.map(year => (
-                <div key={year} className="flex flex-col overflow-hidden">
-                    {/* Year Section Header */}
-                    <div className="bg-gray-100 px-4 py-2 border-t border-l border-r border-gray-300 font-bold text-gray-700">
+        <div className="flex flex-col gap-4 mt-2 mb-8">
+            <div className="flex justify-between items-center text-sm text-gray-600 bg-gray-50 border border-gray-300 px-4 py-3">
+                <div className="flex items-center text-[11px] font-bold text-gray-600 uppercase tracking-wider">
+                    <span>Show</span>
+                    <Select
+                        value={String(entriesPerPage)}
+                        onValueChange={(val) => {
+                            setEntriesPerPage(Number(val));
+                            setCurrentPage(1);
+                        }}
+                    >
+                        <SelectTrigger className="mx-2 h-7 w-[65px] rounded-none border-gray-300 bg-white shadow-none focus:ring-0 text-[11px] font-bold">
+                            <SelectValue placeholder="25" />
+                        </SelectTrigger>
+                        <SelectContent className="rounded-none">
+                            <SelectItem value="-1" className="text-[11px] font-bold">All</SelectItem>
+                            <SelectItem value="25" className="text-[11px] font-bold">25</SelectItem>
+                            <SelectItem value="50" className="text-[11px] font-bold">50</SelectItem>
+                            <SelectItem value="100" className="text-[11px] font-bold">100</SelectItem>
+                        </SelectContent>
+                    </Select>
+                    <span>entries</span>
+                </div>
+                <div className="text-black text-sm font-bold uppercase tracking-wide">
+                    LIST OF PRIVATE FACULTY ({schoolYear})
+                </div>
+            </div>
 
-                        Academic Year: {year}
-                    </div>
-
-                    <div className="overflow-x-auto border border-gray-300">
-                        <table className="w-full border-collapse text-sm whitespace-nowrap font-sans">
-                            <thead>
-                                <tr className="bg-blue-500 text-white border-b border-gray-300">
-                                    <th className="px-3 py-2 font-bold text-center w-[20px]">#</th>
-                                    <th className="px-3 py-2 font-bold text-left">FACULTY NAME</th>
-                                    <th className="px-3 py-2 font-bold text-center">GENDER</th>
-                                    <th className="px-3 py-2 font-bold text-center">GENERIC FACULTY RANK</th>
-                                    <th className="px-3 py-2 font-bold text-center">TENURE</th>
-                                    <th className="px-3 py-2 font-bold text-center">SUBMITTED FILE</th>
-                                    <th className="px-3 py-2 font-bold text-center w-[170px]">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody className="bg-white text-sm">
-                                {groupedFaculty[year].map((member, index) => {
-                                    return (
-                                        <tr key={member.id} className="border-b border-gray-300 hover:bg-gray-100 transition-colors">
-                                            <td className="px-3 py-2 text-center text-black border-r border-gray-100">{index + 1}</td>
-                                            <td className="px-3 py-2 text-left font-semibold text-gray-900">{member.name}</td>
-                                            <td className="px-3 py-2 text-center text-black">{getGenderLabel(member.gender)}</td>
-                                            <td className="px-3 py-2 text-center text-black">{getRankLabel(member.rank)}</td>
-                                            <td className="px-3 py-2 text-center text-black">{getTenureLabel(member.is_tenured)}</td>
-                                            <td className="px-3 py-2 text-center">
-                                                <div className="flex items-center justify-center">
-                                                    <button
-                                                        onClick={() => handleViewProfile(member)}
-                                                        disabled={isLoadingId === member.id}
-                                                        className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50 px-3 h-7 rounded-full shadow-sm border-b-2 border-blue-800 active:border-b-0 active:translate-y-px transition-all text-[10px] font-bold w-auto"
-                                                        title="View Submission"
-                                                    >
-                                                        {isLoadingId === member.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileText className="h-3.5 w-3.5" />}
-                                                        <span className="whitespace-nowrap uppercase">View Submission</span>
-                                                    </button>
-                                                </div>
-                                            </td>
-                                            <td className="px-3 py-2 text-center">
-                                                <FacultyStatusSelect initialStatus={member.status || ''} memberId={member.id} />
-                                            </td>
-                                        </tr>
-                                    );
-                                })}
-                                {groupedFaculty[year].length === 0 && (
-                                    <tr>
-                                        <td colSpan={7} className="px-6 py-12 text-center text-gray-500 text-sm border-b border-gray-300 bg-gray-50">
-                                            <div className="flex flex-col items-center justify-center gap-2 text-gray-400">
-                                                <FileText className="h-10 w-10 text-gray-300" />
-                                                <p>No records found for this academic year.</p>
+            <div className="overflow-x-auto border border-gray-300 bg-white">
+                <table className="w-full border-collapse text-sm whitespace-nowrap font-sans">
+                    <thead>
+                        <tr className="bg-blue-500 text-white border-b border-gray-300">
+                            <th className="px-3 py-2 font-bold text-center w-[20px] border-r border-blue-400">#</th>
+                            <th className="px-3 py-2 font-bold text-left">
+                                <div className="flex items-center gap-1 cursor-pointer hover:text-blue-100 transition-colors" onClick={() => onSort("schoolYear")}>
+                                    ACADEMIC YEAR <ArrowUpDown className="h-3 w-3" />
+                                </div>
+                            </th>
+                            <th className="px-3 py-2 font-bold text-left">
+                                <div className="flex items-center gap-1 cursor-pointer hover:text-blue-100 transition-colors" onClick={() => onSort("name")}>
+                                    FACULTY NAME <ArrowUpDown className="h-3 w-3" />
+                                </div>
+                            </th>
+                            <th className="px-3 py-2 font-bold text-center">GENDER</th>
+                            <th className="px-3 py-2 font-bold text-center">GENERIC FACULTY RANK</th>
+                            <th className="px-3 py-2 font-bold text-center">TENURE</th>
+                            <th className="px-3 py-2 font-bold text-center text-blue-100 italic">SUBMITTED FILE</th>
+                            <th className="px-3 py-2 font-bold text-center w-[170px]">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody className="bg-white text-sm">
+                        {paginatedFaculty.length > 0 ? (
+                            paginatedFaculty.map((member, index) => {
+                                return (
+                                    <tr key={member.id} className="border-b border-gray-300 hover:bg-gray-50 transition-colors">
+                                        <td className="px-3 py-2 text-center text-gray-500 border-r border-gray-100">{startEntry + index}</td>
+                                        <td className="px-3 py-2 text-left font-bold text-blue-700">{member.schoolYear}</td>
+                                        <td className="px-3 py-2 text-left font-semibold text-gray-900">{member.name}</td>
+                                        <td className="px-3 py-2 text-center text-black">{getGenderLabel(member.gender)}</td>
+                                        <td className="px-3 py-2 text-center text-black">{getRankLabel(member.rank)}</td>
+                                        <td className="px-3 py-2 text-center text-black">{getTenureLabel(member.is_tenured)}</td>
+                                        <td className="px-3 py-2 text-center">
+                                            <div className="flex items-center justify-center">
+                                                <button
+                                                    onClick={() => onViewSubmission(member)}
+                                                    disabled={isLoadingId === member.id}
+                                                    className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50 px-3 h-7 rounded-full shadow-sm border-b-2 border-blue-800 active:border-b-0 active:translate-y-px transition-all text-[10px] font-bold w-auto"
+                                                    title="View Submission"
+                                                >
+                                                    {isLoadingId === member.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileText className="h-3.5 w-3.5" />}
+                                                    <span className="whitespace-nowrap uppercase">View Submission</span>
+                                                </button>
                                             </div>
                                         </td>
+                                        <td className="px-3 py-2 text-center">
+                                            <FacultyStatusSelect initialStatus={member.status || ''} memberId={member.id} />
+                                        </td>
                                     </tr>
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            ))}
+                                );
+                            })
+                        ) : (
+                            <tr>
+                                <td colSpan={8} className="px-6 py-12 text-center text-gray-500 text-sm border-b border-gray-300 bg-gray-50">
+                                    <div className="flex flex-col items-center justify-center gap-2 text-gray-400">
+                                        <FileText className="h-10 w-10 text-gray-300" />
+                                        <p>No records found.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
 
-            {sortedYears.length === 0 && (
-                <div className="flex flex-col items-center justify-center gap-2 text-gray-400 py-16">
-                    <FileText className="h-10 w-10 text-gray-300" />
-                    <p className="text-sm">No faculty records available.</p>
+            <div className="flex justify-between items-center text-sm text-gray-600 mt-1 mb-2 p-1">
+                <div>
+                    Showing {startEntry} to {endEntry} of {sortedFaculty.length} entries
+                </div>
+                <div className="flex items-center gap-1">
+                    <Button
+                        variant="outline"
+                        className={`h-8 px-3 rounded-none border-gray-300 shadow-none ${currentPage === 1 ? "text-gray-300" : "text-gray-600 hover:bg-gray-50"}`}
+                        onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                        disabled={currentPage === 1}
+                    >
+                        Previous
+                    </Button>
+                    {renderPageNumbers()}
+                    <Button
+                        variant="outline"
+                        className={`h-8 px-3 rounded-none border-gray-300 shadow-none ${currentPage === totalPages || totalPages === 0 ? "text-gray-300" : "text-gray-600 hover:bg-gray-50"}`}
+                        onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                        disabled={currentPage === totalPages || totalPages === 0}
+                    >
+                        Next
+                    </Button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default function PrivateFacultyTable({ faculty = [], referenceData = {}, submittedYears = [] }: PrivateFacultyTableProps) {
+    const [selectedFaculty, setSelectedFaculty] = useState<any>(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isLoadingId, setIsLoadingId] = useState<string | number | null>(null);
+
+    const handleViewProfile = async (member: FacultyMember) => {
+        setIsLoadingId(member.id);
+        try {
+            const response = await axios.get(`/admin/faculty/${member.id}`);
+            setSelectedFaculty(response.data);
+            setIsModalOpen(true);
+        } catch (error) {
+            console.error("Failed to fetch faculty details", error);
+        } finally {
+            setIsLoadingId(null);
+        }
+    };
+
+    // Filter to only show faculty from officially submitted academic years
+    const visibleFaculty = useMemo(() => {
+        return faculty.filter(member => {
+            const year = member.schoolYear || member.joined_year;
+            return year && submittedYears.includes(year);
+        });
+    }, [faculty, submittedYears]);
+
+    // Group faculty by academic year
+    const groupedFaculty = useMemo(() => {
+        const groups: Record<string, FacultyMember[]> = {};
+        visibleFaculty.forEach(member => {
+            const year = member.schoolYear || member.joined_year || 'Unknown';
+            if (!groups[year]) groups[year] = [];
+            groups[year].push(member);
+        });
+        // Sort years descending
+        return Object.entries(groups).sort((a, b) => b[0].localeCompare(a[0]));
+    }, [visibleFaculty]);
+
+    return (
+        <div className="flex flex-col gap-4 mt-2">
+            {groupedFaculty.length > 0 ? (
+                groupedFaculty.map(([year, members]) => (
+                    <SingleYearPrivateTable
+                        key={year}
+                        faculty={members}
+                        schoolYear={year}
+                        referenceData={referenceData}
+                        onViewSubmission={handleViewProfile}
+                        isLoadingId={isLoadingId}
+                    />
+                ))
+            ) : (
+                <div className="overflow-x-auto border border-gray-300 bg-white p-12">
+                    <div className="flex flex-col items-center justify-center gap-2 text-gray-400">
+                        <FileText className="h-10 w-10 text-gray-300" />
+                        <p>No records found.</p>
+                    </div>
                 </div>
             )}
 
@@ -273,3 +420,4 @@ export default function PrivateFacultyTable({ faculty = [], referenceData = {}, 
         </div>
     );
 }
+
