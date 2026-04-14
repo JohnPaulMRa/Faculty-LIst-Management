@@ -17,6 +17,7 @@ interface UserAccount {
     email: string;
     role: string;
     hei_id: number;
+    hei_type?: string;
 }
 
 interface HeisAccountsModuleProps {
@@ -73,13 +74,22 @@ export default function HeisAccountsModule({ heis = [], accounts = [] }: HeisAcc
         );
     });
 
-    const filteredAccounts = accounts.filter(account => {
+    const enrichedAccounts = accounts.map(account => {
+        const hei = heis.find(h => h.id === account.hei_id);
+        return {
+            ...account,
+            hei_type: account.role.toLowerCase() === 'admin' ? 'SYSTEM' : (hei?.type || 'N/A')
+        };
+    });
+
+    const filteredAccounts = enrichedAccounts.filter(account => {
         if (!searchQuery) return true;
         const searchLower = searchQuery.toLowerCase();
         return (
             account.name.toLowerCase().includes(searchLower) ||
             account.email.toLowerCase().includes(searchLower) ||
-            account.role.toLowerCase().includes(searchLower)
+            account.role.toLowerCase().includes(searchLower) ||
+            account.hei_type?.toLowerCase().includes(searchLower)
         );
     });
 

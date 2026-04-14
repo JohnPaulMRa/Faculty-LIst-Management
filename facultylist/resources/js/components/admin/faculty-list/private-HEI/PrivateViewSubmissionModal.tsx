@@ -30,7 +30,7 @@ export function PrivateViewSubmissionModal({ isOpen, onClose, selectedFaculty, r
         <>
             <Dialog open={isOpen} onOpenChange={onClose}>
                 <DialogContent
-                    className="max-w-[95vw] sm:max-w-[1200px] w-full max-h-[90vh] overflow-y-auto p-0 gap-0 rounded-[4px] [&>button]:hidden"
+                    className="max-w-[95vw] sm:max-w-[1500px] w-full max-h-[95vh] overflow-y-auto p-0 gap-0 rounded-[4px] [&>button]:hidden"
                     onInteractOutside={(e) => e.preventDefault()}
                 >
                     <DialogHeader className="p-6 pb-2 sticky top-0 bg-white z-10 border-b border-gray-200">

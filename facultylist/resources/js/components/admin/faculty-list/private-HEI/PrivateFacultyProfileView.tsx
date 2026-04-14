@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
+import { User, GraduationCap, Briefcase } from 'lucide-react';
 
 interface PrivateFacultyProfileViewProps {
     formData: any;
@@ -32,6 +33,15 @@ const DataItem = ({ label, code, desc, value }: { label: string, code?: string, 
     );
 };
 
+const SectionHeader = ({ icon: Icon, title }: { icon: any, title: string }) => (
+    <div className="flex items-center gap-4 bg-linear-to-r from-[#003468] to-[#1a4f8c] p-4 rounded-none mb-6 shadow-sm">
+        <div className="bg-white p-2.5 rounded-xl shadow-md flex items-center justify-center">
+            <Icon className="w-5 h-5 text-[#003468]" />
+        </div>
+        <h3 className="text-[14px] font-bold text-white uppercase tracking-widest">{title}</h3>
+    </div>
+);
+
 export function PrivateFacultyProfileView({ formData, referenceData }: PrivateFacultyProfileViewProps) {
     const getDescStrict = (list: any[], code?: string) => {
         if (!code) return '';
@@ -57,21 +67,21 @@ export function PrivateFacultyProfileView({ formData, referenceData }: PrivateFa
         <div className="space-y-5 p-3">
             {/* Personal Information */}
             <div>
-                <h3 className="text-xl font-bold text-blue-900 border-b-2 border-blue-200 pb-3 mb-5">Personal Information</h3>
+                <SectionHeader icon={User} title="Personal & Institutional Information" />
                 <div className="grid grid-cols-3 md:grid-cols-3 lg:grid-cols-3 gap-x-5">
                     <DataItem label="Faculty Name (LN, FN, MI)" value={formData.name} />
                     <DataItem label="Gender" code={formData.genderCode} desc={getDescStrict(referenceData?.gender, formData.genderCode)} />
                     <DataItem label="Full-Time / Part-Time" code={formData.fullTimeCode} desc={getDescStrict(referenceData?.fullTimePartTime, formData.fullTimeCode)} />
+                    <div className="col-span-1 md:col-span-2">
+                        <DataItem label="Highest Degree Attained" code={formData.degree} desc={getDescStrict(referenceData?.highestDegree, formData.degree)} />
+                    </div>
                 </div>
             </div>
 
             {/* Educational Credentials */}
             <div>
-                <h3 className="text-xl font-bold text-blue-900 border-b-2 border-blue-200 pb-3 mb-5">Educational Credentials</h3>
+                <SectionHeader icon={GraduationCap} title="Educational Credentials" />
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12">
-                    <div className="col-span-1 md:col-span-2">
-                        <DataItem label="Highest Degree Attained" code={formData.degree} desc={getDescStrict(referenceData?.highestDegree, formData.degree)} />
-                    </div>
                     <DataItem label="Primary Teaching Discipline" code={formData.disciplineCode} desc={getDisciplineDesc(formData.disciplineCode)} />
                     <DataItem label="Bachelors Degree Discipline" code={formData.bachelorsCode} desc={getDisciplineDesc(formData.bachelorsCode)} />
                     <DataItem label="Masters Degree Discipline" code={formData.mastersCode} desc={getDisciplineDesc(formData.mastersCode)} />
@@ -81,7 +91,7 @@ export function PrivateFacultyProfileView({ formData, referenceData }: PrivateFa
 
             {/* Professional & Teaching Load */}
             <div>
-                <h3 className="text-xl font-bold text-blue-900 border-b-2 border-blue-200 pb-3 mb-6">Professional & Teaching Details</h3>
+                <SectionHeader icon={Briefcase} title="Employment & Teaching Details" />
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12">
                     <DataItem label="Professional License" code={formData.licenseCode} desc={getDescStrict(referenceData?.professionalLicense, formData.licenseCode)} />
                     <DataItem label="Faculty Rank" code={formData.rankCode} desc={getDescStrict(referenceData?.facultyRank, formData.rankCode)} />

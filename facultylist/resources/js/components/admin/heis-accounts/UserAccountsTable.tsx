@@ -23,6 +23,7 @@ interface UserAccount {
     email: string;
     role: string;
     hei_id: number;
+    hei_type?: string;
 }
 
 interface UserAccountsTableProps {
@@ -52,8 +53,8 @@ export function UserAccountsTable({ accounts, searchQuery, onClearSearch, onEdit
     const sortedAccounts = useMemo(() => {
         if (!sortConfig) return accounts;
         return [...accounts].sort((a, b) => {
-            const aVal = a[sortConfig.key];
-            const bVal = b[sortConfig.key];
+            const aVal = String(a[sortConfig.key] || '');
+            const bVal = String(b[sortConfig.key] || '');
             if (aVal < bVal) return sortConfig.direction === "asc" ? -1 : 1;
             if (aVal > bVal) return sortConfig.direction === "asc" ? 1 : -1;
             return 0;
@@ -129,23 +130,28 @@ export function UserAccountsTable({ accounts, searchQuery, onClearSearch, onEdit
                 <table className="w-full border-collapse text-sm whitespace-nowrap font-sans">
                     <thead>
                         <tr className="bg-blue-500 text-white border-b border-gray-300">
-                            <th className="px-3 py-2 font-bold w-[40px] text-center border-r border-blue-400">#</th>
-                            <th className="px-3 py-2 font-bold w-[30%] text-left">
-                                <div className="flex items-center gap-1 cursor-pointer hover:text-blue-100 transition-colors" onClick={() => onSort("name")}>
+                            <th className="px-4 py-3 font-bold w-[40px] text-center border-r border-blue-400">#</th>
+                            <th className="px-4 py-3 font-bold w-[28%] text-left">
+                                <div className="flex items-center gap-2 cursor-pointer hover:text-blue-100 transition-colors" onClick={() => onSort("name")}>
                                     UserName <ArrowUpDown className="h-3 w-3" />
                                 </div>
                             </th>
-                            <th className="px-3 py-2 font-bold w-[30%] text-left">
-                                <div className="flex items-center gap-1 cursor-pointer hover:text-blue-100 transition-colors" onClick={() => onSort("email")}>
+                            <th className="px-4 py-3 font-bold w-[27%] text-left">
+                                <div className="flex items-center gap-2 cursor-pointer hover:text-blue-100 transition-colors" onClick={() => onSort("email")}>
                                     Email <ArrowUpDown className="h-3 w-3" />
                                 </div>
                             </th>
-                            <th className="px-3 py-2 font-bold w-[20%] text-left">
-                                <div className="flex items-center gap-1 cursor-pointer hover:text-blue-100 transition-colors" onClick={() => onSort("role")}>
+                            <th className="px-4 py-3 font-bold w-[10%] text-center">
+                                <div className="flex items-center justify-center gap-2 cursor-pointer hover:text-blue-100 transition-colors" onClick={() => onSort("hei_type")}>
+                                    HEIs Type <ArrowUpDown className="h-3 w-3" />
+                                </div>
+                            </th>
+                            <th className="px-4 py-3 font-bold w-[30%] text-center">
+                                <div className="flex items-center justify-center gap-2 cursor-pointer hover:text-blue-100 transition-colors" onClick={() => onSort("role")}>
                                     Role <ArrowUpDown className="h-3 w-3" />
                                 </div>
                             </th>
-                            <th className="px-3 py-2 font-bold w-[20%] text-center">Action</th>
+                            <th className="px-4 py-3 font-bold w-[10%] text-center">Action</th>
                         </tr>
                     </thead>
                     <tbody className="bg-white text-sm">
@@ -155,21 +161,38 @@ export function UserAccountsTable({ accounts, searchQuery, onClearSearch, onEdit
                                     key={account.id}
                                     className="border-b border-gray-300 hover:bg-gray-50 transition-colors cursor-pointer"
                                 >
-                                    <td className="px-3 py-2 text-center text-gray-500 border-r border-gray-100">
+                                    <td className="px-4 py-3 text-center text-gray-500 border-r border-gray-100">
                                         {startEntry + index}
                                     </td>
-                                    <td className="px-3 py-2 text-left font-semibold text-gray-900">
+                                    <td className="px-4 py-3 text-left font-semibold text-gray-900">
                                         {account.name}
                                     </td>
-                                    <td className="px-3 py-2 text-left text-gray-600">
+                                    <td className="px-4 py-3 text-left text-gray-600">
                                         {account.email}
                                     </td>
-                                    <td className="px-3 py-2 text-left text-black">
-                                        <span className="px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-700">
+                                    <td className="px-4 py-3 text-center">
+                                        <span className={`px-2 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider ${account.hei_type?.toLowerCase() === 'private'
+                                            ? 'bg-blue-100 text-blue-700'
+                                            : account.hei_type?.toLowerCase() === 'public'
+                                                ? 'bg-orange-100 text-orange-700'
+                                                : 'bg-gray-100 text-gray-700'
+                                            }`}>
+                                            {account.hei_type || 'N/A'}
+                                        </span>
+                                    </td>
+                                    <td className="px-4 py-3 text-center">
+                                        <span className={`px-2 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider ${account.role.toLowerCase() === 'admin'
+                                            ? 'bg-red-500 text-white'
+                                            : account.role.toLowerCase() === 'private'
+                                                ? 'bg-blue-100 text-blue-700'
+                                                : account.role.toLowerCase() === 'public'
+                                                    ? 'bg-orange-100 text-orange-700'
+                                                    : 'bg-gray-100 text-gray-700'
+                                            }`}>
                                             {account.role}
                                         </span>
                                     </td>
-                                    <td className="px-3 py-2 font-bold text-center">
+                                    <td className="px-4 py-3 font-bold text-center">
                                         <div className="flex items-center justify-center gap-2">
                                             <Button
                                                 variant="ghost"
@@ -195,7 +218,7 @@ export function UserAccountsTable({ accounts, searchQuery, onClearSearch, onEdit
                             ))
                         ) : (
                             <tr>
-                                <td colSpan={5} className="px-6 py-12 text-center text-gray-500 text-sm border-b border-gray-300 bg-gray-50">
+                                <td colSpan={6} className="px-6 py-12 text-center text-gray-500 text-sm border-b border-gray-300 bg-gray-50">
                                     <div className="flex flex-col items-center justify-center text-gray-500">
                                         <Users className="h-12 w-12 text-gray-300 mb-4" />
                                         <h3 className="text-lg font-medium text-gray-900 mb-1">No user accounts found</h3>

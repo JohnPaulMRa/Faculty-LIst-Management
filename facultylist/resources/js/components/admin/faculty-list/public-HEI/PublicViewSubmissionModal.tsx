@@ -30,7 +30,7 @@ export function PublicViewSubmissionModal({ isOpen, onClose, selectedFaculty, re
         <>
             <Dialog open={isOpen} onOpenChange={onClose}>
                 <DialogContent
-                    className="max-w-[95vw] sm:max-w-[1600px] w-full max-h-[90vh] overflow-y-auto p-0 gap-0 rounded-[4px] [&>button]:hidden text-gray-900"
+                    className="max-w-[95vw] sm:max-w-[1700px] w-full max-h-[90vh] overflow-y-auto p-0 gap-0 rounded-[4px] [&>button]:hidden text-gray-900"
                     onInteractOutside={(e) => e.preventDefault()}
                 >
                     <DialogHeader className="p-6 pb-2 sticky top-0 bg-white z-10 border-b border-gray-200">

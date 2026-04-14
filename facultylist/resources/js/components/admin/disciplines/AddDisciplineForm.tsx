@@ -21,11 +21,15 @@ export default function AddDisciplineForm({ onCancel, onSubmit, majors = [], pro
     const [specificCode, setSpecificCode] = useState("");
     const [specificDesc, setSpecificDesc] = useState("");
 
-    const groupOptions = useMemo(() =>
-        majors
-            .map((m: any) => ({ label: m.description, value: m.code })),
-        [majors]
-    );
+    const groupOptions = useMemo(() => {
+        const unique = new Map();
+        majors.forEach((m: any) => {
+            if (!unique.has(m.description)) {
+                unique.set(m.description, m.code);
+            }
+        });
+        return Array.from(unique.entries()).map(([label, value]) => ({ label, value }));
+    }, [majors]);
 
     const handleGroupSelect = (code: string) => {
         const found = majors.find(m => m.code === code);
@@ -38,17 +42,26 @@ export default function AddDisciplineForm({ onCancel, onSubmit, majors = [], pro
     };
 
     const majorOptions = useMemo(() => {
-        const group = majors.find(m => m.code === groupCode);
-        return (group?.groups ?? [])
-            .map((g: any) => ({
-                label: g.description,
-                value: g.code,
-            }));
-    }, [majors, groupCode]);
+        if (!groupDesc) return [];
+        const allRelevantMajors = majors
+            .filter(m => m.description === groupDesc)
+            .flatMap(m => m.groups ?? []);
+
+        const unique = new Map();
+        allRelevantMajors.forEach((g: any) => {
+            if (!unique.has(g.description)) {
+                unique.set(g.description, g.code);
+            }
+        });
+        return Array.from(unique.entries()).map(([label, value]) => ({ label, value }));
+    }, [majors, groupDesc]);
 
     const handleMajorSelect = (code: string) => {
-        const group = majors.find(m => m.code === groupCode);
-        const found = (group?.groups ?? []).find((g: any) => g.code === code);
+        const allRelevantMajors = majors
+            .filter(m => m.description === groupDesc)
+            .flatMap(m => m.groups ?? []);
+
+        const found = allRelevantMajors.find((g: any) => g.code === code);
         setMajorCode(code);
         setMajorDesc(found?.description ?? "");
         setSpecificCode(code); // pre-fill specific code prefix
@@ -87,10 +100,10 @@ export default function AddDisciplineForm({ onCancel, onSubmit, majors = [], pro
             majorName: majorDesc,
             specificDiscipline: specificDesc || null,
         }, () => {
-             // On success: preserve group + major selection, clear only the specific code/name
-             // so the admin can quickly add another specific under the same group/major
-             setSpecificCode("");
-             setSpecificDesc("");
+            // On success: preserve group + major selection, clear only the specific code/name
+            // so the admin can quickly add another specific under the same group/major
+            setSpecificCode("");
+            setSpecificDesc("");
         });
     };
 
@@ -145,7 +158,7 @@ export default function AddDisciplineForm({ onCancel, onSubmit, majors = [], pro
                                     }
                                 }
                             }}
-                            className="h-10 rounded-none font-mono text-xs text-center border-gray-500 focus-visible:ring-1 focus-visible:ring-gray-400"
+                            className="h-10 rounded-none font-mono text-lg text-center border-gray-500 focus-visible:ring-1 focus-visible:ring-gray-400"
                             placeholder=""
                             maxLength={10}
                         />
@@ -197,7 +210,7 @@ export default function AddDisciplineForm({ onCancel, onSubmit, majors = [], pro
                         <Input
                             value={specificDesc}
                             onChange={(e) => setSpecificDesc(e.target.value)}
-                            className="h-10 rounded-none text-sm border-gray-500 focus-visible:ring-1 focus-visible:ring-gray-400"
+                            className="h-10 rounded-none text-lg border-gray-500 focus-visible:ring-1 focus-visible:ring-gray-400"
                             placeholder=""
                         />
                     </div>

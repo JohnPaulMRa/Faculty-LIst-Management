@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
 import { IMPORT_GROUPS } from '@/types/faculty/constants';
+import { User, GraduationCap, Briefcase } from 'lucide-react';
 import {
     GENERIC_RANK_OPTIONS,
     TENURE_OPTIONS,
@@ -45,6 +46,15 @@ const DataItem = ({ label, code, desc, value, center }: { label: string, code?: 
         </div>
     );
 };
+
+const SectionHeader = ({ icon: Icon, title }: { icon: any, title: string }) => (
+    <div className="flex items-center gap-4 bg-linear-to-r from-[#003468] to-[#1a4f8c] p-4 rounded-none mb-6 shadow-sm">
+        <div className="bg-white p-2.5 rounded-xl shadow-md flex items-center justify-center">
+            <Icon className="w-5 h-5 text-[#003468]" />
+        </div>
+        <h3 className="text-[14px] font-bold text-white uppercase tracking-widest">{title}</h3>
+    </div>
+);
 
 export function PublicFacultyProfileView({ formData, referenceData }: PublicFacultyProfileViewProps) {
     const getDescStrict = (options: any[], code: any) => {
@@ -104,7 +114,7 @@ export function PublicFacultyProfileView({ formData, referenceData }: PublicFacu
 
             {/* General Information */}
             <div>
-                <h3 className="text-xl font-bold text-blue-900 border-b-2 border-blue-200 pb-3 mb-5">General Information</h3>
+                <SectionHeader icon={User} title="General Information" />
                 <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 gap-x-8">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-x-8">
                         <DataItem label="NAME OF FACULTY ( Last name, first name, middle initial)" value={formData.name} />
@@ -127,7 +137,7 @@ export function PublicFacultyProfileView({ formData, referenceData }: PublicFacu
 
             {/* Educational Attainment */}
             <div>
-                <h3 className="text-xl font-bold text-blue-900 border-b-2 border-blue-200 pb-3 mb-5">Educational Attainment</h3>
+                <SectionHeader icon={GraduationCap} title="Educational Attainment" />
                 <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 gap-x-8">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-x-8">
                         <DataItem label="Highest Degree Attained" code={formData.degree} desc={getDescStrict(HIGHEST_DEGREE_OPTIONS, formData.degree)} />
@@ -151,7 +161,7 @@ export function PublicFacultyProfileView({ formData, referenceData }: PublicFacu
 
             {/* Workload */}
             <div>
-                <h3 className="text-xl font-bold text-blue-900 border-b-2 border-blue-200 pb-3 mb-5">Workload</h3>
+                <SectionHeader icon={Briefcase} title="Workload" />
                 <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 gap-x-8">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8">
                         <DataItem center label="LAB CREDIT UNITS TEACHING Undergrad" value={formData.ug_lab_units} />
@@ -182,7 +192,7 @@ export function PublicFacultyProfileView({ formData, referenceData }: PublicFacu
 
             {/* Official Credit Load */}
             <div>
-                <h3 className="text-xl font-bold text-blue-900 border-b-2 border-blue-200 pb-3 mb-5">Official Credit Load</h3>
+                <SectionHeader icon={Briefcase} title="Official Credit Load" />
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-15 ">
                     <DataItem center label="OFFICIAL RESEARCH LOAD" value={formData.load_research} />
                     <DataItem center label="OFFICIAL EXTENSION LOAD" value={formData.load_extension} />

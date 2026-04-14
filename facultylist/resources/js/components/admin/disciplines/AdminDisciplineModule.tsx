@@ -268,6 +268,7 @@ export default function AdminDisciplineModule({
                 isOpen={isImportModalOpen}
                 onClose={() => setIsImportModalOpen(false)}
                 onParsed={handleParsed}
+                disciplines={disciplines}
             />
         </div>
     );

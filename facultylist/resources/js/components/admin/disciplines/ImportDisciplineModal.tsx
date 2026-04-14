@@ -19,6 +19,8 @@ interface ImportDisciplineModalProps {
     onClose: () => void;
     /** Called immediately after a file is successfully parsed, with valid rows only */
     onParsed: (rows: ParsedDisciplineRow[]) => void;
+    /** Existing disciplines for dictionary lookup */
+    disciplines?: any[];
 }
 
 // Extracting by strict Excel Column Letters instead of dynamic headers
@@ -27,7 +29,7 @@ interface ImportDisciplineModalProps {
 // Column G: PROGRAM (Specific Discipline)
 // Column K or L: CHEDClass-DESCRIPTION (Discipline Group)
 
-export default function ImportDisciplineModal({ isOpen, onClose, onParsed }: ImportDisciplineModalProps) {
+export default function ImportDisciplineModal({ isOpen, onClose, onParsed, disciplines = [] }: ImportDisciplineModalProps) {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [isDragging, setIsDragging] = useState(false);
     const [fileName, setFileName] = useState<string | null>(null);
@@ -89,10 +91,37 @@ export default function ImportDisciplineModal({ isOpen, onClose, onParsed }: Imp
                     }
 
                     const code = rawCode.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 10);
-                    // Merged columns sometimes push value to K, sometimes to L
-                    const groupName = String(row["K"] || row["L"] || "").trim();
-                    const majorName = String(row["D"] || "").trim();
+                    
+                    // Auto-lookup logic based on CHED Code patterns
+                    let groupName = String(row["K"] || row["L"] || "").trim();
+                    let majorName = String(row["D"] || "").trim();
                     const specificDiscipline = String(row["G"] || "").trim();
+
+                    // If we have a 4+ digit CHED code, we auto-fill ONLY the Major Discipline
+                    if (code.length >= 4) {
+                        const mCode = code.slice(0, 4);
+                        const mSuffix = code.slice(2, 4);
+                        const gPrefix = code.slice(0, 2);
+
+                        // 1. Lookup Major Name (Digits 1-4)
+                        let foundMajorName = "";
+                        for (const g of disciplines) {
+                            const m = (g.groups || []).find((m: any) => m.code === mCode);
+                            if (m) {
+                                foundMajorName = m.description;
+                                break;
+                            }
+                        }
+                        
+                        // User specific dictionary fallbacks (e.g. 50 + 08 -> Nursing)
+                        if (!foundMajorName && gPrefix === "50" && mSuffix === "08") {
+                            foundMajorName = "Nursing";
+                        }
+
+                        if (foundMajorName) {
+                            majorName = foundMajorName;
+                        }
+                    }
 
                     if (!code || code.length < 2) {
                         parsed.push({ code, groupName, majorName, specificDiscipline, _status: "error" as const, _error: "Code is missing or too short." });
