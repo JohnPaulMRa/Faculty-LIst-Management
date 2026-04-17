@@ -6,7 +6,6 @@ import { PrivateSchoolView } from '@/components/admin/faculty-list/private-HEI/P
 import { PublicSchoolView } from '@/components/admin/faculty-list/public-HEI/PublicSchoolView';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useDebounce } from '@/hooks/use-debounce';
 import {
     Select,
     SelectContent,
@@ -14,6 +13,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import { useDebounce } from '@/hooks/use-debounce';
 
 interface School {
     id: number;
@@ -190,7 +190,7 @@ export default function AdminFacultyListModule({
                     <div>
                         <h1 className="text-3xl font-bold tracking-tight text-gray-900">Faculty Management</h1>
                         <p className="text-muted-foreground text-sm mt-1">
-                            Manage schools and faculty members. {selectedSchoolId ? "Viewing faculty for the selected school." : "Select a school to view details."}
+                            Manage HEIs and faculty members. {selectedSchoolId ? "Viewing faculty for the selected school." : "Select a school to view details."}
                         </p>
                     </div>
                     <div className="flex flex-col md:flex-row items-center gap-3 w-full md:w-auto">

@@ -10,14 +10,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table";
+
 import { cn } from '@/lib/utils';
 import { PublicViewSubmissionModal } from './PublicViewSubmissionModal';
 
@@ -381,6 +374,7 @@ const SingleYearPublicTable = ({ faculty, schoolYear, referenceData, onViewSubmi
 };
 
 export default function PublicFacultyTable({ faculty = [], referenceData = {}, submittedYears = [] }: PublicFacultyTableProps) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [selectedFaculty, setSelectedFaculty] = useState<any>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isLoadingId, setIsLoadingId] = useState<string | number | null>(null);

@@ -2,6 +2,7 @@ import { router } from '@inertiajs/react';
 import axios from 'axios';
 import { FileText, Loader2, ArrowUpDown } from "lucide-react";
 import React, { useState, useMemo } from 'react';
+import { Button } from "@/components/ui/button";
 import {
     Select,
     SelectContent,
@@ -11,7 +12,6 @@ import {
 } from "@/components/ui/select";
 import { cn } from '@/lib/utils';
 import { PrivateViewSubmissionModal } from './PrivateViewSubmissionModal';
-import { Button } from "@/components/ui/button";
 
 
 const FacultyStatusSelect = ({ initialStatus, memberId }: { initialStatus: string, memberId: string | number }) => {
@@ -126,16 +126,27 @@ interface FacultyMember {
     joined_year?: string;
 }
 
+interface ReferenceOption {
+    code: string;
+    desc: string;
+}
+
+interface ReferenceData {
+    gender?: ReferenceOption[];
+    facultyRank?: ReferenceOption[];
+    tenure?: ReferenceOption[];
+}
+
 interface PrivateFacultyTableProps {
     faculty: FacultyMember[];
-    referenceData?: any;
+    referenceData?: ReferenceData;
     submittedYears: string[];
 }
 
 interface SingleYearPrivateTableProps {
     faculty: FacultyMember[];
     schoolYear: string;
-    referenceData: any;
+    referenceData: ReferenceData;
     onViewSubmission: (member: FacultyMember) => void;
     isLoadingId: string | number | null;
 }
@@ -158,13 +169,13 @@ const SingleYearPrivateTable = ({ faculty, schoolYear, referenceData, onViewSubm
 
     const getGenderLabel = (code: string) => {
         if (!code) return 'N/A';
-        const found = referenceData?.gender?.find((g: any) => String(g.code) === String(code));
+        const found = referenceData?.gender?.find((g: ReferenceOption) => String(g.code) === String(code));
         return found ? found.desc : code;
     };
 
     const getRankLabel = (code: string) => {
         if (!code) return 'N/A';
-        const found = referenceData?.facultyRank?.find((r: any) => String(r.code) === String(code));
+        const found = referenceData?.facultyRank?.find((r: ReferenceOption) => String(r.code) === String(code));
         const label = found ? found.desc : code;
         if (label?.toLowerCase() === 'adjunct or affiliate faculty') {
             return 'Adjunct or Affiliate Faculty...';
@@ -174,7 +185,7 @@ const SingleYearPrivateTable = ({ faculty, schoolYear, referenceData, onViewSubm
 
     const getTenureLabel = (code: string) => {
         if (!code) return 'N/A';
-        const found = referenceData?.tenure?.find((t: any) => String(t.code) === String(code));
+        const found = referenceData?.tenure?.find((t: ReferenceOption) => String(t.code) === String(code));
         const label = found ? found.desc : code;
         return label === 'Permanent' ? 'Tenured' : label;
     };
@@ -352,6 +363,7 @@ const SingleYearPrivateTable = ({ faculty, schoolYear, referenceData, onViewSubm
 };
 
 export default function PrivateFacultyTable({ faculty = [], referenceData = {}, submittedYears = [] }: PrivateFacultyTableProps) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [selectedFaculty, setSelectedFaculty] = useState<any>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isLoadingId, setIsLoadingId] = useState<string | number | null>(null);

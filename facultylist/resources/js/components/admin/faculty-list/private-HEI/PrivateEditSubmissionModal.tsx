@@ -2,14 +2,14 @@
 import { router } from '@inertiajs/react';
 import { Save, X, Loader2 } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
+import { FacultyProfileCardsE5 } from '@/components/faculty/facultyE5/FacultyProfileCardsE5';
+import { Button } from "@/components/ui/button";
 import {
     Dialog,
     DialogContent,
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { FacultyProfileCardsE5 } from '@/components/faculty/facultyE5/FacultyProfileCardsE5';
 
 interface PrivateEditSubmissionModalProps {
     isOpen: boolean;
@@ -24,6 +24,7 @@ export function PrivateEditSubmissionModal({ isOpen, onClose, selectedFaculty, r
 
     useEffect(() => {
         if (selectedFaculty) {
+            // eslint-disable-next-line
             setFormData({
                 ...selectedFaculty,
                 // Ensure field names match what FacultyProfileCardsE5 and the backend expect

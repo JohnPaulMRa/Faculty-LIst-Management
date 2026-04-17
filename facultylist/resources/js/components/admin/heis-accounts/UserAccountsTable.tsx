@@ -1,6 +1,6 @@
 import { Users, Pencil, Trash2, ArrowUpDown } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { useState, useMemo } from "react";
+import { Button } from "@/components/ui/button";
 import {
     Select,
     SelectContent,
@@ -8,14 +8,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table";
+
 
 interface UserAccount {
     id: number;
@@ -146,7 +139,7 @@ export function UserAccountsTable({ accounts, searchQuery, onClearSearch, onEdit
                                     HEIs Type <ArrowUpDown className="h-3 w-3" />
                                 </div>
                             </th>
-                            <th className="px-4 py-3 font-bold w-[30%] text-center">
+                            <th className="px-4 py-3 font-bold w{20%] text-center">
                                 <div className="flex items-center justify-center gap-2 cursor-pointer hover:text-blue-100 transition-colors" onClick={() => onSort("role")}>
                                     Role <ArrowUpDown className="h-3 w-3" />
                                 </div>

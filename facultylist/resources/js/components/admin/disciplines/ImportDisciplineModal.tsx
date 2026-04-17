@@ -93,7 +93,7 @@ export default function ImportDisciplineModal({ isOpen, onClose, onParsed, disci
                     const code = rawCode.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 10);
                     
                     // Auto-lookup logic based on CHED Code patterns
-                    let groupName = String(row["K"] || row["L"] || "").trim();
+                    const groupName = String(row["K"] || row["L"] || "").trim();
                     let majorName = String(row["D"] || "").trim();
                     const specificDiscipline = String(row["G"] || "").trim();
 
@@ -149,7 +149,7 @@ export default function ImportDisciplineModal({ isOpen, onClose, onParsed, disci
             }
         };
         reader.readAsArrayBuffer(file);
-    }, [onParsed]);
+    }, [onParsed, disciplines]);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];

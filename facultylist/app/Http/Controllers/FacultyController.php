@@ -25,7 +25,16 @@ class FacultyController extends Controller
             'disciplines' => DB::table('specific_discipline')
                 ->select(DB::raw('SUBSTRING(code, 1, 2) as major_group_code'), 'code', 'description as desc')
                 ->orderBy('code')
-                ->get()
+                ->get(),
+            // All disciplines under Education Science and Teacher Training (group_code = 14)
+            'educationDisciplines' => DB::table('specific_discipline')
+                ->select('code', 'description as desc')
+                ->where(function ($q) {
+                    $q->where('group_code', '14')
+                        ->orWhere('code', 'like', '14%');
+                })
+                ->orderBy('description')
+                ->get(),
         ];
     }
 
@@ -40,7 +49,7 @@ class FacultyController extends Controller
         // Fetch paginated or filtered collection of faculty
         $facultyE2 = $this->getFacultyE2Data($heiId, $search, $year);
         $facultyE5 = $this->getFacultyE5Data($heiId, $search, $year);
-        
+
         $facultyData = $facultyE2->concat($facultyE5);
 
         // Metadata and Reference Data
@@ -62,7 +71,7 @@ class FacultyController extends Controller
     private function getFacultyE2Data($heiId, $search, $year)
     {
         $query = \App\Models\Faculty::query();
-        
+
         if (!$heiId) {
             $query->whereRaw('1 = 0');
         } else {
@@ -123,7 +132,8 @@ class FacultyController extends Controller
 
     private function getAvailableYears($heiId)
     {
-        if (!$heiId) return [];
+        if (!$heiId)
+            return [];
 
         $yearsE2 = \App\Models\Faculty::where('hei_id', $heiId)
             ->whereNotNull('joined_year')
@@ -309,28 +319,50 @@ class FacultyController extends Controller
         try {
             $isE5 = str_starts_with($id, 'e5_');
             $realId = $isE5 ? substr($id, 3) : $id;
-            
+
             \Illuminate\Support\Facades\Log::info("Faculty Update Request - ID: {$id}, RealID: {$realId}, isE5: " . ($isE5 ? 'Yes' : 'No'), $request->all());
 
             if ($isE5) {
                 $faculty = \App\Models\FacultyE5::findOrFail($realId);
-                
+
                 // Map incoming camelCase fields to snake_case only if they exist in the request
                 $updateData = [];
-                if ($request->has('name')) $updateData['name'] = $request->name;
-                if ($request->has('email')) $updateData['email'] = $request->email;
-                if ($request->has('status')) $updateData['status'] = $request->status;
-                if ($request->has('joined_year')) $updateData['joined_year'] = $request->joined_year;
-                if ($request->has('employment')) $updateData['employment'] = $request->employment;
-                if ($request->has('fullTimeCode')) $updateData['ft_pt_code'] = $request->fullTimeCode;
-                if ($request->has('genderCode')) $updateData['gender_code'] = $request->genderCode;
-                if ($request->has('disciplineCode')) $updateData['discipline_code'] = $request->disciplineCode;
-                if ($request->has('degree')) $updateData['highest_degree_code'] = $request->degree;
-                if ($request->has('rankCode')) $updateData['rank_code'] = $request->rankCode;
-                if ($request->has('tenureCode')) $updateData['tenure_code'] = $request->tenureCode;
-                if ($request->has('salaryCode')) $updateData['salary_range_code'] = $request->salaryCode;
-                if ($request->has('loadCode')) $updateData['teaching_load_code'] = $request->loadCode;
-                if ($request->has('subjects')) $updateData['subjects'] = $request->subjects;
+                if ($request->has('name'))
+                    $updateData['name'] = $request->name;
+                if ($request->has('email'))
+                    $updateData['email'] = $request->email;
+                if ($request->has('status'))
+                    $updateData['status'] = $request->status;
+                if ($request->has('joined_year'))
+                    $updateData['joined_year'] = $request->joined_year;
+                if ($request->has('employment'))
+                    $updateData['employment'] = $request->employment;
+                if ($request->has('fullTimeCode'))
+                    $updateData['ft_pt_code'] = $request->fullTimeCode;
+                if ($request->has('genderCode'))
+                    $updateData['gender_code'] = $request->genderCode;
+                if ($request->has('disciplineCode'))
+                    $updateData['discipline_code'] = $request->disciplineCode;
+                if ($request->has('degree'))
+                    $updateData['highest_degree_code'] = $request->degree;
+                if ($request->has('rankCode'))
+                    $updateData['rank_code'] = $request->rankCode;
+                if ($request->has('tenureCode'))
+                    $updateData['tenure_code'] = $request->tenureCode;
+                if ($request->has('salaryCode'))
+                    $updateData['salary_range_code'] = $request->salaryCode;
+                if ($request->has('loadCode'))
+                    $updateData['teaching_load_code'] = $request->loadCode;
+                if ($request->has('licenseCode'))
+                    $updateData['license_code'] = $request->licenseCode;
+                if ($request->has('bachelorsCode'))
+                    $updateData['bachelors_code'] = $request->bachelorsCode;
+                if ($request->has('mastersCode'))
+                    $updateData['masters_code'] = $request->mastersCode;
+                if ($request->has('doctorateCode'))
+                    $updateData['doctorate_code'] = $request->doctorateCode;
+                if ($request->has('subjects'))
+                    $updateData['subjects'] = $request->subjects;
 
                 $faculty->fill($updateData);
                 $faculty->save();
@@ -338,13 +370,51 @@ class FacultyController extends Controller
                 $faculty = \App\Models\Faculty::findOrFail($realId);
                 // For E2, we can mostly update directly from request keys that match column names
                 $faculty->fill($request->only([
-                    'name', 'email', 'status', 'department', 'college', 'rank', 'degree', 'employment', 'gender', 'is_tenured', 'joined_year',
-                    'salary_grade', 'annual_salary', 'on_leave', 'fte', 'pursuing_degree',
-                    'discipline_load_1', 'discipline_load_2', 'discipline_bachelors', 'discipline_masters', 'discipline_doctorate',
-                    'masters_thesis', 'doctorate_dissertation',
-                    'ug_lab_units', 'ug_lec_units', 'ug_total_units', 'ug_lab_hours', 'ug_lec_hours', 'ug_total_hours', 'ug_lab_contact', 'ug_lec_contact', 'ug_total_contact',
-                    'grad_lab_units', 'grad_lec_units', 'grad_total_units', 'grad_lab_contact', 'grad_lec_contact', 'grad_total_contact',
-                    'load_research', 'load_extension', 'load_study', 'load_production', 'load_admin', 'load_others', 'load_total'
+                    'name',
+                    'email',
+                    'status',
+                    'department',
+                    'college',
+                    'rank',
+                    'degree',
+                    'employment',
+                    'gender',
+                    'is_tenured',
+                    'joined_year',
+                    'salary_grade',
+                    'annual_salary',
+                    'on_leave',
+                    'fte',
+                    'pursuing_degree',
+                    'discipline_load_1',
+                    'discipline_load_2',
+                    'discipline_bachelors',
+                    'discipline_masters',
+                    'discipline_doctorate',
+                    'masters_thesis',
+                    'doctorate_dissertation',
+                    'ug_lab_units',
+                    'ug_lec_units',
+                    'ug_total_units',
+                    'ug_lab_hours',
+                    'ug_lec_hours',
+                    'ug_total_hours',
+                    'ug_lab_contact',
+                    'ug_lec_contact',
+                    'ug_total_contact',
+                    'grad_lab_units',
+                    'grad_lec_units',
+                    'grad_total_units',
+                    'grad_lab_contact',
+                    'grad_lec_contact',
+                    'grad_total_contact',
+                    'load_research',
+                    'load_extension',
+                    'load_study',
+                    'load_production',
+                    'load_admin',
+                    'load_others',
+                    'load_total'
                 ]));
                 $faculty->save();
             }

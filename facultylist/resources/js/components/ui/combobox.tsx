@@ -46,6 +46,7 @@ export function Combobox({
     const [open, setOpen] = React.useState(false)
     const [inputValue, setInputValue] = React.useState("")
     const isMouseDownOnDropdown = React.useRef(false)
+    const clearingOnFocus = React.useRef(false)
 
     const selectedOption = React.useMemo(
         () => options.find((opt) => String(opt.value) === String(value)),
@@ -67,7 +68,7 @@ export function Combobox({
     }, [selectedOption, allowFreeInput, value])
 
     return (
-        <Command shouldFilter={true} className={cn("overflow-visible bg-transparent", containerClassName)}>
+        <Command shouldFilter={false} className={cn("overflow-visible bg-transparent", containerClassName)}>
             <Popover open={open} onOpenChange={() => { }}>
                 <PopoverPrimitive.Anchor asChild>
                     <div
@@ -89,12 +90,17 @@ export function Combobox({
                                     setInputValue(val)
                                     if (!open) setOpen(true)
                                     if (onInputChange) onInputChange(val)
-                                    if (val === '' && value) {
+                                    if (val === '' && value && !clearingOnFocus.current) {
                                         onChange('')
                                     }
+                                    clearingOnFocus.current = false
                                 }}
                                 onFocus={() => {
-                                    if (!disabled) setOpen(true)
+                                    if (!disabled) {
+                                        setOpen(true)
+                                        clearingOnFocus.current = true
+                                        setInputValue("")
+                                    }
                                 }}
                                 onBlur={() => {
                                     if (isMouseDownOnDropdown.current) return

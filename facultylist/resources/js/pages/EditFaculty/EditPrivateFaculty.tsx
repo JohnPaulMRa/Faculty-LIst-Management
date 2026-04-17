@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
- 
+
 import { Head, router } from '@inertiajs/react';
 import { Save, Loader2 } from 'lucide-react';
 import { useState, useCallback } from 'react';
@@ -16,7 +16,7 @@ import type { Faculty } from '@/types/faculty';
 
 interface EditProps {
     faculty: Faculty;
-     
+
     referenceData: any;
 }
 
@@ -37,22 +37,22 @@ const Edit: FC<EditProps> = ({ faculty, referenceData }) => {
         if (fac.form_type === 'E5') {
             return {
                 name: fac.name || '',
-                fullTimeCode: normalizeCode(ref?.fullTimePartTime, (fac as any).fullTimeCode),
-                genderCode: normalizeCode(ref?.gender, (fac as any).genderCode),
-                disciplineCode: (fac as any).disciplineCode || '',
-                degree: normalizeCode(ref?.highestDegree, (fac as any).degree),
+                fullTimeCode: normalizeCode(ref?.fullTimePartTime, (fac as any).fullTimeCode || (fac as any).ft_pt_code),
+                genderCode: normalizeCode(ref?.gender, (fac as any).genderCode || (fac as any).gender_code),
+                disciplineCode: (fac as any).disciplineCode || (fac as any).discipline_code || '',
+                degree: normalizeCode(ref?.highestDegree, (fac as any).degree || (fac as any).highest_degree_code),
                 bachelors: (fac as any).bachelors || '',
-                bachelorsCode: (fac as any).bachelorsCode || '',
+                bachelorsCode: (fac as any).bachelorsCode || (fac as any).bachelors_code || '',
                 masters: (fac as any).masters || '',
-                mastersCode: (fac as any).mastersCode || '',
+                mastersCode: (fac as any).mastersCode || (fac as any).masters_code || '',
                 doctorate: (fac as any).doctorate || '',
-                doctorateCode: (fac as any).doctorateCode || '',
-                licenseCode: normalizeCode(ref?.professionalLicense, (fac as any).licenseCode),
-                tenureCode: normalizeCode(ref?.tenure, (fac as any).tenureCode),
-                rankCode: normalizeCode(ref?.facultyRank, (fac as any).rankCode),
-                loadCode: normalizeCode(ref?.teachingLoad, (fac as any).loadCode),
+                doctorateCode: (fac as any).doctorateCode || (fac as any).doctorate_code || '',
+                licenseCode: normalizeCode(ref?.professionalLicense, (fac as any).licenseCode || (fac as any).license_code),
+                tenureCode: normalizeCode(ref?.tenure, (fac as any).tenureCode || (fac as any).tenure_code),
+                rankCode: normalizeCode(ref?.facultyRank, (fac as any).rankCode || (fac as any).rank_code),
+                loadCode: normalizeCode(ref?.teachingLoad, (fac as any).loadCode || (fac as any).teaching_load_code),
                 subjects: (fac as any).subjects || '',
-                salaryCode: normalizeCode(ref?.annualSalary, (fac as any).salaryCode),
+                salaryCode: normalizeCode(ref?.annualSalary, (fac as any).salaryCode || (fac as any).salary_range_code),
                 joined_year: fac.joined_year || '',
                 status: fac.status || ''
             };
@@ -62,7 +62,7 @@ const Edit: FC<EditProps> = ({ faculty, referenceData }) => {
                 fullTimeCode: '',
                 genderCode: '',
                 disciplineCode: '',
-                degree: normalizeCode(ref?.highestDegree, fac.degree),
+                degree: normalizeCode(ref?.highestDegree, fac.degree || (fac as any).highest_degree_code),
                 bachelors: '',
                 bachelorsCode: '',
                 masters: '',
@@ -71,7 +71,7 @@ const Edit: FC<EditProps> = ({ faculty, referenceData }) => {
                 doctorateCode: '',
                 licenseCode: '',
                 tenureCode: '',
-                rankCode: normalizeCode(ref?.facultyRank, fac.rank),
+                rankCode: normalizeCode(ref?.facultyRank, fac.rank || (fac as any).rank_code),
                 loadCode: '',
                 subjects: '',
                 salaryCode: '',
@@ -137,9 +137,9 @@ const Edit: FC<EditProps> = ({ faculty, referenceData }) => {
             employment: getDesc(referenceData?.fullTimePartTime, formData.fullTimeCode) || (faculty.form_type === 'E2' ? (faculty as any).employment : '') || '',
 
             // Sync Degree Strings
-            bachelors: getDisciplineDesc(formData.bachelorsCode) || (faculty as any).bachelors || '',
-            masters: getDisciplineDesc(formData.mastersCode) || (faculty as any).masters || '',
-            doctorate: getDisciplineDesc(formData.doctorateCode) || (faculty as any).doctorate || ''
+            bachelors: formData.bachelors || getDisciplineDesc(formData.bachelorsCode) || (faculty as any).bachelors || '',
+            masters: formData.masters || getDisciplineDesc(formData.mastersCode) || (faculty as any).masters || '',
+            doctorate: formData.doctorate || getDisciplineDesc(formData.doctorateCode) || (faculty as any).doctorate || ''
         };
 
         router.put(update({ id: faculty.id }).url, syncedData, {

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { User, GraduationCap, Briefcase } from 'lucide-react';
 import React from 'react';
 import { IMPORT_GROUPS } from '@/types/faculty/constants';
-import { User, GraduationCap, Briefcase } from 'lucide-react';
 import {
     GENERIC_RANK_OPTIONS,
     TENURE_OPTIONS,

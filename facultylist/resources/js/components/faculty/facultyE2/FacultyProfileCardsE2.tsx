@@ -467,7 +467,6 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                                 referenceData={referenceData}
                                 placeholder="Select Primary Discipline (1)"
                                 showGroup={false}
-                                filterCategory="primary"
                             />
                         </div>
                         <div className="space-y-1.5">
@@ -478,7 +477,6 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                                 referenceData={referenceData}
                                 placeholder="Select Primary Discipline (2)"
                                 showGroup={false}
-                                filterCategory="primary"
                             />
                         </div>
                     </div>

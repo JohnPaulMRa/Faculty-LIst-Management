@@ -22,32 +22,36 @@ interface SubmittedHeisListProps {
 
 export const SubmittedHeisList: FC<SubmittedHeisListProps> = ({ recentSubmissions = [] }) => {
     return (
-        <Card className="rounded-none border border-gray-200 shadow-none bg-white">
-            <CardHeader className="pb-3 border-b border-gray-100">
+        <Card className="rounded-2xl shadow-sm border border-gray-100 bg-white overflow-hidden flex flex-col h-full">
+            <CardHeader className="p-6 pb-4 border-b border-gray-100/50 bg-gray-50/30">
                 <div className="flex items-center justify-between">
-                    <div className="flex flex-col gap-1">
-                        <CardTitle className="text-base font-bold text-gray-900 flex items-center gap-2">
-                            <ClipboardList className="h-4 w-4 text-gray-500" />
-                            Submitted HEIs
-                        </CardTitle>
-                        <CardDescription className="text-xs text-gray-500">
-                            Recent official faculty submissions
-                        </CardDescription>
+                    <div className="flex items-center gap-3">
+                        <div className="p-2.5 rounded-xl bg-blue-50 text-blue-600 shadow-sm border border-blue-100">
+                            <ClipboardList className="h-5 w-5" />
+                        </div>
+                        <div>
+                            <CardTitle className="text-lg font-bold tracking-tight text-gray-900">
+                                Submitted HEIs
+                            </CardTitle>
+                            <CardDescription className="text-xs text-gray-500 mt-0.5">
+                                Recently received faculty institutional submissions
+                            </CardDescription>
+                        </div>
                     </div>
                 </div>
             </CardHeader>
-            <CardContent className="p-0">
-                <div className="divide-y divide-gray-100">
+            <CardContent className="p-0 flex-1 overflow-auto">
+                <div className="divide-y divide-gray-100/50">
                     {recentSubmissions.length > 0 ? (
                         recentSubmissions.map((submission) => (
-                            <div key={submission.id} className="flex items-center gap-4 p-5 hover:bg-gray-50/80 transition-all group">
+                            <div key={submission.id} className="flex items-center gap-4 p-5 hover:bg-gray-50/50 transition-all group cursor-pointer border-l-4 border-transparent hover:border-blue-500">
                                 {/* Icon/Avatar Area */}
-                                <div className={`h-10 w-10 rounded-none flex items-center justify-center shrink-0 border transition-colors ${
+                                <div className={`h-11 w-11 rounded-xl flex items-center justify-center shrink-0 border-2 transition-all duration-300 group-hover:scale-105 ${
                                     submission.type === 'Public' 
-                                    ? 'bg-purple-50 border-purple-100 text-purple-600' 
-                                    : 'bg-blue-50 border-blue-100 text-blue-600'
+                                    ? 'bg-purple-50 border-purple-100 text-purple-600 group-hover:bg-purple-100' 
+                                    : 'bg-indigo-50 border-indigo-100 text-indigo-600 group-hover:bg-indigo-100'
                                 }`}>
-                                    <School className="h-5 w-5" />
+                                    <School className="h-6 w-6" />
                                 </div>
 
                                 {/* Main Content */}

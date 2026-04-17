@@ -169,7 +169,7 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                                 referenceData={referenceData}
                                 placeholder="Select Primary Discipline"
                                 showGroup={false}
-                                filterCategory="primary"
+                                filterCategory="education"
                             />
                         </div>
 

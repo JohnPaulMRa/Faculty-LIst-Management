@@ -18,47 +18,50 @@ interface SchoolListProps {
 
 const SchoolList: FC<SchoolListProps> = ({ schools = [] }) => {
     return (
-        <Card className="h-full shadow-sm border-border/50 bg-background/50 backdrop-blur-sm flex flex-col overflow-hidden">
-            <CardHeader className="pb-4 border-b border-border/50 bg-muted/20">
+        <Card className="rounded-2xl shadow-sm border border-gray-100 bg-white overflow-hidden flex flex-col h-full">
+            <CardHeader className="p-6 pb-4 border-b border-gray-100/50 bg-gray-50/30">
                 <div className="flex items-center justify-between">
-                    <div className="space-y-1">
-                        <CardTitle className="text-lg font-semibold tracking-tight text-foreground flex items-center gap-2">
-                            <div className="p-2 rounded-lg bg-primary/10 text-primary">
-                                <Building2 className="h-5 w-5" />
-                            </div>
-                            Registered Schools
-                        </CardTitle>
-                        <CardDescription className="text-sm text-muted-foreground ml-1">
-                            Overview of all active institutions
-                        </CardDescription>
+                    <div className="flex items-center gap-3">
+                        <div className="p-2.5 rounded-xl bg-blue-50 text-blue-600 shadow-sm border border-blue-100">
+                            <Building2 className="h-5 w-5" />
+                        </div>
+                        <div>
+                            <CardTitle className="text-lg font-bold tracking-tight text-gray-900 leading-none">
+                                Registered Schools
+                            </CardTitle>
+                            <CardDescription className="text-xs text-gray-500 mt-1.5">
+                                Institutional overview of active HEIs
+                            </CardDescription>
+                        </div>
                     </div>
-                    <Button variant="outline" size="sm" className="h-8 text-xs font-medium" asChild>
-                        <Link href="/admin/schools">
-                            View All <ChevronRight className="h-3 w-3 ml-1" />
+                    <Button variant="outline" size="sm" className="h-9 text-xs font-bold uppercase tracking-tight rounded-xl border-gray-200 hover:bg-gray-50 hover:text-blue-600 transition-all shadow-none" asChild>
+                        <Link href="/admin/schools" className="gap-2">
+                            Explore All <ChevronRight className="h-3.5 w-3.5" />
                         </Link>
                     </Button>
                 </div>
             </CardHeader>
             <CardContent className="p-0 flex-1">
-                <div className="divide-y divide-border/50">
+                <div className="divide-y divide-gray-100/50">
                     {schools.map((school) => (
                         <div
                             key={school.id}
-                            className="group flex items-center justify-between p-4 hover:bg-muted/50 transition-all duration-200 cursor-pointer"
+                            className="group flex items-center justify-between p-5 hover:bg-gray-50/50 transition-all duration-300 cursor-pointer border-l-4 border-transparent hover:border-blue-500"
                         >
                             <div className="flex items-center gap-4">
-                                <div className="h-10 w-10 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-sm ring-4 ring-white dark:ring-gray-950 group-hover:scale-110 transition-transform duration-200">
+                                <div className="h-11 w-11 rounded-xl bg-white border border-gray-100 text-blue-600 flex items-center justify-center font-black text-xs shadow-xs group-hover:scale-110 group-hover:shadow-md group-hover:border-blue-100 transition-all duration-300 ring-2 ring-transparent group-hover:ring-blue-50">
                                     {school.name.substring(0, 2).toUpperCase()}
                                 </div>
                                 <div className="space-y-1">
-                                    <h4 className="text-sm font-medium leading-none text-foreground group-hover:text-primary transition-colors">
+                                    <h4 className="text-sm font-bold leading-none text-gray-900 group-hover:text-blue-600 transition-colors tracking-tight">
                                         {school.name}
                                     </h4>
-                                    <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                                    <div className="flex items-center gap-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
                                         <span className="flex items-center gap-1">
                                             <Users className="h-3 w-3" />
                                             {school.faculty} Faculty
                                         </span>
+                                        <div className="w-1 h-1 rounded-full bg-gray-200"></div>
                                         <span className="flex items-center gap-1">
                                             <GraduationCap className="h-3 w-3" />
                                             University
@@ -66,30 +69,31 @@ const SchoolList: FC<SchoolListProps> = ({ schools = [] }) => {
                                     </div>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-4">
                                 <Badge
                                     variant={school.status === 'Active' ? 'default' : 'secondary'}
                                     className={`${school.status === 'Active'
-                                            ? 'bg-green-100 text-green-700 hover:bg-green-200 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800'
-                                            : 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800'
-                                        } shadow-none`}
+                                            ? 'bg-green-50 text-green-700 hover:bg-green-100 border-green-200'
+                                            : 'bg-orange-50 text-orange-700 hover:bg-orange-100 border-orange-200'
+                                        } shadow-none rounded-lg px-2 py-0.5 text-[10px] font-black border uppercase tracking-tighter`}
                                 >
                                     {school.status}
                                 </Badge>
-                                <ChevronRight className="h-4 w-4 text-muted-foreground/50 group-hover:text-primary group-hover:translate-x-1 transition-all" />
+                                <ChevronRight className="h-4 w-4 text-gray-300 group-hover:text-blue-500 group-hover:translate-x-1 transition-all" />
                             </div>
                         </div>
                     ))}
                 </div>
                 {schools.length === 0 && (
-                    <div className="h-40 flex flex-col items-center justify-center text-muted-foreground gap-2">
-                        <Building2 className="h-8 w-8 text-muted-foreground/30" />
-                        <span className="text-sm">No schools found</span>
+                    <div className="h-60 flex flex-col items-center justify-center text-gray-400 gap-3 opacity-50">
+                        <Building2 className="h-10 w-10 text-gray-200" />
+                        <span className="text-sm font-medium italic underline decoration-gray-200 underline-offset-4">No institutions currently registered.</span>
                     </div>
                 )}
             </CardContent>
         </Card>
     );
 };
+
 
 export default SchoolList;

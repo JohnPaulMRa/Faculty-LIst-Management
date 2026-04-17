@@ -1,15 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { X, Pencil } from 'lucide-react';
 import React, { useState } from 'react';
+import { Button } from "@/components/ui/button";
 import {
     Dialog,
     DialogContent,
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { PrivateFacultyProfileView } from './PrivateFacultyProfileView';
 import { PrivateEditSubmissionModal } from './PrivateEditSubmissionModal';
+import { PrivateFacultyProfileView } from './PrivateFacultyProfileView';
 
 interface PrivateViewSubmissionModalProps {
     isOpen: boolean;

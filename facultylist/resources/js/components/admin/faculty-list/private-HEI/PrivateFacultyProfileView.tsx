@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React from 'react';
 import { User, GraduationCap, Briefcase } from 'lucide-react';
+import React from 'react';
 
 interface PrivateFacultyProfileViewProps {
     formData: any;
@@ -68,13 +68,11 @@ export function PrivateFacultyProfileView({ formData, referenceData }: PrivateFa
             {/* Personal Information */}
             <div>
                 <SectionHeader icon={User} title="Personal & Institutional Information" />
-                <div className="grid grid-cols-3 md:grid-cols-3 lg:grid-cols-3 gap-x-5">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5">
                     <DataItem label="Faculty Name (LN, FN, MI)" value={formData.name} />
-                    <DataItem label="Gender" code={formData.genderCode} desc={getDescStrict(referenceData?.gender, formData.genderCode)} />
                     <DataItem label="Full-Time / Part-Time" code={formData.fullTimeCode} desc={getDescStrict(referenceData?.fullTimePartTime, formData.fullTimeCode)} />
-                    <div className="col-span-1 md:col-span-2">
-                        <DataItem label="Highest Degree Attained" code={formData.degree} desc={getDescStrict(referenceData?.highestDegree, formData.degree)} />
-                    </div>
+                    <DataItem label="Gender" code={formData.genderCode} desc={getDescStrict(referenceData?.gender, formData.genderCode)} />
+                    <DataItem label="Primary Teaching Discipline" code={formData.disciplineCode} desc={getDisciplineDesc(formData.disciplineCode)} />
                 </div>
             </div>
 
@@ -82,7 +80,7 @@ export function PrivateFacultyProfileView({ formData, referenceData }: PrivateFa
             <div>
                 <SectionHeader icon={GraduationCap} title="Educational Credentials" />
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12">
-                    <DataItem label="Primary Teaching Discipline" code={formData.disciplineCode} desc={getDisciplineDesc(formData.disciplineCode)} />
+                    <DataItem label="Highest Degree Attained" code={formData.degree} desc={getDescStrict(referenceData?.highestDegree, formData.degree)} />
                     <DataItem label="Bachelors Degree Discipline" code={formData.bachelorsCode} desc={getDisciplineDesc(formData.bachelorsCode)} />
                     <DataItem label="Masters Degree Discipline" code={formData.mastersCode} desc={getDisciplineDesc(formData.mastersCode)} />
                     <DataItem label="Doctorate Degree Discipline" code={formData.doctorateCode} desc={getDisciplineDesc(formData.doctorateCode)} />

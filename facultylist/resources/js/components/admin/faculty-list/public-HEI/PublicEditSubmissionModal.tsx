@@ -2,14 +2,14 @@
 import { router } from '@inertiajs/react';
 import { Save, X, Loader2 } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
+import { FacultyProfileCardsE2 } from '@/components/faculty/facultyE2/FacultyProfileCardsE2';
+import { Button } from "@/components/ui/button";
 import {
     Dialog,
     DialogContent,
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { FacultyProfileCardsE2 } from '@/components/faculty/facultyE2/FacultyProfileCardsE2';
 
 interface PublicEditSubmissionModalProps {
     isOpen: boolean;
@@ -24,6 +24,7 @@ export function PublicEditSubmissionModal({ isOpen, onClose, selectedFaculty, re
 
     useEffect(() => {
         if (selectedFaculty) {
+            // eslint-disable-next-line
             setFormData({
                 ...selectedFaculty,
             });

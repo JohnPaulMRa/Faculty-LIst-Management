@@ -20,7 +20,7 @@ type Props = {
     showGroup?: boolean;
     hideCode?: boolean;
     filterKeyword?: string;
-    filterCategory?: 'primary' | 'bachelors' | 'masters' | 'doctorate';
+    filterCategory?: 'primary' | 'bachelors' | 'masters' | 'doctorate' | 'education';
 };
 
 const DisciplineSelector: FC<Props> = ({
@@ -70,7 +70,9 @@ const DisciplineSelector: FC<Props> = ({
                 }
             });
         }
-        return specs;
+        
+        // Deduplicate disciplines based on code to prevent duplicate UI entries
+        return Array.from(new Map(specs.map(item => [String(item.code), item])).values());
     }, [referenceData?.disciplines, groups]);
 
     const findDisciplineGroup = (code: string | number) => {
@@ -136,6 +138,22 @@ const DisciplineSelector: FC<Props> = ({
 
     // Filter disciplines for the selected group and apply keyword/category filters
     const currentDisciplines = useMemo(() => {
+        // For 'education' category, directly use the pre-fetched educationDisciplines from backend
+        if (filterCategory === 'education') {
+            const eduList: Discipline[] = Array.isArray(referenceData?.educationDisciplines)
+                ? referenceData.educationDisciplines
+                : [];
+            
+            if (filterKeyword) {
+                const lowerFilter = filterKeyword.toLowerCase().trim();
+                return eduList.filter(d =>
+                    (d.desc && d.desc.toLowerCase().includes(lowerFilter)) ||
+                    (d.code && d.code.toLowerCase().includes(lowerFilter))
+                );
+            }
+            return eduList;
+        }
+
         let filtered = showGroup
             ? allDisciplines.filter(d => d.major_group_code === selectedGroup)
             : allDisciplines;
@@ -200,7 +218,7 @@ const DisciplineSelector: FC<Props> = ({
             );
         }
         return filtered;
-    }, [allDisciplines, showGroup, selectedGroup, filterKeyword, filterCategory]);
+    }, [allDisciplines, showGroup, selectedGroup, filterKeyword, filterCategory, referenceData?.educationDisciplines]);
 
     const hasData = showGroup ? groups.length > 0 : allDisciplines.length > 0;
     if (!hasData) {

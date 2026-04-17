@@ -13,27 +13,33 @@ interface SystemActivityProps {
 
 export default function SystemActivity({ activities }: SystemActivityProps) {
     return (
-        <Card className="col-span-1 shadow-none border border-gray-200 rounded-none bg-white h-full">
-            <CardHeader className="pb-3 border-b border-gray-100">
-                <CardTitle className="text-base font-bold text-gray-900 flex items-center gap-2">
-                    <Activity className="h-4 w-4 text-gray-500" />
-                    System Logs
-                </CardTitle>
-                <CardDescription className="text-xs text-gray-500">
-                    Recent technical activities
-                </CardDescription>
+        <Card className="rounded-2xl shadow-sm border border-gray-100 bg-white overflow-hidden h-full flex flex-col">
+            <CardHeader className="p-6 pb-4 border-b border-gray-100/50 bg-gray-50/30">
+                <div className="flex items-center gap-3">
+                    <div className="p-2.5 rounded-xl bg-slate-50 text-slate-600 shadow-sm border border-slate-100">
+                        <Activity className="h-5 w-5" />
+                    </div>
+                    <div>
+                        <CardTitle className="text-lg font-bold tracking-tight text-gray-900">
+                            System Logs
+                        </CardTitle>
+                        <CardDescription className="text-xs text-gray-500 mt-0.5">
+                            Recent technical activities and audit logs
+                        </CardDescription>
+                    </div>
+                </div>
             </CardHeader>
-            <CardContent className="p-4">
-                <div className="relative border-l border-gray-200 ml-2 space-y-6 my-2">
+            <CardContent className="p-6 overflow-auto">
+                <div className="relative border-l-2 border-slate-100 ml-3 space-y-8 my-2">
                     {activities.map((activity, index) => (
-                        <div key={index} className="ml-6 relative">
+                        <div key={index} className="ml-6 relative group cursor-default">
                             {/* Timeline Node */}
-                            <div className="absolute -left-[31px] top-1.5 h-3 w-3 rounded-none bg-white border border-gray-400"></div>
+                            <div className="absolute -left-[33px] top-1.5 h-4 w-4 rounded-full bg-white border-2 border-slate-200 group-hover:border-slate-500 transition-colors z-10 shadow-xs"></div>
 
-                            <div className="flex flex-col">
-                                <span className="text-[10px] text-gray-400 mb-0.5 font-mono">{activity.time}</span>
-                                <p className="text-xs font-bold text-gray-900">{activity.user}</p>
-                                <p className="text-xs text-gray-600 mt-0.5">
+                            <div className="flex flex-col bg-slate-50/50 p-3 rounded-xl border border-transparent group-hover:border-slate-100 group-hover:bg-white transition-all duration-300 group-hover:shadow-sm">
+                                <span className="text-[10px] font-black text-slate-400 mb-1 font-mono uppercase tracking-widest">{activity.time}</span>
+                                <p className="text-sm font-bold text-slate-900">{activity.user}</p>
+                                <p className="text-xs text-slate-600 mt-1 leading-relaxed">
                                     {activity.action}
                                 </p>
                             </div>
@@ -44,3 +50,4 @@ export default function SystemActivity({ activities }: SystemActivityProps) {
         </Card>
     );
 }
+

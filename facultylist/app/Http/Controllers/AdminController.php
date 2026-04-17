@@ -238,7 +238,16 @@ class AdminController extends Controller
             'disciplines' => DB::table('specific_discipline')
                 ->select('code', 'description as desc', 'major_code', 'group_code')
                 ->orderBy('code')
-                ->get()
+                ->get(),
+            // All disciplines under Education Science and Teacher Training (group_code = 14)
+            'educationDisciplines' => DB::table('specific_discipline')
+                ->select('code', 'description as desc')
+                ->where(function($q) {
+                    $q->where('group_code', '14')
+                      ->orWhere('code', 'like', '14%');
+                })
+                ->orderBy('description')
+                ->get(),
         ];
     }
 

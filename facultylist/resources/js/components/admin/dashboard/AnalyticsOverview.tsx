@@ -1,6 +1,8 @@
-import { BarChart3, PieChart as PieChartIcon } from 'lucide-react';
-import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell, PieChart, Pie } from 'recharts';
+import { BarChart3, Calendar as CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useState } from 'react';
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
 
 interface DistributionItem {
     name: string;
@@ -8,18 +10,8 @@ interface DistributionItem {
     children?: DistributionItem[];
 }
 
-interface StatusItem {
-    name: string;
-    value: number;
-    color: string;
-}
-
 interface AnalyticsOverviewProps {
     distributionData: DistributionItem[];
-}
-
-interface StatusOverviewProps {
-    statusData: StatusItem[];
 }
 
 // Unique, high-contrast colors per discipline group
@@ -57,17 +49,23 @@ export function AnalyticsOverview({ distributionData = [] }: AnalyticsOverviewPr
         .sort((a, b) => b.count - a.count);
 
     return (
-        <Card className="shadow-none border border-gray-200 rounded-none bg-white">
-            <CardHeader className="pb-2 border-b border-gray-100">
-                <CardTitle className="text-base font-bold text-gray-900 flex items-center gap-2">
-                    <BarChart3 className="h-4 w-4 text-gray-500" />
-                    Disciplines Groups
-                </CardTitle>
-                <CardDescription className="text-xs text-gray-500 mt-0.5">
-                    Overview of discipline groups
-                </CardDescription>
+        <Card className="rounded-2xl shadow-sm border border-gray-100 bg-white overflow-hidden">
+            <CardHeader className="p-6 pb-4 border-b border-gray-100/50 bg-gray-50/30">
+                <div className="flex items-center gap-3">
+                    <div className="p-2.5 rounded-xl bg-orange-50 text-orange-600 shadow-sm border border-orange-100">
+                        <BarChart3 className="h-5 w-5" />
+                    </div>
+                    <div>
+                        <CardTitle className="text-lg font-bold tracking-tight text-gray-900">
+                            Disciplines Groups
+                        </CardTitle>
+                        <CardDescription className="text-xs text-gray-500 mt-0.5">
+                            Overview of discipline groups distribution
+                        </CardDescription>
+                    </div>
+                </div>
             </CardHeader>
-            <CardContent className="p-4">
+            <CardContent className="p-6">
                 <div style={{ height: Math.max(400, sortedData.length * 36 + 20) }} className="w-full">
                     <ResponsiveContainer width="100%" height="100%">
                         <BarChart
@@ -107,40 +105,111 @@ export function AnalyticsOverview({ distributionData = [] }: AnalyticsOverviewPr
     );
 }
 
-export function StatusOverview({ statusData = [] }: StatusOverviewProps) {
+function SimpleCalendar() {
+    const [currentDate, setCurrentDate] = useState(new Date());
+
+    const daysInMonth = (year: number, month: number) => new Date(year, month + 1, 0).getDate();
+    const firstDayOfMonth = (year: number, month: number) => new Date(year, month, 1).getDay();
+
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+
+    const days = [];
+    const totalDays = daysInMonth(year, month);
+    const startDay = firstDayOfMonth(year, month);
+
+    const prevMonthDays = daysInMonth(year, month - 1);
+    for (let i = startDay - 1; i >= 0; i--) {
+        days.push({ day: prevMonthDays - i, currentMonth: false });
+    }
+
+    for (let i = 1; i <= totalDays; i++) {
+        days.push({ day: i, currentMonth: true });
+    }
+
+    const nextMonthDays = 42 - days.length;
+    for (let i = 1; i <= nextMonthDays; i++) {
+        days.push({ day: i, currentMonth: false });
+    }
+
+    const monthNames = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    ];
+
+    const prevMonth = () => setCurrentDate(new Date(year, month - 1, 1));
+    const nextMonth = () => setCurrentDate(new Date(year, month + 1, 1));
+
+    const isToday = (day: number) => {
+        const today = new Date();
+        return today.getDate() === day && today.getMonth() === month && today.getFullYear() === year;
+    };
+
     return (
-        <Card className="shadow-none border border-gray-200 rounded-none bg-white h-full">
-            <CardHeader className="pb-2 border-b border-gray-100">
-                <CardTitle className="text-base font-bold text-gray-900 flex items-center gap-2">
-                    <PieChartIcon className="h-4 w-4 text-gray-500" />
-                    Status Overview
-                </CardTitle>
-                <CardDescription className="text-xs text-gray-500">
-                    Current status of all schools
-                </CardDescription>
-            </CardHeader>
-            <CardContent className="p-4">
-                <div className="h-[300px] w-full flex items-center justify-center">
-                    <ResponsiveContainer width="100%" height="100%">
-                        <PieChart>
-                            <Pie
-                                data={statusData}
-                                cx="50%"
-                                cy="50%"
-                                innerRadius={60}
-                                outerRadius={80}
-                                paddingAngle={2}
-                                dataKey="value"
-                            >
-                                {statusData.map((entry, index) => (
-                                    <Cell key={`cell-${index}`} fill={entry.color} strokeWidth={0} />
-                                ))}
-                            </Pie>
-                            <Tooltip />
-                        </PieChart>
-                    </ResponsiveContainer>
+        <div className="w-full">
+            <div className="flex items-center justify-between mb-6">
+                <h3 className="font-bold text-gray-900 text-sm tracking-tight">
+                    {monthNames[month]} {year}
+                </h3>
+                <div className="flex gap-1">
+                    <button onClick={prevMonth} className="p-1.5 hover:bg-gray-100 rounded-lg transition-all text-gray-400 hover:text-gray-900 border border-transparent hover:border-gray-200 shadow-none hover:shadow-xs">
+                        <ChevronLeft className="h-4 w-4" />
+                    </button>
+                    <button onClick={nextMonth} className="p-1.5 hover:bg-gray-100 rounded-lg transition-all text-gray-400 hover:text-gray-900 border border-transparent hover:border-gray-200 shadow-none hover:shadow-xs">
+                        <ChevronRight className="h-4 w-4" />
+                    </button>
                 </div>
+            </div>
+            <div className="grid grid-cols-7 gap-1 text-center mb-3">
+                {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(d => (
+                    <div key={d} className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                        {d}
+                    </div>
+                ))}
+            </div>
+            <div className="grid grid-cols-7 gap-2">
+                {days.map((d, index) => (
+                    <div
+                        key={index}
+                        className={cn(
+                            "h-9 flex items-center justify-center text-xs rounded-xl transition-all duration-200 cursor-default",
+                            d.currentMonth ? "text-gray-900 font-semibold" : "text-gray-300",
+                            d.currentMonth && isToday(d.day)
+                                ? "bg-indigo-600 text-white font-black shadow-md shadow-indigo-200 scale-105"
+                                : d.currentMonth ? "hover:bg-indigo-50 hover:text-indigo-600" : ""
+                        )}
+                    >
+                        {d.day}
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+}
+
+export function StatusOverview() {
+    return (
+        <Card className="rounded-2xl shadow-sm border border-gray-100 bg-white overflow-hidden h-full flex flex-col">
+            <CardHeader className="p-6 pb-4 border-b border-gray-100/50 bg-gray-50/30">
+                <div className="flex items-center gap-3">
+                    <div className="p-2.5 rounded-xl bg-indigo-50 text-indigo-600 shadow-sm border border-indigo-100">
+                        <CalendarIcon className="h-5 w-5" />
+                    </div>
+                    <div>
+                        <CardTitle className="text-lg font-bold tracking-tight text-gray-900">
+                            Calendar
+                        </CardTitle>
+                        <CardDescription className="text-xs text-gray-500 mt-0.5">
+                            Monthly administrative overview
+                        </CardDescription>
+                    </div>
+                </div>
+            </CardHeader>
+            <CardContent className="p-6 flex-1">
+                <SimpleCalendar />
             </CardContent>
         </Card>
     );
 }
+
+
