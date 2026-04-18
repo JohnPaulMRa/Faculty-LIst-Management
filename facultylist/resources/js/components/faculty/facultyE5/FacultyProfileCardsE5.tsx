@@ -16,7 +16,7 @@ import {
     TEACHING_LOAD_OPTIONS,
     ANNUAL_SALARY_OPTIONS
 } from '@/types/faculty/referenceDataE5';
-import DisciplineSelector from '../DisciplineSelector';
+import DisciplineSelectorE5 from './DisciplineSelectorE5';
 
 type FacultyProfileCardsProps = {
 
@@ -120,7 +120,7 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                             <label className="text-base font-bold text-gray-600">Full-Time/Part-Time </label>
                             <div className="flex gap-2">
                                 <Input
-                                    className="w-32 shrink-0 bg-gray-50 text-center font-bold focus-visible:ring-0 disabled:opacity-100 disabled:bg-white border border-input rounded-md h-12 px-3 text-sm flex items-center"
+                                    className="w-32 shrink-0 bg-gray-50 text-center font-bold focus-visible:ring-0 border border-input rounded-md h-12 px-3 text-sm flex items-center"
                                     value={formData.fullTimeCode || ''}
                                     onChange={(e) => onErrorSafeChange('fullTimeCode', e.target.value)}
                                     placeholder="Code"
@@ -133,12 +133,13 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                                     onChange={(val) => onErrorSafeChange('fullTimeCode', val)}
                                     disabled={readOnly}
                                     placeholder="Select Status"
+                                    showClear={true}
                                     className="flex-1 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900 text-[12px]"
                                 />
                             </div>
                         </div>
                         <div className="grid gap-3">
-                            <label className="text-base font-bold text-gray-600">Gender </label>
+                            <label className="text-base font-bold text-gray-600">Gender</label>
                             <div className="flex gap-2">
                                 <Input
                                     className="w-32 shrink-0 bg-gray-50 text-center font-bold focus-visible:ring-0 disabled:opacity-100 disabled:bg-white border border-input rounded-md h-12 px-3 text-sm flex items-center"
@@ -154,13 +155,14 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                                     onChange={(val) => onErrorSafeChange('genderCode', val)}
                                     disabled={readOnly}
                                     placeholder="Select Gender"
+                                    showClear={true}
                                     className="flex-1 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900"
                                 />
                             </div>
                         </div>
                         <div className="grid gap-3">
                             <label className="text-base font-bold text-gray-600">Primary Teaching Discipline</label>
-                            <DisciplineSelector
+                            <DisciplineSelectorE5
                                 value={formData.disciplineCode}
                                 onChange={(code, desc) => {
                                     onErrorSafeChange('disciplineCode', code);
@@ -170,6 +172,7 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                                 placeholder="Select Primary Discipline"
                                 showGroup={false}
                                 filterCategory="education"
+                                showClear={true}
                             />
                         </div>
 
@@ -193,7 +196,7 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                             <label className="text-base font-bold text-gray-600">Highest Degree Attained</label>
                             <div className="flex gap-3">
                                 <Input
-                                    className="w-32 shrink-0 bg-gray-50 text-center font-bold focus-visible:ring-0 disabled:opacity-100 disabled:bg-white border border-input rounded-md h-12 px-3 text-[12px] flex items-center"
+                                    className="w-32 shrink-0 bg-gray-50 text-center font-bold focus-visible:ring-0 disabled:opacity-100 disabled:bg-white border border-input rounded-md h-12 px-3 text-[12px] flex items-center shadow-none"
                                     value={formData.degree || ''}
                                     onChange={(e) => onErrorSafeChange('degree', e.target.value)}
                                     placeholder="Code"
@@ -206,13 +209,14 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                                     onChange={(val) => onErrorSafeChange('degree', val)}
                                     disabled={readOnly}
                                     placeholder="Select Degree"
+                                    showClear={true}
                                     className="flex-1 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900"
                                 />
                             </div>
                         </div>
                         <div className="grid gap-1 col-span-2">
                             <label className="text-base font-bold text-gray-600">Specific Discipline of Bachelors Degree</label>
-                            <DisciplineSelector
+                            <DisciplineSelectorE5
                                 value={formData.bachelorsCode}
                                 onChange={(code, desc) => {
                                     onErrorSafeChange('bachelorsCode', code);
@@ -222,11 +226,12 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                                 placeholder="Select Bachelors Discipline"
                                 showGroup={false}
                                 filterCategory="bachelors"
+                                showClear={true}
                             />
                         </div>
                         <div className="grid gap-1 col-span-2">
                             <label className="text-base font-bold text-gray-600">Specific Discipline of Masters Degree</label>
-                            <DisciplineSelector
+                            <DisciplineSelectorE5
                                 value={formData.mastersCode}
                                 onChange={(code, desc) => {
                                     onErrorSafeChange('mastersCode', code);
@@ -236,11 +241,12 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                                 placeholder="Select Masters Discipline"
                                 showGroup={false}
                                 filterCategory="masters"
+                                showClear={true}
                             />
                         </div>
                         <div className="grid gap-1 col-span-2">
                             <label className="text-base font-bold text-gray-600">Specific Discipline of Doctorate Degree</label>
-                            <DisciplineSelector
+                            <DisciplineSelectorE5
                                 value={formData.doctorateCode}
                                 onChange={(code, desc) => {
                                     onErrorSafeChange('doctorateCode', code);
@@ -250,6 +256,7 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                                 placeholder="Select Doctorate Discipline"
                                 showGroup={false}
                                 filterCategory="doctorate"
+                                showClear={true}
                             />
                         </div>
 
@@ -286,6 +293,7 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                                     onChange={(val) => onErrorSafeChange('licenseCode', val)}
                                     disabled={readOnly}
                                     placeholder="Select License"
+                                    showClear={true}
                                     className="flex-1 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900"
                                 />
                             </div>
@@ -308,6 +316,7 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                                     onChange={(val) => onErrorSafeChange('rankCode', val)}
                                     disabled={readOnly}
                                     placeholder="Select Rank"
+                                    showClear={true}
                                     className="flex-1 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900"
                                 />
                             </div>
@@ -331,6 +340,7 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                                     onChange={(val) => onErrorSafeChange('loadCode', val)}
                                     disabled={readOnly}
                                     placeholder="Select Load"
+                                    showClear={true}
                                     className="flex-1 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900 rounded-md h-12"
                                 />
                             </div>
@@ -352,6 +362,7 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                                     onChange={(val) => onErrorSafeChange('salaryCode', val)}
                                     disabled={readOnly}
                                     placeholder="Select Salary"
+                                    showClear={true}
                                     className="flex-1 disabled:opacity-100 disabled:bg-white text-sm disabled:cursor-default disabled:border-gray-200 text-gray-900 rounded-md h-12"
                                 />
                             </div>
@@ -375,6 +386,7 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                                     onChange={(val) => onErrorSafeChange('tenureCode', val)}
                                     disabled={readOnly}
                                     placeholder="Select Tenure"
+                                    showClear={true}
                                     className="flex-1 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900 rounded-md h-12"
                                 />
                             </div>

@@ -149,7 +149,7 @@ export default function DisciplineTable({
                 <Button
                     key={i}
                     variant={i === currentPage ? "default" : "outline"}
-                    className={`h-8 w-8 p-0 rounded-none ${i === currentPage ? 'bg-blue-600 hover:bg-blue-700 text-white border-blue-600' : 'text-gray-600 border-gray-300'}`}
+                    className={`h-10 w-10 p-0 rounded-xl font-bold transition-all ${i === currentPage ? 'bg-blue-600 hover:bg-blue-700 text-white border-blue-600 shadow-lg shadow-blue-600/20 scale-105' : 'text-slate-600 border-slate-200 hover:border-blue-400 hover:bg-blue-50'}`}
                     onClick={() => handlePageChange(i)}
                 >
                     {i}
@@ -161,17 +161,17 @@ export default function DisciplineTable({
 
     return (
         <div className="flex flex-col gap-4">
-            <div className="flex justify-between items-center w-full">
-                <div className="flex items-center text-sm text-gray-600">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-slate-50/50 p-4 rounded-2xl border border-slate-200/60 mb-2">
+                <div className="flex items-center text-sm font-bold text-slate-600 uppercase tracking-tight">
                     <span>Show</span>
                     <Select
                         value={String(entriesPerPage)}
                         onValueChange={handleEntriesChange}
                     >
-                        <SelectTrigger className="mx-2 h-7 w-[65px] rounded-none border-gray-300">
+                        <SelectTrigger className="mx-3 h-10 w-[80px] rounded-xl border-slate-200 bg-white shadow-sm focus:ring-2 focus:ring-blue-600/10 font-bold">
                             <SelectValue placeholder="50" />
                         </SelectTrigger>
-                        <SelectContent className="rounded-none">
+                        <SelectContent className="rounded-xl border-slate-200">
                             <SelectItem value="-1">All</SelectItem>
                             <SelectItem value="25">25</SelectItem>
                             <SelectItem value="50">50</SelectItem>
@@ -182,55 +182,55 @@ export default function DisciplineTable({
                     <span>entries</span>
                 </div>
 
-                <div className="relative w-full md:w-[300px]">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <div className="relative w-full md:w-[350px]">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
                     <Input
                         placeholder="Search by code, group, major, or specific..."
-                        className="pl-9 bg-gray-50 border-gray-300 rounded-none focus-visible:ring-1 focus-visible:ring-gray-400 h-9"
+                        className="pl-11 bg-white border-slate-200 hover:border-blue-400 focus-visible:ring-2 focus-visible:ring-blue-600/10 focus-visible:border-blue-500 rounded-xl h-11 text-sm font-medium transition-all shadow-sm"
                         value={searchQuery}
                         onChange={(e) => onSearchQueryChange(e.target.value)}
                     />
                 </div>
             </div>
 
-            <div className="border border-gray-200 rounded-none overflow-hidden bg-white shadow-sm">
+            <div className="bg-white shadow-xl shadow-blue-900/5 overflow-hidden rounded-2xl border border-blue-100/50">
                 <Table>
                     <TableHeader>
-                        <TableRow className="bg-blue-600 hover:bg-blue-600 border-b-0">
-                            <TableHead className="font-bold text-white uppercase text-xs tracking-wider w-20 text-center h-10">#</TableHead>
-                            <TableHead className="font-bold text-white uppercase text-xs tracking-wider h-10 w-[20%]">
+                        <TableRow className="bg-linear-to-r from-[#003468] to-[#1a4f8c] hover:bg-[#003468] border-b-0">
+                            <TableHead className="font-bold text-white uppercase text-[11px] tracking-widest w-20 text-center h-12 border-r border-white/10">#</TableHead>
+                            <TableHead className="font-bold text-white uppercase text-[11px] tracking-widest h-12 w-[20%]">
                                 <div
-                                    className={`flex items-center gap-1 cursor-pointer transition-colors ${sortConfig?.key === 'code' ? 'text-blue-100' : 'hover:text-gray-200'}`}
+                                    className={`flex items-center gap-2 cursor-pointer transition-colors ${sortConfig?.key === 'code' ? 'text-blue-200' : 'hover:text-blue-100'}`}
                                     onClick={() => onSort('code')}
                                 >
                                     Code <ArrowUpDown className={`h-3 w-3 ${sortConfig?.key === 'code' ? 'opacity-100' : 'opacity-70'}`} />
                                 </div>
                             </TableHead>
-                            <TableHead className="font-bold text-white uppercase text-xs tracking-wider h-10 w-[25%]">
+                            <TableHead className="font-bold text-white uppercase text-[11px] tracking-widest h-12 w-[25%]">
                                 <div
-                                    className={`flex items-center gap-1 cursor-pointer transition-colors ${sortConfig?.key === 'disciplineGroup' ? 'text-blue-100' : 'hover:text-gray-200'}`}
+                                    className={`flex items-center gap-2 cursor-pointer transition-colors ${sortConfig?.key === 'disciplineGroup' ? 'text-blue-200' : 'hover:text-blue-100'}`}
                                     onClick={() => onSort('disciplineGroup')}
                                 >
                                     Discipline Group <ArrowUpDown className={`h-3 w-3 ${sortConfig?.key === 'disciplineGroup' ? 'opacity-100' : 'opacity-70'}`} />
                                 </div>
                             </TableHead>
-                            <TableHead className="font-bold text-white uppercase text-xs tracking-wider h-10 w-[25%]">
+                            <TableHead className="font-bold text-white uppercase text-[11px] tracking-widest h-12 w-[25%]">
                                 <div
-                                    className={`flex items-center gap-1 cursor-pointer transition-colors ${sortConfig?.key === 'specificMajor' ? 'text-blue-100' : 'hover:text-gray-200'}`}
+                                    className={`flex items-center gap-2 cursor-pointer transition-colors ${sortConfig?.key === 'specificMajor' ? 'text-blue-200' : 'hover:text-blue-100'}`}
                                     onClick={() => onSort('specificMajor')}
                                 >
                                     Major Discipline <ArrowUpDown className={`h-3 w-3 ${sortConfig?.key === 'specificMajor' ? 'opacity-100' : 'opacity-70'}`} />
                                 </div>
                             </TableHead>
-                            <TableHead className="font-bold text-white uppercase text-xs tracking-wider h-10 w-[20%]">
+                            <TableHead className="font-bold text-white uppercase text-[11px] tracking-widest h-12 w-[20%]">
                                 <div
-                                    className={`flex items-center gap-1 cursor-pointer transition-colors ${sortConfig?.key === 'name' ? 'text-blue-100' : 'hover:text-gray-200'}`}
+                                    className={`flex items-center gap-2 cursor-pointer transition-colors ${sortConfig?.key === 'name' ? 'text-blue-200' : 'hover:text-blue-100'}`}
                                     onClick={() => onSort('name')}
                                 >
                                     Specific Discipline <ArrowUpDown className={`h-3 w-3 ${sortConfig?.key === 'name' ? 'opacity-100' : 'opacity-70'}`} />
                                 </div>
                             </TableHead>
-                            <TableHead className="font-bold text-white uppercase text-xs tracking-wider text-center h-10">Actions</TableHead>
+                            <TableHead className="font-bold text-white uppercase text-[11px] tracking-widest text-center h-12">Actions</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -256,23 +256,25 @@ export default function DisciplineTable({
                 </Table>
             </div>
 
-            <div className="flex justify-between items-center text-sm text-gray-600 mt-2 mb-2">
-                <div>
-                    Showing {startEntry} to {endEntry} of {isServerSide ? serverPagination.total : programs.length} entries
+            <div className="flex justify-between items-center text-sm text-slate-600 px-6 py-4 bg-white border-t border-slate-100 rounded-b-2xl">
+                <div className="font-medium">
+                    Showing <span className="text-blue-600 font-bold">{startEntry}</span> to <span className="text-blue-600 font-bold">{endEntry}</span> of <span className="text-slate-900 font-bold">{isServerSide ? serverPagination.total : programs.length}</span> entries
                 </div>
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-2">
                     <Button
                         variant="outline"
-                        className={`h-8 px-3 rounded-none border-gray-300 ${currentPage === 1 ? 'text-gray-300' : 'text-gray-600 hover:bg-gray-50'}`}
+                        className={`h-10 px-4 rounded-xl border-slate-200 font-bold transition-all ${currentPage === 1 ? 'opacity-30' : 'text-slate-600 hover:bg-slate-50'}`}
                         onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
                         disabled={currentPage === 1}
                     >
                         Previous
                     </Button>
-                    {renderPageNumbers()}
+                    <div className="flex items-center gap-1.5">
+                        {renderPageNumbers()}
+                    </div>
                     <Button
                         variant="outline"
-                        className={`h-8 px-3 rounded-none border-gray-300 ${currentPage === totalPages || totalPages === 0 ? 'text-gray-300' : 'text-gray-600 hover:bg-gray-50'}`}
+                        className={`h-10 px-4 rounded-xl border-slate-200 font-bold transition-all ${currentPage === totalPages || totalPages === 0 ? 'opacity-30' : 'text-slate-600 hover:bg-slate-50'}`}
                         onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
                         disabled={currentPage === totalPages || totalPages === 0}
                     >

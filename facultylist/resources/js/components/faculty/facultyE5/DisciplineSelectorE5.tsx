@@ -7,6 +7,7 @@ type Discipline = {
     code: string;
     desc: string;
     major_group_code?: string;
+    is_group?: boolean;
 };
 
 type Props = {
@@ -20,10 +21,11 @@ type Props = {
     showGroup?: boolean;
     hideCode?: boolean;
     filterKeyword?: string;
-    filterCategory?: 'primary' | 'bachelors' | 'masters' | 'doctorate' | 'education';
+    filterCategory?: 'bachelors' | 'masters' | 'doctorate' | 'education';
+    showClear?: boolean;
 };
 
-const DisciplineSelector: FC<Props> = ({
+const DisciplineSelectorE5: FC<Props> = ({
     value,
     onChange,
     placeholder = "Select Discipline",
@@ -33,7 +35,8 @@ const DisciplineSelector: FC<Props> = ({
     showGroup = true,
     hideCode = false,
     filterKeyword,
-    filterCategory
+    filterCategory,
+    showClear = true
 }) => {
     const [selectedGroup, setSelectedGroup] = useState<string>("");
 
@@ -65,14 +68,16 @@ const DisciplineSelector: FC<Props> = ({
                     specs.push({
                         code: String(g.code),
                         desc: g.desc,
-                        major_group_code: String(g.code)
+                        major_group_code: String(g.code),
+                        is_group: true
                     });
                 }
             });
         }
-        
-        // Deduplicate disciplines based on code to prevent duplicate UI entries
-        return Array.from(new Map(specs.map(item => [String(item.code), item])).values());
+
+        // Deduplicate disciplines based on code + description to prevent identical UI entries
+        // while allowing multiple records with the same code but different descriptions
+        return Array.from(new Map(specs.map(item => [String(item.code) + "_" + String(item.desc), item])).values());
     }, [referenceData?.disciplines, groups]);
 
     const findDisciplineGroup = (code: string | number) => {
@@ -100,13 +105,12 @@ const DisciplineSelector: FC<Props> = ({
     useEffect(() => {
         // Debug logging to verify data reception
         if (!referenceData) {
-            console.warn("DisciplineSelector: No referenceData provided");
+            console.warn("DisciplineSelectorE5: No referenceData provided");
         }
 
         if (value && referenceData) {
             const group = findDisciplineGroup(value);
             if (group) {
-                 
                 setSelectedGroup(group);
             }
         }
@@ -143,7 +147,7 @@ const DisciplineSelector: FC<Props> = ({
             const eduList: Discipline[] = Array.isArray(referenceData?.educationDisciplines)
                 ? referenceData.educationDisciplines
                 : [];
-            
+
             if (filterKeyword) {
                 const lowerFilter = filterKeyword.toLowerCase().trim();
                 return eduList.filter(d =>
@@ -164,8 +168,9 @@ const DisciplineSelector: FC<Props> = ({
             const desc = (d: Discipline) => d.desc || '';
 
             if (filterCategory === 'bachelors') {
-                filtered = filtered.filter(d => 
-                    /\bbachelor(s)?\b/i.test(desc(d)) || 
+                filtered = filtered.filter(d =>
+                (
+                    /\bbachelor(s)?\b/i.test(desc(d)) ||
                     /\bab\b/i.test(desc(d)) ||
                     /\bbs\b/i.test(desc(d)) ||
                     /\bassociate\b/i.test(desc(d)) ||
@@ -173,54 +178,57 @@ const DisciplineSelector: FC<Props> = ({
                     /\bdiploma\b/i.test(desc(d)) ||
                     /\bpre-/i.test(desc(d)) ||
                     code(d).startsWith('507')
+                )
                 );
             } else if (filterCategory === 'masters') {
-                filtered = filtered.filter(d => 
-                    /\bmaster(s)?\b/i.test(desc(d)) || 
+                filtered = filtered.filter(d =>
+                (
+                    /\bmaster(s)?\b/i.test(desc(d)) ||
                     /\bma\b/i.test(desc(d)) ||
                     /\bms\b/i.test(desc(d)) ||
                     /graduate certificate/i.test(desc(d)) ||
                     /\bprofessional\b/i.test(desc(d)) ||
                     code(d).startsWith('80')
+                )
                 );
             } else if (filterCategory === 'doctorate') {
-                filtered = filtered.filter(d => 
-                    /\bdoctor(?:ate)?\b/i.test(desc(d)) || 
-                    /\bphd\b/i.test(desc(d)) ||
+                filtered = filtered.filter(d =>
+                (
+                    /\bdoctor(?:ate)?\b/i.test(desc(d)) ||
+                    /\bph\.?d\.?\b/i.test(desc(d)) ||
+                    /\bed\.?d\.?\b/i.test(desc(d)) ||
                     /post(?:\s|-)graduate/i.test(desc(d)) ||
-                    code(d).startsWith('90')
+                    code(d).startsWith('90') ||
+                    desc(d).toLowerCase().includes('doctor') ||
+                    desc(d).toLowerCase().includes('phd') ||
+                    desc(d).toLowerCase().includes('ed.d')
+                )
                 );
-            } else if (filterCategory === 'primary') {
-                // Primary Teaching: Exclude rows that are purely degree-focused based on explicit degree keywords
-                filtered = filtered.filter(d => 
-                    !/\bbachelor(s)?\b/i.test(desc(d)) && 
-                    !/\bmaster(s)?\b/i.test(desc(d)) && 
-                    !/\bdoctor(?:ate)?\b/i.test(desc(d)) &&
-                    !/\bphd\b/i.test(desc(d)) &&
-                    !/\bab\b/i.test(desc(d)) &&
-                    !/\bbs\b/i.test(desc(d)) &&
-                    !/\bma\b/i.test(desc(d)) &&
-                    !/\bms\b/i.test(desc(d)) &&
-                    !/\bassociate\b/i.test(desc(d)) &&
-                    !/post(?:\s|-)graduate/i.test(desc(d)) &&
-                    !code(d).startsWith('507') &&
-                    !code(d).startsWith('80') &&
-                    !code(d).startsWith('90')
-                );
+            }
+        }
+
+        // --- DATA ACCURACY ENSURANCE ---
+        // ALWAYS include the currently selected value in the filtered list if it exists in the database
+        // This prevents "missing data" illusions when the database has records that don't match the active filter
+        if (value && !filtered.some(d => String(d.code) === String(value))) {
+            const originalRecord = allDisciplines.find(d => String(d.code) === String(value));
+            if (originalRecord) {
+                // Prepend the current value to ensure it's visible and selectable
+                filtered = [originalRecord, ...filtered];
             }
         }
 
         if (filterKeyword) {
             const lowerFilter = filterKeyword.toLowerCase().trim();
-            filtered = filtered.filter(d => 
+            filtered = filtered.filter(d =>
                 (d.desc && d.desc.toLowerCase().includes(lowerFilter)) ||
                 (d.code && d.code.toLowerCase().includes(lowerFilter))
             );
         }
         return filtered;
-    }, [allDisciplines, showGroup, selectedGroup, filterKeyword, filterCategory, referenceData?.educationDisciplines]);
+    }, [allDisciplines, showGroup, selectedGroup, filterKeyword, filterCategory, referenceData?.educationDisciplines, value]);
 
-    const hasData = showGroup ? groups.length > 0 : allDisciplines.length > 0;
+    const hasData = showGroup ? groups.length > 0 : (filterCategory === 'education' ? (referenceData?.educationDisciplines?.length > 0) : allDisciplines.length > 0);
     if (!hasData) {
         return (
             <div className={`text-red-500 text-[10px] font-medium py-2 ${className}`}>
@@ -246,6 +254,7 @@ const DisciplineSelector: FC<Props> = ({
                     onChange={handleGroupChange}
                     disabled={disabled}
                     placeholder="Select Major Group"
+                    showClear={showClear}
                     className="w-full shrink-0 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900 rounded-md h-12 whitespace-normal text-left text-lg"
                 />
             )}
@@ -255,7 +264,7 @@ const DisciplineSelector: FC<Props> = ({
                 {/* Code Input (Read-only) */}
                 {!hideCode && (
                     <Input
-                        value={currentDisciplines.some(d => String(d.code) === String(value)) ? (value || '') : ''}
+                        value={value || ''}
                         readOnly
                         className="w-32 shrink-0 bg-gray-50 text-center font-semibold  disabled:opacity-100 rounded-md border border-input h-12 text-sm flex items-center justify-center"
                         placeholder="Code"
@@ -269,6 +278,7 @@ const DisciplineSelector: FC<Props> = ({
                     onChange={handleDisciplineChange}
                     disabled={disabled || (showGroup && !selectedGroup)}
                     placeholder={placeholder}
+                    showClear={showClear}
                     className="flex-1 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900 rounded-md h-12 whitespace-normal text-left text-sm"
                 />
             </div>
@@ -276,5 +286,4 @@ const DisciplineSelector: FC<Props> = ({
     );
 };
 
-export default DisciplineSelector;
-
+export default DisciplineSelectorE5;

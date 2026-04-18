@@ -1,6 +1,6 @@
 import * as PopoverPrimitive from "@radix-ui/react-popover"
 import { Command as CommandPrimitive } from "cmdk"
-import { Check, ChevronsUpDown } from "lucide-react"
+import { Check, ChevronsUpDown, X } from "lucide-react"
 import * as React from "react"
 
 import {
@@ -28,6 +28,7 @@ interface ComboboxProps {
     containerClassName?: string
     allowFreeInput?: boolean
     showCodePrefix?: boolean
+    showClear?: boolean
 }
 
 export function Combobox({
@@ -42,6 +43,7 @@ export function Combobox({
     containerClassName,
     allowFreeInput = false,
     showCodePrefix = false,
+    showClear = false,
 }: ComboboxProps) {
     const [open, setOpen] = React.useState(false)
     const [inputValue, setInputValue] = React.useState("")
@@ -56,12 +58,12 @@ export function Combobox({
     // Sync input value with selected option or clear if value is explicitly cleared
     React.useEffect(() => {
         if (selectedOption) {
-             
+
             setInputValue(selectedOption.label)
         } else {
             // If there's no selected option and we're not allowing free input, or if the value is explicitly cleared
             if (!allowFreeInput || !value) {
-                 
+
                 setInputValue("")
             }
         }
@@ -73,7 +75,7 @@ export function Combobox({
                 <PopoverPrimitive.Anchor asChild>
                     <div
                         className={cn(
-                            "flex w-full items-center rounded-md border border-input bg-white text-[12px] shadow-xs transition-colors focus-within:ring-1 focus-within:ring-ring disabled:cursor-not-allowed disabled:opacity-50 overflow-hidden h-12 px-3",
+                            "flex w-full items-center rounded-md border text-[12px] transition-colors focus-within:ring-1 focus-within:ring-ring disabled:cursor-not-allowed disabled:opacity-50 overflow-hidden h-12 px-3",
                             disabled && "opacity-50 pointer-events-none",
                             className
                         )}
@@ -118,13 +120,25 @@ export function Combobox({
                                 disabled={disabled}
                                 className="flex-1 min-w-0 bg-transparent outline-none placeholder:text-muted-foreground text-[15px] "
                             />
-                            <ChevronsUpDown
-                                className="ml-2 h-4 w-4 shrink-0 opacity-40 cursor-pointer hover:opacity-70 transition-opacity"
-                                onMouseDown={(e) => {
-                                    e.preventDefault()
-                                    if (!disabled) setOpen((prev) => !prev)
-                                }}
-                            />
+                            <div className="flex items-center gap-1 shrink-0">
+                                {showClear && value && (
+                                    <X
+                                        className="h-4 w-4 opacity-40 cursor-pointer hover:opacity-70 transition-opacity"
+                                        onMouseDown={(e) => {
+                                            e.preventDefault()
+                                            onChange("")
+                                            setInputValue("")
+                                        }}
+                                    />
+                                )}
+                                <ChevronsUpDown
+                                    className="h-4 w-4 opacity-40 cursor-pointer hover:opacity-70 transition-opacity"
+                                    onMouseDown={(e) => {
+                                        e.preventDefault()
+                                        if (!disabled) setOpen((prev) => !prev)
+                                    }}
+                                />
+                            </div>
                         </div>
                     </div>
                 </PopoverPrimitive.Anchor>

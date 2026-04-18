@@ -229,7 +229,7 @@ const SingleYearPrivateTable = ({ faculty, schoolYear, referenceData, onViewSubm
                 <Button
                     key={i}
                     variant={i === currentPage ? "default" : "outline"}
-                    className={`h-8 w-8 p-0 rounded-none ${i === currentPage ? "bg-blue-600 hover:bg-blue-700 text-white border-blue-600" : "text-gray-600 border-gray-300 shadow-none font-bold"}`}
+                    className={`h-10 w-10 p-0 rounded-xl font-bold transition-all ${i === currentPage ? "bg-blue-600 hover:bg-blue-700 text-white border-blue-600 shadow-lg shadow-blue-600/20 scale-105" : "text-slate-600 border-slate-200 hover:border-blue-400 hover:bg-blue-50"}`}
                     onClick={() => setCurrentPage(i)}
                 >
                     {i}
@@ -240,9 +240,9 @@ const SingleYearPrivateTable = ({ faculty, schoolYear, referenceData, onViewSubm
     };
 
     return (
-        <div className="flex flex-col gap-4 mt-2 mb-8">
-            <div className="flex justify-between items-center text-sm text-gray-600 bg-gray-50 border border-gray-300 px-4 py-3">
-                <div className="flex items-center text-[11px] font-bold text-gray-600 uppercase tracking-wider">
+        <div className="flex flex-col bg-white shadow-xl shadow-blue-900/5 overflow-hidden rounded-2xl border border-blue-100/50 mt-4 animate-in fade-in duration-500">
+            <div className="bg-linear-to-r from-[#003468] to-[#1a4f8c] flex items-center justify-between px-6 py-4 text-white shadow-sm">
+                <div className="flex items-center text-xs font-bold uppercase tracking-wider">
                     <span>Show</span>
                     <Select
                         value={String(entriesPerPage)}
@@ -251,50 +251,50 @@ const SingleYearPrivateTable = ({ faculty, schoolYear, referenceData, onViewSubm
                             setCurrentPage(1);
                         }}
                     >
-                        <SelectTrigger className="mx-2 h-7 w-[65px] rounded-none border-gray-300 bg-white shadow-none focus:ring-0 text-[11px] font-bold">
+                        <SelectTrigger className="mx-3 h-10 w-[80px] rounded-xl border-white/20 bg-white/10 shadow-none focus:ring-2 focus:ring-white/20 text-white font-bold">
                             <SelectValue placeholder="25" />
                         </SelectTrigger>
-                        <SelectContent className="rounded-none">
-                            <SelectItem value="-1" className="text-[11px] font-bold">All</SelectItem>
-                            <SelectItem value="25" className="text-[11px] font-bold">25</SelectItem>
-                            <SelectItem value="50" className="text-[11px] font-bold">50</SelectItem>
-                            <SelectItem value="100" className="text-[11px] font-bold">100</SelectItem>
+                        <SelectContent className="rounded-xl border-slate-200">
+                            <SelectItem value="-1">All</SelectItem>
+                            <SelectItem value="25">25</SelectItem>
+                            <SelectItem value="50">50</SelectItem>
+                            <SelectItem value="100">100</SelectItem>
                         </SelectContent>
                     </Select>
                     <span>entries</span>
                 </div>
-                <div className="text-black text-sm font-bold uppercase tracking-wide">
+                <div className="text-sm font-bold uppercase tracking-widest">
                     LIST OF PRIVATE FACULTY ({schoolYear})
                 </div>
             </div>
 
-            <div className="overflow-x-auto border border-gray-300 bg-white">
-                <table className="w-full border-collapse text-sm whitespace-nowrap font-sans">
+            <div className="overflow-x-auto">
+                <table className="w-full border-collapse text-sm whitespace-nowrap">
                     <thead>
-                        <tr className="bg-blue-500 text-white border-b border-gray-300">
-                            <th className="px-3 py-2 font-bold text-center w-[20px] border-r border-blue-400">#</th>
-                            <th className="px-3 py-2 font-bold text-left">
-                                <div className="flex items-center gap-1 cursor-pointer hover:text-blue-100 transition-colors" onClick={() => onSort("schoolYear")}>
+                        <tr className="bg-slate-50 text-slate-600 border-b border-slate-200 uppercase text-[11px] font-bold tracking-widest">
+                            <th className="px-3 py-3 font-bold text-center w-[20px] border-r border-slate-200">#</th>
+                            <th className="px-3 py-3 font-bold text-left">
+                                <div className="flex items-center gap-1 cursor-pointer hover:text-blue-600 transition-colors" onClick={() => onSort("schoolYear")}>
                                     ACADEMIC YEAR <ArrowUpDown className="h-3 w-3" />
                                 </div>
                             </th>
-                            <th className="px-3 py-2 font-bold text-left">
-                                <div className="flex items-center gap-1 cursor-pointer hover:text-blue-100 transition-colors" onClick={() => onSort("name")}>
+                            <th className="px-3 py-3 font-bold text-left">
+                                <div className="flex items-center gap-1 cursor-pointer hover:text-blue-600 transition-colors" onClick={() => onSort("name")}>
                                     FACULTY NAME <ArrowUpDown className="h-3 w-3" />
                                 </div>
                             </th>
-                            <th className="px-3 py-2 font-bold text-center">GENDER</th>
-                            <th className="px-3 py-2 font-bold text-center">GENERIC FACULTY RANK</th>
-                            <th className="px-3 py-2 font-bold text-center">TENURE</th>
-                            <th className="px-3 py-2 font-bold text-center text-blue-100 italic">SUBMITTED FILE</th>
-                            <th className="px-3 py-2 font-bold text-center w-[170px]">Action</th>
+                            <th className="px-3 py-3 font-bold text-center">GENDER</th>
+                            <th className="px-3 py-3 font-bold text-center">GENERIC FACULTY RANK</th>
+                            <th className="px-3 py-3 font-bold text-center">TENURE</th>
+                            <th className="px-3 py-3 font-bold text-center text-blue-100 italic">SUBMITTED FILE</th>
+                            <th className="px-3 py-3 font-bold text-center w-[170px]">Action</th>
                         </tr>
                     </thead>
                     <tbody className="bg-white text-sm">
                         {paginatedFaculty.length > 0 ? (
                             paginatedFaculty.map((member, index) => {
                                 return (
-                                    <tr key={member.id} className="border-b border-gray-300 hover:bg-gray-50 transition-colors">
+                                    <tr key={member.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
                                         <td className="px-3 py-2 text-center text-gray-500 border-r border-gray-100">{startEntry + index}</td>
                                         <td className="px-3 py-2 text-left font-bold text-blue-700">{member.schoolYear}</td>
                                         <td className="px-3 py-2 text-left font-semibold text-gray-900">{member.name}</td>
@@ -334,23 +334,25 @@ const SingleYearPrivateTable = ({ faculty, schoolYear, referenceData, onViewSubm
                 </table>
             </div>
 
-            <div className="flex justify-between items-center text-sm text-gray-600 mt-1 mb-2 p-1">
-                <div>
-                    Showing {startEntry} to {endEntry} of {sortedFaculty.length} entries
+            <div className="flex justify-between items-center text-sm text-slate-600 px-6 py-4 bg-white border-t border-slate-100">
+                <div className="font-medium">
+                    Showing <span className="text-blue-600 font-bold">{startEntry}</span> to <span className="text-blue-600 font-bold">{endEntry}</span> of <span className="text-slate-900 font-bold">{sortedFaculty.length}</span> entries
                 </div>
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-2">
                     <Button
                         variant="outline"
-                        className={`h-8 px-3 rounded-none border-gray-300 shadow-none ${currentPage === 1 ? "text-gray-300" : "text-gray-600 hover:bg-gray-50"}`}
+                        className={`h-10 px-4 rounded-xl border-slate-200 font-bold transition-all ${currentPage === 1 ? "opacity-30" : "text-slate-600 hover:bg-slate-50"}`}
                         onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                         disabled={currentPage === 1}
                     >
                         Previous
                     </Button>
-                    {renderPageNumbers()}
+                    <div className="flex items-center gap-1.5">
+                        {renderPageNumbers()}
+                    </div>
                     <Button
                         variant="outline"
-                        className={`h-8 px-3 rounded-none border-gray-300 shadow-none ${currentPage === totalPages || totalPages === 0 ? "text-gray-300" : "text-gray-600 hover:bg-gray-50"}`}
+                        className={`h-10 px-4 rounded-xl border-slate-200 font-bold transition-all ${currentPage === totalPages || totalPages === 0 ? "opacity-30" : "text-slate-600 hover:bg-slate-50"}`}
                         onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                         disabled={currentPage === totalPages || totalPages === 0}
                     >

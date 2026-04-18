@@ -136,7 +136,7 @@ const FacultyFileDetailsModal: FC<Props> = ({ isOpen, onOpenChange, faculty, onS
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
             <DialogContent 
-                className="sm:max-w-[95vw] w-[95vw] max-h-[95vh] flex flex-col p-0 gap-0 border-none outline-none bg-white [&>button]:hidden rounded-none overflow-hidden"
+                className="sm:max-w-[95vw] w-[95vw] max-h-[95vh] flex flex-col p-0 gap-0 border-none outline-none bg-white [&>button]:hidden rounded-3xl overflow-hidden shadow-2xl"
                 onInteractOutside={(e) => e.preventDefault()}
             >
                 <div className="flex justify-end p-0 absolute top-0 right-0 z-50">
@@ -168,7 +168,7 @@ const FacultyFileDetailsModal: FC<Props> = ({ isOpen, onOpenChange, faculty, onS
                                 </div>
                             )}
                         </div>
-                        <div className="p-4 border-t bg-gray-50 flex justify-end gap-3 rounded-none">
+                        <div className="p-4 border-t bg-gray-50 flex justify-end gap-3 rounded-b-3xl">
                             <button
                                 onClick={() => onOpenChange(false)}
                                 className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100 transition-colors"

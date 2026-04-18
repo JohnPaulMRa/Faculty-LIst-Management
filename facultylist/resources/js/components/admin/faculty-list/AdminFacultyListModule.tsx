@@ -137,7 +137,7 @@ export default function AdminFacultyListModule({
                 <Button
                     key={i}
                     variant={i === currentPage ? "default" : "outline"}
-                    className={`h-8 w-8 p-0 rounded-none ${i === currentPage ? "bg-blue-600 hover:bg-blue-700 text-white border-blue-600" : "text-gray-600 border-gray-300 shadow-none font-bold"}`}
+                    className={`h-10 w-10 p-0 rounded-xl font-bold transition-all ${i === currentPage ? "bg-blue-600 hover:bg-blue-700 text-white border-blue-600 shadow-lg shadow-blue-600/20 scale-105" : "text-slate-600 border-slate-200 hover:border-blue-400 hover:bg-blue-50"}`}
                     onClick={() => setCurrentPage(i)}
                 >
                     {i}
@@ -241,54 +241,53 @@ export default function AdminFacultyListModule({
                         )}
                     </div>
                 ) : (
-                    <div className="flex flex-col animate-in fade-in duration-300 bg-white shadow-none overflow-hidden rounded-none border border-gray-300 mt-2">
-                        {/* SPREADSHEET HEADER */}
-                        <div className="bg-gray-50 flex items-center justify-between px-4 py-3 border-b border-gray-300">
-                            <div className="flex items-center text-[11px] font-bold text-gray-600 uppercase tracking-wider">
+                    <div className="flex flex-col bg-white shadow-xl shadow-blue-900/5 overflow-hidden rounded-2xl border border-blue-100/50 mt-4 animate-in fade-in duration-500">
+                        <div className="bg-linear-to-r from-[#003468] to-[#1a4f8c] flex items-center justify-between px-6 py-4 text-white shadow-sm">
+                            <div className="flex items-center text-xs font-bold uppercase tracking-wider">
                                 <span>Show</span>
                                 <Select
                                     value={String(entriesPerPage)}
                                     onValueChange={(val) => setEntriesPerPage(Number(val))}
                                 >
-                                    <SelectTrigger className="mx-2 h-7 w-[65px] rounded-none border-gray-300 bg-white shadow-none focus:ring-0 text-[11px] font-bold">
+                                    <SelectTrigger className="mx-3 h-10 w-[80px] rounded-xl border-white/20 bg-white/10 shadow-none focus:ring-2 focus:ring-white/20 text-white font-bold">
                                         <SelectValue placeholder="25" />
                                     </SelectTrigger>
-                                    <SelectContent className="rounded-none">
-                                        <SelectItem value="-1" className="text-[11px] font-bold">All</SelectItem>
-                                        <SelectItem value="25" className="text-[11px] font-bold">25</SelectItem>
-                                        <SelectItem value="50" className="text-[11px] font-bold">50</SelectItem>
-                                        <SelectItem value="100" className="text-[11px] font-bold">100</SelectItem>
+                                    <SelectContent className="rounded-xl border-slate-200">
+                                        <SelectItem value="-1">All</SelectItem>
+                                        <SelectItem value="25">25</SelectItem>
+                                        <SelectItem value="50">50</SelectItem>
+                                        <SelectItem value="100">100</SelectItem>
                                     </SelectContent>
                                 </Select>
                                 <span>entries</span>
                             </div>
-                            <div className="text-black text-sm font-bold uppercase tracking-wide">
+                            <div className="text-sm font-bold uppercase tracking-widest text-center">
                                 LIST OF {filters.type ? `${filters.type.toUpperCase()} (HEIs)` : 'HIGHER EDUCATION INSTITUTIONS (HEIs)'}
                             </div>
                         </div>
 
                         <div className="overflow-x-auto">
-                            <table className="w-full border-collapse text-sm whitespace-nowrap font-sans">
+                            <table className="w-full border-collapse text-sm whitespace-nowrap">
                                 <thead>
-                                    <tr className="bg-blue-500 text-white border-b border-gray-300">
-                                        <th className="px-3 py-2 font-bold w-[40px] text-left border-r border-blue-400">#</th>
-                                        <th className="px-3 py-2 font-bold w-[25%] text-left">
-                                            <div className="flex items-center gap-1 cursor-pointer hover:text-blue-100 transition-colors" onClick={() => onSort("hei_code")}>
+                                    <tr className="bg-slate-50 text-slate-600 border-b border-slate-200 uppercase text-[11px] font-bold tracking-widest">
+                                        <th className="px-3 py-3 font-bold w-[40px] text-center border-r border-slate-200">#</th>
+                                        <th className="px-3 py-3 font-bold w-[25%] text-left">
+                                            <div className="flex items-center gap-1 cursor-pointer hover:text-blue-600 transition-colors" onClick={() => onSort("hei_code")}>
                                                 HEI Code <ArrowUpDown className="h-3 w-3" />
                                             </div>
                                         </th>
-                                        <th className="px-3 py-2 font-bold w-[30%] text-left">
-                                            <div className="flex items-center gap-1 cursor-pointer hover:text-blue-100 transition-colors" onClick={() => onSort("name")}>
+                                        <th className="px-3 py-3 font-bold w-[30%] text-left">
+                                            <div className="flex items-center gap-1 cursor-pointer hover:text-blue-600 transition-colors" onClick={() => onSort("name")}>
                                                 List of HEIs <ArrowUpDown className="h-3 w-3" />
                                             </div>
                                         </th>
-                                        <th className="px-3 py-2 font-bold w-[20%] text-left">
-                                            <div className="flex items-center gap-1 cursor-pointer hover:text-blue-100 transition-colors" onClick={() => onSort("academic_year")}>
+                                        <th className="px-3 py-3 font-bold w-[20%] text-left">
+                                            <div className="flex items-center gap-1 cursor-pointer hover:text-blue-600 transition-colors" onClick={() => onSort("academic_year")}>
                                                 Academic Year <ArrowUpDown className="h-3 w-3" />
                                             </div>
                                         </th>
-                                        <th className="px-3 py-2 font-bold w-[20%] text-center">
-                                            <div className="flex items-center justify-center gap-1 cursor-pointer hover:text-blue-100 transition-colors" onClick={() => onSort("faculty")}>
+                                        <th className="px-3 py-3 font-bold w-[20%] text-center">
+                                            <div className="flex items-center justify-center gap-1 cursor-pointer hover:text-blue-600 transition-colors" onClick={() => onSort("faculty")}>
                                                 Total Faculty <ArrowUpDown className="h-3 w-3" />
                                             </div>
                                         </th>
@@ -299,7 +298,7 @@ export default function AdminFacultyListModule({
                                         paginatedSchools.map((school, index) => (
                                             <tr
                                                 key={school.id}
-                                                className="border-b border-gray-300 hover:bg-gray-50 transition-colors cursor-pointer"
+                                                className="border-b border-slate-100 hover:bg-slate-50 transition-colors cursor-pointer"
                                                 onClick={() => handleSchoolClick(school.id)}
                                             >
                                                 <td className="px-3 py-2 text-left text-gray-500 ">
@@ -339,23 +338,25 @@ export default function AdminFacultyListModule({
                             </table>
                         </div>
 
-                        <div className="flex justify-between items-center text-sm text-gray-600 mt-1 mb-2 p-1">
-                            <div>
-                                Showing {startEntry} to {endEntry} of {sortedSchools.length} entries
+                        <div className="flex justify-between items-center text-sm text-slate-600 px-6 py-4 bg-white border-t border-slate-100">
+                            <div className="font-medium">
+                                Showing <span className="text-blue-600 font-bold">{startEntry}</span> to <span className="text-blue-600 font-bold">{endEntry}</span> of <span className="text-slate-900 font-bold">{sortedSchools.length}</span> entries
                             </div>
-                            <div className="flex items-center gap-1">
+                            <div className="flex items-center gap-2">
                                 <Button
                                     variant="outline"
-                                    className={`h-8 px-3 rounded-none border-gray-300 shadow-none ${currentPage === 1 ? "text-gray-300" : "text-gray-600 hover:bg-gray-50"}`}
+                                    className={`h-10 px-4 rounded-xl border-slate-200 font-bold transition-all ${currentPage === 1 ? "opacity-30" : "text-slate-600 hover:bg-slate-50"}`}
                                     onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                                     disabled={currentPage === 1}
                                 >
                                     Previous
                                 </Button>
-                                {renderPageNumbers()}
+                                <div className="flex items-center gap-1.5">
+                                    {renderPageNumbers()}
+                                </div>
                                 <Button
                                     variant="outline"
-                                    className={`h-8 px-3 rounded-none border-gray-300 shadow-none ${currentPage === totalPages || totalPages === 0 ? "text-gray-300" : "text-gray-600 hover:bg-gray-50"}`}
+                                    className={`h-10 px-4 rounded-xl border-slate-200 font-bold transition-all ${currentPage === totalPages || totalPages === 0 ? "opacity-30" : "text-slate-600 hover:bg-slate-50"}`}
                                     onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                                     disabled={currentPage === totalPages || totalPages === 0}
                                 >

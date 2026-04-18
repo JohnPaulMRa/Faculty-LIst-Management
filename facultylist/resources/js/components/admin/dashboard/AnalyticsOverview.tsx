@@ -28,14 +28,14 @@ const BarTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
         const item = payload[0].payload;
         return (
-            <div className="bg-white p-3 border-2 border-gray-800 shadow-2xl rounded-none text-xs">
-                <div className="flex items-center gap-2 font-black text-gray-900 mb-1 uppercase tracking-tight">
-                    <div className="w-2 h-2 shrink-0" style={{ backgroundColor: payload[0].fill }} />
-                    {item.name}
+            <div className="bg-white/80 backdrop-blur-md p-4 border border-slate-200/60 shadow-xl rounded-2xl text-xs min-w-[200px] animate-in fade-in zoom-in duration-200">
+                <div className="flex items-center gap-3 font-bold text-slate-900 mb-2 uppercase tracking-tight">
+                    <div className="w-3 h-3 rounded-full shrink-0 shadow-sm" style={{ backgroundColor: payload[0].fill }} />
+                    <span className="truncate">{item.name}</span>
                 </div>
-                <div className="flex justify-between items-center text-gray-600 font-bold gap-8">
+                <div className="flex justify-between items-center text-slate-500 font-bold bg-slate-50/50 p-2 rounded-xl border border-slate-100/50">
                     <span>Disciplines:</span>
-                    <span className="text-gray-900">{item.count}</span>
+                    <span className="text-blue-600 text-sm font-black">{item.count}</span>
                 </div>
             </div>
         );

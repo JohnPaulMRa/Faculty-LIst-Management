@@ -113,8 +113,8 @@ export default function AddDisciplineForm({ onCancel, onSubmit, majors = [], pro
     };
 
     return (
-        <div className="bg-white border border-gray-100 p-6 mb-8 animate-in fade-in slide-in-from-top-4 duration-500">
-            <div className="flex justify-between items-center mb-6">
+        <div className="bg-white border border-gray-100 p-8 mb-8 rounded-2xl shadow-sm animate-in fade-in slide-in-from-top-4 duration-500">
+            <div className="flex justify-between items-center mb-8 pb-4 border-b border-gray-100">
                 <div>
                     <h2 className="text-xl font-bold text-gray-900"> New Discipline</h2>
                     <p className="text-sm text-gray-500 mt-1">
@@ -128,11 +128,11 @@ export default function AddDisciplineForm({ onCancel, onSubmit, majors = [], pro
                 )}
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid grid-cols-[70px_1fr_1fr_1fr] gap-4 items-end">
+            <form onSubmit={handleSubmit} className="space-y-8">
+                <div className="grid grid-cols-[140px_1fr_1fr_1fr] gap-6 items-end">
                     {/* Code */}
-                    <div className="space-y-1.5">
-                        <Label className="text-[10px] uppercase tracking-wider font-semibold text-gray-500 ml-0.5">
+                    <div className="space-y-2">
+                        <Label className="text-base font-bold text-gray-600 uppercase tracking-wider ml-1">
                             Code <span className="text-red-500">*</span>
                         </Label>
                         <Input
@@ -158,15 +158,15 @@ export default function AddDisciplineForm({ onCancel, onSubmit, majors = [], pro
                                     }
                                 }
                             }}
-                            className="h-10 rounded-none font-mono text-lg text-center border-gray-500 focus-visible:ring-1 focus-visible:ring-gray-400"
-                            placeholder=""
+                            className="h-14 bg-slate-50 text-center font-black text-xl focus-visible:ring-2 focus-visible:ring-blue-600/10 focus-visible:border-blue-500 border-slate-200 hover:border-blue-400 rounded-xl transition-all shadow-sm text-blue-600"
+                            placeholder="XXXXXXXX"
                             maxLength={10}
                         />
                     </div>
 
                     {/* Discipline Group */}
-                    <div className="space-y-1.5">
-                        <Label className="text-[10px] uppercase tracking-wider font-semibold text-gray-500 ml-0.5">
+                    <div className="space-y-2">
+                        <Label className="text-base font-bold text-gray-600 uppercase tracking-wider ml-1">
                             Discipline Group <span className="text-red-500">*</span>
                         </Label>
                         <Combobox
@@ -177,15 +177,16 @@ export default function AddDisciplineForm({ onCancel, onSubmit, majors = [], pro
                                 setGroupDesc(typed);
                             }}
                             allowFreeInput
-                            placeholder=""
-                            containerClassName="w-full h-10"
-                            className="h-full rounded-none border border-gray-500 text-sm"
+                            placeholder="Select Group"
+                            showClear={true}
+                            containerClassName="w-full h-12"
+                            className="h-full border-slate-200 hover:border-blue-400 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-600/10 rounded-xl shadow-sm text-base font-medium transition-all"
                         />
                     </div>
 
                     {/* Major Discipline */}
-                    <div className="space-y-1.5">
-                        <Label className="text-[10px] uppercase tracking-wider font-semibold text-gray-500 ml-0.5">
+                    <div className="space-y-2">
+                        <Label className="text-base font-bold text-gray-600 uppercase tracking-wider ml-1">
                             Major Discipline <span className="text-red-500">*</span>
                         </Label>
                         <Combobox
@@ -196,22 +197,23 @@ export default function AddDisciplineForm({ onCancel, onSubmit, majors = [], pro
                                 setMajorDesc(typed);
                             }}
                             allowFreeInput
-                            placeholder=""
-                            containerClassName="w-full h-10"
-                            className="h-full rounded-none border border-gray-500 text-sm"
+                            placeholder="Select Major"
+                            showClear={true}
+                            containerClassName="w-full h-12"
+                            className="h-full border-slate-200 hover:border-blue-400 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-600/10 rounded-xl shadow-sm text-base font-medium transition-all"
                         />
                     </div>
 
                     {/* Specific Discipline */}
-                    <div className="space-y-1.5">
-                        <Label className="text-[10px] uppercase tracking-wider font-semibold text-gray-500 ml-0.5">
+                    <div className="space-y-2">
+                        <Label className="text-base font-bold text-gray-600 uppercase tracking-wider ml-1">
                             Specific Discipline <span className="text-red-500">*</span>
                         </Label>
                         <Input
                             value={specificDesc}
                             onChange={(e) => setSpecificDesc(e.target.value)}
-                            className="h-10 rounded-none text-lg border-gray-500 focus-visible:ring-1 focus-visible:ring-gray-400"
-                            placeholder=""
+                            className="h-12 border-slate-200 hover:border-blue-400 focus-visible:ring-2 focus-visible:ring-blue-600/10 focus-visible:border-blue-500 rounded-xl text-base font-medium shadow-sm transition-all"
+                            placeholder="Specific name"
                         />
                     </div>
                 </div>

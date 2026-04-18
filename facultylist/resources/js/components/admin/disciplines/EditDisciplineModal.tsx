@@ -65,21 +65,23 @@ export default function EditDisciplineModal({ isOpen, onClose, onSubmit, initial
         desc: string, setDesc: (v: string) => void,
         maxCodeLen = 6
     ) => (
-        <div className="space-y-1.5">
-            <Label className="text-[10px] uppercase tracking-wider font-semibold text-gray-500 ml-0.5">
+        <div className="space-y-2">
+            <Label className="text-base font-bold text-gray-600 uppercase tracking-wider ml-1">
                 {label}
             </Label>
-            <div className="flex gap-2">
-                <Input
-                    value={code}
-                    onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, maxCodeLen))}
-                    className="w-24 rounded-none font-mono text-sm text-center border-gray-300 focus-visible:ring-1 focus-visible:ring-gray-400 shrink-0"
-                    placeholder={"0".repeat(maxCodeLen)}
-                />
+            <div className="flex gap-3">
+                <div className="shrink-0 h-12 w-32 bg-gray-50 border border-gray-300 flex items-center justify-center text-lg font-bold text-gray-700 uppercase rounded-md px-3 text-center shadow-inner">
+                    <Input
+                        value={code}
+                        onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, maxCodeLen))}
+                        className="border-none bg-transparent font-bold text-lg p-0 focus-visible:ring-0 text-center w-full"
+                        placeholder={"0".repeat(maxCodeLen)}
+                    />
+                </div>
                 <Input
                     value={desc}
                     onChange={(e) => setDesc(e.target.value)}
-                    className="flex-1 rounded-none text-sm border-gray-300 focus-visible:ring-1 focus-visible:ring-gray-400"
+                    className="flex-1 h-12 border-gray-300 hover:border-gray-400 focus-visible:ring-1 focus-visible:ring-[#003468]/20 focus-visible:border-[#003468] rounded-md text-base"
                     placeholder={`${label} description...`}
                 />
             </div>
@@ -89,24 +91,24 @@ export default function EditDisciplineModal({ isOpen, onClose, onSubmit, initial
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent
-                className="sm:max-w-[520px] rounded-xl bg-white shadow-xl"
+                className="sm:max-w-[600px] rounded-2xl bg-white shadow-2xl p-0 overflow-hidden border-none"
                 onInteractOutside={(e) => e.preventDefault()}
             >
-                <DialogHeader className="px-6 pt-6 pb-4 border-b border-gray-100">
-                    <DialogTitle className="text-xl font-bold">Edit Discipline</DialogTitle>
-                    <DialogDescription>Update the details below and click Save Changes.</DialogDescription>
+                <DialogHeader className="px-8 pt-8 pb-6 border-b border-gray-100 bg-linear-to-r from-[#003468] to-[#1a4f8c] text-white">
+                    <DialogTitle className="text-2xl font-bold tracking-tight">Edit Discipline</DialogTitle>
+                    <DialogDescription className="text-blue-100 opacity-90">Update the details below and click Save Changes.</DialogDescription>
                 </DialogHeader>
 
-                <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
+                <form onSubmit={handleSubmit} className="px-8 py-8 space-y-6">
                     {row("Discipline Group", groupCode, setGroupCode, groupDesc, setGroupDesc, 2)}
                     {row("Major Discipline", majorCode, setMajorCode, majorDesc, setMajorDesc, 6)}
                     {row("Specific Discipline", specificCode, setSpecificCode, specificDesc, setSpecificDesc, 6)}
 
-                    <DialogFooter className="pt-4 border-t border-gray-100">
-                        <Button type="button" variant="outline" onClick={onClose} disabled={processing} className="rounded-xl border-gray-300 shadow-sm">
+                    <DialogFooter className="mt-8 pt-6 border-t border-gray-100 flex gap-3">
+                        <Button type="button" variant="outline" onClick={onClose} disabled={processing} className="rounded-xl border-gray-300 h-12 px-6 font-semibold uppercase tracking-wider text-xs shadow-sm">
                             Cancel
                         </Button>
-                        <Button type="submit" disabled={processing} className="rounded-xl bg-gray-900 text-white hover:bg-gray-800 disabled:opacity-60 shadow-sm">
+                        <Button type="submit" disabled={processing} className="rounded-xl bg-[#003468] text-white hover:bg-[#1a4f8c] disabled:opacity-60 h-12 px-8 font-bold uppercase tracking-wider text-xs shadow-lg shadow-blue-900/10">
                             {processing ? "Saving..." : "Save Changes"}
                         </Button>
                     </DialogFooter>

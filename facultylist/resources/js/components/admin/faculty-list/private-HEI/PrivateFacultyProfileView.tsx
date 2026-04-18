@@ -34,9 +34,9 @@ const DataItem = ({ label, code, desc, value }: { label: string, code?: string, 
 };
 
 const SectionHeader = ({ icon: Icon, title }: { icon: any, title: string }) => (
-    <div className="flex items-center gap-4 bg-linear-to-r from-[#003468] to-[#1a4f8c] p-4 rounded-none mb-6 shadow-sm">
-        <div className="bg-white p-2.5 rounded-xl shadow-md flex items-center justify-center">
-            <Icon className="w-5 h-5 text-[#003468]" />
+    <div className="flex items-center gap-4 bg-linear-to-r from-[#003468] to-[#1a4f8c] p-4 rounded-2xl mb-6 shadow-md border border-white/10">
+        <div className="bg-white/10 backdrop-blur-md p-2.5 rounded-xl shadow-inner flex items-center justify-center border border-white/20">
+            <Icon className="w-5 h-5 text-white" />
         </div>
         <h3 className="text-[14px] font-bold text-white uppercase tracking-widest">{title}</h3>
     </div>

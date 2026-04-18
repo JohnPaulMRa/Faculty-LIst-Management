@@ -6,6 +6,7 @@ import type { FC } from 'react';
 import { edit } from '@/routes/faculty';
 import type { Faculty } from '@/types/faculty';
 import { IMPORT_GROUPS } from '@/types/faculty/constants';
+import { Combobox } from '@/components/ui/combobox';
 
 // --- TYPES / INTERFACES ---
 
@@ -149,11 +150,11 @@ const FacultyListTableE2: FC<FacultyListTableE2Props> = ({
             const groupLabel = getFacultyGroup(faculty);
             const rankLabel = getFacultyRankLabel(faculty);
             const tenuredLabel = faculty.form_type === 'E2' ? getTenuredLabel(faculty.is_tenured) : 'N/A';
-            const statusBadgeClass = `text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-none font-bold ${getStatusBadgeStyle(faculty.status)}`;
+            const statusBadgeClass = `text-[10px] uppercase tracking-widest px-3 py-1 rounded-full font-bold shadow-sm ${getStatusBadgeStyle(faculty.status)}`;
             const editUrl = edit({ id: faculty.id }).url;
 
             return (
-                <tr key={faculty.id} className="border-b border-gray-300 hover:bg-gray-100 transition-colors">
+                <tr key={faculty.id} className="border-b border-gray-100 hover:bg-slate-50 transition-colors">
                     <td className="px-3 py-2 text-center text-black">{rowIndex}</td>
                     <td className="px-3 py-2 text-center text-black">{faculty.joined_year}</td>
                     <td className="px-3 py-2 text-center font-semibold text-gray-900">{faculty.name}</td>
@@ -196,40 +197,42 @@ const FacultyListTableE2: FC<FacultyListTableE2Props> = ({
     );
 
     const paginationControls = facultyList.length > 0 && (
-        <div className="flex items-center justify-between px-4 py-2 border-t border-gray-200 bg-white text-sm text-gray-600 rounded-none">
-            <span>
-                Showing {Math.min((currentPage - 1) * pageSize + 1, facultyList.length)}–{Math.min(currentPage * pageSize, facultyList.length)} of {facultyList.length} entries
+        <div className="flex items-center justify-between px-6 py-4 border-t border-slate-100 bg-white text-sm text-slate-600">
+            <span className="font-medium">
+                Showing <span className="text-blue-600 font-bold">{Math.min((currentPage - 1) * pageSize + 1, facultyList.length)}</span>–<span className="text-blue-600 font-bold">{Math.min(currentPage * pageSize, facultyList.length)}</span> of <span className="text-slate-900 font-bold">{facultyList.length}</span> entries
             </span>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-2">
                 <button
                     onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                     disabled={currentPage === 1}
-                    className="px-2 py-1.5 border border-gray-300 rounded-none text-sm disabled:opacity-40 hover:bg-gray-100 font-medium"
+                    className="h-10 px-4 border border-slate-200 rounded-xl text-sm disabled:opacity-30 hover:bg-slate-50 font-bold transition-all"
                 >
                     Previous
                 </button>
-                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                    const start = Math.max(1, Math.min(currentPage - 2, totalPages - 4));
-                    const page = start + i;
-                    if (page <= 0 || page > totalPages) return null;
+                <div className="flex items-center gap-1.5">
+                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                        const start = Math.max(1, Math.min(currentPage - 2, totalPages - 4));
+                        const page = start + i;
+                        if (page <= 0 || page > totalPages) return null;
 
-                    const isPageActive = currentPage === page;
-                    const pageButtonClass = `px-3 py-1.5 border rounded-none text-sm font-medium ${isPageActive ? 'bg-blue-500 text-white border-blue-500' : 'border-gray-300 hover:bg-gray-100'}`;
+                        const isPageActive = currentPage === page;
+                        const pageButtonClass = `h-10 w-10 border rounded-xl text-sm font-bold transition-all ${isPageActive ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-600/20 scale-105' : 'border-slate-200 hover:border-blue-400 hover:bg-blue-50 text-slate-600'}`;
 
-                    return (
-                        <button
-                            key={page}
-                            onClick={() => setCurrentPage(page)}
-                            className={pageButtonClass}
-                        >
-                            {page}
-                        </button>
-                    );
-                })}
+                        return (
+                            <button
+                                key={page}
+                                onClick={() => setCurrentPage(page)}
+                                className={pageButtonClass}
+                            >
+                                {page}
+                            </button>
+                        );
+                    })}
+                </div>
                 <button
                     onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                     disabled={currentPage === totalPages || totalPages === 0}
-                    className="px-2 py-1.5 border border-gray-300 rounded-none text-sm disabled:opacity-40 hover:bg-gray-100 font-medium"
+                    className="h-10 px-4 border border-slate-200 rounded-xl text-sm disabled:opacity-30 hover:bg-slate-50 font-bold transition-all"
                 >
                     Next
                 </button>
@@ -240,31 +243,31 @@ const FacultyListTableE2: FC<FacultyListTableE2Props> = ({
     // --- MAIN RENDER ---
 
     return (
-        <div className="flex flex-col bg-white shadow-none overflow-hidden">
+        <div className="flex flex-col bg-white shadow-xl shadow-blue-900/5 overflow-hidden rounded-2xl border border-blue-100/50 mt-4">
             {/* SPREADSHEET HEADER */}
-            <div className="bg-gray-50 text-black px-4 py-3 text-sm font-bold uppercase tracking-wide border-b border-gray-300">
+            <div className="bg-linear-to-r from-[#003468] to-[#1a4f8c] text-white px-6 py-4 text-sm font-bold uppercase tracking-wider shadow-sm">
                 FACULTY DATA RECORDS (E2)
             </div>
 
             {/* Pagination Size Select */}
-            <div className="flex items-center gap-1 px-4 py-2 border-b border-gray-200 bg-white">
-                <span className="text-sm text-gray-600">Show</span>
-                <select
-                    value={pageSize}
-                    onChange={(e) => handlePageSizeChange(Number(e.target.value))}
-                    className="border border-gray-300 rounded-none text-xs px-2 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-gray-400"
-                >
-                    {PAGE_SIZE_OPTIONS.map(opt => (
-                        <option key={opt} value={opt}>{opt}</option>
-                    ))}
-                </select>
-                <span className="text-xs text-gray-600">entries</span>
+            <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-100 bg-slate-50/50">
+                <span className="text-sm font-semibold text-slate-600 uppercase tracking-tight">Show</span>
+                <div className="w-24">
+                    <Combobox
+                        options={PAGE_SIZE_OPTIONS.map(opt => ({ label: String(opt), value: opt }))}
+                        value={pageSize}
+                        onChange={(val) => handlePageSizeChange(Number(val))}
+                        placeholder=""
+                        className="h-10 border-slate-200 hover:border-blue-400 focus-within:ring-2 focus-within:ring-blue-600/10 rounded-xl bg-white text-sm px-3 font-bold"
+                    />
+                </div>
+                <span className="text-sm font-semibold text-slate-600 uppercase tracking-tight">entries</span>
             </div>
 
             <div className="overflow-x-auto">
-                <table className="w-full border-collapse text-sm whitespace-nowrap font-sans">
+                <table className="w-full border-collapse text-sm whitespace-nowrap">
                     <thead>
-                        <tr className="bg-blue-500 text-white border-b border-gray-300">
+                        <tr className="bg-slate-50 text-slate-600 border-b border-slate-200 uppercase text-[11px] font-bold tracking-widest">
                             <th className="px-3 py-2 font-bold text-center w-[0%]">#</th>
                             <th className="px-3 py-2 font-bold text-center w-[10%]">
                                 <button className="flex items-center justify-center w-full gap-1 hover:text-gray-200" onClick={() => handleSort('joined_year')}>

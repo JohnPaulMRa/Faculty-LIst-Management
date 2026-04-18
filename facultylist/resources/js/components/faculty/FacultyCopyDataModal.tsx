@@ -4,7 +4,7 @@ import { router } from '@inertiajs/react';
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Combobox } from '@/components/ui/combobox';
 
 interface FacultyCopyDataModalProps {
     isOpen: boolean;
@@ -58,70 +58,68 @@ export function FacultyCopyDataModal({ isOpen, onOpenChange, availableYears, onS
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
             <DialogContent
-                className="sm:max-w-xl p-0 overflow-hidden border-0 shadow-lg rounded-none"
+                className="sm:max-w-xl p-0 overflow-hidden border-0 shadow-2xl rounded-2xl"
                 onInteractOutside={(e) => e.preventDefault()}
             >
-                <div className="px-6 py-6 pb-4">
-                    <DialogHeader className="mb-6">
-                        <DialogTitle className="text-xl font-bold tracking-tight text-slate-900">
+                <div className="bg-linear-to-r from-blue-700 to-indigo-600 px-8 py-6 text-white">
+                    <DialogHeader>
+                        <DialogTitle className="text-2xl font-bold tracking-tight">
                             Copy Faculty Data
                         </DialogTitle>
                     </DialogHeader>
+                </div>
+                <div className="px-8 py-8">
 
                     <div className="space-y-6">
                         <p className="text-sm leading-relaxed text-slate-600">
                             Duplicate all faculty records from a previous academic year into a new one. This allows you to quickly set up profiles for the new year.
                         </p>
 
-                        <div className="grid gap-5 bg-slate-50/50 p-5 rounded-lg border border-slate-100">
-                            <div className="space-y-2">
-                                <label className="text-sm font-semibold text-slate-700">Source Academic Year</label>
-                                <Select value={sourceYear} onValueChange={setSourceYear}>
-                                    <SelectTrigger className="w-full bg-white transition-shadow focus:ring-2 focus:ring-blue-600/20">
-                                        <SelectValue placeholder="Select year to copy from" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {availableYears.length > 0 ? (
-                                            // Show only the latest academic year as source
-                                            (() => {
-                                                const sorted = [...availableYears].sort((a, b) => (a > b ? -1 : 1));
-                                                const latestYear = sorted[0];
-                                                return <SelectItem key={latestYear} value={latestYear}>{latestYear}</SelectItem>;
-                                            })()
-                                        ) : (
-                                            <SelectItem value="none" disabled>No previous records found</SelectItem>
-                                        )}
-                                    </SelectContent>
-                                </Select>
+                        <div className="grid gap-6 bg-slate-50 p-6 rounded-xl border border-slate-100 shadow-inner">
+                            <div className="space-y-3">
+                                <label className="text-base font-bold text-slate-600 uppercase tracking-wider ml-1">Source Academic Year</label>
+                                <Combobox
+                                    value={sourceYear}
+                                    onChange={setSourceYear}
+                                    options={availableYears.length > 0 ? (
+                                        (() => {
+                                            const sorted = [...availableYears].sort((a, b) => (a > b ? -1 : 1));
+                                            const latestYear = sorted[0];
+                                            return [{ label: latestYear, value: latestYear }];
+                                        })()
+                                    ) : []}
+                                    placeholder="Select year to copy from"
+                                    className="w-full h-12 bg-white border-slate-200 hover:border-blue-400 focus-within:ring-2 focus-within:ring-blue-600/20 rounded-md"
+                                />
                             </div>
 
-                            <div className="space-y-2">
-                                <label className="text-sm font-semibold text-slate-700">Target Academic Year</label>
+                            <div className="space-y-3">
+                                <label className="text-base font-bold text-slate-600 uppercase tracking-wider ml-1">Target Academic Year</label>
                                 <input
                                     type="text"
                                     placeholder="e.g. 2024-2025"
-                                    className="flex h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm transition-all placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10"
+                                    className="flex h-12 w-full rounded-md border border-slate-200 bg-white px-4 py-2 text-base shadow-sm transition-all placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10"
                                     value={customTargetYear}
                                     onChange={(e) => setCustomTargetYear(e.target.value)}
                                 />
-                                <p className="text-[13px] text-slate-500 font-medium ml-1">Example: 2024-2025</p>
+                                <p className="text-[13px] text-slate-500 font-medium italic ml-1 opacity-70">Example format: 2024-2025</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div className="flex items-center justify-end gap-3 bg-slate-50 px-6 py-4 border-t border-slate-100">
+                <div className="flex items-center justify-end gap-3 bg-slate-50 px-8 py-5 border-t border-slate-100">
                     <Button
                         variant="outline"
                         onClick={() => onOpenChange(false)}
                         disabled={isSubmitting}
-                        className="font-medium text-slate-600 hover:text-slate-900 border-slate-200 hover:bg-slate-100"
+                        className="h-11 px-6 font-semibold text-slate-600 border-slate-300 hover:bg-slate-100 rounded-xl"
                     >
                         Cancel
                     </Button>
                     <Button
                         onClick={handleCopy}
-                        className="bg-blue-600 font-medium text-white shadow-sm hover:bg-blue-700 focus-visible:ring-4 focus-visible:ring-blue-600/20"
+                        className="bg-blue-600 hover:bg-blue-700 font-bold text-white shadow-lg shadow-blue-600/20 rounded-xl h-11 px-8 transition-all active:scale-[0.98]"
                         disabled={!sourceYear || (!targetYear && !customTargetYear) || isSubmitting}
                     >
                         {isSubmitting ? 'Copying Records...' : 'Copy Records'}

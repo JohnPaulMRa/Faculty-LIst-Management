@@ -49,22 +49,26 @@ const AlertModal: FC<AlertModalProps> = ({
     return (
         <Dialog open={open} onOpenChange={onClose}>
             <DialogContent 
-                className="max-w-sm rounded-none"
+                className="max-w-md rounded-2xl p-0 overflow-hidden shadow-2xl border-none"
                 onInteractOutside={(e) => e.preventDefault()}
             >
-                <DialogHeader>
-                    <DialogTitle className={titleColor[type]}>
-                        {title ?? defaultTitles[type]}
-                    </DialogTitle>
-                    <DialogDescription className="text-sm text-gray-700 pt-1">
+                <div className={`px-8 py-6 text-white bg-linear-to-r ${type === 'error' ? 'from-red-600 to-red-500' : type === 'success' ? 'from-emerald-600 to-emerald-500' : type === 'confirm' ? 'from-amber-500 to-amber-400' : 'from-blue-600 to-blue-500'}`}>
+                    <DialogHeader>
+                        <DialogTitle className="text-xl font-bold tracking-tight">
+                            {title ?? defaultTitles[type]}
+                        </DialogTitle>
+                    </DialogHeader>
+                </div>
+                <div className="px-8 py-8">
+                    <DialogDescription className="text-base text-gray-700 leading-relaxed">
                         {message}
                     </DialogDescription>
-                </DialogHeader>
-                <DialogFooter className="flex gap-2 justify-end pt-2">
+                </div>
+                <div className="flex gap-3 justify-end px-8 py-5 bg-slate-50 border-t border-slate-100">
                     {isConfirm && (
                         <Button
                             variant="outline"
-                            className="rounded-none"
+                            className="h-11 px-6 font-semibold text-slate-600 border-slate-300 hover:bg-slate-100 rounded-xl"
                             onClick={onClose}
                         >
                             {cancelLabel}
@@ -72,13 +76,11 @@ const AlertModal: FC<AlertModalProps> = ({
                     )}
                     <Button
                         type="button"
-                        className={`rounded-none ${type === 'error' ? 'bg-red-600 hover:bg-red-700' : type === 'success' ? 'bg-emerald-600 hover:bg-emerald-700' : type === 'confirm' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-blue-600 hover:bg-blue-700'} text-white`}
+                        className={`h-11 px-8 font-bold text-white shadow-lg rounded-xl transition-all active:scale-[0.98] ${type === 'error' ? 'bg-red-600 hover:bg-red-700 shadow-red-600/20' : type === 'success' ? 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-600/20' : type === 'confirm' ? 'bg-blue-600 hover:bg-blue-700 shadow-blue-600/20' : 'bg-blue-600 hover:bg-blue-700 shadow-blue-600/20'}`}
                         onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
-                            console.log('AlertModal: Button clicked', { isConfirm, hasOnConfirm: !!onConfirm });
                             if (isConfirm && onConfirm) {
-                                console.log('AlertModal: Executing onConfirm');
                                 onConfirm();
                             }
                             onClose();
@@ -86,7 +88,7 @@ const AlertModal: FC<AlertModalProps> = ({
                     >
                         {isConfirm ? confirmLabel : 'OK'}
                     </Button>
-                </DialogFooter>
+                </div>
             </DialogContent>
         </Dialog>
     );

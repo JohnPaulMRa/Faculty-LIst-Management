@@ -104,11 +104,11 @@ export default function HeisAccountsModule({ heis = [], accounts = [] }: HeisAcc
                         </p>
                     </div>
                     <div className="flex flex-col md:flex-row items-center gap-3 w-full md:w-auto">
-                        <div className="relative w-full md:w-64">
-                            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
+                        <div className="relative w-full md:w-80 group">
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
                             <Input
-                                placeholder="Search..."
-                                className="pl-9 h-10 w-full"
+                                placeholder="Search HEIs or accounts..."
+                                className="pl-11 h-12 w-full rounded-2xl border-slate-200 focus-visible:ring-2 focus-visible:ring-blue-600/10 focus-visible:border-blue-500 font-medium shadow-sm transition-all"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                             />
@@ -135,19 +135,25 @@ export default function HeisAccountsModule({ heis = [], accounts = [] }: HeisAcc
                 </div>
 
                 {/* Tabs */}
-                <div className="flex border-b border-gray-200 mb-6 w-full">
+                <div className="flex bg-slate-100/50 p-1 rounded-2xl mb-8 w-max border border-slate-200/50">
                     <button
                         onClick={() => setActiveTab('heis')}
-                        className={`flex items-center gap-2 pb-3 px-1 border-b-2 font-medium text-sm w-max transition-colors mr-6 ${activeTab === 'heis' ? 'border-gray-900 text-gray-900' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                            }`}
+                        className={`flex items-center gap-2 py-2.5 px-6 rounded-xl font-bold text-xs uppercase tracking-widest transition-all duration-200 ${
+                            activeTab === 'heis' 
+                                ? 'bg-white text-blue-600 shadow-md shadow-blue-900/5 ring-1 ring-slate-200' 
+                                : 'text-slate-500 hover:text-slate-700 hover:bg-white/50'
+                        }`}
                     >
                         <Building className="h-4 w-4" />
-                        Higher Education Institutions
+                        Institutions
                     </button>
                     <button
                         onClick={() => setActiveTab('accounts')}
-                        className={`flex items-center gap-2 pb-3 px-1 border-b-2 font-medium text-sm w-max transition-colors ${activeTab === 'accounts' ? 'border-gray-900 text-gray-900' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                            }`}
+                        className={`flex items-center gap-2 py-2.5 px-6 rounded-xl font-bold text-xs uppercase tracking-widest transition-all duration-200 ${
+                            activeTab === 'accounts' 
+                                ? 'bg-white text-blue-600 shadow-md shadow-blue-900/5 ring-1 ring-slate-200' 
+                                : 'text-slate-500 hover:text-slate-700 hover:bg-white/50'
+                        }`}
                     >
                         <Users className="h-4 w-4" />
                         User Accounts

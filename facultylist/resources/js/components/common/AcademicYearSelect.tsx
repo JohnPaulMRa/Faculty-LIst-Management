@@ -1,13 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { usePage } from '@inertiajs/react';
 import type { FC } from 'react';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
+import { Combobox } from "@/components/ui/combobox";
 
 type Props = {
     value?: string;
@@ -27,18 +21,17 @@ const AcademicYearSelect: FC<Props> = ({
     const { academicYears } = usePage<any>().props;
 
     return (
-        <Select value={value} onValueChange={onValueChange} disabled={disabled}>
-            <SelectTrigger className={className}>
-                <SelectValue placeholder={placeholder} />
-            </SelectTrigger>
-            <SelectContent>
-                {academicYears && academicYears.map((year: any) => (
-                    <SelectItem key={year.id} value={year.name}>
-                        {year.name}
-                    </SelectItem>
-                ))}
-            </SelectContent>
-        </Select>
+        <Combobox
+            value={value}
+            onChange={onValueChange}
+            disabled={disabled}
+            placeholder={placeholder}
+            options={(academicYears || []).map((year: any) => ({
+                label: year.name,
+                value: year.name
+            }))}
+            className={className}
+        />
     );
 };
 

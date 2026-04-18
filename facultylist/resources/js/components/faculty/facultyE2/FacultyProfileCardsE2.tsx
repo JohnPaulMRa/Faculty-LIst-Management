@@ -28,7 +28,7 @@ import {
     THESIS_OPTIONS,
     DISSERTATION_OPTIONS
 } from '@/types/faculty/referenceDataE2';
-import DisciplineSelector from '../DisciplineSelector';
+import DisciplineSelectorE2 from './DisciplineSelectorE2';
 
 // --- TYPES / INTERFACES ---
 
@@ -69,6 +69,8 @@ interface FormComboboxProps {
     required?: boolean;
     error?: string;
     showCodePrefix?: boolean;
+    showClear?: boolean;
+    readOnly?: boolean;
 }
 
 interface WorkloadGridProps {
@@ -209,7 +211,9 @@ const FormCombobox: FC<FormComboboxProps> = ({
     placeholder,
     required,
     error,
-    showCodePrefix = true
+    showCodePrefix = true,
+    showClear = false,
+    readOnly = false
 }) => {
     const comboboxClass = cn(
         'border-gray-300 hover:border-gray-400 focus-within:border-[#003468] focus-within:ring-1 focus-within:ring-[#003468]/20 rounded-md shadow-none h-12',
@@ -227,7 +231,7 @@ const FormCombobox: FC<FormComboboxProps> = ({
                     <Input
                         value={value || ''}
                         onChange={(e) => onChange(e.target.value)}
-                        className="shrink-0 h-12 w-32 bg-gray-50 border border-input flex items-center justify-center text-[12px] font-bold text-gray-700 uppercase rounded-md px-3 text-center focus-visible:ring-0"
+                        className="shrink-0 h-12 w-32 bg-gray-50 border border-input flex items-center justify-center text-[12px] font-bold text-gray-700 uppercase rounded-md px-3 text-center focus-visible:ring-0 shadow-none"
                         placeholder="Code"
                     />
                 )}
@@ -237,7 +241,9 @@ const FormCombobox: FC<FormComboboxProps> = ({
                         onChange={onChange}
                         options={options}
                         placeholder={placeholder}
+                        disabled={readOnly}
                         showCodePrefix={false}
+                        showClear={showClear}
                         className={comboboxClass}
                     />
                 </div>
@@ -355,6 +361,7 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                         placeholder="Select Rank"
                         required
                         showCodePrefix={true}
+                        showClear={true}
                     />
                     <FormField
                         label="HOME COLLEGE"
@@ -380,6 +387,7 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                         options={mapToOptions(referenceData?.tenureE2 || TENURE_OPTIONS)}
                         placeholder="Select Option"
                         showCodePrefix={true}
+                        showClear={true}
                     />
                     <FormCombobox
                         label="SSL Salary Grade"
@@ -388,6 +396,7 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                         options={mapToOptions(SALARY_GRADE_OPTIONS)}
                         placeholder="Select Salary Grade"
                         showCodePrefix={true}
+                        showClear={true}
                     />
                     <FormCombobox
                         label="ANNUAL BASIC SALARY"
@@ -396,6 +405,7 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                         options={mapToOptions(ANNUAL_SALARY_OPTIONS)}
                         placeholder="Select Salary Range"
                         showCodePrefix={true}
+                        showClear={true}
                     />
                     <FormCombobox
                         label="ON LEAVE WITHOUT PAY?"
@@ -404,6 +414,7 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                         options={mapToOptions(ON_LEAVE_PAY_OPTIONS)}
                         placeholder="Select Option"
                         showCodePrefix={true}
+                        showClear={true}
                     />
                     <FormCombobox
                         label="FULL-TIME EQUIVALENT (FTE)"
@@ -411,6 +422,7 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                         onChange={(value) => onErrorSafeChange('fte', value)}
                         options={mapToOptions(FTE_OPTIONS)}
                         showCodePrefix={true}
+                        showClear={true}
                     />
                     <FormCombobox
                         label="GENDER OF FACULTY"
@@ -420,6 +432,7 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                         placeholder="Select Gender"
                         required
                         showCodePrefix={true}
+                        showClear={true}
                     />
                 </div>
             </CardContent>
@@ -444,6 +457,7 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                         options={mapToOptions(HIGHEST_DEGREE_OPTIONS)}
                         placeholder="Select Degree"
                         showCodePrefix={true}
+                        showClear={true}
                     />
                     <FormCombobox
                         label="Actively Pursuing Next Degree?"
@@ -452,6 +466,7 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                         options={mapToOptions(PURSUING_DEGREE_OPTIONS)}
                         placeholder="Select Option"
                         showCodePrefix={true}
+                        showClear={true}
                     />
                 </div>
 
@@ -461,22 +476,24 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         <div className="space-y-1.5">
                             <label className="text-base font-bold text-gray-600 uppercase tracking-wider">SPECIFIC DISCIPLINE (1) OF PRIMARY TEACHING LOAD</label>
-                            <DisciplineSelector
+                            <DisciplineSelectorE2
                                 value={formData.discipline_load_1}
                                 onChange={(code) => onErrorSafeChange('discipline_load_1', code)}
                                 referenceData={referenceData}
                                 placeholder="Select Primary Discipline (1)"
                                 showGroup={false}
+                                showClear={true}
                             />
                         </div>
                         <div className="space-y-1.5">
                             <label className="text-base font-bold text-gray-600 uppercase tracking-wider">SPECIFIC DISCIPLINE (2) OF PRIMARY TEACHING LOAD</label>
-                            <DisciplineSelector
+                            <DisciplineSelectorE2
                                 value={formData.discipline_load_2}
                                 onChange={(code) => onErrorSafeChange('discipline_load_2', code)}
                                 referenceData={referenceData}
                                 placeholder="Select Primary Discipline (2)"
                                 showGroup={false}
+                                showClear={true}
                             />
                         </div>
                     </div>
@@ -488,35 +505,38 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                         <div className="space-y-1.5">
                             <label className="text-base font-bold text-gray-600 uppercase tracking-wider">SPECIFIC DISCIPLINE OF BACHELORS DEGREE</label>
-                            <DisciplineSelector
+                            <DisciplineSelectorE2
                                 value={formData.discipline_bachelors}
                                 onChange={(code) => onErrorSafeChange('discipline_bachelors', code)}
                                 referenceData={referenceData}
                                 placeholder="Select Bachelors Degree"
                                 showGroup={false}
                                 filterCategory="bachelors"
+                                showClear={true}
                             />
                         </div>
                         <div className="space-y-1.5">
                             <label className="text-base font-bold text-gray-600 uppercase tracking-wider">SPECIFIC DISCIPLINE OF MASTERS DEGREE</label>
-                            <DisciplineSelector
+                            <DisciplineSelectorE2
                                 value={formData.discipline_masters}
                                 onChange={(code) => onErrorSafeChange('discipline_masters', code)}
                                 referenceData={referenceData}
                                 placeholder="Select Masters Degree"
                                 showGroup={false}
                                 filterCategory="masters"
+                                showClear={true}
                             />
                         </div>
                         <div className="space-y-1.5">
                             <label className="text-base font-bold text-gray-600 uppercase tracking-wider">SPECIFIC DISCIPLINE OF DOCTORATE DEGREE</label>
-                            <DisciplineSelector
+                            <DisciplineSelectorE2
                                 value={formData.discipline_doctorate}
                                 onChange={(code) => onErrorSafeChange('discipline_doctorate', code)}
                                 referenceData={referenceData}
                                 placeholder="Select Doctorate Degree"
                                 showGroup={false}
                                 filterCategory="doctorate"
+                                showClear={true}
                             />
                         </div>
                     </div>
@@ -532,6 +552,7 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                         options={mapToOptions(THESIS_OPTIONS)}
                         placeholder="Select Option"
                         showCodePrefix={true}
+                        showClear={true}
                     />
                     <FormCombobox
                         label="DOCTORATE WITH DISSERTATION?"
@@ -540,6 +561,7 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                         options={mapToOptions(DISSERTATION_OPTIONS)}
                         placeholder="Select Option"
                         showCodePrefix={true}
+                        showClear={true}
                     />
                 </div>
             </CardContent>

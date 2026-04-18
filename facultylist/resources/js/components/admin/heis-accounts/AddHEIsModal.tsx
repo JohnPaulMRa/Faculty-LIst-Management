@@ -72,129 +72,144 @@ const AddHEIsModal: FC<Props> = ({ isOpen, onOpenChange, hei, onSave }) => {
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
             <DialogContent
-                className="sm:max-w-2xl rounded-xl shadow-xl"
+                className="sm:max-w-2xl rounded-3xl p-0 overflow-hidden border-none shadow-2xl"
                 onInteractOutside={(e) => e.preventDefault()}
             >
-                <DialogHeader>
-                    <DialogTitle className="text-xl">{hei ? 'Edit HEI' : 'Add HEIs'}</DialogTitle>
-                    <DialogDescription>
-                        {hei ? 'Update the information for this HEI.' : 'Enter the details of the new HEI to add it to the system.'}
-                    </DialogDescription>
-                </DialogHeader>
+                <div className="bg-linear-to-r from-[#003468] to-[#1a4f8c] p-8">
+                    <DialogHeader>
+                        <DialogTitle className="text-2xl font-black text-white uppercase tracking-tight">
+                            {hei ? 'Edit HEI' : 'Add New HEI'}
+                        </DialogTitle>
+                        <DialogDescription className="text-blue-100/80 text-sm mt-2 font-medium">
+                            {hei ? 'Update the information for this HEI.' : 'Enter the details of the new HEI to add it to the system.'}
+                        </DialogDescription>
+                    </DialogHeader>
+                </div>
 
-                <form onSubmit={handleSubmit} className="space-y-5 py-4">
+                <form onSubmit={handleSubmit}>
+                    <div className="p-8 space-y-6 bg-white max-h-[70vh] overflow-y-auto">
                     <div className="grid gap-2">
-                        <Label htmlFor="name" className="text-sm font-semibold">HEIs Name <span className="text-red-500">*</span></Label>
+                        <Label htmlFor="name" className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">HEIs Name <span className="text-red-500">*</span></Label>
                         <Input
                             id="name"
                             value={data.name}
                             onChange={(e) => setData('name', e.target.value)}
                             placeholder="e.g. University of Example"
                             required
-                            className="h-10"
+                            className="h-12 rounded-xl border-slate-200 focus-visible:ring-2 focus-visible:ring-blue-600/10 focus-visible:border-blue-500 font-medium shadow-sm transition-all"
                         />
-                        {errors.name && <p className="text-sm text-red-500">{errors.name}</p>}
+                        {errors.name && <p className="text-xs text-red-500 font-bold mt-1 ml-1">{errors.name}</p>}
                     </div>
 
                     <div className="grid gap-2">
-                        <Label htmlFor="hei_code" className="text-sm font-semibold">HEIs Code <span className="text-muted-foreground font-normal">(Optional)</span></Label>
+                        <Label htmlFor="hei_code" className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">HEIs Code <span className="text-slate-400 font-normal">(Optional)</span></Label>
                         <Input
                             id="hei_code"
                             value={data.hei_code}
                             onChange={(e) => setData('hei_code', e.target.value)}
                             placeholder="e.g. HEI-001"
-                            className="h-10"
+                            className="h-12 rounded-xl border-slate-200 focus-visible:ring-2 focus-visible:ring-blue-600/10 focus-visible:border-blue-500 font-medium shadow-sm transition-all font-mono"
                         />
-                        {errors.hei_code && <p className="text-sm text-red-500">{errors.hei_code}</p>}
+                        {errors.hei_code && <p className="text-xs text-red-500 font-bold mt-1 ml-1">{errors.hei_code}</p>}
                     </div>
 
                     <div className="grid gap-2">
-                        <Label htmlFor="address" className="text-sm font-semibold">Address <span className="text-muted-foreground font-normal">(Optional)</span></Label>
+                        <Label htmlFor="address" className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">Address <span className="text-slate-400 font-normal">(Optional)</span></Label>
                         <Input
                             id="address"
                             value={data.address}
                             onChange={(e) => setData('address', e.target.value)}
                             placeholder="Full address"
-                            className="h-10"
+                            className="h-12 rounded-xl border-slate-200 focus-visible:ring-2 focus-visible:ring-blue-600/10 focus-visible:border-blue-500 font-medium shadow-sm transition-all"
                         />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-6">
                         <div className="grid gap-2">
-                            <Label htmlFor="contact_number" className="text-sm font-semibold">Contact Number <span className="text-muted-foreground font-normal">(Optional)</span></Label>
+                            <Label htmlFor="contact_number" className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">Contact Number <span className="text-slate-400 font-normal">(Optional)</span></Label>
                             <Input
                                 id="contact_number"
                                 value={data.contact_number}
                                 onChange={(e) => setData('contact_number', e.target.value)}
                                 placeholder="+63 912 345 6789"
-                                className="h-10"
+                                className="h-12 rounded-xl border-slate-200 focus-visible:ring-2 focus-visible:ring-blue-600/10 focus-visible:border-blue-500 font-medium shadow-sm transition-all"
                             />
                         </div>
                         <div className="grid gap-2">
-                            <Label htmlFor="email" className="text-sm font-semibold">Email <span className="text-muted-foreground font-normal">(Optional)</span></Label>
+                            <Label htmlFor="email" className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">Email <span className="text-slate-400 font-normal">(Optional)</span></Label>
                             <Input
                                 id="email"
                                 type="email"
                                 value={data.email}
                                 onChange={(e) => setData('email', e.target.value)}
                                 placeholder="school@example.com"
-                                className="h-10"
+                                className="h-12 rounded-xl border-slate-200 focus-visible:ring-2 focus-visible:ring-blue-600/10 focus-visible:border-blue-500 font-medium shadow-sm transition-all"
                             />
                         </div>
                     </div>
 
-                    <div className="grid gap-3 pt-2">
-                        <Label className="text-sm font-semibold">HEIs Type <span className="text-red-500">*</span></Label>
-                        <div className="flex gap-6">
-                            <div className="flex items-center space-x-2">
+                    <div className="grid gap-4 pt-2">
+                        <Label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">HEIs Type <span className="text-red-500">*</span></Label>
+                        <div className="flex gap-8 bg-slate-50/50 p-4 rounded-2xl border border-slate-100">
+                            <div className="flex items-center space-x-3">
                                 <Checkbox
                                     id="type-public"
                                     checked={data.type === 'Public'}
                                     onCheckedChange={(checked) => {
                                         if (checked) setData('type', 'Public');
                                     }}
-                                    className="h-5 w-5"
+                                    className="h-6 w-6 rounded-lg data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600 transition-all"
                                 />
-                                <Label htmlFor="type-public" className="cursor-pointer font-medium">Public Institution</Label>
+                                <Label htmlFor="type-public" className="cursor-pointer font-bold text-slate-700">Public Institution</Label>
                             </div>
-                            <div className="flex items-center space-x-2">
+                            <div className="flex items-center space-x-3">
                                 <Checkbox
                                     id="type-private"
                                     checked={data.type === 'Private'}
                                     onCheckedChange={(checked) => {
                                         if (checked) setData('type', 'Private');
                                     }}
-                                    className="h-5 w-5"
+                                    className="h-6 w-6 rounded-lg data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600 transition-all"
                                 />
-                                <Label htmlFor="type-private" className="cursor-pointer font-medium">Private Institution</Label>
+                                <Label htmlFor="type-private" className="cursor-pointer font-bold text-slate-700">Private Institution</Label>
                             </div>
                         </div>
                     </div>
 
-                    <div className="flex flex-col gap-3 pt-4 border-t mt-2">
-                        <Label className="text-sm font-semibold">Status <span className="text-red-500">*</span></Label>
-                        <div className="flex items-center space-x-2 bg-gray-50 p-3 rounded-md border text-sm">
+                    <div className="flex flex-col gap-4 pt-6 border-t border-slate-100 mt-2">
+                        <Label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">Status <span className="text-red-500">*</span></Label>
+                        <div className="flex items-center space-x-4 bg-emerald-50/50 p-5 rounded-2xl border border-emerald-100/50 transition-all">
                             <Checkbox
                                 id="is_active"
                                 checked={data.is_active}
                                 onCheckedChange={(checked) => setData('is_active', checked as boolean)}
-                                className="h-5 w-5 data-[state=checked]:bg-green-600 data-[state=checked]:text-white data-[state=checked]:border-green-600"
+                                className="h-6 w-6 rounded-lg data-[state=checked]:bg-emerald-600 data-[state=checked]:text-white data-[state=checked]:border-emerald-600 transition-all"
                             />
                             <div className="flex flex-col">
-                                <Label htmlFor="is_active" className="cursor-pointer font-medium">Active HEIs</Label>
-                                <span className="text-xs text-muted-foreground">If unchecked, the HEIs will be hidden from the active list.</span>
+                                <Label htmlFor="is_active" className="cursor-pointer font-black text-emerald-900">Active HEIs</Label>
+                                <span className="text-xs text-emerald-600/70 font-medium">If unchecked, the HEIs will be hidden from the active list.</span>
                             </div>
                         </div>
                     </div>
 
-                    <DialogFooter className="pt-4">
-                        <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="rounded-xl shadow-sm">
+                    <DialogFooter className="pt-8 flex gap-3 border-t border-slate-100 bg-slate-50/50 p-8">
+                        <Button 
+                            type="button" 
+                            variant="outline" 
+                            onClick={() => onOpenChange(false)} 
+                            className="rounded-xl h-12 px-8 font-bold uppercase tracking-wider text-xs border-slate-200 hover:bg-white shadow-sm transition-all"
+                        >
                             Cancel
                         </Button>
-                        <Button type="submit" disabled={processing} className="rounded-xl bg-gray-900 text-white hover:bg-gray-800 shadow-sm">
-                            {processing ? 'Saving...' : 'Save Changes'}
+                        <Button 
+                            type="submit" 
+                            disabled={processing} 
+                            className="rounded-xl h-12 px-10 font-black uppercase tracking-wider text-xs bg-[#003468] text-white hover:bg-[#002850] shadow-lg shadow-blue-900/20 transition-all"
+                        >
+                            {processing ? 'Saving...' : (hei ? 'Update HEI' : 'Save HEI')}
                         </Button>
                     </DialogFooter>
+                </div>
                 </form>
             </DialogContent>
         </Dialog>

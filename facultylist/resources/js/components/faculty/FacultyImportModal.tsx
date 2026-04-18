@@ -13,13 +13,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
+import { Combobox } from "@/components/ui/combobox";
 import { IMPORT_GROUPS } from '@/types/faculty';
 
 
@@ -66,68 +60,59 @@ const FacultyImportModal: FC<Props> = ({
                 </Button>
             </DialogTrigger>
             <DialogContent
-                className="sm:max-w-2xl rounded-none"
+                className="sm:max-w-2xl rounded-2xl p-0 overflow-hidden border-none shadow-2xl"
                 onInteractOutside={(e) => e.preventDefault()}
             >
-                <DialogHeader>
-                    <DialogTitle>Import Faculty Data</DialogTitle>
-                    <DialogDescription>Select form template, academic year, and upload file.</DialogDescription>
-                </DialogHeader>
-                <div className="grid gap-5 py-8">
-                    <div className="space-y-2">
-                        <Label>Form Template</Label>
+                <div className="bg-linear-to-r from-emerald-600 to-green-500 px-8 py-6 text-white">
+                    <DialogHeader>
+                        <DialogTitle className="text-2xl font-bold tracking-tight">Import Faculty Data</DialogTitle>
+                        <DialogDescription className="text-green-50/90 text-sm mt-1">Select form template, academic year, and upload file.</DialogDescription>
+                    </DialogHeader>
+                </div>
+                <div className="grid gap-6 px-8 py-8">
+                    <div className="space-y-3">
+                        <Label className="text-base font-bold text-gray-600 uppercase tracking-wider ml-1">Form Template</Label>
                         {schoolType ? (
-                            <div className="flex h-9 w-full items-center px-3 py-2 text-sm font-medium bg-gray-100 border border-gray-200 text-gray-700">
+                            <div className="flex h-12 w-full items-center px-4 py-2 text-base font-bold bg-slate-50 border border-slate-200 text-slate-700 rounded-md shadow-inner">
                                 {schoolType.toLowerCase().trim() === 'private' ? 'Private: FORM E5' : 'Public: FORM E2'}
                             </div>
                         ) : (
-                            <Select value={importType} onValueChange={(val: any) => setImportType(val)}>
-                                <SelectTrigger><SelectValue placeholder="Select Form" /></SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="E5">Private: FORM E5</SelectItem>
-                                    <SelectItem value="E2">Public: FORM E2</SelectItem>
-                                </SelectContent>
-                            </Select>
+                            <Combobox
+                                value={importType}
+                                onChange={(val: any) => setImportType(val)}
+                                options={[
+                                    { label: 'Private: FORM E5', value: 'E5' },
+                                    { label: 'Public: FORM E2', value: 'E2' }
+                                ]}
+                                placeholder="Select Form"
+                                className="h-12 border-slate-200 hover:border-emerald-400 focus-within:ring-2 focus-within:ring-emerald-600/20 rounded-md"
+                            />
                         )}
                     </div>
 
-                    <div className="space-y-2">
-                        <Label>Academic Year</Label>
+                    <div className="space-y-3">
+                        <Label className="text-base font-bold text-gray-600 uppercase tracking-wider ml-1">Academic Year</Label>
                         <Input
                             value={importYear}
                             onChange={(e) => setImportYear(e.target.value)}
                             placeholder="e.g., 2025-2026"
-                            className="rounded-none w-full"
+                            className="h-12 border-slate-200 hover:border-emerald-400 focus-visible:ring-1 focus-visible:ring-emerald-600/20 focus-visible:border-emerald-500 rounded-md text-base px-4"
                         />
-                        <p className="text-xs text-gray-500">Records will be tagged with this academic year.</p>
+                        <p className="text-xs text-slate-500 font-medium italic ml-1 opacity-70">Records will be tagged with this academic year.</p>
                     </div>
 
                     {/* Group Selection - ONLY for E2 */}
-                    {importType === 'E2' && (
-                        <div className="space-y-2">
-                            <Label>Group</Label>
-                            <Select value={importGroup} onValueChange={setImportGroup}>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select Group" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {IMPORT_GROUPS.map((group) => (
-                                        <SelectItem key={group.value} value={group.value}>
-                                            {group.value}: {group.label.split(': ')[1] || group.label}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                            <p className="text-xs text-gray-500">Select the specific group for this batch of faculty records.</p>
-                        </div>
-                    )}
+
 
                     <div className="flex flex-col gap-3 pt-2">
                         <div className="relative" onClick={() => fileInputRef.current?.click()}>
-                            <div className="flex h-32 w-full flex-col items-center justify-center rounded-none border-2 border-dashed border-gray-300 bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer">
+                            <div className="flex h-40 w-full flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 bg-slate-50/50 hover:bg-emerald-50/30 hover:border-emerald-400 transition-all duration-300 cursor-pointer group">
                                 <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                                    <UploadCloud className="h-8 w-8 text-gray-400 mb-2" />
-                                    <p className="text-sm text-gray-500">Click to upload XLSX/CSV</p>
+                                    <div className="h-14 w-14 rounded-2xl bg-emerald-100 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                                        <UploadCloud className="h-7 w-7 text-emerald-600" />
+                                    </div>
+                                    <p className="text-base font-bold text-slate-700">Click to upload XLSX/CSV</p>
+                                    <p className="text-xs text-slate-400 mt-1">Maximum file size: 10MB</p>
                                 </div>
                                 <input type="file" ref={fileInputRef} className="hidden" accept=".csv, .xlsx" onChange={handleFileChange} />
                             </div>
