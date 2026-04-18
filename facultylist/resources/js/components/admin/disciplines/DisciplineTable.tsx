@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/table";
 
 export interface Program {
-    id: string; 
+    id: string;
     code: string;
     name: string;
     major: string;
@@ -30,7 +30,7 @@ export interface Program {
     specificMajor: string;
     specificGroup: string;
     programLevel: string;
-    originalData: any; 
+    originalData: any;
 }
 
 interface DisciplineTableProps {
@@ -58,7 +58,7 @@ export default function DisciplineTable({
 }: DisciplineTableProps) {
     const [entriesPerPage, setEntriesPerPage] = useState(50);
     const [localPage, setLocalPage] = useState(1);
-    
+
     // If we have serverPagination, we use Inertia to change pages
     const isServerSide = !!serverPagination && programs.length > 0;
 
@@ -109,19 +109,19 @@ export default function DisciplineTable({
     };
 
     const isAll = entriesPerPage === -1;
-    
+
     // Meta data from server OR local
     const currentPage = isServerSide ? serverPagination.current_page : localPage;
-    const totalPages = isServerSide 
-        ? serverPagination.last_page 
+    const totalPages = isServerSide
+        ? serverPagination.last_page
         : (isAll ? 1 : (Math.ceil(programs.length / entriesPerPage) || 1));
-    
-    const startEntry = isServerSide 
-        ? serverPagination.from 
+
+    const startEntry = isServerSide
+        ? serverPagination.from
         : (programs.length === 0 ? 0 : (isAll ? 1 : (localPage - 1) * entriesPerPage + 1));
-    
-    const endEntry = isServerSide 
-        ? serverPagination.to 
+
+    const endEntry = isServerSide
+        ? serverPagination.to
         : (isAll ? programs.length : Math.min(localPage * entriesPerPage, programs.length));
 
     const paginatedPrograms = useMemo(() => {
@@ -193,7 +193,7 @@ export default function DisciplineTable({
                 </div>
             </div>
 
-            <div className="bg-white shadow-xl shadow-blue-900/5 overflow-hidden rounded-2xl border border-blue-100/50">
+            <div className="bg-white shadow-xl shadow-blue-900/5 overflow-hidden rounded-none border border-blue-100/50">
                 <Table>
                     <TableHeader>
                         <TableRow className="bg-linear-to-r from-[#003468] to-[#1a4f8c] hover:bg-[#003468] border-b-0">
@@ -372,9 +372,9 @@ const DisciplineTableRow = memo(({ program, index, startEntry, onEdit, onDelete 
 }, (prevProps, nextProps) => {
     // Custom deep comparison to prevent re-rendering when callbacks change completely from parent
     return prevProps.program.id === nextProps.program.id &&
-           prevProps.program.originalData?._importStatus === nextProps.program.originalData?._importStatus &&
-           prevProps.index === nextProps.index &&
-           prevProps.startEntry === nextProps.startEntry;
+        prevProps.program.originalData?._importStatus === nextProps.program.originalData?._importStatus &&
+        prevProps.index === nextProps.index &&
+        prevProps.startEntry === nextProps.startEntry;
 });
 
 DisciplineTableRow.displayName = "DisciplineTableRow";

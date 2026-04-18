@@ -175,6 +175,7 @@ class FacultyController extends Controller
                 $data['tenureCode'] = $faculty->tenure_code;
                 $data['salaryCode'] = $faculty->salary_range_code;
                 $data['loadCode'] = $faculty->teaching_load_code;
+                $data['subjects'] = $faculty->subjects;
                 $data['id'] = $id; // "e5_..."
 
                 $faculty = (object) $data;
@@ -204,9 +205,17 @@ class FacultyController extends Controller
 
         $component = $isE5 ? 'EditFaculty/EditPrivateFaculty' : 'EditFaculty/EditPublicFaculty';
 
+        // Check if the record's academic year is already submitted
+        $heiId = \Illuminate\Support\Facades\Auth::user()->hei_id;
+        $isSubmitted = \App\Models\HeiSubmission::where('hei_id', $heiId)
+            ->where('academic_year', $faculty->joined_year)
+            ->where('status', 'Submitted')
+            ->exists();
+
         return \Inertia\Inertia::render($component, [
             'faculty' => $faculty,
             'referenceData' => $referenceData,
+            'isSubmitted' => $isSubmitted,
         ]);
     }
 

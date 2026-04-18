@@ -17,6 +17,7 @@ interface FacultyToolbarProps {
     onYearChange: (year: string) => void;
     onCopyData: () => void;
     onSubmit: () => void;
+    isLocked?: boolean;
 }
 
 export function FacultyToolbar({
@@ -27,9 +28,10 @@ export function FacultyToolbar({
     onYearChange,
     onCopyData,
     onSubmit,
+    isLocked,
 }: FacultyToolbarProps) {
     return (
-        <div className="flex items-center justify-between border-b border-gray-300 bg-gray-50 px-4 py-3">
+        <div className="flex items-center justify-between border-b border-slate-100 bg-white px-4 py-3">
             {/* Search */}
             <div className="relative w-full max-w-md">
                 <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -83,9 +85,10 @@ export function FacultyToolbar({
                 <Button
                     size="sm"
                     onClick={onSubmit}
-                    className="bg-[#003468] text-white hover:bg-[#002a54] font-medium shadow-sm rounded-md h-9 px-4 ml-1"
+                    disabled={isLocked}
+                    className={isLocked ? "bg-slate-300 text-slate-500 cursor-not-allowed ml-1" : "bg-[#003468] text-white hover:bg-[#002a54] font-medium shadow-sm rounded-md h-9 px-4 ml-1"}
                 >
-                    Submit
+                    {isLocked ? 'Submitted' : 'Submit'}
                 </Button>
             </div>
         </div>

@@ -47,6 +47,11 @@ export const useFacultyFilters = ({ initialFacultyData, filters, availableYears 
         router.get(window.location.pathname, { search: searchQuery, year }, { preserveScroll: true });
     };
 
+    const isYearLocked = useMemo(() => {
+        if (!yearFilter) return false;
+        return initialFacultyData.some(f => f.joined_year === yearFilter && (f.status === 'Submitted' || f.status === 'Completed'));
+    }, [initialFacultyData, yearFilter]);
+
     return {
         searchQuery,
         setSearchQuery,
@@ -54,5 +59,6 @@ export const useFacultyFilters = ({ initialFacultyData, filters, availableYears 
         setYearFilter,
         filteredFacultyList,
         handleYearChange,
+        isYearLocked,
     };
 };

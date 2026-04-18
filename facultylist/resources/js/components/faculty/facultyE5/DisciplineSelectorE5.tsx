@@ -23,6 +23,7 @@ type Props = {
     filterKeyword?: string;
     filterCategory?: 'bachelors' | 'masters' | 'doctorate' | 'education';
     showClear?: boolean;
+    readOnly?: boolean;
 };
 
 const DisciplineSelectorE5: FC<Props> = ({
@@ -36,7 +37,8 @@ const DisciplineSelectorE5: FC<Props> = ({
     hideCode = false,
     filterKeyword,
     filterCategory,
-    showClear = true
+    showClear = true,
+    readOnly = false
 }) => {
     const [selectedGroup, setSelectedGroup] = useState<string>("");
 
@@ -252,10 +254,10 @@ const DisciplineSelectorE5: FC<Props> = ({
                     options={mapToOptions(groups)}
                     value={selectedGroup}
                     onChange={handleGroupChange}
-                    disabled={disabled}
+                    disabled={disabled || readOnly}
                     placeholder="Select Major Group"
-                    showClear={showClear}
-                    className="w-full shrink-0 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900 rounded-md h-12 whitespace-normal text-left text-lg"
+                    showClear={showClear && !readOnly}
+                    className="w-full shrink-0 disabled:opacity-100 disabled:bg-white disabled:cursor-not-allowed disabled:border-gray-200 text-gray-900 rounded-md h-12 whitespace-normal text-left text-lg"
                 />
             )}
 
@@ -266,7 +268,7 @@ const DisciplineSelectorE5: FC<Props> = ({
                     <Input
                         value={value || ''}
                         readOnly
-                        className="w-32 shrink-0 bg-gray-50 text-center font-semibold  disabled:opacity-100 rounded-md border border-input h-12 text-sm flex items-center justify-center"
+                        className="w-32 shrink-0 bg-gray-50 text-center font-bold text-gray-900 disabled:opacity-100 rounded-md border border-input h-12 text-[15px] flex items-center justify-center cursor-not-allowed"
                         placeholder="Code"
                     />
                 )}
@@ -276,10 +278,10 @@ const DisciplineSelectorE5: FC<Props> = ({
                     options={mapToOptions(currentDisciplines)}
                     value={value}
                     onChange={handleDisciplineChange}
-                    disabled={disabled || (showGroup && !selectedGroup)}
+                    disabled={disabled || readOnly || (showGroup && !selectedGroup)}
                     placeholder={placeholder}
-                    showClear={showClear}
-                    className="flex-1 disabled:opacity-100 disabled:bg-white disabled:cursor-default disabled:border-gray-200 text-gray-900 rounded-md h-12 whitespace-normal text-left text-sm"
+                    showClear={showClear && !readOnly}
+                    className="flex-1 disabled:opacity-100 disabled:bg-white disabled:cursor-not-allowed disabled:border-gray-200 text-gray-900 rounded-md h-12 whitespace-normal text-left text-[15px]"
                 />
             </div>
         </div>

@@ -19,6 +19,7 @@ interface FacultyFormE2Props {
     onSave?: (data: Partial<PublicFaculty>) => void;
     referenceData?: any;
     hideHeader?: boolean;
+    readOnly?: boolean;
 }
 
 // --- MAIN COMPONENT ---
@@ -28,7 +29,8 @@ const FacultyFormE2: FC<FacultyFormE2Props> = ({
     hideHeader = false,
     formData: externalFormData,
     onChange: externalOnChange,
-    referenceData
+    referenceData,
+    readOnly = false
 }) => {
     // --- HOOKS ---
 
@@ -46,6 +48,7 @@ const FacultyFormE2: FC<FacultyFormE2Props> = ({
     // --- HANDLERS ---
 
     const handleChange = (field: keyof PublicFaculty, value: string) => {
+        if (readOnly) return;
         if (errors[field]) {
             setErrors(prev => {
                 const newErrors = { ...prev };
@@ -86,7 +89,7 @@ const FacultyFormE2: FC<FacultyFormE2Props> = ({
                 <FacultyProfileCardsE2
                     formData={formData}
                     handleChange={handleChange}
-                    readOnly={false}
+                    readOnly={readOnly}
                     referenceData={referenceData}
                 />
             </div>
@@ -118,7 +121,7 @@ const FacultyFormE2: FC<FacultyFormE2Props> = ({
                     <FacultyProfileCardsE2
                         formData={formData}
                         handleChange={handleChange}
-                        readOnly={false}
+                        readOnly={readOnly}
                         referenceData={referenceData}
                     />
                 </div>

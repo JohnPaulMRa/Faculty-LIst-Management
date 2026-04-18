@@ -55,7 +55,6 @@ const FacultyProfile: FC<FacultyProfileProps> = ({
     schoolName = 'School Name',
     schoolType = 'private',
 }) => {
-
     // --- Custom Hooks ---
     const { alertModal, showAlert, showConfirm, closeAlert } = useAlertModal();
 
@@ -66,6 +65,7 @@ const FacultyProfile: FC<FacultyProfileProps> = ({
         setYearFilter,
         filteredFacultyList,
         handleYearChange,
+        isYearLocked,
     } = useFacultyFilters({ initialFacultyData, filters, availableYears: availableYears || [] });
 
     const {
@@ -98,7 +98,6 @@ const FacultyProfile: FC<FacultyProfileProps> = ({
         setSelectedFile,
         setImportGroup,
         submitYear,
-        setSubmitYear,
         importType,
         importGroup,
         importYear,
@@ -190,7 +189,9 @@ const FacultyProfile: FC<FacultyProfileProps> = ({
                     </div>
 
                     {/* DATA TABLE */}
-                    <div className="flex flex-col rounded-none border border-gray-300 bg-white shadow-sm overflow-hidden">
+                    <div className="flex flex-col rounded-none border border-blue-100/60 bg-white shadow-xl shadow-blue-900/5 overflow-hidden relative">
+
+
                         <FacultyToolbar
                             searchQuery={searchQuery}
                             onSearchChange={setSearchQuery}
@@ -199,6 +200,7 @@ const FacultyProfile: FC<FacultyProfileProps> = ({
                             onYearChange={handleYearChange}
                             onCopyData={() => setIsCopyModalOpen(true)}
                             onSubmit={handleSubmit}
+                            isLocked={isYearLocked}
                         />
 
                         {schoolType?.toLowerCase() === 'private' ? (
@@ -209,6 +211,7 @@ const FacultyProfile: FC<FacultyProfileProps> = ({
                                 onDelete={handleDelete}
                                 onEdit={handleEdit}
                                 referenceData={referenceData}
+                                isLocked={isYearLocked}
                             />
                         ) : (
                             <FacultyListTableE2
@@ -218,6 +221,7 @@ const FacultyProfile: FC<FacultyProfileProps> = ({
                                 onDelete={handleDelete}
                                 onEdit={handleEdit}
                                 referenceData={referenceData}
+                                isLocked={isYearLocked}
                             />
                         )}
                     </div>

@@ -158,13 +158,13 @@ const FormField: FC<FormFieldProps> = ({
 }) => {
     const containerClass = cn(
         "flex flex-1 items-center rounded-md border border-gray-300 bg-white transition-all duration-200 overflow-hidden h-12",
-        readOnly ? "bg-gray-50/50 border-gray-200" : "focus-within:border-[#003468] focus-within:ring-1 focus-within:ring-[#003468]/20 hover:border-gray-400",
+        readOnly ? "bg-gray-50/50 border-gray-200 cursor-not-allowed" : "focus-within:border-[#003468] focus-within:ring-1 focus-within:ring-[#003468]/20 hover:border-gray-400",
         error ? "border-red-500 focus-within:border-red-500 focus-within:ring-red-500/20" : ""
     );
 
     const inputClass = cn(
-        "border-0 focus-visible:ring-0 shadow-none h-full flex-1 px-3 text-lg",
-        readOnly && "cursor-not-allowed text-gray-500",
+        "border-0 focus-visible:ring-0 shadow-none h-full flex-1 px-3 text-[15px] text-gray-900",
+        readOnly && "cursor-not-allowed",
         className
     );
 
@@ -175,7 +175,7 @@ const FormField: FC<FormFieldProps> = ({
     return (
         <div className="space-y-1.5">
             <div className="flex items-center justify-between">
-                <label className="text-base font-bold text-gray-600 uppercase tracking-wider">
+                <label className="text-base font-bold text-gray-900 uppercase tracking-wider">
                     {label}
                     {required && <span className="text-red-500 ml-1">*</span>}
                 </label>
@@ -183,7 +183,7 @@ const FormField: FC<FormFieldProps> = ({
             </div>
             <div className="flex items-center gap-2">
                 {showCodePrefix && (
-                    <div className="shrink-0 h-12 w-32 bg-gray-50 border border-input flex items-center justify-center text-lg font-bold text-gray-700 uppercase rounded-md px-3 text-center">
+                    <div className="shrink-0 h-12 w-32 bg-gray-50 border border-input flex items-center justify-center text-[15px] font-bold text-gray-900 uppercase rounded-md px-3 text-center disabled:opacity-100 disabled:bg-gray-50 cursor-not-allowed">
                         CODE
                     </div>
                 )}
@@ -217,12 +217,13 @@ const FormCombobox: FC<FormComboboxProps> = ({
 }) => {
     const comboboxClass = cn(
         'border-gray-300 hover:border-gray-400 focus-within:border-[#003468] focus-within:ring-1 focus-within:ring-[#003468]/20 rounded-md shadow-none h-12',
-        error ? 'border-red-500 focus-within:ring-red-500/20 focus-within:border-red-500' : ''
+        error ? 'border-red-500 focus-within:ring-red-500/20 focus-within:border-red-500' : '',
+        readOnly && "cursor-not-allowed"
     );
 
     return (
         <div className="space-y-1.5">
-            <label className="text-base font-bold text-gray-600 uppercase tracking-wider">
+            <label className="text-base font-bold text-gray-900 uppercase tracking-wider">
                 {label}
                 {required && <span className="text-red-500 ml-1">*</span>}
             </label>
@@ -231,8 +232,10 @@ const FormCombobox: FC<FormComboboxProps> = ({
                     <Input
                         value={value || ''}
                         onChange={(e) => onChange(e.target.value)}
-                        className="shrink-0 h-12 w-32 bg-gray-50 border border-input flex items-center justify-center text-[12px] font-bold text-gray-700 uppercase rounded-md px-3 text-center focus-visible:ring-0 shadow-none"
+                        readOnly={readOnly}
+                        className="shrink-0 h-12 w-32 bg-gray-50 border border-input flex items-center justify-center text-[15px] font-bold text-gray-900 uppercase rounded-md px-3 text-center focus-visible:ring-0 shadow-none disabled:opacity-100 disabled:bg-gray-50 cursor-not-allowed"
                         placeholder="Code"
+                        disabled={readOnly}
                     />
                 )}
                 <div className="flex-1 min-w-0">
@@ -243,7 +246,7 @@ const FormCombobox: FC<FormComboboxProps> = ({
                         placeholder={placeholder}
                         disabled={readOnly}
                         showCodePrefix={false}
-                        showClear={showClear}
+                        showClear={showClear && !readOnly}
                         className={comboboxClass}
                     />
                 </div>
@@ -266,12 +269,14 @@ const WorkloadGrid: FC<WorkloadGridProps> = ({
             {items.map((item, index) => {
                 const containerClass = cn(
                     "flex flex-1 items-center rounded-md border overflow-hidden h-12",
-                    item.highlighted ? 'bg-blue-50/50 border-blue-200' : 'bg-white border-gray-300 hover:border-gray-400'
+                    item.highlighted ? 'bg-blue-50/50 border-blue-200' : 'bg-white border-gray-300 hover:border-gray-400',
+                    item.readOnly && "cursor-not-allowed"
                 );
 
                 const inputClass = cn(
-                    "border-0 focus-visible:ring-0 shadow-none h-full w-full flex-1 text-center px-3 text-lg",
-                    item.highlighted ? 'font-bold text-[#003468] bg-transparent' : 'bg-transparent'
+                    "border-0 focus-visible:ring-0 shadow-none h-full w-full flex-1 text-center px-3 text-[15px] text-gray-900",
+                    item.highlighted ? 'font-bold text-[#003468] bg-transparent' : 'bg-transparent',
+                    item.readOnly && "cursor-not-allowed"
                 );
 
                 const handleItemChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -281,14 +286,14 @@ const WorkloadGrid: FC<WorkloadGridProps> = ({
                 return (
                     <div key={index} className="space-y-1">
                         <div className="flex items-center justify-between">
-                            <label className="text-base font-bold text-gray-600 uppercase leading-tight">
+                            <label className="text-base font-bold text-gray-900 uppercase leading-tight">
                                 {item.label}
                             </label>
                             {item.hint && <span className="text-[10px] text-gray-400 font-medium">{item.hint}</span>}
                         </div>
                         <div className="flex items-center gap-2">
                             {item.showCodePrefix && (
-                                <div className="shrink-0 h-12 w-32 bg-gray-50 border border-input flex items-center justify-center text-[12px] font-bold text-gray-700 uppercase rounded-md px-3 text-center">
+                                <div className="shrink-0 h-12 w-32 bg-gray-50 border border-input flex items-center justify-center text-[15px] font-bold text-gray-900 uppercase rounded-md px-3 text-center disabled:opacity-100 disabled:bg-gray-50 cursor-not-allowed">
                                     CODE
                                 </div>
                             )}
@@ -297,7 +302,7 @@ const WorkloadGrid: FC<WorkloadGridProps> = ({
                                     value={item.value || ''}
                                     onChange={handleItemChange}
                                     readOnly={item.readOnly}
-                                    className={inputClass}
+                                    className={cn(inputClass, item.readOnly && "disabled:opacity-100")}
                                 />
                             </div>
                         </div>
@@ -362,6 +367,7 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                         required
                         showCodePrefix={true}
                         showClear={true}
+                        readOnly={readOnly}
                     />
                     <FormField
                         label="HOME COLLEGE"
@@ -388,6 +394,7 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                         placeholder="Select Option"
                         showCodePrefix={true}
                         showClear={true}
+                        readOnly={readOnly}
                     />
                     <FormCombobox
                         label="SSL Salary Grade"
@@ -397,6 +404,7 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                         placeholder="Select Salary Grade"
                         showCodePrefix={true}
                         showClear={true}
+                        readOnly={readOnly}
                     />
                     <FormCombobox
                         label="ANNUAL BASIC SALARY"
@@ -406,6 +414,7 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                         placeholder="Select Salary Range"
                         showCodePrefix={true}
                         showClear={true}
+                        readOnly={readOnly}
                     />
                     <FormCombobox
                         label="ON LEAVE WITHOUT PAY?"
@@ -415,6 +424,7 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                         placeholder="Select Option"
                         showCodePrefix={true}
                         showClear={true}
+                        readOnly={readOnly}
                     />
                     <FormCombobox
                         label="FULL-TIME EQUIVALENT (FTE)"
@@ -423,6 +433,7 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                         options={mapToOptions(FTE_OPTIONS)}
                         showCodePrefix={true}
                         showClear={true}
+                        readOnly={readOnly}
                     />
                     <FormCombobox
                         label="GENDER OF FACULTY"
@@ -433,6 +444,7 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                         required
                         showCodePrefix={true}
                         showClear={true}
+                        readOnly={readOnly}
                     />
                 </div>
             </CardContent>
@@ -458,6 +470,7 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                         placeholder="Select Degree"
                         showCodePrefix={true}
                         showClear={true}
+                        readOnly={readOnly}
                     />
                     <FormCombobox
                         label="Actively Pursuing Next Degree?"
@@ -467,6 +480,7 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                         placeholder="Select Option"
                         showCodePrefix={true}
                         showClear={true}
+                        readOnly={readOnly}
                     />
                 </div>
 
@@ -475,7 +489,7 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                 <div className="space-y-4">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         <div className="space-y-1.5">
-                            <label className="text-base font-bold text-gray-600 uppercase tracking-wider">SPECIFIC DISCIPLINE (1) OF PRIMARY TEACHING LOAD</label>
+                            <label className="text-base font-bold text-gray-900 uppercase tracking-wider">SPECIFIC DISCIPLINE (1) OF PRIMARY TEACHING LOAD</label>
                             <DisciplineSelectorE2
                                 value={formData.discipline_load_1}
                                 onChange={(code) => onErrorSafeChange('discipline_load_1', code)}
@@ -483,10 +497,11 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                                 placeholder="Select Primary Discipline (1)"
                                 showGroup={false}
                                 showClear={true}
+                                readOnly={readOnly}
                             />
                         </div>
                         <div className="space-y-1.5">
-                            <label className="text-base font-bold text-gray-600 uppercase tracking-wider">SPECIFIC DISCIPLINE (2) OF PRIMARY TEACHING LOAD</label>
+                            <label className="text-base font-bold text-gray-900 uppercase tracking-wider">SPECIFIC DISCIPLINE (2) OF PRIMARY TEACHING LOAD</label>
                             <DisciplineSelectorE2
                                 value={formData.discipline_load_2}
                                 onChange={(code) => onErrorSafeChange('discipline_load_2', code)}
@@ -494,6 +509,7 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                                 placeholder="Select Primary Discipline (2)"
                                 showGroup={false}
                                 showClear={true}
+                                readOnly={readOnly}
                             />
                         </div>
                     </div>
@@ -504,7 +520,7 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                 <div className="space-y-4">
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                         <div className="space-y-1.5">
-                            <label className="text-base font-bold text-gray-600 uppercase tracking-wider">SPECIFIC DISCIPLINE OF BACHELORS DEGREE</label>
+                            <label className="text-base font-bold text-gray-900 uppercase tracking-wider">SPECIFIC DISCIPLINE OF BACHELORS DEGREE</label>
                             <DisciplineSelectorE2
                                 value={formData.discipline_bachelors}
                                 onChange={(code) => onErrorSafeChange('discipline_bachelors', code)}
@@ -513,10 +529,11 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                                 showGroup={false}
                                 filterCategory="bachelors"
                                 showClear={true}
+                                readOnly={readOnly}
                             />
                         </div>
                         <div className="space-y-1.5">
-                            <label className="text-base font-bold text-gray-600 uppercase tracking-wider">SPECIFIC DISCIPLINE OF MASTERS DEGREE</label>
+                            <label className="text-base font-bold text-gray-900 uppercase tracking-wider">SPECIFIC DISCIPLINE OF MASTERS DEGREE</label>
                             <DisciplineSelectorE2
                                 value={formData.discipline_masters}
                                 onChange={(code) => onErrorSafeChange('discipline_masters', code)}
@@ -525,10 +542,11 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                                 showGroup={false}
                                 filterCategory="masters"
                                 showClear={true}
+                                readOnly={readOnly}
                             />
                         </div>
                         <div className="space-y-1.5">
-                            <label className="text-base font-bold text-gray-600 uppercase tracking-wider">SPECIFIC DISCIPLINE OF DOCTORATE DEGREE</label>
+                            <label className="text-base font-bold text-gray-900 uppercase tracking-wider">SPECIFIC DISCIPLINE OF DOCTORATE DEGREE</label>
                             <DisciplineSelectorE2
                                 value={formData.discipline_doctorate}
                                 onChange={(code) => onErrorSafeChange('discipline_doctorate', code)}
@@ -537,6 +555,7 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                                 showGroup={false}
                                 filterCategory="doctorate"
                                 showClear={true}
+                                readOnly={readOnly}
                             />
                         </div>
                     </div>
@@ -553,6 +572,7 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                         placeholder="Select Option"
                         showCodePrefix={true}
                         showClear={true}
+                        readOnly={readOnly}
                     />
                     <FormCombobox
                         label="DOCTORATE WITH DISSERTATION?"
@@ -562,13 +582,14 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                         placeholder="Select Option"
                         showCodePrefix={true}
                         showClear={true}
+                        readOnly={readOnly}
                     />
                 </div>
             </CardContent>
         </Card>
     );
 
-    const undergraduateWorkloadCard = (
+    const workloadCard = (
         <Card className="border border-gray-200 shadow-md overflow-hidden rounded-xl bg-white">
             <CardHeader className="bg-linear-to-r from-[#003468] to-[#1a4f8c] pb-6 pt-6 px-6 border-b-0">
                 <SectionHeader
@@ -585,16 +606,19 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                             label: "LAB CREDIT UNITS TEACHING Undergrad",
                             value: formData.ug_lab_units || '',
                             onChange: (value) => onErrorSafeChange('ug_lab_units', value),
+                            readOnly: readOnly
                         },
                         {
                             label: "LECTURE CREDIT UNITS TEACHING Undergrad",
                             value: formData.ug_lec_units || '',
                             onChange: (value) => onErrorSafeChange('ug_lec_units', value),
+                            readOnly: readOnly
                         },
                         {
                             label: "TOTAL TEACHING CREDIT UNITS Undergrad (Lab+Lect)",
                             value: formData.ug_total_units || '',
                             onChange: (value) => onErrorSafeChange('ug_total_units', value),
+                            readOnly: readOnly
                         }
                     ]}
                 />
@@ -605,17 +629,20 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                         {
                             label: "LAB HOURS PER WEEK TEACHING Undergrad",
                             value: formData.ug_lab_hours || '',
-                            onChange: (value) => onErrorSafeChange('ug_lab_hours', value)
+                            onChange: (value) => onErrorSafeChange('ug_lab_hours', value),
+                            readOnly: readOnly
                         },
                         {
                             label: "LECTURE HOURS PER WEEK TEACHING Undergrad",
                             value: formData.ug_lec_hours || '',
-                            onChange: (value) => onErrorSafeChange('ug_lec_hours', value)
+                            onChange: (value) => onErrorSafeChange('ug_lec_hours', value),
+                            readOnly: readOnly
                         },
                         {
                             label: "TOTAL TEACHING HOURS PER WEEK Undergrad",
                             value: formData.ug_total_hours || '',
                             onChange: (value) => onErrorSafeChange('ug_total_hours', value),
+                            readOnly: readOnly
                         }
                     ]}
                 />
@@ -626,17 +653,20 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                         {
                             label: "Student Contact Hours Lab Undergrad",
                             value: formData.ug_lab_contact || '',
-                            onChange: (value) => onErrorSafeChange('ug_lab_contact', value)
+                            onChange: (value) => onErrorSafeChange('ug_lab_contact', value),
+                            readOnly: readOnly
                         },
                         {
                             label: "Student Contact Hours Lecture Undergrad",
                             value: formData.ug_lec_contact || '',
-                            onChange: (value) => onErrorSafeChange('ug_lec_contact', value)
+                            onChange: (value) => onErrorSafeChange('ug_lec_contact', value),
+                            readOnly: readOnly
                         },
                         {
-                            label: "STUDENT CONTACT-HOURS  Undergrad (Lab+Lect)",
+                            label: "STUDENT CONTACT-HOURS Undergrad (Lab+Lect)",
                             value: formData.ug_total_contact || '',
                             onChange: (value) => onErrorSafeChange('ug_total_contact', value),
+                            readOnly: readOnly
                         }
                     ]}
                 />
@@ -648,16 +678,19 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                             label: "LAB CREDIT UNITS TEACHING Graduate Level",
                             value: formData.grad_lab_units || '',
                             onChange: (value) => onErrorSafeChange('grad_lab_units', value),
+                            readOnly: readOnly
                         },
                         {
                             label: "LECTURE CREDIT UNITS TEACHING Graduate Level",
                             value: formData.grad_lec_units || '',
                             onChange: (value) => onErrorSafeChange('grad_lec_units', value),
+                            readOnly: readOnly
                         },
                         {
                             label: "TOTAL TEACHING CREDIT UNITS Graduate (Lab+Lect)",
                             value: formData.grad_total_units || '',
                             onChange: (value) => onErrorSafeChange('grad_total_units', value),
+                            readOnly: readOnly
                         }
                     ]}
                 />
@@ -669,16 +702,19 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                             label: "Student Contact Hours Lab Graduate",
                             value: formData.grad_lab_contact || '',
                             onChange: (value) => onErrorSafeChange('grad_lab_contact', value),
+                            readOnly: readOnly
                         },
                         {
                             label: "Student Contact Hours Lecture Graduate",
                             value: formData.grad_lec_contact || '',
                             onChange: (value) => onErrorSafeChange('grad_lec_contact', value),
+                            readOnly: readOnly
                         },
                         {
                             label: "STUDENT CONTACT-HOURS Graduate (Lab+Lect)",
                             value: formData.grad_total_contact || '',
                             onChange: (value) => onErrorSafeChange('grad_total_contact', value),
+                            readOnly: readOnly
                         }
                     ]}
                 />
@@ -703,36 +739,43 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                             label: "OFFICIAL RESEARCH LOAD",
                             value: formData.load_research || '',
                             onChange: (value) => onErrorSafeChange('load_research', value),
+                            readOnly: readOnly
                         },
                         {
                             label: "OFFICIAL EXTENSION LOAD",
                             value: formData.load_extension || '',
                             onChange: (value) => onErrorSafeChange('load_extension', value),
+                            readOnly: readOnly
                         },
                         {
                             label: "OFFICIAL STUDY LOAD",
                             value: formData.load_study || '',
                             onChange: (value) => onErrorSafeChange('load_study', value),
+                            readOnly: readOnly
                         },
                         {
                             label: "OFFICIAL LOAD FOR PRODUCTION",
                             value: formData.load_production || '',
                             onChange: (value) => onErrorSafeChange('load_production', value),
+                            readOnly: readOnly
                         },
                         {
                             label: "OFFICIAL ADMINISTRATIVE LOAD",
                             value: formData.load_admin || '',
                             onChange: (value) => onErrorSafeChange('load_admin', value),
+                            readOnly: readOnly
                         },
                         {
                             label: "OTHER OFFICIAL LOAD CREDITS",
                             value: formData.load_others || '',
                             onChange: (value) => onErrorSafeChange('load_others', value),
+                            readOnly: readOnly
                         },
                         {
                             label: "TOTAL WORK LOAD",
                             value: formData.load_total || '',
                             onChange: (value) => onErrorSafeChange('load_total', value),
+                            readOnly: readOnly
                         },
                     ]}
                 />
@@ -752,7 +795,7 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                     {educationalAttainmentCard}
                 </div>
                 <div className="lg:col-span-2">
-                    {undergraduateWorkloadCard}
+                    {workloadCard}
                 </div>
 
                 <div className="lg:col-span-2">

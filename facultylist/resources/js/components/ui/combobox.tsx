@@ -70,13 +70,12 @@ export function Combobox({
     }, [selectedOption, allowFreeInput, value])
 
     return (
-        <Command shouldFilter={false} className={cn("overflow-visible bg-transparent", containerClassName)}>
+        <Command shouldFilter={true} className={cn("overflow-visible bg-transparent shadow-none", containerClassName)}>
             <Popover open={open} onOpenChange={() => { }}>
                 <PopoverPrimitive.Anchor asChild>
                     <div
                         className={cn(
-                            "flex w-full items-center rounded-md border text-[12px] transition-colors focus-within:ring-1 focus-within:ring-ring disabled:cursor-not-allowed disabled:opacity-50 overflow-hidden h-12 px-3",
-                            disabled && "opacity-50 pointer-events-none",
+                            "flex w-full items-center rounded-md border border-input bg-white text-[12px] transition-colors focus-within:ring-1 focus-within:ring-ring disabled:cursor-not-allowed overflow-hidden h-12 px-3",
                             className
                         )}
                     >
@@ -118,12 +117,12 @@ export function Combobox({
                                 }}
                                 placeholder={placeholder}
                                 disabled={disabled}
-                                className="flex-1 min-w-0 bg-transparent outline-none placeholder:text-muted-foreground text-[15px] "
+                                className="flex-1 min-w-0 bg-transparent outline-none placeholder:text-muted-foreground text-[15px] disabled:cursor-not-allowed"
                             />
                             <div className="flex items-center gap-1 shrink-0">
                                 {showClear && value && (
                                     <X
-                                        className="h-4 w-4 opacity-40 cursor-pointer hover:opacity-70 transition-opacity"
+                                        className={cn("h-4 w-4 opacity-40 transition-opacity", disabled ? "cursor-not-allowed" : "cursor-pointer hover:opacity-70")}
                                         onMouseDown={(e) => {
                                             e.preventDefault()
                                             onChange("")
@@ -132,7 +131,7 @@ export function Combobox({
                                     />
                                 )}
                                 <ChevronsUpDown
-                                    className="h-4 w-4 opacity-40 cursor-pointer hover:opacity-70 transition-opacity"
+                                    className={cn("h-4 w-4 opacity-40 transition-opacity", disabled ? "cursor-not-allowed" : "cursor-pointer hover:opacity-70")}
                                     onMouseDown={(e) => {
                                         e.preventDefault()
                                         if (!disabled) setOpen((prev) => !prev)
@@ -143,9 +142,10 @@ export function Combobox({
                     </div>
                 </PopoverPrimitive.Anchor>
                 <PopoverContent
-                    className="p-0"
+                    className="p-0 shadow-none rounded-md"
                     style={{ width: "var(--radix-popover-trigger-width)" }}
                     align="start"
+                    sideOffset={0}
                     onOpenAutoFocus={(e) => e.preventDefault()}
                     onInteractOutside={(e) => {
                         // Prevent Radix from auto-closing; we control open state manually

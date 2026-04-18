@@ -14,11 +14,20 @@ type Props = {
     onEdit: (faculty: Faculty) => void;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     referenceData: any;
+    isLocked?: boolean;
 };
 
 const PAGE_SIZE_OPTIONS = [10, 15, 25, 50];
 
-const FacultyListTableE5: FC<Props> = ({ facultyList, yearFilter, onDelete, referenceData }) => {
+const FacultyListTableE5: FC<Props> = ({
+    facultyList,
+    yearFilter,
+    onFileClick,
+    onDelete,
+    onEdit,
+    referenceData,
+    isLocked,
+}) => {
     const [pageSize, setPageSize] = useState(25);
     const [currentPage, setCurrentPage] = useState(1);
     const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
@@ -107,36 +116,42 @@ const FacultyListTableE5: FC<Props> = ({ facultyList, yearFilter, onDelete, refe
     const paginated = sortedFacultyList.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
     return (
-        <div className="flex flex-col bg-white shadow-xl shadow-blue-900/5 overflow-hidden rounded-2xl border border-blue-100/50 mt-4">
-            {/* SPREADSHEET HEADER */}
-            <div className="bg-linear-to-r from-[#003468] to-[#1a4f8c] text-white px-6 py-4 text-sm font-bold uppercase tracking-wider shadow-sm">
-                FACULTY DATA RECORDS
-            </div>
+        <div className="flex flex-col bg-white overflow-hidden">
+            {/* SPREADSHEET HEADER & CONTROLS */}
+            <div className="bg-white flex items-center justify-between px-6 py-4 text-slate-900 border-b border-slate-100 shadow-sm">
+                <div className="flex items-center text-xs font-bold uppercase tracking-wider text-slate-900">
+                    <span>Show</span>
+                    <div className="w-24 mx-3">
+                        <Combobox
+                            options={PAGE_SIZE_OPTIONS.map(opt => ({ label: String(opt), value: opt }))}
+                            value={pageSize}
+                            onChange={(val) => handlePageSizeChange(Number(val))}
+                            placeholder=""
+                            className="h-10 border-slate-200 bg-slate-50 shadow-none focus-within:ring-2 focus-within:ring-blue-600/10 rounded-xl text-slate-900 px-3 font-bold"
+                        />
+                    </div>
+                    <span>entries</span>
 
-            {/* Show entries control */}
-            <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-100 bg-slate-50/50">
-                <span className="text-sm font-semibold text-slate-600 uppercase tracking-tight">Show</span>
-                <div className="w-24">
-                    <Combobox
-                        options={PAGE_SIZE_OPTIONS.map(opt => ({ label: String(opt), value: opt }))}
-                        value={pageSize}
-                        onChange={(val) => handlePageSizeChange(Number(val))}
-                        placeholder=""
-                        className="h-10 border-slate-200 hover:border-blue-400 focus-within:ring-2 focus-within:ring-blue-600/10 rounded-xl bg-white text-sm px-3 font-bold"
-                    />
+                    {isLocked && (
+                        <div className="flex items-center gap-2 text-amber-700 font-bold italic text-[11px] tracking-widest bg-amber-50/50 px-4 py-1.5 rounded-xl border border-amber-200/60 ml-6 uppercase">
+                            This record has been submitted and is now locked. No further changes can be made.
+                        </div>
+                    )}
                 </div>
-                <span className="text-sm font-semibold text-slate-600 uppercase tracking-tight">entries</span>
+                <div className="text-sm font-bold uppercase tracking-widest text-slate-900">
+                    FACULTY DATA RECORDS
+                </div>
             </div>
 
             <div className="overflow-x-auto">
 
                 <table className="w-full border-collapse text-sm whitespace-nowrap">
                     <thead>
-                        <tr className="bg-slate-50 text-slate-600 border-b border-slate-200 uppercase text-[11px] font-bold tracking-widest">
-                            <th className="px-3 py-2 font-bold text-center w-[5%]">#</th>
+                        <tr className="bg-linear-to-r from-[#003468] to-[#1a4f8c] text-white uppercase text-[11px] font-bold tracking-widest border-b border-blue-800">
+                            <th className="px-3 py-3 font-bold text-center w-[5%] border-r border-white/10">#</th>
                             <th className="px-3 py-2 font-bold w-[15%]">
-                                <div className="flex items-center justify-center gap-1 cursor-pointer hover:text-gray-200" onClick={() => handleSort('joined_year')}>
-                                    Academic Year <ArrowUpDown className="h-4 w-4" />
+                                <div className="flex items-center justify-center gap-1 cursor-pointer text-white hover:text-white/80 transition-colors" onClick={() => handleSort('joined_year')}>
+                                    Joined Year <ArrowUpDown className="h-4 w-4" />
                                 </div>
                             </th>
                             <th className="px-3 py-2 font-bold w-[10%]">
@@ -145,17 +160,17 @@ const FacultyListTableE5: FC<Props> = ({ facultyList, yearFilter, onDelete, refe
                                 </div>
                             </th>
                             <th className="px-3 py-2 font-bold w-[10%]">
-                                <div className="flex items-center justify-center gap-1 cursor-pointer hover:text-gray-200" onClick={() => handleSort('gender')}>
+                                <div className="flex items-center justify-center gap-1 cursor-pointer text-white hover:text-white/80 transition-colors" onClick={() => handleSort('gender')}>
                                     Gender <ArrowUpDown className="h-4 w-4" />
                                 </div>
                             </th>
                             <th className="px-3 py-2 font-bold w-[20%]">
-                                <div className="flex items-center justify-center gap-1 cursor-pointer hover:text-gray-200" onClick={() => handleSort('employment')}>
+                                <div className="flex items-center justify-center gap-1 cursor-pointer text-white hover:text-white/80 transition-colors" onClick={() => handleSort('employment')}>
                                     Full-Time / Part-Time <ArrowUpDown className="h-4 w-4" />
                                 </div>
                             </th>
                             <th className="px-3 py-2 font-bold w-[15%]">
-                                <div className="flex items-center justify-center gap-1 cursor-pointer hover:text-gray-200" onClick={() => handleSort('status')}>
+                                <div className="flex items-center justify-center gap-1 cursor-pointer text-white hover:text-white/80 transition-colors" onClick={() => handleSort('status')}>
                                     Status <ArrowUpDown className="h-4 w-4" />
                                 </div>
                             </th>
@@ -190,14 +205,15 @@ const FacultyListTableE5: FC<Props> = ({ facultyList, yearFilter, onDelete, refe
                                             <Link
                                                 href={edit({ id: faculty.id }).url}
                                                 className="flex items-center justify-center h-8 w-8 bg-amber-400 hover:bg-amber-500 text-amber-950 rounded-xl shadow-md border-b-2 border-amber-600 active:border-b-0 active:translate-y-px transition-all"
-                                                title="Edit Profile"
+                                                title={isLocked ? "View Profile" : "Edit Profile"}
                                             >
                                                 <Pencil className="h-4 w-4" />
                                             </Link>
                                             <button
-                                                onClick={() => onDelete(faculty.id)}
-                                                className="flex items-center justify-center h-8 w-8 bg-red-500 hover:bg-red-600 text-white rounded-xl shadow-md border-b-2 border-red-700 active:border-b-0 active:translate-y-px transition-all"
-                                                title="Delete"
+                                                onClick={() => !isLocked && onDelete(faculty.id)}
+                                                disabled={isLocked}
+                                                className={isLocked ? "flex items-center justify-center h-8 w-8 bg-slate-200 text-slate-400 rounded-xl shadow-none cursor-not-allowed" : "flex items-center justify-center h-8 w-8 bg-red-500 hover:bg-red-600 text-white rounded-xl shadow-md border-b-2 border-red-700 active:border-b-0 active:translate-y-px transition-all"}
+                                                title={isLocked ? "Record Locked" : "Delete"}
                                             >
                                                 <Trash2 className="h-4 w-4" />
                                             </button>

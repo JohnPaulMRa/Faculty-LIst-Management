@@ -1,5 +1,5 @@
 import { Head, router } from '@inertiajs/react';
-import { Save, Loader2 } from 'lucide-react';
+import { Save, Loader2, ArrowLeft } from 'lucide-react';
 import { useState } from 'react';
 import type { FC } from 'react';
 
@@ -17,9 +17,10 @@ interface EditProps {
     faculty: PublicFaculty;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     referenceData: any;
+    isSubmitted?: boolean;
 }
 
-const EditPublicFaculty: FC<EditProps> = ({ faculty, referenceData }) => {
+const EditPublicFaculty: FC<EditProps> = ({ faculty, referenceData, isSubmitted = false }) => {
     const [formData, setFormData] = useState<Partial<PublicFaculty>>(faculty);
     const [processing, setProcessing] = useState(false);
 
@@ -85,10 +86,11 @@ const EditPublicFaculty: FC<EditProps> = ({ faculty, referenceData }) => {
             <Head title={`Edit Faculty - ${faculty.name}`} />
 
             <div className="flex flex-1 flex-col gap-5 w-full py-18 px-2 md:px-20 max-w-8xl mx-auto">
+
                 <div className="flex justify-between items-center">
                     <div>
                         <div className="flex flex-col mt-1">
-                            <p className="text-2xl font-bold text-gray-00 dark:text-gray-100 tracking-wider">
+                            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-wider">
                                 {groupLabel}
                             </p>
                             {groupRemarks && (
@@ -99,12 +101,12 @@ const EditPublicFaculty: FC<EditProps> = ({ faculty, referenceData }) => {
                         </div>
                     </div>
                     <Button
-                        onClick={handleSave}
+                        onClick={isSubmitted ? handleBack : handleSave}
                         disabled={processing}
-                        className="bg-green-800 hover:bg-green-600 text-white"
+                        className={isSubmitted ? "bg-[#003468] hover:bg-[#002a54] text-white" : "bg-green-800 hover:bg-green-600 text-white"}
                     >
-                        {processing ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
-                        Save Changes
+                        {processing ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : (isSubmitted ? <ArrowLeft className="h-4 w-4 mr-2" /> : <Save className="h-4 w-4 mr-2" />)}
+                        {isSubmitted ? 'Return to List' : 'Save Changes'}
                     </Button>
                 </div>
 
@@ -114,6 +116,7 @@ const EditPublicFaculty: FC<EditProps> = ({ faculty, referenceData }) => {
                     referenceData={referenceData}
                     onCancel={handleBack}
                     hideHeader={true}
+                    readOnly={isSubmitted}
                 />
             </div>
         </AppLayout>

@@ -240,9 +240,9 @@ const SingleYearPrivateTable = ({ faculty, schoolYear, referenceData, onViewSubm
     };
 
     return (
-        <div className="flex flex-col bg-white shadow-xl shadow-blue-900/5 overflow-hidden rounded-2xl border border-blue-100/50 mt-4 animate-in fade-in duration-500">
-            <div className="bg-linear-to-r from-[#003468] to-[#1a4f8c] flex items-center justify-between px-6 py-4 text-white shadow-sm">
-                <div className="flex items-center text-xs font-bold uppercase tracking-wider">
+        <div className="flex flex-col bg-white shadow-xl shadow-blue-900/5 overflow-hidden rounded-none border border-blue-100/50 mt-4 animate-in fade-in duration-500">
+            <div className="bg-white flex items-center justify-between px-6 py-4 text-slate-900 border-b border-slate-100 shadow-sm">
+                <div className="flex items-center text-xs font-bold uppercase tracking-wider text-slate-900">
                     <span>Show</span>
                     <Select
                         value={String(entriesPerPage)}
@@ -251,7 +251,7 @@ const SingleYearPrivateTable = ({ faculty, schoolYear, referenceData, onViewSubm
                             setCurrentPage(1);
                         }}
                     >
-                        <SelectTrigger className="mx-3 h-10 w-[80px] rounded-xl border-white/20 bg-white/10 shadow-none focus:ring-2 focus:ring-white/20 text-white font-bold">
+                        <SelectTrigger className="mx-3 h-10 w-[80px] rounded-xl border-slate-200 bg-slate-50 shadow-none focus:ring-2 focus:ring-blue-600/10 text-slate-900 font-bold">
                             <SelectValue placeholder="25" />
                         </SelectTrigger>
                         <SelectContent className="rounded-xl border-slate-200">
@@ -263,7 +263,7 @@ const SingleYearPrivateTable = ({ faculty, schoolYear, referenceData, onViewSubm
                     </Select>
                     <span>entries</span>
                 </div>
-                <div className="text-sm font-bold uppercase tracking-widest">
+                <div className="text-sm font-bold uppercase tracking-widest text-slate-900">
                     LIST OF PRIVATE FACULTY ({schoolYear})
                 </div>
             </div>
@@ -271,22 +271,22 @@ const SingleYearPrivateTable = ({ faculty, schoolYear, referenceData, onViewSubm
             <div className="overflow-x-auto">
                 <table className="w-full border-collapse text-sm whitespace-nowrap">
                     <thead>
-                        <tr className="bg-slate-50 text-slate-600 border-b border-slate-200 uppercase text-[11px] font-bold tracking-widest">
-                            <th className="px-3 py-3 font-bold text-center w-[20px] border-r border-slate-200">#</th>
+                        <tr className="bg-linear-to-r from-[#003468] to-[#1a4f8c] text-white uppercase text-[11px] font-bold tracking-widest">
+                            <th className="px-3 py-3 font-bold text-center w-[20px] border-r border-white/10">#</th>
                             <th className="px-3 py-3 font-bold text-left">
-                                <div className="flex items-center gap-1 cursor-pointer hover:text-blue-600 transition-colors" onClick={() => onSort("schoolYear")}>
-                                    ACADEMIC YEAR <ArrowUpDown className="h-3 w-3" />
+                                <div className="flex items-center gap-1 cursor-pointer hover:text-white/80 transition-colors" onClick={() => onSort("schoolYear")}>
+                                    ACADEMIC YEAR <ArrowUpDown className="h-3 w-3 opacity-70" />
                                 </div>
                             </th>
                             <th className="px-3 py-3 font-bold text-left">
-                                <div className="flex items-center gap-1 cursor-pointer hover:text-blue-600 transition-colors" onClick={() => onSort("name")}>
-                                    FACULTY NAME <ArrowUpDown className="h-3 w-3" />
+                                <div className="flex items-center gap-1 cursor-pointer hover:text-white/80 transition-colors" onClick={() => onSort("name")}>
+                                    FACULTY NAME <ArrowUpDown className="h-3 w-3 opacity-70" />
                                 </div>
                             </th>
                             <th className="px-3 py-3 font-bold text-center">GENDER</th>
                             <th className="px-3 py-3 font-bold text-center">GENERIC FACULTY RANK</th>
                             <th className="px-3 py-3 font-bold text-center">TENURE</th>
-                            <th className="px-3 py-3 font-bold text-center text-blue-100 italic">SUBMITTED FILE</th>
+                            <th className="px-3 py-3 font-bold text-center italic">SUBMITTED FILE</th>
                             <th className="px-3 py-3 font-bold text-center w-[170px]">Action</th>
                         </tr>
                     </thead>
