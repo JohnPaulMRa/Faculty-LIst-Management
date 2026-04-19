@@ -170,12 +170,14 @@ export default function AdminDisciplineModule({
         if (!editingItem) return;
         setProcessing(true);
         const type = editingItem.type === 'specific' ? 'specific' : 'major';
-        const description = data.specificDiscipline || data.majorName || data.groupDescription || '';
         const newCode = data.code || editingItem.code;
 
         router.put(route('admin.disciplines.update', editingItem.code), {
             type,
-            description,
+            groupName: data.groupName,
+            majorName: data.majorName,
+            specificDiscipline: data.specificDiscipline,
+            description: data.specificDiscipline || data.majorName || data.groupName || '', // Fallback for backward compatibility
             newCode: newCode !== editingItem.code ? newCode : undefined,
         }, {
             onSuccess: (page: any) => {

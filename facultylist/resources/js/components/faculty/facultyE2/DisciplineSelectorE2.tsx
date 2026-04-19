@@ -2,6 +2,7 @@ import type { FC } from 'react';
 import { useEffect, useState, useMemo } from 'react';
 import { Combobox } from "@/components/ui/combobox";
 import { Input } from '@/components/ui/input';
+import { cn } from "@/lib/utils";
 
 type Discipline = {
     code: string;
@@ -21,7 +22,7 @@ type Props = {
     showGroup?: boolean;
     hideCode?: boolean;
     filterKeyword?: string;
-    filterCategory?: 'primary' | 'bachelors' | 'masters' | 'doctorate';
+    filterCategory?: 'primary' | 'bachelors' | 'masters' | 'doctorate' | 'education';
     showClear?: boolean;
     readOnly?: boolean;
 };
@@ -138,12 +139,28 @@ const DisciplineSelectorE2: FC<Props> = ({
         if (discipline) {
             onChange(String(discipline.code), discipline.desc);
         } else {
-            onChange("", "");
+            onChange(code, ""); // Still update code even if no matching description yet (allows typing)
         }
     };
 
     // Filter disciplines for the selected group and apply keyword/category filters
     const currentDisciplines = useMemo(() => {
+        // For 'education' category, directly use the pre-fetched educationDisciplines from backend
+        if (filterCategory === 'education') {
+            const eduList: Discipline[] = Array.isArray(referenceData?.educationDisciplines)
+                ? referenceData.educationDisciplines
+                : [];
+
+            if (filterKeyword) {
+                const lowerFilter = filterKeyword.toLowerCase().trim();
+                return eduList.filter(d =>
+                    (d.desc && d.desc.toLowerCase().includes(lowerFilter)) ||
+                    (d.code && d.code.toLowerCase().includes(lowerFilter))
+                );
+            }
+            return eduList;
+        }
+
         let filtered = showGroup
             ? allDisciplines.filter(d => d.major_group_code === selectedGroup)
             : allDisciplines;
@@ -229,7 +246,7 @@ const DisciplineSelectorE2: FC<Props> = ({
         }
 
         return filtered;
-    }, [allDisciplines, showGroup, selectedGroup, filterKeyword, filterCategory, value]);
+    }, [allDisciplines, showGroup, selectedGroup, filterKeyword, filterCategory, referenceData?.educationDisciplines, value]);
 
     const hasData = showGroup ? groups.length > 0 : allDisciplines.length > 0;
     if (!hasData) {
@@ -258,7 +275,7 @@ const DisciplineSelectorE2: FC<Props> = ({
                     disabled={disabled || readOnly}
                     placeholder="Select Major Group"
                     showClear={showClear && !readOnly}
-                    className="w-full shrink-0 disabled:opacity-100 disabled:bg-white disabled:cursor-not-allowed disabled:border-gray-200 text-gray-900 rounded-md h-12 whitespace-normal text-left text-lg"
+                    className="w-full shrink-0 disabled:opacity-100 disabled:bg-white disabled:cursor-not-allowed disabled:border-gray-200 text-gray-900 rounded-md h-12 whitespace-normal text-left text-[15px]"
                 />
             )}
 
@@ -268,9 +285,14 @@ const DisciplineSelectorE2: FC<Props> = ({
                 {!hideCode && (
                     <Input
                         value={value || ''}
-                        readOnly
-                        className="w-32 shrink-0 bg-gray-50 text-center font-bold text-gray-900 disabled:opacity-100 rounded-md border border-input h-12 text-[15px] flex items-center justify-center cursor-not-allowed"
+                        onChange={(e) => handleDisciplineChange(e.target.value)}
+                        readOnly={readOnly}
+                        className={cn(
+                            "w-32 shrink-0 bg-gray-50 text-center font-bold text-gray-900 disabled:opacity-100 rounded-md border border-input h-12 text-[15px] flex items-center justify-center focus-visible:ring-0 shadow-none",
+                            readOnly ? "cursor-not-allowed" : "cursor-text"
+                        )}
                         placeholder="Code"
+                        disabled={readOnly}
                     />
                 )}
 

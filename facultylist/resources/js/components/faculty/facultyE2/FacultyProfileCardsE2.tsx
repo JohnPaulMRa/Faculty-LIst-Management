@@ -173,9 +173,9 @@ const FormField: FC<FormFieldProps> = ({
     };
 
     return (
-        <div className="space-y-1.5">
-            <div className="flex items-center justify-between">
-                <label className="text-base font-bold text-gray-900 uppercase tracking-wider">
+        <div className="grid gap-3">
+            <div className="grid gap-3">
+                <label className="text-base font-bold text-gray-900">
                     {label}
                     {required && <span className="text-red-500 ml-1">*</span>}
                 </label>
@@ -221,9 +221,14 @@ const FormCombobox: FC<FormComboboxProps> = ({
         readOnly && "cursor-not-allowed"
     );
 
+    const codeInputClass = cn(
+        "shrink-0 h-12 w-32 bg-gray-50 border border-input flex items-center justify-center text-[15px] font-bold text-gray-900 uppercase rounded-md px-3 text-center focus-visible:ring-0 shadow-none disabled:opacity-100 disabled:bg-gray-50",
+        readOnly ? "cursor-not-allowed" : "cursor-text"
+    );
+
     return (
-        <div className="space-y-1.5">
-            <label className="text-base font-bold text-gray-900 uppercase tracking-wider">
+        <div className="grid gap-3">
+            <label className="text-base font-bold text-gray-900">
                 {label}
                 {required && <span className="text-red-500 ml-1">*</span>}
             </label>
@@ -233,7 +238,7 @@ const FormCombobox: FC<FormComboboxProps> = ({
                         value={value || ''}
                         onChange={(e) => onChange(e.target.value)}
                         readOnly={readOnly}
-                        className="shrink-0 h-12 w-32 bg-gray-50 border border-input flex items-center justify-center text-[15px] font-bold text-gray-900 uppercase rounded-md px-3 text-center focus-visible:ring-0 shadow-none disabled:opacity-100 disabled:bg-gray-50 cursor-not-allowed"
+                        className={codeInputClass}
                         placeholder="Code"
                         disabled={readOnly}
                     />
@@ -487,27 +492,29 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                 <Separator className="my-6" />
 
                 <div className="space-y-4">
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <div className="space-y-1.5">
-                            <label className="text-base font-bold text-gray-900 uppercase tracking-wider">SPECIFIC DISCIPLINE (1) OF PRIMARY TEACHING LOAD</label>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div className="grid gap-3">
+                            <label className="text-base font-bold text-gray-900">SPECIFIC DISCIPLINE (1) OF PRIMARY TEACHING LOAD</label>
                             <DisciplineSelectorE2
                                 value={formData.discipline_load_1}
                                 onChange={(code) => onErrorSafeChange('discipline_load_1', code)}
                                 referenceData={referenceData}
                                 placeholder="Select Primary Discipline (1)"
                                 showGroup={false}
+                                filterCategory="education"
                                 showClear={true}
                                 readOnly={readOnly}
                             />
                         </div>
-                        <div className="space-y-1.5">
-                            <label className="text-base font-bold text-gray-900 uppercase tracking-wider">SPECIFIC DISCIPLINE (2) OF PRIMARY TEACHING LOAD</label>
+                        <div className="grid gap-3">
+                            <label className="text-base font-bold text-gray-900">SPECIFIC DISCIPLINE (2) OF PRIMARY TEACHING LOAD</label>
                             <DisciplineSelectorE2
                                 value={formData.discipline_load_2}
                                 onChange={(code) => onErrorSafeChange('discipline_load_2', code)}
                                 referenceData={referenceData}
                                 placeholder="Select Primary Discipline (2)"
                                 showGroup={false}
+                                filterCategory="education"
                                 showClear={true}
                                 readOnly={readOnly}
                             />
@@ -519,8 +526,8 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
 
                 <div className="space-y-4">
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                        <div className="space-y-1.5">
-                            <label className="text-base font-bold text-gray-900 uppercase tracking-wider">SPECIFIC DISCIPLINE OF BACHELORS DEGREE</label>
+                        <div className="grid gap-3">
+                            <label className="text-base font-bold text-gray-900">SPECIFIC DISCIPLINE OF BACHELORS DEGREE</label>
                             <DisciplineSelectorE2
                                 value={formData.discipline_bachelors}
                                 onChange={(code) => onErrorSafeChange('discipline_bachelors', code)}
@@ -532,8 +539,8 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                                 readOnly={readOnly}
                             />
                         </div>
-                        <div className="space-y-1.5">
-                            <label className="text-base font-bold text-gray-900 uppercase tracking-wider">SPECIFIC DISCIPLINE OF MASTERS DEGREE</label>
+                        <div className="grid gap-3">
+                            <label className="text-base font-bold text-gray-900">SPECIFIC DISCIPLINE OF MASTERS DEGREE</label>
                             <DisciplineSelectorE2
                                 value={formData.discipline_masters}
                                 onChange={(code) => onErrorSafeChange('discipline_masters', code)}
@@ -545,8 +552,8 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                                 readOnly={readOnly}
                             />
                         </div>
-                        <div className="space-y-1.5">
-                            <label className="text-base font-bold text-gray-900 uppercase tracking-wider">SPECIFIC DISCIPLINE OF DOCTORATE DEGREE</label>
+                        <div className="grid gap-3">
+                            <label className="text-base font-bold text-gray-900">SPECIFIC DISCIPLINE OF DOCTORATE DEGREE</label>
                             <DisciplineSelectorE2
                                 value={formData.discipline_doctorate}
                                 onChange={(code) => onErrorSafeChange('discipline_doctorate', code)}

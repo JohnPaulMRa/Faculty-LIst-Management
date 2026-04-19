@@ -115,23 +115,23 @@ export function HeisTable({ heis, searchQuery, onClearSearch, onEdit, onDelete }
                     <thead>
                         <tr className="bg-linear-to-r from-[#003468] to-[#1a4f8c] text-white uppercase text-[11px] font-bold tracking-widest">
                             <th className="px-3 py-3 font-bold w-[40px] text-center border-r border-white/10">#</th>
-                            <th className="px-3 py-3 font-bold w-[10%] text-left">
+                            <th className="px-3 py-3 font-bold w-[10%] text-center">
                                 <div className="flex items-center gap-1 cursor-pointer hover:text-white/80 transition-colors" onClick={() => onSort("hei_code")}>
                                     HEI Code <ArrowUpDown className="h-3 w-3 opacity-70" />
                                 </div>
                             </th>
-                            <th className="px-3 py-3 font-bold w-[20%] text-left">
+                            <th className="px-3 py-3 font-bold w-[15%] text-center">
                                 <div className="flex items-center gap-1 cursor-pointer hover:text-white/80 transition-colors" onClick={() => onSort("name")}>
                                     List of HEIs <ArrowUpDown className="h-3 w-3 opacity-70" />
                                 </div>
                             </th>
-                            <th className="px-3 py-3 font-bold w-[15%] text-left">
+                            <th className="px-3 py-3 font-bold w-[15%] text-center">
                                 <div className="flex items-center gap-1 cursor-pointer hover:text-white/80 transition-colors" onClick={() => onSort("address")}>
                                     Address <ArrowUpDown className="h-3 w-3 opacity-70" />
                                 </div>
                             </th>
-                            <th className="px-3 py-3 font-bold w-[15%] text-left">Contact Number</th>
-                            <th className="px-3 py-3 font-bold w-[15%] text-left">Email</th>
+                            <th className="px-3 py-3 font-bold w-[15%] text-center">Contact Number</th>
+                            <th className="px-3 py-3 font-bold w-[15%] text-center">Email</th>
                             <th className="px-3 py-3 font-bold w-[10%] text-center">
                                 <div className="flex items-center justify-center gap-1 cursor-pointer hover:text-white/80 transition-colors" onClick={() => onSort("type")}>
                                     HEIs Type <ArrowUpDown className="h-3 w-3 opacity-70" />
@@ -168,13 +168,12 @@ export function HeisTable({ heis, searchQuery, onClearSearch, onEdit, onDelete }
                                         {hei.email || <span className="text-gray-400">N/A</span>}
                                     </td>
                                     <td className="px-3 py-2 text-center">
-                                        <span className={`px-2 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider ${
-                                            hei.type?.toLowerCase() === 'private'
-                                                ? 'bg-blue-100 text-blue-700'
-                                                : hei.type?.toLowerCase() === 'public'
+                                        <span className={`px-2 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider ${hei.type?.toLowerCase() === 'private'
+                                            ? 'bg-blue-100 text-blue-700'
+                                            : hei.type?.toLowerCase() === 'public'
                                                 ? 'bg-orange-100 text-orange-700'
                                                 : 'bg-gray-100 text-gray-700'
-                                        }`}>
+                                            }`}>
                                             {hei.type}
                                         </span>
                                     </td>

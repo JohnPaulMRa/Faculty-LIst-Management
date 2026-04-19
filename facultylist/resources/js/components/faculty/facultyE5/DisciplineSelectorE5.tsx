@@ -2,6 +2,7 @@ import type { FC } from 'react';
 import { useEffect, useState, useMemo } from 'react';
 import { Combobox } from "@/components/ui/combobox";
 import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/utils';
 
 type Discipline = {
     code: string;
@@ -263,12 +264,16 @@ const DisciplineSelectorE5: FC<Props> = ({
 
             {/* Row 2: Code + Specific Discipline */}
             <div className={`flex ${hideCode ? 'gap-0 w-full' : 'gap-2 w-full'}`}>
-                {/* Code Input (Read-only) */}
+                {/* Code Input (Editable) */}
                 {!hideCode && (
                     <Input
                         value={value || ''}
-                        readOnly
-                        className="w-32 shrink-0 bg-gray-50 text-center font-bold text-gray-900 disabled:opacity-100 rounded-md border border-input h-12 text-[15px] flex items-center justify-center cursor-not-allowed"
+                        onChange={(e) => handleDisciplineChange(e.target.value)}
+                        readOnly={readOnly}
+                        className={cn(
+                            "w-32 shrink-0 bg-gray-50 text-center font-bold text-gray-900 focus-visible:ring-0 disabled:opacity-100 rounded-md border border-input h-12 text-[15px] flex items-center justify-center",
+                            readOnly ? "cursor-not-allowed" : "cursor-text"
+                        )}
                         placeholder="Code"
                     />
                 )}

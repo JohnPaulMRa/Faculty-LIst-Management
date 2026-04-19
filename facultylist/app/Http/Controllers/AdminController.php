@@ -461,7 +461,10 @@ class AdminController extends Controller
         $validated = $request->validate([
             'type' => 'nullable|string|in:major,specific',
             'newCode' => 'nullable|string|max:10',
-            'description' => 'required|string|max:255',
+            'groupName' => 'nullable|string|max:255',
+            'majorName' => 'nullable|string|max:255',
+            'specificDiscipline' => 'nullable|string|max:255',
+            'description' => 'nullable|string|max:255',
         ]);
 
         try {
@@ -469,26 +472,36 @@ class AdminController extends Controller
 
             $type = $validated['type'] ?? 'specific';
             $newCode = $validated['newCode'] ?? $code;
-            $description = $validated['description'];
-            $slug = Str::slug($description, '_');
+            $groupName = $validated['groupName'] ?? null;
+            $majorName = $validated['majorName'] ?? null;
+            $specificName = $validated['specificDiscipline'] ?? $validated['description'] ?? null;
             $updated = false;
 
             if ($type === 'major') {
                 $major = RefMajorDiscipline::where('code', $code)->first();
                 if ($major) {
-                    $major->description = $description;
-                    $major->slug = $slug;
+                    $major->description = $majorName ?: $specificName;
+                    $major->slug = Str::slug($major->description, '_');
                     if ($newCode && $newCode !== $code) {
                         $major->code = $newCode;
                     }
                     $major->save();
                     $updated = true;
                 }
+
+                if (!empty($groupName)) {
+                    $groupCode = substr($newCode, 0, 2);
+                    RefDisciplineGroup::updateOrCreate(
+                        ['code' => $groupCode],
+                        ['description' => $groupName]
+                    );
+                    $updated = true;
+                }
             } else {
                 $specific = RefSpecificDiscipline::where('code', $code)->first();
                 if ($specific) {
-                    $specific->description = $description;
-                    $specific->slug = $slug;
+                    $specific->description = $specificName;
+                    $specific->slug = Str::slug($specificName, '_');
                     if ($newCode && $newCode !== $code) {
                         $specific->code = $newCode;
                         $specific->group_code = substr($newCode, 0, 2);
@@ -505,6 +518,26 @@ class AdminController extends Controller
                         }
                     }
                     $specific->save();
+                    $updated = true;
+                }
+
+                if (!empty($majorName)) {
+                    $majorCode = $specific ? $specific->major_code : ((strlen($newCode) >= 6) ? substr($newCode, 0, 6) : substr($newCode, 0, 4));
+                    if ($majorCode) {
+                        RefMajorDiscipline::updateOrCreate(
+                            ['code' => $majorCode],
+                            ['description' => $majorName, 'slug' => Str::slug($majorName, '_')]
+                        );
+                        $updated = true;
+                    }
+                }
+
+                if (!empty($groupName)) {
+                    $groupCode = substr($newCode, 0, 2);
+                    RefDisciplineGroup::updateOrCreate(
+                        ['code' => $groupCode],
+                        ['description' => $groupName]
+                    );
                     $updated = true;
                 }
             }

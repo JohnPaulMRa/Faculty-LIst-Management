@@ -52,10 +52,10 @@ export default function EditDisciplineModal({ isOpen, onClose, onSubmit, initial
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         onSubmit({
-            code: specificCode || majorCode,
+            code: specificCode || majorCode || groupCode,
+            groupName: groupDesc,
             majorName: majorDesc,
             specificDiscipline: specificDesc,
-            groupDescription: specificDesc || majorDesc,
         });
     };
 

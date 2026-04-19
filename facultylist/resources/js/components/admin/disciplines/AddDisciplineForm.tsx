@@ -132,7 +132,7 @@ export default function AddDisciplineForm({ onCancel, onSubmit, majors = [], pro
                 <div className="grid grid-cols-[140px_1fr_1fr_1fr] gap-6 items-end">
                     {/* Code */}
                     <div className="space-y-2">
-                        <Label className="text-base font-bold text-gray-600 uppercase tracking-wider ml-1">
+                        <Label className="text-base font-semibold text-gray-600 uppercase tracking-wider ml-1">
                             Code <span className="text-red-500">*</span>
                         </Label>
                         <Input
@@ -159,7 +159,7 @@ export default function AddDisciplineForm({ onCancel, onSubmit, majors = [], pro
                                 }
                             }}
                             className="h-14 bg-slate-50 text-center font-black text-xl focus-visible:ring-2 focus-visible:ring-blue-600/10 focus-visible:border-blue-500 border-slate-200 hover:border-blue-400 rounded-xl transition-all shadow-sm text-blue-600"
-                            placeholder="XXXXXXXX"
+                            placeholder=" "
                             maxLength={10}
                         />
                     </div>
@@ -177,7 +177,7 @@ export default function AddDisciplineForm({ onCancel, onSubmit, majors = [], pro
                                 setGroupDesc(typed);
                             }}
                             allowFreeInput
-                            placeholder="Select Group"
+                            placeholder=" "
                             showClear={true}
                             containerClassName="w-full h-12"
                             className="h-full border-slate-200 hover:border-blue-400 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-600/10 rounded-xl shadow-sm text-base font-medium transition-all"
@@ -197,7 +197,7 @@ export default function AddDisciplineForm({ onCancel, onSubmit, majors = [], pro
                                 setMajorDesc(typed);
                             }}
                             allowFreeInput
-                            placeholder="Select Major"
+                            placeholder=" "
                             showClear={true}
                             containerClassName="w-full h-12"
                             className="h-full border-slate-200 hover:border-blue-400 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-600/10 rounded-xl shadow-sm text-base font-medium transition-all"
@@ -213,7 +213,7 @@ export default function AddDisciplineForm({ onCancel, onSubmit, majors = [], pro
                             value={specificDesc}
                             onChange={(e) => setSpecificDesc(e.target.value)}
                             className="h-12 border-slate-200 hover:border-blue-400 focus-visible:ring-2 focus-visible:ring-blue-600/10 focus-visible:border-blue-500 rounded-xl text-base font-medium shadow-sm transition-all"
-                            placeholder="Specific name"
+                            placeholder=" "
                         />
                     </div>
                 </div>

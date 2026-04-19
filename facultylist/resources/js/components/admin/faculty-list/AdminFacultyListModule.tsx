@@ -271,17 +271,17 @@ export default function AdminFacultyListModule({
                                 <thead>
                                     <tr className="bg-linear-to-r from-[#003468] to-[#1a4f8c] text-white uppercase text-[11px] font-bold tracking-widest">
                                         <th className="px-3 py-3 font-bold w-[40px] text-center border-r border-white/10">#</th>
-                                        <th className="px-3 py-3 font-bold w-[25%] text-left">
+                                        <th className="px-3 py-3 font-bold w-[25%] text-center">
                                             <div className="flex items-center gap-1 cursor-pointer hover:text-white/80 transition-colors" onClick={() => onSort("hei_code")}>
                                                 HEI Code <ArrowUpDown className="h-3 w-3 opacity-70" />
                                             </div>
                                         </th>
-                                        <th className="px-3 py-3 font-bold w-[30%] text-left">
+                                        <th className="px-3 py-3 font-bold w-[30%] text-center">
                                             <div className="flex items-center gap-1 cursor-pointer hover:text-white/80 transition-colors" onClick={() => onSort("name")}>
                                                 List of HEIs <ArrowUpDown className="h-3 w-3 opacity-70" />
                                             </div>
                                         </th>
-                                        <th className="px-3 py-3 font-bold w-[20%] text-left">
+                                        <th className="px-3 py-3 font-bold w-[20%] text-center">
                                             <div className="flex items-center gap-1 cursor-pointer hover:text-white/80 transition-colors" onClick={() => onSort("academic_year")}>
                                                 Academic Year <ArrowUpDown className="h-3 w-3 opacity-70" />
                                             </div>
@@ -301,16 +301,16 @@ export default function AdminFacultyListModule({
                                                 className="border-b border-slate-100 hover:bg-slate-50 transition-colors cursor-pointer"
                                                 onClick={() => handleSchoolClick(school.id)}
                                             >
-                                                <td className="px-3 py-2 text-left text-gray-500 ">
+                                                <td className="px-3 py-2 text-center text-gray-500 ">
                                                     {startEntry + index}
                                                 </td>
-                                                <td className="px-3 py-2 text-left font-semibold text-gray-900">
+                                                <td className="px-3 py-2 text-center font-semibold text-gray-900">
                                                     {school.hei_code || <span className="text-gray-400">-</span>}
                                                 </td>
-                                                <td className="px-3 py-2 text-left font-semibold text-gray-900">
+                                                <td className="px-3 py-2 text-center font-semibold text-gray-900">
                                                     <div>{school.name}</div>
                                                 </td>
-                                                <td className="px-3 py-2 text-left  text-blue-700">
+                                                <td className="px-3 py-2 text-center  text-blue-700">
                                                     {school.academic_year || 'N/A'}
                                                 </td>
 
