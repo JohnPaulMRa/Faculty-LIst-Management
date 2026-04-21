@@ -28,6 +28,7 @@ export default function EditDisciplineModal({ isOpen, onClose, onSubmit, initial
     const [majorDesc, setMajorDesc] = useState("");
     const [specificCode, setSpecificCode] = useState("");
     const [specificDesc, setSpecificDesc] = useState("");
+    const [programName, setProgramName] = useState("");
 
     useEffect(() => {
         if (initialData && isOpen) {
@@ -38,12 +39,13 @@ export default function EditDisciplineModal({ isOpen, onClose, onSubmit, initial
             setGroupDesc(initialData.groupName ?? initialData.majorDiscipline ?? "");
             
             // Major fields
-            setMajorCode(isMajor || isSpecific ? (initialData.majorCode ?? initialData.code?.slice(0, 6) ?? "") : "");
+            setMajorCode(isMajor || isSpecific ? (initialData.majorCode ?? initialData.code?.slice(0, 4) ?? "") : "");
             setMajorDesc(initialData.majorName ?? (isMajor ? initialData.description : ""));
             
             // Specific fields
             setSpecificCode(isSpecific ? (initialData.code ?? "") : "");
             setSpecificDesc(isSpecific ? (initialData.specificDiscipline ?? initialData.description ?? "") : "");
+            setProgramName(initialData.program ?? initialData.originalData?.program ?? "");
         }
     }, [initialData, isOpen]);
 
@@ -56,6 +58,7 @@ export default function EditDisciplineModal({ isOpen, onClose, onSubmit, initial
             groupName: groupDesc,
             majorName: majorDesc,
             specificDiscipline: specificDesc,
+            program: programName,
         });
     };
 
@@ -73,7 +76,7 @@ export default function EditDisciplineModal({ isOpen, onClose, onSubmit, initial
                 <div className="shrink-0 h-12 w-32 bg-gray-50 border border-gray-300 flex items-center justify-center text-lg font-bold text-gray-700 uppercase rounded-md px-3 text-center shadow-inner">
                     <Input
                         value={code}
-                        onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, maxCodeLen))}
+                        onChange={(e) => setCode(e.target.value.replace(/[^A-Za-z0-9]/g, "").toUpperCase().slice(0, maxCodeLen))}
                         className="border-none bg-transparent font-bold text-lg p-0 focus-visible:ring-0 text-center w-full"
                         placeholder={"0".repeat(maxCodeLen)}
                     />
@@ -101,8 +104,20 @@ export default function EditDisciplineModal({ isOpen, onClose, onSubmit, initial
 
                 <form onSubmit={handleSubmit} className="px-8 py-8 space-y-6">
                     {row("Discipline Group", groupCode, setGroupCode, groupDesc, setGroupDesc, 2)}
-                    {row("Major Discipline", majorCode, setMajorCode, majorDesc, setMajorDesc, 6)}
-                    {row("Specific Discipline", specificCode, setSpecificCode, specificDesc, setSpecificDesc, 6)}
+                    {row("Major Discipline", majorCode, setMajorCode, majorDesc, setMajorDesc, 4)}
+                    {row("Specific Discipline", specificCode, setSpecificCode, specificDesc, setSpecificDesc, 10)}
+
+                    <div className="space-y-2">
+                        <Label className="text-base font-bold text-gray-600 uppercase tracking-wider ml-1">
+                            Program
+                        </Label>
+                        <Input
+                            value={programName}
+                            onChange={(e) => setProgramName(e.target.value)}
+                            className="h-12 border-gray-300 hover:border-gray-400 focus-visible:ring-1 focus-visible:ring-[#003468]/20 focus-visible:border-[#003468] rounded-md text-base"
+                            placeholder="Program name..."
+                        />
+                    </div>
 
                     <DialogFooter className="mt-8 pt-6 border-t border-gray-100 flex gap-3">
                         <Button type="button" variant="outline" onClick={onClose} disabled={processing} className="rounded-xl border-gray-300 h-12 px-6 font-semibold uppercase tracking-wider text-xs shadow-sm">

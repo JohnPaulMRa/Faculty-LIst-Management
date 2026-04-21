@@ -46,27 +46,25 @@ export const SubmittedHeisList: FC<SubmittedHeisListProps> = ({ recentSubmission
                         recentSubmissions.map((submission) => (
                             <div key={submission.id} className="flex items-center gap-4 p-5 hover:bg-gray-50/50 transition-all group cursor-pointer border-l-4 border-transparent hover:border-blue-500">
                                 {/* Icon/Avatar Area */}
-                                <div className={`h-11 w-11 rounded-xl flex items-center justify-center shrink-0 border-2 transition-all duration-300 group-hover:scale-105 ${
-                                    submission.type === 'Public' 
-                                    ? 'bg-purple-50 border-purple-100 text-purple-600 group-hover:bg-purple-100' 
-                                    : 'bg-indigo-50 border-indigo-100 text-indigo-600 group-hover:bg-indigo-100'
-                                }`}>
+                                <div className={`h-11 w-11 rounded-xl flex items-center justify-center shrink-0 border-2 transition-all duration-300 group-hover:scale-105 ${submission.type === 'Public'
+                                        ? 'bg-purple-50 border-purple-100 text-purple-600 group-hover:bg-purple-100'
+                                        : 'bg-indigo-50 border-indigo-100 text-indigo-600 group-hover:bg-indigo-100'
+                                    }`}>
                                     <School className="h-6 w-6" />
                                 </div>
 
                                 {/* Main Content */}
                                 <div className="flex-1 min-w-0">
                                     <div className="flex items-center justify-between mb-1">
-                                        <span className={`text-sm font-black truncate transition-colors ${
-                                            submission.type === 'Public' ? 'text-purple-700' : 'text-blue-700'
-                                        }`}>
+                                        <span className={`text-sm font-black truncate transition-colors ${submission.type === 'Public' ? 'text-purple-700' : 'text-blue-700'
+                                            }`}>
                                             {submission.hei_name}
                                         </span>
                                         <span className="text-[10px] font-bold text-gray-400 whitespace-nowrap bg-gray-50 px-2 py-0.5 border border-gray-100">
                                             {submission.time}
                                         </span>
                                     </div>
-                                    
+
                                     <div className="flex items-center gap-3 mt-1.5">
                                         <div className="flex items-center gap-1.5">
                                             <Calendar className="h-3 w-3 text-gray-400" />
@@ -85,11 +83,10 @@ export const SubmittedHeisList: FC<SubmittedHeisListProps> = ({ recentSubmission
 
                                     <div className="flex items-center justify-between mt-2.5">
                                         <div className="flex items-center gap-2">
-                                            <Badge variant="outline" className={`text-[9px] px-1.5 py-0 uppercase font-black border-2 ${
-                                                submission.type === 'Public' 
-                                                ? 'border-purple-200 text-purple-600 bg-white' 
-                                                : 'border-blue-200 text-blue-600 bg-white'
-                                            }`}>
+                                            <Badge variant="outline" className={`text-[9px] px-1.5 py-0 uppercase font-black border-2 ${submission.type === 'Public'
+                                                    ? 'border-purple-200 text-purple-600 bg-white'
+                                                    : 'border-blue-200 text-blue-600 bg-white'
+                                                }`}>
                                                 {submission.type === 'Public' ? 'PUBLIC HEI' : 'PRIVATE HEI'}
                                             </Badge>
                                             <span className="text-[10px] text-gray-400 italic">
@@ -98,7 +95,7 @@ export const SubmittedHeisList: FC<SubmittedHeisListProps> = ({ recentSubmission
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 {/* Quick Action */}
                                 <div className="opacity-0 group-hover:opacity-100 transition-opacity pr-2">
                                     <ArrowRight className="h-4 w-4 text-gray-300" />
@@ -119,7 +116,7 @@ export const SubmittedHeisList: FC<SubmittedHeisListProps> = ({ recentSubmission
                             className="text-[11px] font-black text-gray-600 hover:text-blue-600 flex items-center justify-center gap-2 transition-all uppercase tracking-widest"
                             data-testid="view-details-link"
                         >
-                            View All Submissions
+
                             <ExternalLink className="h-3 w-3" />
                         </Link>
                     </div>

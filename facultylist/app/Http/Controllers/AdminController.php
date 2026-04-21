@@ -14,6 +14,7 @@ use Illuminate\Support\Str;
 use App\Models\RefDisciplineGroup;
 use App\Models\RefMajorDiscipline;
 use App\Models\RefSpecificDiscipline;
+use App\Models\DisProgram;
 use Illuminate\Database\QueryException;
 
 class AdminController extends Controller
@@ -294,25 +295,87 @@ class AdminController extends Controller
             $perPage = 9999;
         }
 
-        // Fetch paginated flattened programs directly from DB using JOINs
-        $programs = DB::table('specific_discipline')
-            ->leftJoin('major_discipline', 'specific_discipline.major_code', '=', 'major_discipline.code')
-            ->leftJoin('discipline_group', 'specific_discipline.group_code', '=', 'discipline_group.code')
+        // Fetch all codes from all three levels to ensure everything imported appears in the table
+        $specifics = DB::table('specific_discipline')
+            ->leftJoin('dis_programs', 'specific_discipline.code', '=', 'dis_programs.specific_discipline_code')
             ->select([
-                'specific_discipline.code as code',
+                'specific_discipline.code',
                 'specific_discipline.description as name',
+                'specific_discipline.group_code',
+                'specific_discipline.major_code',
+                DB::raw("GROUP_CONCAT(dis_programs.program_name SEPARATOR ', ') as program"),
+                'specific_discipline.id',
+                DB::raw("'specific' as discipline_level")
+            ])
+            ->groupBy(
+                'specific_discipline.code',
+                'specific_discipline.description',
+                'specific_discipline.group_code',
+                'specific_discipline.major_code',
+                'specific_discipline.id'
+            );
+
+        $majors = DB::table('major_discipline')
+            ->select([
+                'code',
+                'description as name',
+                DB::raw('SUBSTRING(code, 1, 2) as group_code'),
+                'code as major_code',
+                DB::raw('NULL as program'),
+                'code as id',
+                DB::raw("'major' as discipline_level")
+            ])
+            ->whereNotExists(function ($query) {
+                $query->select(DB::raw(1))
+                    ->from('specific_discipline')
+                    ->whereRaw('specific_discipline.major_code = major_discipline.code');
+            });
+
+        $groups = DB::table('discipline_group')
+            ->select([
+                'code',
+                'description as name',
+                'code as group_code',
+                DB::raw('NULL as major_code'),
+                DB::raw('NULL as program'),
+                'code as id',
+                DB::raw("'group' as discipline_level")
+            ])
+            ->whereNotExists(function ($query) {
+                $query->select(DB::raw(1))
+                    ->from('specific_discipline')
+                    ->whereRaw('specific_discipline.group_code = discipline_group.code');
+            })
+            ->whereNotExists(function ($query) {
+                $query->select(DB::raw(1))
+                    ->from('major_discipline')
+                    ->whereRaw('SUBSTRING(major_discipline.code, 1, 2) = discipline_group.code');
+            });
+
+        $baseQuery = $specifics->union($majors)->union($groups);
+
+        $programs = DB::table(DB::raw("({$baseQuery->toSql()}) as combined"))
+            ->mergeBindings($baseQuery)
+            ->leftJoin('major_discipline', 'combined.major_code', '=', 'major_discipline.code')
+            ->leftJoin('discipline_group', 'combined.group_code', '=', 'discipline_group.code')
+            ->select([
+                'combined.code',
+                'combined.name',
                 'discipline_group.description as disciplineGroup',
                 'major_discipline.description as specificMajor',
-                'specific_discipline.group_code as group_code',
-                'specific_discipline.major_code as major_code',
-                'specific_discipline.id as id'
+                'combined.group_code',
+                'combined.major_code',
+                'combined.program',
+                'combined.id',
+                'combined.discipline_level'
             ])
             ->when($search, function ($query, $search) {
                 return $query->where(function ($q) use ($search) {
-                    $q->where('specific_discipline.description', 'like', '%' . $search . '%')
-                        ->orWhere('specific_discipline.code', 'like', '%' . $search . '%')
+                    $q->where('combined.name', 'like', '%' . $search . '%')
+                        ->orWhere('combined.code', 'like', '%' . $search . '%')
                         ->orWhere('major_discipline.description', 'like', '%' . $search . '%')
-                        ->orWhere('discipline_group.description', 'like', '%' . $search . '%');
+                        ->orWhere('discipline_group.description', 'like', '%' . $search . '%')
+                        ->orWhere('combined.program', 'like', '%' . $search . '%');
                 });
             })
             ->orderBy($sort, $direction)
@@ -321,41 +384,70 @@ class AdminController extends Controller
 
         // Transform paginated items to the format expected by the frontend
         $programs->getCollection()->transform(function ($item) {
+            $groupName = $item->disciplineGroup ?? ($item->discipline_level === 'group' ? $item->name : '');
+            $majorName = $item->specificMajor ?? ($item->discipline_level === 'major' ? $item->name : '');
+            $specificName = $item->discipline_level === 'specific' ? $item->name : '';
+
             return [
-                'id' => "db-{$item->id}",
+                'id' => is_numeric($item->id) ? "db-{$item->id}" : "code-{$item->id}",
                 'code' => $item->code,
-                'name' => $item->name,
-                'disciplineGroup' => $item->disciplineGroup ?? '—',
-                'specificMajor' => $item->specificMajor ?? '—',
+                'name' => $specificName,
+                'disciplineGroup' => $groupName,
+                'specificMajor' => $majorName,
+                'program' => $item->program ?? '',
                 'originalData' => [
                     'code' => $item->code,
-                    'specificDiscipline' => $item->name,
-                    'majorName' => $item->specificMajor,
-                    'groupName' => $item->disciplineGroup,
+                    'specificDiscipline' => $specificName,
+                    'majorName' => $majorName,
+                    'groupName' => $groupName,
                     'majorCode' => $item->major_code,
                     'groupCode' => $item->group_code,
-                    'type' => 'specific'
+                    'program' => $item->program,
+                    'type' => $item->discipline_level
                 ]
             ];
         });
 
         // Reference data for Add/Edit forms (majors/groups)
-        $referenceMajors = DB::table('major_discipline')->orderBy('description')->get();
-        $referenceGroups = DB::table('discipline_group')->orderBy('description')->get();
+        // Deduplicate by description to prevent multiple entries for the same name in dropdowns
+        $referenceMajors = DB::table('major_discipline')->orderBy('description')->get()->unique('description');
+        $referenceGroups = DB::table('discipline_group')->orderBy('description')->get()->unique('description');
+        $referenceSpecifics = DB::table('specific_discipline')
+            ->leftJoin('dis_programs', 'specific_discipline.code', '=', 'dis_programs.specific_discipline_code')
+            ->select([
+                'specific_discipline.code',
+                'specific_discipline.description',
+                'specific_discipline.major_code',
+                DB::raw("GROUP_CONCAT(dis_programs.program_name SEPARATOR ', ') as program")
+            ])
+            ->groupBy('specific_discipline.code', 'specific_discipline.description', 'specific_discipline.major_code')
+            ->orderBy('specific_discipline.description')
+            ->get()
+            ->unique('description');
 
-        $formMajors = $referenceGroups->map(function ($group) use ($referenceMajors) {
+        $formMajors = $referenceGroups->map(function ($group) use ($referenceMajors, $referenceSpecifics) {
             return [
                 'code' => $group->code,
                 'description' => $group->description,
                 'groups' => $referenceMajors->filter(fn($m) => str_starts_with($m->code, $group->code))
-                    ->map(fn($m) => ['code' => $m->code, 'description' => $m->description])
+                    ->map(fn($m) => [
+                        'code' => $m->code,
+                        'description' => $m->description,
+                        'specifics' => $referenceSpecifics->filter(fn($s) => $s->major_code === $m->code)
+                            ->map(fn($s) => [
+                                'code' => $s->code, 
+                                'description' => $s->description,
+                                'program' => $s->program
+                            ])
+                            ->values()
+                    ])
                     ->values()
             ];
         });
 
         return Inertia::render('Admin/Disciplines', [
             'programs' => $programs,
-            'disciplines' => $formMajors, // Full structure for dropdowns
+            'disciplines' => $formMajors->values(), // Full structure for dropdowns
             'filters' => $request->only(['search', 'sort', 'direction', 'per_page']),
         ]);
     }
@@ -367,6 +459,7 @@ class AdminController extends Controller
             'groupName' => 'nullable|string|max:255',
             'majorName' => 'nullable|string|max:255',
             'specificDiscipline' => 'nullable|string|max:255',
+            'program' => 'nullable|string|max:255',
         ]);
 
         \Log::info('Discipline Store Attempt:', $validated);
@@ -412,6 +505,13 @@ class AdminController extends Controller
                     'major_code' => $majorCode,
                 ]);
 
+                if (!empty($validated['program'])) {
+                    DisProgram::create([
+                        'specific_discipline_code' => $code,
+                        'program_name' => $validated['program'],
+                    ]);
+                }
+
                 $saved = true;
 
                 // Also ensure the major discipline exists if a name was provided
@@ -442,10 +542,30 @@ class AdminController extends Controller
                     ]
                 );
                 $saved = true;
+            } elseif (!empty($validated['program'])) {
+                // Code+Program only import: create specific discipline if missing, then link program
+                $existingSpecific = RefSpecificDiscipline::where('code', $code)->first();
+                if (!$existingSpecific) {
+                    $groupCode = substr($code, 0, 2);
+                    $majorCode = strlen($code) >= 4 ? substr($code, 0, 4) : null;
+                    RefSpecificDiscipline::create([
+                        'code'        => $code,
+                        'description' => $code,
+                        'slug'        => Str::slug($code, '_'),
+                        'group_code'  => $groupCode,
+                        'major_code'  => $majorCode,
+                    ]);
+                }
+                DisProgram::where('specific_discipline_code', $code)->delete();
+                DisProgram::create([
+                    'specific_discipline_code' => $code,
+                    'program_name'             => $validated['program'],
+                ]);
+                $saved = true;
             }
 
             if (!$saved) {
-                return redirect()->back()->with('error', 'Please fill in at least the Major Discipline name or a Specific Discipline name.');
+                return redirect()->back()->with('error', 'Please fill in at least the Major Discipline name, Specific Discipline name, or a Program linked to an existing code.');
             }
 
         } catch (QueryException $e) {
@@ -465,6 +585,7 @@ class AdminController extends Controller
             'majorName' => 'nullable|string|max:255',
             'specificDiscipline' => 'nullable|string|max:255',
             'description' => 'nullable|string|max:255',
+            'program' => 'nullable|string|max:255',
         ]);
 
         try {
@@ -518,11 +639,28 @@ class AdminController extends Controller
                         }
                     }
                     $specific->save();
+
+                    // Update program in dis_programs table
+                    $programName = $request->program ?? null;
+                    DisProgram::where('specific_discipline_code', $specific->code)->delete();
+                    if (!empty($programName)) {
+                        DisProgram::create([
+                            'specific_discipline_code' => $specific->code,
+                            'program_name' => $programName,
+                        ]);
+                    }
+
                     $updated = true;
                 }
 
                 if (!empty($majorName)) {
-                    $majorCode = $specific ? $specific->major_code : ((strlen($newCode) >= 6) ? substr($newCode, 0, 6) : substr($newCode, 0, 4));
+                    $majorCode = substr($newCode, 0, 4);
+                    
+                    if ($specific && $specific->major_code !== $majorCode) {
+                        $specific->major_code = $majorCode;
+                        $specific->save();
+                    }
+
                     if ($majorCode) {
                         RefMajorDiscipline::updateOrCreate(
                             ['code' => $majorCode],
@@ -556,21 +694,39 @@ class AdminController extends Controller
 
     public function destroyDiscipline($code)
     {
-        // Try specific discipline first
-        $specific = RefSpecificDiscipline::where('code', $code)->first();
-        if ($specific) {
-            $specific->delete();
-            return redirect()->back()->with('success', 'Discipline deleted successfully.');
-        }
+        try {
+            // Try specific discipline first
+            $specific = RefSpecificDiscipline::where('code', $code)->first();
+            if ($specific) {
+                $specific->delete();
+                return redirect()->back()->with('success', 'Specific Discipline deleted successfully.');
+            }
 
-        // Then try major discipline
-        $major = RefMajorDiscipline::where('code', $code)->first();
-        if ($major) {
-            $major->delete();
-            return redirect()->back()->with('success', 'Discipline deleted successfully.');
-        }
+            // Then try major discipline
+            $major = RefMajorDiscipline::where('code', $code)->first();
+            if ($major) {
+                $major->delete();
+                return redirect()->back()->with('success', 'Major Discipline deleted successfully.');
+            }
 
-        return redirect()->back()->with('error', 'Discipline not found.');
+            // Finally try discipline group
+            $group = RefDisciplineGroup::where('code', $code)->first();
+            if ($group) {
+                $group->delete();
+                return redirect()->back()->with('success', 'Discipline Group deleted successfully.');
+            }
+
+            return redirect()->back()->with('error', 'Discipline not found.');
+        } catch (QueryException $e) {
+            $errorCode = $e->errorInfo[1] ?? 0;
+            // 1451 is MySQL code for foreign key constraint violation
+            if ($errorCode == 1451 || $errorCode == 19) { // 19 for sqlite
+                return redirect()->back()->with('error', 'Cannot delete this discipline because it is associated with existing records (e.g. faculty profiles or sub-disciplines).');
+            }
+            return redirect()->back()->with('error', 'Database error: ' . $e->getMessage());
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
+        }
     }
     private function getSchools(Request $request)
     {

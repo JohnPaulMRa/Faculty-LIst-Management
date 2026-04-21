@@ -10,6 +10,7 @@ export interface ParsedDisciplineRow {
     groupName: string;
     majorName: string;
     specificDiscipline: string;
+    program: string;
     _status?: "pending" | "success" | "error";
     _error?: string;
 }
@@ -24,13 +25,21 @@ interface ImportDisciplineModalProps {
 }
 
 // Extracting by strict Excel Column Letters instead of dynamic headers
-// Column C: PROGDIS (Code)
+// Clarified Mapping:
+// Column C: 6-DIGIT CODE FOR SPECIFIC DISCIPLINE
+// Column D: NAME OF DISCIPLINE GROUP
+// Column E: NAME OF MAJOR DISCIPLINE
+// Column F: NAME OF SPECIFIC DISCIPLINE
+// Column G or O/H: PROGRAM (Actual Degree Name)
+
+// Old Format Fallbacks:
 // Column D: CLUSTER_OF_DISCIPLINE (Major Discipline)
 // Column G: PROGRAM (Specific Discipline)
 // Column K or L: CHEDClass-DESCRIPTION (Discipline Group)
 
 export default function ImportDisciplineModal({ isOpen, onClose, onParsed, disciplines = [] }: ImportDisciplineModalProps) {
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const isCancelled = useRef(false);
     const [isDragging, setIsDragging] = useState(false);
     const [fileName, setFileName] = useState<string | null>(null);
     const [rows, setRows] = useState<ParsedDisciplineRow[]>([]);
@@ -50,6 +59,10 @@ export default function ImportDisciplineModal({ isOpen, onClose, onParsed, disci
     };
 
     const handleClose = () => {
+        if (importing) {
+            isCancelled.current = true;
+            return;
+        }
         reset();
         onClose();
     };
@@ -83,59 +96,58 @@ export default function ImportDisciplineModal({ isOpen, onClose, onParsed, disci
 
                 const parsed: ParsedDisciplineRow[] = [];
 
-                jsonRows.forEach((row) => {
-                    const rawCode = String(row["C"] ?? "").trim();
-                    // Skip actual header rows or empty rows
-                    if (!rawCode || rawCode.toLowerCase().includes("progdis") || rawCode.toLowerCase() === "code") {
+                // Scan ALL rows to find the header row containing PROGDIS / PROGRAM
+                let progdisKey: string | null = null;
+                let programKey: string | null = null;
+                let headerRowIndex = -1;
+
+                for (let ri = 0; ri < jsonRows.length; ri++) {
+                    const row = jsonRows[ri];
+                    let foundProgdis = false;
+                    let foundProgram = false;
+                    for (const key of Object.keys(row)) {
+                        const val = String(row[key]).trim().toUpperCase();
+                        if (val === "PROGDIS") { progdisKey = key; foundProgdis = true; }
+                        if (val === "PROGRAM")  { programKey = key; foundProgram = true; }
+                    }
+                    if (foundProgdis && foundProgram) {
+                        headerRowIndex = ri;
+                        break;
+                    }
+                }
+
+                // Fallback to column letters if headers not detected
+                if (!progdisKey) progdisKey = "C";
+                if (!programKey) programKey = "G";
+
+                jsonRows.forEach((row, rowIndex) => {
+                    // Skip all rows at or before the header row
+                    if (rowIndex <= headerRowIndex) return;
+
+                    const rawCode = String(row[progdisKey!] || "").trim();
+                    const rawProgram = String(row[programKey!] || "").trim();
+
+                    // Skip empty rows or any lingering header-like rows
+                    if (!rawCode ||
+                        rawCode.toUpperCase() === "PROGDIS" ||
+                        rawCode.toLowerCase().includes("code") ||
+                        rawCode.toLowerCase().includes("6-digit")) {
                         return;
                     }
 
                     const code = rawCode.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 10);
-                    
-                    // Auto-lookup logic based on CHED Code patterns
-                    const groupName = String(row["K"] || row["L"] || "").trim();
-                    let majorName = String(row["D"] || "").trim();
-                    const specificDiscipline = String(row["G"] || "").trim();
-
-                    // If we have a 4+ digit CHED code, we auto-fill ONLY the Major Discipline
-                    if (code.length >= 4) {
-                        const mCode = code.slice(0, 4);
-                        const mSuffix = code.slice(2, 4);
-                        const gPrefix = code.slice(0, 2);
-
-                        // 1. Lookup Major Name (Digits 1-4)
-                        let foundMajorName = "";
-                        for (const g of disciplines) {
-                            const m = (g.groups || []).find((m: any) => m.code === mCode);
-                            if (m) {
-                                foundMajorName = m.description;
-                                break;
-                            }
-                        }
-                        
-                        // User specific dictionary fallbacks (e.g. 50 + 08 -> Nursing)
-                        if (!foundMajorName && gPrefix === "50" && mSuffix === "08") {
-                            foundMajorName = "Nursing";
-                        }
-
-                        if (foundMajorName) {
-                            majorName = foundMajorName;
-                        }
-                    }
+                    const program = rawProgram.toUpperCase() === "PROGRAM" ? "" : rawProgram;
 
                     if (!code || code.length < 2) {
-                        parsed.push({ code, groupName, majorName, specificDiscipline, _status: "error" as const, _error: "Code is missing or too short." });
+                        parsed.push({ code, groupName: "", majorName: "", specificDiscipline: "", program, _status: "error" as const, _error: "Code is missing or too short." });
                         return;
                     }
-                    if (!majorName && !specificDiscipline) {
-                        parsed.push({ code, groupName, majorName, specificDiscipline, _status: "error" as const, _error: "MajorName or SpecificDiscipline is required." });
-                        return;
-                    }
-                    parsed.push({ code, groupName, majorName, specificDiscipline, _status: "pending" as const });
+
+                    parsed.push({ code, groupName: "", majorName: "", specificDiscipline: "", program, _status: "pending" as const });
                 });
 
                 if (parsed.length === 0) {
-                    setParseError("Could not find any valid discipline data in Column C, D, G, K/L. Please check the Excel format.");
+                    setParseError("Could not find any valid data. Ensure your Excel has a PROGDIS column and a PROGRAM column.");
                     return;
                 }
 
@@ -172,9 +184,11 @@ export default function ImportDisciplineModal({ isOpen, onClose, onParsed, disci
 
         let success = 0;
         let error = 0;
+        isCancelled.current = false;
         const updatedRows = [...rows];
 
         for (let i = 0; i < updatedRows.length; i++) {
+            if (isCancelled.current) break;
             const row = updatedRows[i];
             if (row._status !== "pending") continue;
 
@@ -186,6 +200,7 @@ export default function ImportDisciplineModal({ isOpen, onClose, onParsed, disci
                         groupName: row.groupName,
                         majorName: row.majorName,
                         specificDiscipline: row.specificDiscipline || null,
+                        program: row.program || null,
                     },
                     {
                         preserveState: true,
@@ -244,7 +259,7 @@ export default function ImportDisciplineModal({ isOpen, onClose, onParsed, disci
                         <div>
                             <h2 className="text-sm font-bold text-white">Import Disciplines from Excel</h2>
                             <p className="text-xs text-blue-100 mt-0.5">
-                                Required columns: <span className="font-semibold">PROGDIS · CHEDClass-DESCRIPTION · CLUSTER_OF_DISCIPLINE · PROGRAM</span>
+                                Required columns: <span className="font-semibold text-white">CODE (C) · GROUP (D) · MAJOR (E) · SPECIFIC (F) · PROGRAM (G)</span>
                             </p>
                         </div>
                     </div>
@@ -346,10 +361,9 @@ export default function ImportDisciplineModal({ isOpen, onClose, onParsed, disci
                     <Button
                         variant="outline"
                         onClick={handleClose}
-                        disabled={importing}
                         className="rounded-xl border-gray-300 text-gray-600 h-9 px-5 text-xs font-semibold"
                     >
-                        {importDone ? "Close" : "Cancel"}
+                        {importing ? "Stop Import" : importDone ? "Close" : "Cancel"}
                     </Button>
 
                     <Button

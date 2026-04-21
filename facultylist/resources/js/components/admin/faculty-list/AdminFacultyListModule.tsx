@@ -304,17 +304,17 @@ export default function AdminFacultyListModule({
                                                 <td className="px-3 py-2 text-center text-gray-500 ">
                                                     {startEntry + index}
                                                 </td>
-                                                <td className="px-3 py-2 text-center font-semibold text-gray-900">
+                                                <td className="px-3 py-2 text-left font-semibold text-gray-900">
                                                     {school.hei_code || <span className="text-gray-400">-</span>}
                                                 </td>
-                                                <td className="px-3 py-2 text-center font-semibold text-gray-900">
+                                                <td className="px-3 py-2 text-left font-semibold text-gray-900">
                                                     <div>{school.name}</div>
                                                 </td>
-                                                <td className="px-3 py-2 text-center  text-blue-700">
+                                                <td className="px-3 py-2 text-left  text-blue-700">
                                                     {school.academic_year || 'N/A'}
                                                 </td>
 
-                                                <td className="px-3 py-2 font-bold text-center">
+                                                <td className="px-3 py-2 font-bold text-left">
                                                     <div className="flex items-center justify-center gap-1.5 text-black">
                                                         <span>{school.faculty}</span>
                                                         <Users className="h-4 w-4 text-gray-500" />

@@ -29,6 +29,7 @@ export interface Program {
     disciplineGroup: string;
     specificMajor: string;
     specificGroup: string;
+    program?: string;
     programLevel: string;
     originalData: any;
 }
@@ -43,6 +44,7 @@ interface DisciplineTableProps {
     onSearchQueryChange: (query: string) => void;
     serverPagination?: any; // Laravel Paginator object
     serverFilters?: any;
+    disciplines?: any[]; // Full hierarchy for duplicate check
 }
 
 export default function DisciplineTable({
@@ -54,7 +56,8 @@ export default function DisciplineTable({
     searchQuery,
     onSearchQueryChange,
     serverPagination,
-    serverFilters
+    serverFilters,
+    disciplines = []
 }: DisciplineTableProps) {
     const [entriesPerPage, setEntriesPerPage] = useState(50);
     const [localPage, setLocalPage] = useState(1);
@@ -86,8 +89,6 @@ export default function DisciplineTable({
                 preserveScroll: true,
                 replace: true
             });
-        } else {
-            setLocalPage(page);
         }
     };
 
@@ -107,6 +108,30 @@ export default function DisciplineTable({
             });
         }
     };
+
+    // --- Duplicate Detection Logic ---
+    const duplicateMap = useMemo(() => {
+        const counts = new Map<string, number>();
+        programs.forEach(p => {
+            const key = p.code.toLowerCase().trim();
+            if (!key) return;
+            counts.set(key, (counts.get(key) || 0) + 1);
+        });
+        return counts;
+    }, [programs]);
+
+    const existingSystemCodes = useMemo(() => {
+        const codes = new Set<string>();
+        disciplines.forEach(g => {
+            (g.groups ?? []).forEach((m: any) => {
+                (m.specifics ?? []).forEach((s: any) => {
+                    if (s.code) codes.add(String(s.code).toLowerCase().trim());
+                });
+            });
+        });
+        return codes;
+    }, [disciplines]);
+    // ---------------------------------
 
     const isAll = entriesPerPage === -1;
 
@@ -198,7 +223,7 @@ export default function DisciplineTable({
                     <TableHeader>
                         <TableRow className="bg-linear-to-r from-[#003468] to-[#1a4f8c] hover:bg-[#003468] border-b-0">
                             <TableHead className="font-bold text-white uppercase text-[11px] tracking-widest w-20 text-center h-12 border-r border-white/10">#</TableHead>
-                            <TableHead className="font-bold text-white uppercase text-[11px] tracking-widest h-12 w-[20%]">
+                            <TableHead className="font-bold text-white uppercase text-[11px] tracking-widest h-12 w-[10%]">
                                 <div
                                     className={`flex items-center gap-2 cursor-pointer transition-colors ${sortConfig?.key === 'code' ? 'text-blue-200' : 'hover:text-blue-100'}`}
                                     onClick={() => onSort('code')}
@@ -206,7 +231,7 @@ export default function DisciplineTable({
                                     Code <ArrowUpDown className={`h-3 w-3 ${sortConfig?.key === 'code' ? 'opacity-100' : 'opacity-70'}`} />
                                 </div>
                             </TableHead>
-                            <TableHead className="font-bold text-white uppercase text-[11px] tracking-widest h-12 w-[25%]">
+                            <TableHead className="font-bold text-white uppercase text-[11px] tracking-widest h-12 w-[20%]">
                                 <div
                                     className={`flex items-center gap-2 cursor-pointer transition-colors ${sortConfig?.key === 'disciplineGroup' ? 'text-blue-200' : 'hover:text-blue-100'}`}
                                     onClick={() => onSort('disciplineGroup')}
@@ -214,7 +239,7 @@ export default function DisciplineTable({
                                     Discipline Group <ArrowUpDown className={`h-3 w-3 ${sortConfig?.key === 'disciplineGroup' ? 'opacity-100' : 'opacity-70'}`} />
                                 </div>
                             </TableHead>
-                            <TableHead className="font-bold text-white uppercase text-[11px] tracking-widest h-12 w-[25%]">
+                            <TableHead className="font-bold text-white uppercase text-[11px] tracking-widest h-12 w-[20%]">
                                 <div
                                     className={`flex items-center gap-2 cursor-pointer transition-colors ${sortConfig?.key === 'specificMajor' ? 'text-blue-200' : 'hover:text-blue-100'}`}
                                     onClick={() => onSort('specificMajor')}
@@ -222,7 +247,7 @@ export default function DisciplineTable({
                                     Major Discipline <ArrowUpDown className={`h-3 w-3 ${sortConfig?.key === 'specificMajor' ? 'opacity-100' : 'opacity-70'}`} />
                                 </div>
                             </TableHead>
-                            <TableHead className="font-bold text-white uppercase text-[11px] tracking-widest h-12 w-[20%]">
+                            <TableHead className="font-bold text-white uppercase text-[11px] tracking-widest h-12 w-[18%]">
                                 <div
                                     className={`flex items-center gap-2 cursor-pointer transition-colors ${sortConfig?.key === 'name' ? 'text-blue-200' : 'hover:text-blue-100'}`}
                                     onClick={() => onSort('name')}
@@ -230,13 +255,21 @@ export default function DisciplineTable({
                                     Specific Discipline <ArrowUpDown className={`h-3 w-3 ${sortConfig?.key === 'name' ? 'opacity-100' : 'opacity-70'}`} />
                                 </div>
                             </TableHead>
-                            <TableHead className="font-bold text-white uppercase text-[11px] tracking-widest text-center h-12">Actions</TableHead>
+                            <TableHead className="font-bold text-white uppercase text-[11px] tracking-widest h-12 w-[20%]">
+                                <div
+                                    className={`flex items-center gap-2 cursor-pointer transition-colors ${sortConfig?.key === 'program' ? 'text-blue-200' : 'hover:text-blue-100'}`}
+                                    onClick={() => onSort('program')}
+                                >
+                                    Program <ArrowUpDown className={`h-3 w-3 ${sortConfig?.key === 'program' ? 'opacity-100' : 'opacity-70'}`} />
+                                </div>
+                            </TableHead>
+                            <TableHead className="font-bold text-white uppercase text-[11px] tracking-widest text-right h-12">Actions</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {paginatedPrograms.length === 0 ? (
                             <TableRow>
-                                <TableCell colSpan={6} className="h-24 text-center text-gray-500">
+                                <TableCell colSpan={7} className="h-24 text-center text-gray-500">
                                     No programs found.
                                 </TableCell>
                             </TableRow>
@@ -249,6 +282,8 @@ export default function DisciplineTable({
                                     startEntry={startEntry}
                                     onEdit={onEdit}
                                     onDelete={onDelete}
+                                    isDuplicateInList={(duplicateMap.get(program.code.toLowerCase().trim()) || 0) > 1}
+                                    existsInSystem={existingSystemCodes.has(program.code.toLowerCase().trim())}
                                 />
                             ))
                         )}
@@ -292,9 +327,19 @@ interface DisciplineTableRowProps {
     startEntry: number;
     onEdit: (item: any) => void;
     onDelete: (id: string) => void;
+    isDuplicateInList?: boolean;
+    existsInSystem?: boolean;
 }
 
-const DisciplineTableRow = memo(({ program, index, startEntry, onEdit, onDelete }: DisciplineTableRowProps) => {
+const DisciplineTableRow = memo(({
+    program,
+    index,
+    startEntry,
+    onEdit,
+    onDelete,
+    isDuplicateInList,
+    existsInSystem
+}: DisciplineTableRowProps) => {
     const importStatus = program.originalData?._importStatus;
     const isImportRow = !!importStatus;
 
@@ -303,11 +348,14 @@ const DisciplineTableRow = memo(({ program, index, startEntry, onEdit, onDelete 
             className={`border-b border-gray-100 transition-colors
                 ${importStatus === 'success' ? 'bg-green-50/50' : ''}
                 ${importStatus === 'error' ? 'bg-red-50/50' : ''}
-                ${!isImportRow ? 'even:bg-gray-50 hover:bg-blue-50/50' : ''}
+                ${isDuplicateInList && !isImportRow ? 'bg-amber-50/70' : ''}
+                ${isDuplicateInList && isImportRow ? 'bg-amber-100/50' : ''}
+                ${!isImportRow && !isDuplicateInList ? 'even:bg-gray-50 hover:bg-blue-50/50' : ''}
+                hover:bg-blue-50/70 transition-colors
             `}
         >
-            <TableCell className="text-center font-medium text-gray-500 text-xs py-2">{startEntry + index}</TableCell>
-            <TableCell className="font-medium text-gray-700 text-xs py-2">
+            <TableCell className="text-center font-medium text-gray-500 text-lg py-2">{startEntry + index}</TableCell>
+            <TableCell className="font-medium text-gray-700 text-lg py-2">
                 <div className="flex items-center gap-2">
                     {program.code}
                     {importStatus === 'error' && (
@@ -317,12 +365,36 @@ const DisciplineTableRow = memo(({ program, index, startEntry, onEdit, onDelete 
                     )}
                 </div>
             </TableCell>
-            <TableCell className="text-gray-700 text-xs font-semibold py-2">{program.disciplineGroup || '—'}</TableCell>
-            <TableCell className="text-gray-700 text-xs font-semibold py-2">{program.specificMajor || '—'}</TableCell>
-            <TableCell className="text-gray-700 text-xs font-semibold py-2">
-                {program.name || '—'}
+            <TableCell className="text-gray-700 text-lg font-semibold py-2">{program.disciplineGroup || ''}</TableCell>
+            <TableCell className="text-gray-700 text-lg font-semibold py-2">{program.specificMajor || ''}</TableCell>
+            <TableCell className="text-gray-700 text-lg font-semibold py-2">
+                <div className="flex flex-col gap-1">
+                    <div className="flex items-center gap-2">
+                        {program.name || ''}
+                        {isDuplicateInList && (
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-amber-100 text-amber-700 text-[9px] font-bold uppercase tracking-wider border border-amber-200">
+                                <AlertCircle className="h-2.5 w-2.5" /> Duplicate
+                            </span>
+                        )}
+                        {isImportRow && existsInSystem && (
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-blue-100 text-blue-700 text-[9px] font-bold uppercase tracking-wider border border-blue-200">
+                                <CheckCircle2 className="h-2.5 w-2.5" /> Exists in DB
+                            </span>
+                        )}
+                    </div>
+                    {(isDuplicateInList || (isImportRow && existsInSystem)) && (
+                        <p className="text-[9px] text-amber-600 font-medium">
+                            {isImportRow && existsInSystem
+                                ? "This discipline is already registered in the system."
+                                : "This specific discipline is repeated in your list."}
+                        </p>
+                    )}
+                </div>
             </TableCell>
-            <TableCell className="text-center py-2">
+            <TableCell className="text-gray-700 text-lg font-semibold py-2">
+                {program.program || ''}
+            </TableCell>
+            <TableCell className="text-right py-2 pr-4">
                 {isImportRow ? (
                     <div className="flex items-center justify-center">
                         {importStatus === 'pending' && (
@@ -345,7 +417,7 @@ const DisciplineTableRow = memo(({ program, index, startEntry, onEdit, onDelete 
                         )}
                     </div>
                 ) : (
-                    <div className="flex items-center justify-center gap-2">
+                    <div className="flex items-center justify-end gap-2">
                         <Button
                             variant="ghost"
                             size="icon"
@@ -373,6 +445,8 @@ const DisciplineTableRow = memo(({ program, index, startEntry, onEdit, onDelete 
     // Custom deep comparison to prevent re-rendering when callbacks change completely from parent
     return prevProps.program.id === nextProps.program.id &&
         prevProps.program.originalData?._importStatus === nextProps.program.originalData?._importStatus &&
+        prevProps.isDuplicateInList === nextProps.isDuplicateInList &&
+        prevProps.existsInSystem === nextProps.existsInSystem &&
         prevProps.index === nextProps.index &&
         prevProps.startEntry === nextProps.startEntry;
 });

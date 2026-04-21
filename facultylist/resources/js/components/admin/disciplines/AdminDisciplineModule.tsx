@@ -62,12 +62,14 @@ export default function AdminDisciplineModule({
             disciplineGroup: row.groupName,
             specificMajor: row.majorName,
             specificGroup: row.majorName,
+            program: row.program,
             programLevel: '',
             originalData: {
                 code: row.code,
                 groupName: row.groupName,
                 majorName: row.majorName,
                 specificDiscipline: row.specificDiscipline,
+                program: row.program,
                 type: 'specific',
                 _importStatus: row._status,
                 _importError: row._error,
@@ -133,7 +135,18 @@ export default function AdminDisciplineModule({
     const handleDelete = (id: string) => {
         if (confirm('Are you sure you want to delete this discipline?')) {
             router.delete(route('admin.disciplines.destroy', id), {
-                onSuccess: () => {}
+                onSuccess: (page: any) => {
+                    const flash = (page.props as any).flash;
+                    if (flash?.error) {
+                        setTimeout(() => alert('Error: ' + flash.error), 10);
+                    } else if (flash?.success) {
+                        setTimeout(() => alert(flash.success), 10);
+                    }
+                },
+                onError: (errors) => {
+                    const messages = Object.values(errors).join('\n');
+                    alert('Error:\n' + messages);
+                }
             });
         }
     };
@@ -177,6 +190,7 @@ export default function AdminDisciplineModule({
             groupName: data.groupName,
             majorName: data.majorName,
             specificDiscipline: data.specificDiscipline,
+            program: data.program,
             description: data.specificDiscipline || data.majorName || data.groupName || '', // Fallback for backward compatibility
             newCode: newCode !== editingItem.code ? newCode : undefined,
         }, {
@@ -222,6 +236,7 @@ export default function AdminDisciplineModule({
                         onSubmit={handleAddSubmit}
                         majors={disciplines}
                         processing={processing}
+                        serverPrograms={serverPrograms?.data || serverPrograms || []}
                     />
 
                     <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 flex flex-col gap-8">
@@ -253,6 +268,7 @@ export default function AdminDisciplineModule({
                             onSearchQueryChange={setSearchQuery}
                             serverPagination={serverPrograms}
                             serverFilters={serverFilters}
+                            disciplines={disciplines}
                         />
                     </div>
                 </div>
