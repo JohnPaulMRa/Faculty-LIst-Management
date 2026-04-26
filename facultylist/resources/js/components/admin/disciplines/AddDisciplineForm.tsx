@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Combobox } from "@/components/ui/combobox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { normalizeProgramName } from "@/lib/utils";
 
 interface AddDisciplineFormProps {
     onCancel?: () => void;
@@ -191,12 +192,14 @@ export default function AddDisciplineForm({ onCancel, onSubmit, majors = [], pro
         }
 
         const finalCode = hasSpecific ? specificCode : majorCode;
+        const normalizedProgram = normalizeProgramName(programName);
+
         onSubmit({
             code: finalCode,
             groupName: groupDesc,
             majorName: majorDesc,
             specificDiscipline: specificDesc || null,
-            program: programName || null,
+            program: normalizedProgram || null,
         }, () => {
             // On success: preserve group + major selection, clear only the specific code/name
             // so the admin can quickly add another specific under the same group/major
@@ -207,6 +210,7 @@ export default function AddDisciplineForm({ onCancel, onSubmit, majors = [], pro
     };
 
     const clearForm = () => {
+        setGroupCode(""); setGroupDesc("");
         setMajorCode(""); setMajorDesc("");
         setSpecificCode(""); setSpecificDesc("");
         setProgramName("");

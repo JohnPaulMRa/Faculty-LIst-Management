@@ -172,6 +172,7 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                             <label className="text-base font-bold text-gray-900">Primary Teaching Discipline</label>
                             <DisciplineSelectorE5
                                 value={formData.disciplineCode}
+                                description={formData.discipline}
                                 onChange={(code, desc) => {
                                     onErrorSafeChange('disciplineCode', code);
                                     onErrorSafeChange('discipline', desc);
@@ -230,6 +231,7 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                             <label className="text-base font-bold text-gray-900">Specific Discipline of Bachelors Degree</label>
                             <DisciplineSelectorE5
                                 value={formData.bachelorsCode}
+                                description={formData.bachelors}
                                 onChange={(code, desc) => {
                                     onErrorSafeChange('bachelorsCode', code);
                                     onErrorSafeChange('bachelors', desc);
@@ -246,6 +248,7 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                             <label className="text-base font-bold text-gray-900">Specific Discipline of Masters Degree</label>
                             <DisciplineSelectorE5
                                 value={formData.mastersCode}
+                                description={formData.masters}
                                 onChange={(code, desc) => {
                                     onErrorSafeChange('mastersCode', code);
                                     onErrorSafeChange('masters', desc);
@@ -262,6 +265,7 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                             <label className="text-base font-bold text-gray-900">Specific Discipline of Doctorate Degree</label>
                             <DisciplineSelectorE5
                                 value={formData.doctorateCode}
+                                description={formData.doctorate}
                                 onChange={(code, desc) => {
                                     onErrorSafeChange('doctorateCode', code);
                                     onErrorSafeChange('doctorate', desc);

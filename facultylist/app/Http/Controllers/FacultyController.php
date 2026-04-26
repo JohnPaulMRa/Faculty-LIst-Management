@@ -23,17 +23,26 @@ class FacultyController extends Controller
                 ->orderBy('code')
                 ->get(),
             'disciplines' => DB::table('specific_discipline')
-                ->select(DB::raw('SUBSTRING(code, 1, 2) as major_group_code'), 'code', 'description as desc')
-                ->orderBy('code')
+                ->leftJoin('dis_programs', 'specific_discipline.code', '=', 'dis_programs.specific_discipline_code')
+                ->select([
+                    DB::raw('SUBSTRING(specific_discipline.code, 1, 2) as major_group_code'),
+                    'specific_discipline.code',
+                    DB::raw('COALESCE(dis_programs.program_name, specific_discipline.description) as `desc`')
+                ])
+                ->orderBy('specific_discipline.code')
                 ->get(),
             // All disciplines under Education Science and Teacher Training (group_code = 14)
             'educationDisciplines' => DB::table('specific_discipline')
-                ->select('code', 'description as desc')
+                ->leftJoin('dis_programs', 'specific_discipline.code', '=', 'dis_programs.specific_discipline_code')
+                ->select([
+                    'specific_discipline.code',
+                    DB::raw('COALESCE(dis_programs.program_name, specific_discipline.description) as `desc`')
+                ])
                 ->where(function ($q) {
-                    $q->where('group_code', '14')
-                        ->orWhere('code', 'like', '14%');
+                    $q->where('specific_discipline.group_code', '14')
+                        ->orWhere('specific_discipline.code', 'like', '14%');
                 })
-                ->orderBy('description')
+                ->orderBy('desc')
                 ->get(),
         ];
     }

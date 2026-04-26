@@ -6,7 +6,7 @@ import {
     Award,
     ChevronRight
 } from 'lucide-react';
-import React from 'react';
+import React, { useEffect } from 'react';
 import type { FC } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -34,7 +34,7 @@ import DisciplineSelectorE2 from './DisciplineSelectorE2';
 
 interface FacultyProfileCardsE2Props {
     formData: Partial<PublicFaculty>;
-    handleChange?: (field: keyof PublicFaculty, value: any) => void;
+    handleChange?: (field: keyof PublicFaculty, value: any, desc?: string) => void;
     readOnly?: boolean;
     referenceData?: any;
 }
@@ -329,11 +329,77 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
     // --- HELPERS (MATCH E5) ---
 
     // Helper to handle change if not readOnly
-    const onErrorSafeChange = (field: keyof PublicFaculty, value: any) => {
+    const onErrorSafeChange = (field: keyof PublicFaculty, value: any, desc?: string) => {
         if (!readOnly && handleChange) {
-            handleChange(field, value);
+            handleChange(field, value, desc);
         }
     };
+
+    // --- AUTO-CALCULATIONS ---
+    useEffect(() => {
+        if (readOnly) return;
+
+        const toNum = (val: any) => {
+            if (typeof val === 'number') return val;
+            if (!val || typeof val !== 'string') return 0;
+            const parsed = parseFloat(val.replace(/,/g, ''));
+            return isNaN(parsed) ? 0 : parsed;
+        };
+
+        // 1. Undergrad Credit Units
+        const ugTotalUnits = toNum(formData.ug_lab_units) + toNum(formData.ug_lec_units);
+        if (toNum(formData.ug_total_units) !== ugTotalUnits) {
+            onErrorSafeChange('ug_total_units', ugTotalUnits.toString());
+        }
+
+        // 2. Undergrad Hours
+        const ugTotalHours = toNum(formData.ug_lab_hours) + toNum(formData.ug_lec_hours);
+        if (toNum(formData.ug_total_hours) !== ugTotalHours) {
+            onErrorSafeChange('ug_total_hours', ugTotalHours.toString());
+        }
+
+        // 3. Undergrad Contact
+        const ugTotalContact = toNum(formData.ug_lab_contact) + toNum(formData.ug_lec_contact);
+        if (toNum(formData.ug_total_contact) !== ugTotalContact) {
+            onErrorSafeChange('ug_total_contact', ugTotalContact.toString());
+        }
+
+        // 4. Grad Credit Units
+        const gradTotalUnits = toNum(formData.grad_lab_units) + toNum(formData.grad_lec_units);
+        if (toNum(formData.grad_total_units) !== gradTotalUnits) {
+            onErrorSafeChange('grad_total_units', gradTotalUnits.toString());
+        }
+
+        // 5. Grad Contact
+        const gradTotalContact = toNum(formData.grad_lab_contact) + toNum(formData.grad_lec_contact);
+        if (toNum(formData.grad_total_contact) !== gradTotalContact) {
+            onErrorSafeChange('grad_total_contact', gradTotalContact.toString());
+        }
+
+        // 6. Total Work Load
+        // Calculation: Sum of all Official Load fields + Undergrad Total Units + Grad Total Units
+        const loadTotal = toNum(formData.load_research) +
+            toNum(formData.load_extension) +
+            toNum(formData.load_study) +
+            toNum(formData.load_production) +
+            toNum(formData.load_admin) +
+            toNum(formData.load_others) +
+            ugTotalUnits +
+            gradTotalUnits;
+
+        if (toNum(formData.load_total) !== loadTotal) {
+            onErrorSafeChange('load_total', loadTotal.toString());
+        }
+    }, [
+        formData.ug_lab_units, formData.ug_lec_units,
+        formData.ug_lab_hours, formData.ug_lec_hours,
+        formData.ug_lab_contact, formData.ug_lec_contact,
+        formData.grad_lab_units, formData.grad_lec_units,
+        formData.grad_lab_contact, formData.grad_lec_contact,
+        formData.load_research, formData.load_extension, formData.load_study,
+        formData.load_production, formData.load_admin, formData.load_others,
+        readOnly
+    ]);
 
     // Reusable formatter for reference lists
     const mapToOptions = (list: { code: string, desc: string }[]) => {
@@ -497,7 +563,8 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                             <label className="text-base font-bold text-gray-900">SPECIFIC DISCIPLINE (1) OF PRIMARY TEACHING LOAD</label>
                             <DisciplineSelectorE2
                                 value={formData.discipline_load_1}
-                                onChange={(code) => onErrorSafeChange('discipline_load_1', code)}
+                                description={(formData as any).discipline_load_1_desc}
+                                onChange={(code, desc) => onErrorSafeChange('discipline_load_1', code, desc)}
                                 referenceData={referenceData}
                                 placeholder="Select Primary Discipline (1)"
                                 showGroup={false}
@@ -510,7 +577,8 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                             <label className="text-base font-bold text-gray-900">SPECIFIC DISCIPLINE (2) OF PRIMARY TEACHING LOAD</label>
                             <DisciplineSelectorE2
                                 value={formData.discipline_load_2}
-                                onChange={(code) => onErrorSafeChange('discipline_load_2', code)}
+                                description={(formData as any).discipline_load_2_desc}
+                                onChange={(code, desc) => onErrorSafeChange('discipline_load_2', code, desc)}
                                 referenceData={referenceData}
                                 placeholder="Select Primary Discipline (2)"
                                 showGroup={false}
@@ -530,7 +598,8 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                             <label className="text-base font-bold text-gray-900">SPECIFIC DISCIPLINE OF BACHELORS DEGREE</label>
                             <DisciplineSelectorE2
                                 value={formData.discipline_bachelors}
-                                onChange={(code) => onErrorSafeChange('discipline_bachelors', code)}
+                                description={(formData as any).discipline_bachelors_desc}
+                                onChange={(code, desc) => onErrorSafeChange('discipline_bachelors', code, desc)}
                                 referenceData={referenceData}
                                 placeholder="Select Bachelors Degree"
                                 showGroup={false}
@@ -543,7 +612,8 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                             <label className="text-base font-bold text-gray-900">SPECIFIC DISCIPLINE OF MASTERS DEGREE</label>
                             <DisciplineSelectorE2
                                 value={formData.discipline_masters}
-                                onChange={(code) => onErrorSafeChange('discipline_masters', code)}
+                                description={(formData as any).discipline_masters_desc}
+                                onChange={(code, desc) => onErrorSafeChange('discipline_masters', code, desc)}
                                 referenceData={referenceData}
                                 placeholder="Select Masters Degree"
                                 showGroup={false}
@@ -556,7 +626,8 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                             <label className="text-base font-bold text-gray-900">SPECIFIC DISCIPLINE OF DOCTORATE DEGREE</label>
                             <DisciplineSelectorE2
                                 value={formData.discipline_doctorate}
-                                onChange={(code) => onErrorSafeChange('discipline_doctorate', code)}
+                                description={(formData as any).discipline_doctorate_desc}
+                                onChange={(code, desc) => onErrorSafeChange('discipline_doctorate', code, desc)}
                                 referenceData={referenceData}
                                 placeholder="Select Doctorate Degree"
                                 showGroup={false}
@@ -624,8 +695,8 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                         {
                             label: "TOTAL TEACHING CREDIT UNITS Undergrad (Lab+Lect)",
                             value: formData.ug_total_units || '',
-                            onChange: (value) => onErrorSafeChange('ug_total_units', value),
-                            readOnly: readOnly
+                            highlighted: true,
+                            readOnly: true
                         }
                     ]}
                 />
@@ -648,8 +719,8 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                         {
                             label: "TOTAL TEACHING HOURS PER WEEK Undergrad",
                             value: formData.ug_total_hours || '',
-                            onChange: (value) => onErrorSafeChange('ug_total_hours', value),
-                            readOnly: readOnly
+                            highlighted: true,
+                            readOnly: true
                         }
                     ]}
                 />
@@ -672,8 +743,8 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                         {
                             label: "STUDENT CONTACT-HOURS Undergrad (Lab+Lect)",
                             value: formData.ug_total_contact || '',
-                            onChange: (value) => onErrorSafeChange('ug_total_contact', value),
-                            readOnly: readOnly
+                            highlighted: true,
+                            readOnly: true
                         }
                     ]}
                 />
@@ -696,8 +767,8 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                         {
                             label: "TOTAL TEACHING CREDIT UNITS Graduate (Lab+Lect)",
                             value: formData.grad_total_units || '',
-                            onChange: (value) => onErrorSafeChange('grad_total_units', value),
-                            readOnly: readOnly
+                            highlighted: true,
+                            readOnly: true
                         }
                     ]}
                 />
@@ -720,8 +791,8 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                         {
                             label: "STUDENT CONTACT-HOURS Graduate (Lab+Lect)",
                             value: formData.grad_total_contact || '',
-                            onChange: (value) => onErrorSafeChange('grad_total_contact', value),
-                            readOnly: readOnly
+                            highlighted: true,
+                            readOnly: true
                         }
                     ]}
                 />
@@ -781,8 +852,8 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
                         {
                             label: "TOTAL WORK LOAD",
                             value: formData.load_total || '',
-                            onChange: (value) => onErrorSafeChange('load_total', value),
-                            readOnly: readOnly
+                            highlighted: true,
+                            readOnly: true
                         },
                     ]}
                 />

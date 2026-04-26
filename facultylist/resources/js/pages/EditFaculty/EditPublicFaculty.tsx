@@ -1,6 +1,6 @@
 import { Head, router } from '@inertiajs/react';
 import { Save, Loader2, ArrowLeft } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import type { FC } from 'react';
 
 import FacultyFormE2 from '@/components/faculty/facultyE2/FacultyFormE2';
@@ -21,8 +21,33 @@ interface EditProps {
 }
 
 const EditPublicFaculty: FC<EditProps> = ({ faculty, referenceData, isSubmitted = false }) => {
-    const [formData, setFormData] = useState<Partial<PublicFaculty>>(faculty);
+    // Helper to normalize data
+    const getInitialFormData = useCallback((fac: PublicFaculty, ref: any) => {
+        const disciplines = ref?.disciplines as { code: string, desc: string }[];
+        const getDesc = (code?: any) => disciplines?.find(item => String(item.code) === String(code))?.desc || '';
+
+        return {
+            ...fac,
+            discipline_load_1_desc: (fac as any).discipline_load_1_desc || getDesc(fac.discipline_load_1),
+            discipline_load_2_desc: (fac as any).discipline_load_2_desc || getDesc(fac.discipline_load_2),
+            discipline_bachelors_desc: (fac as any).discipline_bachelors_desc || getDesc(fac.discipline_bachelors),
+            discipline_masters_desc: (fac as any).discipline_masters_desc || getDesc(fac.discipline_masters),
+            discipline_doctorate_desc: (fac as any).discipline_doctorate_desc || getDesc(fac.discipline_doctorate),
+        };
+    }, []);
+
+    const [formData, setFormData] = useState<Partial<PublicFaculty>>(() => getInitialFormData(faculty, referenceData));
     const [processing, setProcessing] = useState(false);
+
+    // Update state when faculty or referenceData changes (Update during render pattern)
+    const [prevFacultyId, setPrevFacultyId] = useState(faculty.id);
+    const [prevRef, setPrevRef] = useState(referenceData);
+
+    if (faculty.id !== prevFacultyId || referenceData !== prevRef) {
+        setPrevFacultyId(faculty.id);
+        setPrevRef(referenceData);
+        setFormData(getInitialFormData(faculty, referenceData));
+    }
 
     const selectedGroup = IMPORT_GROUPS.find(g =>
         g.value === formData.import_group ||
@@ -32,8 +57,15 @@ const EditPublicFaculty: FC<EditProps> = ({ faculty, referenceData, isSubmitted 
     const groupLabel = (selectedGroup ? selectedGroup.label : (formData.import_group || 'Form E-2 Entry')).replace(/^GROUP\s+/, '');
     const groupRemarks = selectedGroup?.remarks;
 
-    const handleChange = (field: keyof PublicFaculty, value: string) => {
-        setFormData(prev => ({ ...prev, [field]: value }));
+    const handleChange = (field: keyof PublicFaculty | string, value: string, desc?: string) => {
+        setFormData(prev => {
+            const newData = { ...prev, [field]: value };
+            // If it's a discipline field, also update its description field for the UI
+            if (desc !== undefined) {
+                (newData as any)[`${field}_desc`] = desc;
+            }
+            return newData;
+        });
     };
 
     const handleSave = () => {

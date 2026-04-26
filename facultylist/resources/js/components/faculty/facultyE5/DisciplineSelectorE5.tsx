@@ -25,6 +25,7 @@ type Props = {
     filterCategory?: 'bachelors' | 'masters' | 'doctorate' | 'education';
     showClear?: boolean;
     readOnly?: boolean;
+    description?: string;
 };
 
 const DisciplineSelectorE5: FC<Props> = ({
@@ -39,9 +40,11 @@ const DisciplineSelectorE5: FC<Props> = ({
     filterKeyword,
     filterCategory,
     showClear = true,
-    readOnly = false
+    readOnly = false,
+    description
 }) => {
     const [selectedGroup, setSelectedGroup] = useState<string>("");
+    const [localFilter, setLocalFilter] = useState<string>("");
 
     // Safe access to reference data
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -133,40 +136,46 @@ const DisciplineSelectorE5: FC<Props> = ({
         onChange("", "");
     };
 
-    const handleDisciplineChange = (code: string) => {
-        // Find from flat list
-        const discipline = allDisciplines.find((d) => String(d.code) === String(code));
-        if (discipline) {
-            onChange(String(discipline.code), discipline.desc);
-        } else {
+    const handleDisciplineChange = (combinedValue: string) => {
+        if (!combinedValue) {
             onChange("", "");
+            return;
+        }
+
+        // If it contains a separator, it's from the Combobox
+        if (combinedValue.includes('|')) {
+            const [code, ...descParts] = combinedValue.split('|');
+            const desc = descParts.join('|');
+            onChange(code, desc);
+        } else {
+            // It's from manual code input or a simple code value
+            const discipline = allDisciplines.find((d) => String(d.code) === String(combinedValue));
+            if (discipline) {
+                onChange(String(discipline.code), discipline.desc);
+            } else {
+                // If no match found for code, we pass the code as is with no description
+                onChange(combinedValue, "");
+            }
         }
     };
 
     // Filter disciplines for the selected group and apply keyword/category filters
     const currentDisciplines = useMemo(() => {
-        // For 'education' category, directly use the pre-fetched educationDisciplines from backend
-        if (filterCategory === 'education') {
-            const eduList: Discipline[] = Array.isArray(referenceData?.educationDisciplines)
-                ? referenceData.educationDisciplines
-                : [];
+        let filtered: Discipline[] = [];
 
-            if (filterKeyword) {
-                const lowerFilter = filterKeyword.toLowerCase().trim();
-                return eduList.filter(d =>
-                    (d.desc && d.desc.toLowerCase().includes(lowerFilter)) ||
-                    (d.code && d.code.toLowerCase().includes(lowerFilter))
-                );
-            }
-            return eduList;
+        // Base list selection
+        if (filterCategory === 'education') {
+            filtered = Array.isArray(referenceData?.educationDisciplines)
+                ? [...referenceData.educationDisciplines]
+                : [];
+        } else {
+            filtered = showGroup
+                ? allDisciplines.filter(d => d.major_group_code === selectedGroup)
+                : [...allDisciplines];
         }
 
-        let filtered = showGroup
-            ? allDisciplines.filter(d => d.major_group_code === selectedGroup)
-            : allDisciplines;
-
-        // Apply Category Filtering
-        if (filterCategory) {
+        // Apply Category Filtering (only for non-education)
+        if (filterCategory && filterCategory !== 'education') {
             const code = (d: Discipline) => String(d.code || '');
             const desc = (d: Discipline) => d.desc || '';
 
@@ -174,8 +183,8 @@ const DisciplineSelectorE5: FC<Props> = ({
                 filtered = filtered.filter(d =>
                 (
                     /\bbachelor(s)?\b/i.test(desc(d)) ||
-                    /\bab\b/i.test(desc(d)) ||
-                    /\bbs\b/i.test(desc(d)) ||
+                    /\ba\.?b\.?\b/i.test(desc(d)) ||
+                    /\bb\.?s\.?\b/i.test(desc(d)) ||
                     /\bassociate\b/i.test(desc(d)) ||
                     /\b(?:certificate|cert)\b/i.test(desc(d)) ||
                     /\bdiploma\b/i.test(desc(d)) ||
@@ -187,8 +196,8 @@ const DisciplineSelectorE5: FC<Props> = ({
                 filtered = filtered.filter(d =>
                 (
                     /\bmaster(s)?\b/i.test(desc(d)) ||
-                    /\bma\b/i.test(desc(d)) ||
-                    /\bms\b/i.test(desc(d)) ||
+                    /\bm\.?a\.?\b/i.test(desc(d)) ||
+                    /\bm\.?s\.?\b/i.test(desc(d)) ||
                     /graduate certificate/i.test(desc(d)) ||
                     /\bprofessional\b/i.test(desc(d)) ||
                     code(d).startsWith('80')
@@ -211,16 +220,28 @@ const DisciplineSelectorE5: FC<Props> = ({
         }
 
         // --- DATA ACCURACY ENSURANCE ---
-        // ALWAYS include the currently selected value in the filtered list if it exists in the database
-        // This prevents "missing data" illusions when the database has records that don't match the active filter
-        if (value && !filtered.some(d => String(d.code) === String(value))) {
-            const originalRecord = allDisciplines.find(d => String(d.code) === String(value));
-            if (originalRecord) {
-                // Prepend the current value to ensure it's visible and selectable
-                filtered = [originalRecord, ...filtered];
-            }
+        // ALWAYS include all records with the currently selected code in the filtered list
+        if (value) {
+            const allMatches = allDisciplines.filter(d => String(d.code) === String(value));
+            allMatches.forEach(match => {
+                const alreadyIn = filtered.some(f => String(f.code) === String(match.code) && f.desc === match.desc);
+                if (!alreadyIn) {
+                    filtered = [match, ...filtered];
+                }
+            });
         }
 
+        // If user is searching by code, include all matching codes even if they don't match the category filter
+        if (localFilter && /^\d+$/.test(localFilter)) {
+            const codeMatches = allDisciplines.filter(d => String(d.code).includes(localFilter));
+            codeMatches.forEach(match => {
+                if (!filtered.some(f => String(f.code) === String(match.code) && f.desc === match.desc)) {
+                    filtered.push(match);
+                }
+            });
+        }
+
+        // Final text search filter
         if (filterKeyword) {
             const lowerFilter = filterKeyword.toLowerCase().trim();
             filtered = filtered.filter(d =>
@@ -229,7 +250,22 @@ const DisciplineSelectorE5: FC<Props> = ({
             );
         }
         return filtered;
-    }, [allDisciplines, showGroup, selectedGroup, filterKeyword, filterCategory, referenceData?.educationDisciplines, value]);
+    }, [allDisciplines, showGroup, selectedGroup, filterKeyword, filterCategory, referenceData?.educationDisciplines, value, localFilter]);
+
+    // Derive the value to pass to Combobox
+    const comboboxValue = useMemo(() => {
+        if (!value) return "";
+        // If we have an exact match for both code and description, use it
+        if (description) {
+            const exactMatch = currentDisciplines.find(d => String(d.code) === String(value) && d.desc === description);
+            if (exactMatch) return `${exactMatch.code}|${exactMatch.desc}`;
+        }
+        // Fallback: find any match for the code in the current list
+        const codeMatch = currentDisciplines.find(d => String(d.code) === String(value));
+        if (codeMatch) return `${codeMatch.code}|${codeMatch.desc}`;
+
+        return value;
+    }, [value, description, currentDisciplines]);
 
     const hasData = showGroup ? groups.length > 0 : (filterCategory === 'education' ? (referenceData?.educationDisciplines?.length > 0) : allDisciplines.length > 0);
     if (!hasData) {
@@ -244,7 +280,7 @@ const DisciplineSelectorE5: FC<Props> = ({
     const mapToOptions = (list: any[]) => {
         return (list || [])
             .filter(item => item && item.desc && item.desc.trim() !== "")
-            .map(item => ({ label: item.desc, value: item.code }));
+            .map(item => ({ label: item.desc, value: `${item.code}|${item.desc}` }));
     };
 
     return (
@@ -281,8 +317,9 @@ const DisciplineSelectorE5: FC<Props> = ({
                 {/* Specific Discipline Select */}
                 <Combobox
                     options={mapToOptions(currentDisciplines)}
-                    value={value}
+                    value={comboboxValue}
                     onChange={handleDisciplineChange}
+                    onInputChange={(val) => setLocalFilter(val)}
                     disabled={disabled || readOnly || (showGroup && !selectedGroup)}
                     placeholder={placeholder}
                     showClear={showClear && !readOnly}

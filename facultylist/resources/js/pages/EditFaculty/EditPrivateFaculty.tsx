@@ -34,18 +34,22 @@ const Edit: FC<EditProps> = ({ faculty, referenceData, isSubmitted = false }) =>
 
     // Helper to initialize/normalize data
     const getInitialFormData = useCallback((fac: Faculty, ref: any) => {
+        const disciplines = ref?.disciplines as { code: string, desc: string }[];
+        const getDisciplineDesc = (code?: any) => disciplines?.find(item => String(item.code) === String(code))?.desc || '';
+
         if (fac.form_type === 'E5') {
             return {
                 name: fac.name || '',
                 fullTimeCode: normalizeCode(ref?.fullTimePartTime, (fac as any).fullTimeCode || (fac as any).ft_pt_code),
                 genderCode: normalizeCode(ref?.gender, (fac as any).genderCode || (fac as any).gender_code),
                 disciplineCode: normalizeCode(ref?.disciplines, (fac as any).disciplineCode || (fac as any).discipline_code),
+                discipline: (fac as any).discipline || getDisciplineDesc((fac as any).disciplineCode || (fac as any).discipline_code),
                 degree: normalizeCode(ref?.highestDegree, (fac as any).degree || (fac as any).highest_degree_code),
-                bachelors: (fac as any).bachelors || '',
+                bachelors: (fac as any).bachelors || getDisciplineDesc((fac as any).bachelorsCode || (fac as any).bachelors_code),
                 bachelorsCode: normalizeCode(ref?.disciplines, (fac as any).bachelorsCode || (fac as any).bachelors_code),
-                masters: (fac as any).masters || '',
+                masters: (fac as any).masters || getDisciplineDesc((fac as any).mastersCode || (fac as any).masters_code),
                 mastersCode: normalizeCode(ref?.disciplines, (fac as any).mastersCode || (fac as any).masters_code),
-                doctorate: (fac as any).doctorate || '',
+                doctorate: (fac as any).doctorate || getDisciplineDesc((fac as any).doctorateCode || (fac as any).doctorate_code),
                 doctorateCode: normalizeCode(ref?.disciplines, (fac as any).doctorateCode || (fac as any).doctorate_code),
                 licenseCode: normalizeCode(ref?.professionalLicense, (fac as any).licenseCode || (fac as any).license_code),
                 tenureCode: normalizeCode(ref?.tenure, (fac as any).tenureCode || (fac as any).tenure_code),
@@ -62,6 +66,7 @@ const Edit: FC<EditProps> = ({ faculty, referenceData, isSubmitted = false }) =>
                 fullTimeCode: '',
                 genderCode: '',
                 disciplineCode: '',
+                discipline: '',
                 degree: normalizeCode(ref?.highestDegree, fac.degree || (fac as any).highest_degree_code),
                 bachelors: '',
                 bachelorsCode: '',

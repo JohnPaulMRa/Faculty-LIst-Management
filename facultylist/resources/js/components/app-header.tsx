@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { Monitor, Menu, User, UserCog, LogOut, LayoutDashboard } from 'lucide-react';
+import { Monitor, Menu, User, UserCog, LogOut, LayoutDashboard, Settings } from 'lucide-react';
 import { Breadcrumbs } from '@/components/breadcrumbs';
 import { Button } from '@/components/ui/button';
 import {
@@ -127,10 +127,10 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
                         <nav className="hidden h-14 items-center gap-8 lg:flex">
                             {navItems.map((item) => {
                                 // Active if strict match OR if sub-page (e.g. /faculty/...) for Faculty Profile
-                                const active = isCurrentUrl(item.href) || 
+                                const active = isCurrentUrl(item.href) ||
                                     (item.title === 'Faculty Profile' && currentUrl.startsWith('/faculty/')) ||
                                     (item.title === 'Admin Dashboard' && currentUrl.startsWith('/admin/'));
-                                
+
                                 return (
                                     <Link
                                         key={item.title}
@@ -165,6 +165,15 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
                             <span>User Guide</span>
                         </a>
                          */}
+
+                        {/* Settings Button */}
+                        <Link
+                            href="/settings/profile"
+                            className="flex items-center gap-2 rounded-md bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-200"
+                        >
+                            <Settings className="h-4 w-4" />
+                            Settings
+                        </Link>
 
                         {/* Divider */}
                         <div className="hidden h-5 w-px bg-gray-300 md:block" />

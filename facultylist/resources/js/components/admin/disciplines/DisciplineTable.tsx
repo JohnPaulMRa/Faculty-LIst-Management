@@ -5,6 +5,7 @@ import { Search } from "lucide-react";
 import { useState, useMemo, useEffect, memo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { normalizeProgramName } from "@/lib/utils";
 import {
     Select,
     SelectContent,
@@ -62,8 +63,9 @@ export default function DisciplineTable({
     const [entriesPerPage, setEntriesPerPage] = useState(50);
     const [localPage, setLocalPage] = useState(1);
 
-    // If we have serverPagination, we use Inertia to change pages
-    const isServerSide = !!serverPagination && programs.length > 0;
+    // If we have serverPagination and we are NOT in preview mode, use server-side
+    const isPreviewMode = !!programs.find(p => p.originalData?._importStatus);
+    const isServerSide = !!serverPagination && !isPreviewMode;
 
     // Reset local page if search changes (for local mode)
     useEffect(() => {
@@ -83,12 +85,14 @@ export default function DisciplineTable({
             router.get(window.location.pathname, {
                 ...serverFilters,
                 page: page,
-                per_page: entriesPerPage === -1 ? 'all' : entriesPerPage,
+                entries: entriesPerPage === -1 ? 'all' : entriesPerPage,
             }, {
                 preserveState: true,
                 preserveScroll: true,
                 replace: true
             });
+        } else {
+            setLocalPage(page);
         }
     };
 
@@ -100,7 +104,7 @@ export default function DisciplineTable({
             router.get(window.location.pathname, {
                 ...serverFilters,
                 page: 1,
-                per_page: num === -1 ? 'all' : num,
+                entries: num === -1 ? 'all' : num,
             }, {
                 preserveState: true,
                 preserveScroll: true,
@@ -110,24 +114,29 @@ export default function DisciplineTable({
     };
 
     // --- Duplicate Detection Logic ---
+    // A specific discipline is considered duplicate only when the combination
+    // of specific discipline name AND program appears more than once.
     const duplicateMap = useMemo(() => {
         const counts = new Map<string, number>();
         programs.forEach(p => {
-            const key = p.code.toLowerCase().trim();
-            if (!key) return;
-            counts.set(key, (counts.get(key) || 0) + 1);
+            const specificDiscipline = (p.name || '').toLowerCase().trim();
+            const programName = normalizeProgramName(p.program || '').toLowerCase().trim();
+            if (!specificDiscipline) return;
+
+            // Only track duplicates for rows that have NO program
+            if (!programName) {
+                const key = `${specificDiscipline}|`;
+                counts.set(key, (counts.get(key) || 0) + 1);
+            }
         });
         return counts;
     }, [programs]);
 
     const existingSystemCodes = useMemo(() => {
         const codes = new Set<string>();
-        disciplines.forEach(g => {
-            (g.groups ?? []).forEach((m: any) => {
-                (m.specifics ?? []).forEach((s: any) => {
-                    if (s.code) codes.add(String(s.code).toLowerCase().trim());
-                });
-            });
+        // disciplines is a flat array of discipline records; extract codes directly
+        disciplines.forEach((d: any) => {
+            if (d.code) codes.add(String(d.code).toLowerCase().trim());
         });
         return codes;
     }, [disciplines]);
@@ -218,12 +227,12 @@ export default function DisciplineTable({
                 </div>
             </div>
 
-            <div className="bg-white shadow-xl shadow-blue-900/5 overflow-hidden rounded-none border border-blue-100/50">
+            <div className="bg-white shadow-xl shadow-blue-900/5 overflow-x-auto rounded-none border border-blue-100/50 custom-scrollbar">
                 <Table>
                     <TableHeader>
                         <TableRow className="bg-linear-to-r from-[#003468] to-[#1a4f8c] hover:bg-[#003468] border-b-0">
                             <TableHead className="font-bold text-white uppercase text-[11px] tracking-widest w-20 text-center h-12 border-r border-white/10">#</TableHead>
-                            <TableHead className="font-bold text-white uppercase text-[11px] tracking-widest h-12 w-[10%]">
+                            <TableHead className="font-bold text-white uppercase text-[11px] tracking-widest h-12 w-[8%]">
                                 <div
                                     className={`flex items-center gap-2 cursor-pointer transition-colors ${sortConfig?.key === 'code' ? 'text-blue-200' : 'hover:text-blue-100'}`}
                                     onClick={() => onSort('code')}
@@ -282,7 +291,11 @@ export default function DisciplineTable({
                                     startEntry={startEntry}
                                     onEdit={onEdit}
                                     onDelete={onDelete}
-                                    isDuplicateInList={(duplicateMap.get(program.code.toLowerCase().trim()) || 0) > 1}
+                                    isDuplicateInList={
+                                        (duplicateMap.get(
+                                            `${(program.name || '').toLowerCase().trim()}|${normalizeProgramName(program.program || '').toLowerCase().trim()}`
+                                        ) || 0) > 1
+                                    }
                                     existsInSystem={existingSystemCodes.has(program.code.toLowerCase().trim())}
                                 />
                             ))
@@ -370,8 +383,8 @@ const DisciplineTableRow = memo(({
             <TableCell className="text-gray-700 text-lg font-semibold py-2">
                 <div className="flex flex-col gap-1">
                     <div className="flex items-center gap-2">
-                        {program.name || ''}
-                        {isDuplicateInList && (
+                        {program.name && program.name !== program.code ? program.name : ''}
+                        {isDuplicateInList && !program.program && (
                             <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-amber-100 text-amber-700 text-[9px] font-bold uppercase tracking-wider border border-amber-200">
                                 <AlertCircle className="h-2.5 w-2.5" /> Duplicate
                             </span>
@@ -382,7 +395,7 @@ const DisciplineTableRow = memo(({
                             </span>
                         )}
                     </div>
-                    {(isDuplicateInList || (isImportRow && existsInSystem)) && (
+                    {((isDuplicateInList && !program.program) || (isImportRow && existsInSystem)) && (
                         <p className="text-[9px] text-amber-600 font-medium">
                             {isImportRow && existsInSystem
                                 ? "This discipline is already registered in the system."
@@ -391,7 +404,7 @@ const DisciplineTableRow = memo(({
                     )}
                 </div>
             </TableCell>
-            <TableCell className="text-gray-700 text-lg font-semibold py-2">
+            <TableCell className="text-gray-900 text-lg font-semibold py-2">
                 {program.program || ''}
             </TableCell>
             <TableCell className="text-right py-2 pr-4">
@@ -430,7 +443,7 @@ const DisciplineTableRow = memo(({
                         <Button
                             variant="ghost"
                             size="icon"
-                            onClick={() => onDelete(program.code)}
+                            onClick={() => onDelete(program.id)}
                             className="h-8 w-8 bg-red-500 hover:bg-red-600 text-white rounded-xl shadow-md border-b-2 border-red-700 active:border-b-0 active:translate-y-px transition-all"
                             title="Delete"
                         >

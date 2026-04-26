@@ -2,6 +2,7 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { normalizeProgramName } from "@/lib/utils";
 import {
     Dialog,
     DialogContent,
@@ -58,7 +59,7 @@ export default function EditDisciplineModal({ isOpen, onClose, onSubmit, initial
             groupName: groupDesc,
             majorName: majorDesc,
             specificDiscipline: specificDesc,
-            program: programName,
+            program: normalizeProgramName(programName),
         });
     };
 

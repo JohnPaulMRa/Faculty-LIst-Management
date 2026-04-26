@@ -57,17 +57,20 @@ export function Combobox({
 
     // Sync input value with selected option or clear if value is explicitly cleared
     React.useEffect(() => {
-        if (selectedOption) {
-
-            setInputValue(selectedOption.label)
-        } else {
-            // If there's no selected option and we're not allowing free input, or if the value is explicitly cleared
-            if (!allowFreeInput || !value) {
-
-                setInputValue("")
+        // Only sync from selection when CLOSED.
+        // When OPEN, the user is likely typing/searching and we don't want to overwrite their search
+        // with the full description of the previous selection, which would then filter out all other options.
+        if (!open) {
+            if (selectedOption) {
+                setInputValue(selectedOption.label)
+            } else {
+                // If there's no selected option and we're not allowing free input, or if the value is explicitly cleared
+                if (!allowFreeInput || !value) {
+                    setInputValue("")
+                }
             }
         }
-    }, [selectedOption, allowFreeInput, value])
+    }, [selectedOption, allowFreeInput, value, open])
 
     return (
         <Command shouldFilter={true} className={cn("overflow-visible bg-transparent shadow-none", containerClassName)}>
@@ -134,7 +137,12 @@ export function Combobox({
                                     className={cn("h-4 w-4 opacity-40 transition-opacity", disabled ? "cursor-not-allowed" : "cursor-pointer hover:opacity-70")}
                                     onMouseDown={(e) => {
                                         e.preventDefault()
-                                        if (!disabled) setOpen((prev) => !prev)
+                                        if (!disabled) {
+                                            const newOpen = !open
+                                            setOpen(newOpen)
+                                            // Clear search when opening to show all options
+                                            if (newOpen) setInputValue("")
+                                        }
                                     }}
                                 />
                             </div>
@@ -160,7 +168,7 @@ export function Combobox({
                             {options.map((option) => (
                                 <CommandItem
                                     key={option.value}
-                                    value={String(option.label)}
+                                    value={`${String(option.value)} ${String(option.label)}`}
                                     onSelect={() => {
                                         onChange(String(option.value) === String(value) ? "" : String(option.value))
                                         setInputValue(String(option.label))

@@ -46,6 +46,16 @@ export default function AdminDisciplineModule({
     /** Rows parsed from Excel — shown in DisciplineTable as a preview */
     const [importPreviewRows, setImportPreviewRows] = useState<Program[] | null>(null);
 
+    /** Local state for programs to enable optimistic UI updates (deletes) */
+    const [localPrograms, setLocalPrograms] = useState<Program[]>(serverPrograms?.data || []);
+
+    // Sync local state when server props change
+    useEffect(() => {
+        if (serverPrograms?.data) {
+            setLocalPrograms(serverPrograms.data);
+        }
+    }, [serverPrograms]);
+
     // Inertia state for sorting
     const sortConfig = useMemo(() => ({
         key: serverFilters?.sort || 'code',
@@ -57,18 +67,18 @@ export default function AdminDisciplineModule({
         const mapped: Program[] = rows.map((row, idx) => ({
             id: `import-${idx}-${row.code || 'no-code'}`,
             code: row.code,
-            name: row.specificDiscipline,
-            major: row.groupName,
-            disciplineGroup: row.groupName,
-            specificMajor: row.majorName,
-            specificGroup: row.majorName,
+            name: row.specificDiscipline ?? '',
+            major: row.disciplineGroup,
+            disciplineGroup: row.disciplineGroup,
+            specificMajor: row.majorDiscipline ?? '',
+            specificGroup: row.majorDiscipline ?? '',
             program: row.program,
             programLevel: '',
             originalData: {
                 code: row.code,
-                groupName: row.groupName,
-                majorName: row.majorName,
-                specificDiscipline: row.specificDiscipline,
+                disciplineGroup: row.disciplineGroup,
+                majorDiscipline: row.majorDiscipline ?? null,
+                specificDiscipline: row.specificDiscipline ?? null,
                 program: row.program,
                 type: 'specific',
                 _importStatus: row._status,
@@ -120,11 +130,11 @@ export default function AdminDisciplineModule({
     };
 
     // Correctly identifying the actual rows to display
-    // If import preview is active, USE that (all rows). Otherwise use server provided paginated programs.
+    // If import preview is active, USE that (all rows). Otherwise use localPrograms (which syncs with server).
     const displayPrograms = useMemo(() => {
         if (importPreviewRows !== null) return importPreviewRows;
-        return serverPrograms?.data || [];
-    }, [importPreviewRows, serverPrograms]);
+        return localPrograms;
+    }, [importPreviewRows, localPrograms]);
 
 
     const handleEdit = (item: any) => {
@@ -134,16 +144,24 @@ export default function AdminDisciplineModule({
 
     const handleDelete = (id: string) => {
         if (confirm('Are you sure you want to delete this discipline?')) {
+            // Optimistic update: remove from local state immediately
+            const previousPrograms = [...localPrograms];
+            setLocalPrograms(prev => prev.filter(p => p.id !== id));
+
             router.delete(route('admin.disciplines.destroy', id), {
+                preserveScroll: true,
+                preserveState: true,
                 onSuccess: (page: any) => {
                     const flash = (page.props as any).flash;
                     if (flash?.error) {
+                        // Restore previous state on error
+                        setLocalPrograms(previousPrograms);
                         setTimeout(() => alert('Error: ' + flash.error), 10);
-                    } else if (flash?.success) {
-                        setTimeout(() => alert(flash.success), 10);
                     }
                 },
                 onError: (errors) => {
+                    // Restore previous state on error
+                    setLocalPrograms(previousPrograms);
                     const messages = Object.values(errors).join('\n');
                     alert('Error:\n' + messages);
                 }
@@ -185,7 +203,7 @@ export default function AdminDisciplineModule({
         const type = editingItem.type === 'specific' ? 'specific' : 'major';
         const newCode = data.code || editingItem.code;
 
-        router.put(route('admin.disciplines.update', editingItem.code), {
+        router.put(route('admin.disciplines.update', editingItem.id), {
             type,
             groupName: data.groupName,
             majorName: data.majorName,
@@ -236,7 +254,7 @@ export default function AdminDisciplineModule({
                         onSubmit={handleAddSubmit}
                         majors={disciplines}
                         processing={processing}
-                        serverPrograms={serverPrograms?.data || serverPrograms || []}
+                        serverPrograms={localPrograms}
                     />
 
                     <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 flex flex-col gap-8">

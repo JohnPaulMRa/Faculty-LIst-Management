@@ -28,3 +28,36 @@ export function getCurrentAcademicYear(): string {
         return `${year - 1}-${year}`;
     }
 }
+
+export function normalizeProgramName(name: string): string {
+    if (!name) return "";
+    let normalized = name.trim();
+
+    const mappings: Record<string, string> = {
+        "BS": "Bachelor of Science",
+        "AB": "Bachelor of Arts",
+        "MS": "Master of Science",
+        "MA": "Master of Arts",
+        "B.S.": "Bachelor of Science",
+        "A.B.": "Bachelor of Arts",
+        "M.S.": "Master of Science",
+        "M.A.": "Master of Arts",
+    };
+
+    // Replace abbreviations at the start of the string
+    // We look for patterns like "BS ", "BS.", "BS-" or just "BS" if it's the whole string
+    for (const [abbr, full] of Object.entries(mappings)) {
+        // Create a regex that matches the abbreviation at the start, 
+        // followed by a space, dot, comma, dash, or end of string.
+        const escapedAbbr = abbr.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(`^${escapedAbbr}(\\s|[.,-]|$)`, "i");
+        
+        if (regex.test(normalized)) {
+            // Replace the abbreviation and keep the separator
+            normalized = full + normalized.substring(abbr.length);
+            break; 
+        }
+    }
+
+    return normalized;
+}

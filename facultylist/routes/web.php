@@ -40,8 +40,9 @@ Route::middleware(['auth', 'verified', 'role:Admin'])->group(function () {
 
     Route::get('/admin/disciplines', [\App\Http\Controllers\AdminController::class, 'disciplines'])->name('admin.disciplines');
     Route::post('/admin/disciplines', [\App\Http\Controllers\AdminController::class, 'storeDiscipline'])->name('admin.disciplines.store');
-    Route::put('/admin/disciplines/{code}', [\App\Http\Controllers\AdminController::class, 'updateDiscipline'])->name('admin.disciplines.update');
-    Route::delete('/admin/disciplines/{code}', [\App\Http\Controllers\AdminController::class, 'destroyDiscipline'])->name('admin.disciplines.destroy');
+    Route::post('/admin/disciplines/bulk', [\App\Http\Controllers\AdminController::class, 'bulkStoreDiscipline'])->name('admin.disciplines.bulkStore');
+    Route::put('/admin/disciplines/{id}', [\App\Http\Controllers\AdminController::class, 'updateDiscipline'])->name('admin.disciplines.update');
+    Route::delete('/admin/disciplines/{id}', [\App\Http\Controllers\AdminController::class, 'destroyDiscipline'])->name('admin.disciplines.destroy');
 
     // HEI Management
     Route::post('/admin/heis', [\App\Http\Controllers\AdminController::class, 'storeHei'])->name('admin.heis.store');
