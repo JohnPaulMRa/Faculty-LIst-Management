@@ -40,7 +40,7 @@ const FacultyDownloadModal: FC<FacultyDownloadModalProps> = ({ isOpen, onOpenCha
                     <DialogHeader>
                         <DialogTitle className="text-2xl font-bold tracking-tight">Download Template</DialogTitle>
                         <DialogDescription className="text-blue-50/90 text-sm mt-1">
-                            Select which form template you would like to download.
+                            Click the button below to download the form template.
                         </DialogDescription>
                     </DialogHeader>
                 </div>
