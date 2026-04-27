@@ -35,7 +35,7 @@ export function PublicViewSubmissionModal({ isOpen, onClose, selectedFaculty, re
                 >
                     <DialogHeader className="p-6 pb-2 sticky top-0 bg-white z-10 border-b border-gray-200">
                         <DialogTitle className="text-2xl font-bold flex items-center justify-between">
-                            <span>Faculty Profile Details</span>
+                            <span>Profile Details</span>
                             <div className="flex items-center gap-2">
                                 <Button
                                     variant="outline"

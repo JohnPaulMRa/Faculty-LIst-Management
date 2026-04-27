@@ -9,6 +9,8 @@ import AddDisciplineForm from './AddDisciplineForm';
 import DisciplineTable, { type Program } from './DisciplineTable';
 import EditDisciplineModal from './EditDisciplineModal';
 import ImportDisciplineModal, { type ParsedDisciplineRow } from './ImportDisciplineModal';
+import { useAlertDialog } from '@/components/faculty/hooks/useAlertDialog';
+import AlertDialogModal from '@/components/common/AlertDialogModal';
 
 
 interface SpecificDiscipline {
@@ -49,6 +51,7 @@ export default function AdminDisciplineModule({
 
     /** Local state for programs to enable optimistic UI updates (deletes) */
     const [localPrograms, setLocalPrograms] = useState<Program[]>(serverPrograms?.data || []);
+    const { alertDialog, showAlert, showConfirm, closeDialog } = useAlertDialog();
 
     // Sync local state when server props change
     useEffect(() => {
@@ -144,30 +147,35 @@ export default function AdminDisciplineModule({
     };
 
     const handleDelete = (id: string) => {
-        if (confirm('Are you sure you want to delete this discipline?')) {
-            // Optimistic update: remove from local state immediately
-            const previousPrograms = [...localPrograms];
-            setLocalPrograms(prev => prev.filter(p => p.id !== id));
+        showConfirm(
+            'Are you sure you want to delete this discipline?',
+            () => {
+                // Optimistic update: remove from local state immediately
+                const previousPrograms = [...localPrograms];
+                setLocalPrograms(prev => prev.filter(p => p.id !== id));
 
-            router.delete(route('admin.disciplines.destroy', id), {
-                preserveScroll: true,
-                preserveState: true,
-                onSuccess: (page: any) => {
-                    const flash = (page.props as any).flash;
-                    if (flash?.error) {
+                router.delete(route('admin.disciplines.destroy', id), {
+                    preserveScroll: true,
+                    preserveState: true,
+                    onSuccess: (page: any) => {
+                        const flash = (page.props as any).flash;
+                        if (flash?.error) {
+                            // Restore previous state on error
+                            setLocalPrograms(previousPrograms);
+                            toast.error('Error: ' + flash.error);
+                        }
+                    },
+                    onError: (errors) => {
                         // Restore previous state on error
                         setLocalPrograms(previousPrograms);
-                        toast.error('Error: ' + flash.error);
+                        const messages = Object.values(errors).join('\n');
+                        toast.error('Error:\n' + messages);
                     }
-                },
-                onError: (errors) => {
-                    // Restore previous state on error
-                    setLocalPrograms(previousPrograms);
-                    const messages = Object.values(errors).join('\n');
-                    toast.error('Error:\n' + messages);
-                }
-            });
-        }
+                });
+            },
+            "Confirm Discipline Deletion",
+            "error"
+        );
     };
 
     const handleAddSubmit = (data: any, onSuccess?: () => void) => {
@@ -292,6 +300,16 @@ export default function AdminDisciplineModule({
                     </div>
                 </div>
             </div>
+
+            <AlertDialogModal
+                open={alertDialog.open}
+                message={alertDialog.message}
+                type={alertDialog.type}
+                title={alertDialog.title}
+                onClose={closeDialog}
+                onConfirm={alertDialog.onConfirm}
+                confirmLabel="Delete"
+            />
 
             <EditDisciplineModal
                 isOpen={isEditModalOpen}

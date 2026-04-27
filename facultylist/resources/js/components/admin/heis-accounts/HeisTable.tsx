@@ -8,6 +8,12 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip";
 import type { Hei } from '@/types/hei';
 
 interface HeisTableProps {
@@ -115,17 +121,17 @@ export function HeisTable({ heis, searchQuery, onClearSearch, onEdit, onDelete }
                     <thead>
                         <tr className="bg-linear-to-r from-[#003468] to-[#1a4f8c] text-white uppercase text-[11px] font-bold tracking-widest">
                             <th className="px-3 py-3 font-bold w-[40px] text-center border-r border-white/10">#</th>
-                            <th className="px-3 py-3 font-bold w-[10%] text-center">
+                            <th className="px-3 py-3 font-bold w-[10%] text-left">
                                 <div className="flex items-center gap-1 cursor-pointer hover:text-white/80 transition-colors" onClick={() => onSort("hei_code")}>
                                     HEI Code <ArrowUpDown className="h-3 w-3 opacity-70" />
                                 </div>
                             </th>
-                            <th className="px-3 py-3 font-bold w-[15%] text-center">
+                            <th className="px-3 py-3 font-bold w-[15%] text-left">
                                 <div className="flex items-center gap-1 cursor-pointer hover:text-white/80 transition-colors" onClick={() => onSort("name")}>
                                     List of HEIs <ArrowUpDown className="h-3 w-3 opacity-70" />
                                 </div>
                             </th>
-                            <th className="px-3 py-3 font-bold w-[15%] text-center">
+                            <th className="px-3 py-3 font-bold w-[15%] text-left">
                                 <div className="flex items-center gap-1 cursor-pointer hover:text-white/80 transition-colors" onClick={() => onSort("address")}>
                                     Address <ArrowUpDown className="h-3 w-3 opacity-70" />
                                 </div>
@@ -161,10 +167,10 @@ export function HeisTable({ heis, searchQuery, onClearSearch, onEdit, onDelete }
                                     <td className="px-3 py-2 text-left text-gray-600">
                                         {hei.address || <span className="text-gray-400">N/A</span>}
                                     </td>
-                                    <td className="px-3 py-2 text-left text-gray-600">
+                                    <td className="px-3 py-2 text-center text-gray-600">
                                         {hei.contact_number || <span className="text-gray-400">N/A</span>}
                                     </td>
-                                    <td className="px-3 py-2 text-left text-gray-600">
+                                    <td className="px-3 py-2 text-center text-gray-600">
                                         {hei.email || <span className="text-gray-400">N/A</span>}
                                     </td>
                                     <td className="px-3 py-2 text-center">
@@ -184,24 +190,39 @@ export function HeisTable({ heis, searchQuery, onClearSearch, onEdit, onDelete }
                                     </td>
                                     <td className="px-3 py-2 font-bold text-center">
                                         <div className="flex items-center justify-center gap-2">
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                className="h-8 w-8 bg-amber-400 hover:bg-amber-500 text-amber-950 rounded-xl shadow-md border-b-2 border-amber-600 active:border-b-0 active:translate-y-px transition-all"
-                                                title="Edit"
-                                                onClick={(e) => { e.stopPropagation(); onEdit(hei); }}
-                                            >
-                                                <Pencil className="h-4 w-4" />
-                                            </Button>
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                className="h-8 w-8 bg-red-500 hover:bg-red-600 text-white rounded-xl shadow-md border-b-2 border-red-700 active:border-b-0 active:translate-y-px transition-all"
-                                                title="Delete"
-                                                onClick={(e) => { e.stopPropagation(); onDelete(hei); }}
-                                            >
-                                                <Trash2 className="h-4 w-4" />
-                                            </Button>
+                                            <TooltipProvider>
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            className="h-8 w-8 bg-amber-400 hover:bg-amber-500 text-amber-950 rounded-xl shadow-md border-b-2 border-amber-600 active:border-b-0 active:translate-y-px transition-all"
+                                                            onClick={(e) => { e.stopPropagation(); onEdit(hei); }}
+                                                        >
+                                                            <Pencil className="h-4 w-4" />
+                                                        </Button>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent>
+                                                        <p>Edit Institution</p>
+                                                    </TooltipContent>
+                                                </Tooltip>
+
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            className="h-8 w-8 bg-red-500 hover:bg-red-600 text-white rounded-xl shadow-md border-b-2 border-red-700 active:border-b-0 active:translate-y-px transition-all"
+                                                            onClick={(e) => { e.stopPropagation(); onDelete(hei); }}
+                                                        >
+                                                            <Trash2 className="h-4 w-4" />
+                                                        </Button>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent className="bg-red-600 border-red-700 text-white">
+                                                        <p>Delete Institution</p>
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            </TooltipProvider>
                                         </div>
                                     </td>
                                 </tr>

@@ -101,9 +101,7 @@ const FacultyImportModal: FC<Props> = ({
                         <p className="text-xs text-slate-500 font-medium italic ml-1 opacity-70">Records will be tagged with this academic year.</p>
                     </div>
 
-                    {/* Group Selection - ONLY for E2 */}
-
-
+                    {/* Group Selection - Removed (Now Automatic) */}
                     <div className="flex flex-col gap-3 pt-2">
                         <div className="relative" onClick={() => fileInputRef.current?.click()}>
                             <div className="flex h-40 w-full flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 bg-slate-50/50 hover:bg-emerald-50/30 hover:border-emerald-400 transition-all duration-300 cursor-pointer group">

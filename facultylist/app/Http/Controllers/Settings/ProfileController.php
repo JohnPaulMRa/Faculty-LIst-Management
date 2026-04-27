@@ -43,6 +43,9 @@ class ProfileController extends Controller
 
         if ($request->user()->hei) {
             $request->user()->hei->update([
+                'name' => $request->input('hei_name'),
+                'hei_code' => $request->input('hei_code'),
+                'type' => $request->input('hei_type'),
                 'address' => $request->input('hei_address'),
                 'contact_number' => $request->input('hei_contact_number'),
                 'email' => $request->input('hei_email'),

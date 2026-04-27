@@ -5,6 +5,12 @@ import { useState, useMemo } from 'react';
 import { edit } from '@/routes/faculty';
 import type { Faculty } from '@/types/faculty';
 import { Combobox } from '@/components/ui/combobox';
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 type Props = {
     facultyList: Faculty[];
@@ -45,6 +51,13 @@ const FacultyListTableE5: FC<Props> = ({
         setCurrentPage(1);
     };
 
+    const formatStatus = (status: string): string => {
+        const s = (status || '').trim();
+        const lower = s.toLowerCase();
+        if (lower === 'no submission') return 'No update';
+        return status;
+    };
+
     const getStatusBadge = (status: string): string => {
         const s = (status || '').trim();
         const lower = s.toLowerCase();
@@ -52,8 +65,7 @@ const FacultyListTableE5: FC<Props> = ({
         if (lower === 'updated') return 'bg-green-400 text-white border-green-600 shadow-sm';
         if (lower === 'submitted' || lower === 'completed') return 'bg-green-500 text-white border-green-700 shadow-sm';
         if (lower === 'not yet completed') return 'bg-amber-400 text-white border-amber-600 shadow-sm';
-        if (lower === 'no submission') return 'bg-red-400 text-white border-red-600 shadow-sm';
-        if (lower === 'not updated') return 'bg-red-400 text-white border-red-600 shadow-sm';
+        if (lower === 'no submission' || lower === 'no update' || lower === 'not updated') return 'bg-red-400 text-white border-red-600 shadow-sm';
 
         return 'bg-gray-100 text-gray-800 border border-gray-300 shadow-sm';
     };
@@ -197,26 +209,41 @@ const FacultyListTableE5: FC<Props> = ({
                                     </td>
                                     <td className="px-3 py-2 text-center">
                                         <span className={`text-[10px] uppercase tracking-widest px-3 py-1 rounded-full font-bold shadow-sm ${getStatusBadge(faculty.status)}`}>
-                                            {faculty.status}
+                                            {formatStatus(faculty.status)}
                                         </span>
                                     </td>
                                     <td className="px-3 py-2 font-bold text-center">
                                         <div className="flex items-center justify-center gap-2">
-                                            <Link
-                                                href={edit({ id: faculty.id }).url}
-                                                className="flex items-center justify-center h-8 w-8 bg-amber-400 hover:bg-amber-500 text-amber-950 rounded-xl shadow-md border-b-2 border-amber-600 active:border-b-0 active:translate-y-px transition-all"
-                                                title={isLocked ? "View Profile" : "Edit Profile"}
-                                            >
-                                                <Pencil className="h-4 w-4" />
-                                            </Link>
-                                            <button
-                                                onClick={() => !isLocked && onDelete(faculty.id)}
-                                                disabled={isLocked}
-                                                className={isLocked ? "flex items-center justify-center h-8 w-8 bg-slate-200 text-slate-400 rounded-xl shadow-none cursor-not-allowed" : "flex items-center justify-center h-8 w-8 bg-red-500 hover:bg-red-600 text-white rounded-xl shadow-md border-b-2 border-red-700 active:border-b-0 active:translate-y-px transition-all"}
-                                                title={isLocked ? "Record Locked" : "Delete"}
-                                            >
-                                                <Trash2 className="h-4 w-4" />
-                                            </button>
+                                            <TooltipProvider>
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <Link
+                                                            href={edit({ id: faculty.id }).url}
+                                                            className="flex items-center justify-center h-8 w-8 bg-amber-400 hover:bg-amber-500 text-amber-950 rounded-xl shadow-md border-b-2 border-amber-600 active:border-b-0 active:translate-y-px transition-all"
+                                                        >
+                                                            <Pencil className="h-4 w-4" />
+                                                        </Link>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent>
+                                                        <p>{isLocked ? "View Profile" : "Edit Profile"}</p>
+                                                    </TooltipContent>
+                                                </Tooltip>
+
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <button
+                                                            onClick={() => !isLocked && onDelete(faculty.id)}
+                                                            disabled={isLocked}
+                                                            className={isLocked ? "flex items-center justify-center h-8 w-8 bg-slate-200 text-slate-400 rounded-xl shadow-none cursor-not-allowed" : "flex items-center justify-center h-8 w-8 bg-red-500 hover:bg-red-600 text-white rounded-xl shadow-md border-b-2 border-red-700 active:border-b-0 active:translate-y-px transition-all"}
+                                                        >
+                                                            <Trash2 className="h-4 w-4" />
+                                                        </button>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent className={isLocked ? "bg-slate-800" : "bg-red-600 border-red-700 text-white"}>
+                                                        <p>{isLocked ? "Record Locked" : "Delete"}</p>
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            </TooltipProvider>
                                         </div>
                                     </td>
                                 </tr>

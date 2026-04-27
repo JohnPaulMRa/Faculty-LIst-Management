@@ -36,6 +36,9 @@ export default function Profile({
         hei_contact_number: hei?.contact_number || '',
         hei_email: hei?.email || '',
         hei_address: hei?.address || '',
+        hei_name: hei?.name || '',
+        hei_code: hei?.hei_code || '',
+        hei_type: hei?.type || '',
     });
 
     const submit = (e: React.FormEvent) => {
@@ -110,29 +113,32 @@ export default function Profile({
                                     <Label htmlFor="hei_name">Institution Name</Label>
                                     <Input
                                         id="hei_name"
-                                        className="mt-1 block w-full bg-gray-100 dark:bg-neutral-800"
-                                        defaultValue={hei.name || ''}
-                                        disabled
+                                        className="mt-1 block w-full"
+                                        value={data.hei_name}
+                                        onChange={(e) => setData('hei_name', e.target.value)}
                                     />
+                                    <InputError className="mt-2" message={errors?.hei_name as string} />
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="grid gap-2">
                                         <Label htmlFor="hei_code">Institution Code</Label>
                                         <Input
                                             id="hei_code"
-                                            className="mt-1 block w-full bg-gray-100 dark:bg-neutral-800"
-                                            defaultValue={hei.hei_code || ''}
-                                            disabled
+                                            className="mt-1 block w-full"
+                                            value={data.hei_code}
+                                            onChange={(e) => setData('hei_code', e.target.value)}
                                         />
+                                        <InputError className="mt-2" message={errors?.hei_code as string} />
                                     </div>
                                     <div className="grid gap-2">
                                         <Label htmlFor="hei_type">Institution Type</Label>
                                         <Input
                                             id="hei_type"
-                                            className="mt-1 block w-full bg-gray-100 dark:bg-neutral-800 capitalize"
-                                            defaultValue={hei.type || ''}
-                                            disabled
+                                            className="mt-1 block w-full capitalize"
+                                            value={data.hei_type}
+                                            onChange={(e) => setData('hei_type', e.target.value)}
                                         />
+                                        <InputError className="mt-2" message={errors?.hei_type as string} />
                                     </div>
                                 </div>
 

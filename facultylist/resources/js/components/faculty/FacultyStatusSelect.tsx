@@ -10,7 +10,7 @@ type Props = {
 };
 
 const STATUS_OPTIONS = [
-    "Not Updated",
+    "No update",
     "Submitted"
 ];
 

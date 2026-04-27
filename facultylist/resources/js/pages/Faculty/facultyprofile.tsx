@@ -5,7 +5,7 @@
 import { Head, router } from '@inertiajs/react';
 import { FileDown } from 'lucide-react';
 import type { FC } from 'react';
-import AlertModal from '@/components/common/AlertModal';
+import AlertDialogModal from '@/components/common/AlertDialogModal';
 
 import { FacultyCopyDataModal } from '@/components/faculty/FacultyCopyDataModal';
 import FacultyDownloadModal from '@/components/faculty/FacultyDownloadModal';
@@ -15,8 +15,7 @@ import FacultyFileDetailsModal from '@/components/faculty/FacultyFileDetailsModa
 import FacultyImportModal from '@/components/faculty/FacultyImportModal';
 import { FacultyToolbar } from '@/components/faculty/FacultyToolbar';
 import {
-    useAlertModal,
-    AlertType,
+    useAlertDialog,
     useFacultyFilters,
     useFacultyActions,
     useFacultyModals
@@ -56,7 +55,7 @@ const FacultyProfile: FC<FacultyProfileProps> = ({
     schoolType = 'private',
 }) => {
     // --- Custom Hooks ---
-    const { alertModal, showAlert, showConfirm, closeAlert } = useAlertModal();
+    const { alertDialog, showAlert, showConfirm, closeDialog } = useAlertDialog();
 
     const {
         searchQuery,
@@ -107,14 +106,14 @@ const FacultyProfile: FC<FacultyProfileProps> = ({
 
     return (
         <>
-            <AlertModal
-                open={alertModal.open}
-                message={alertModal.message}
-                type={alertModal.type}
-                title={alertModal.title}
-                onClose={closeAlert}
-                onConfirm={alertModal.onConfirm}
-                confirmLabel="Confirm"
+            <AlertDialogModal
+                open={alertDialog.open}
+                message={alertDialog.message}
+                type={alertDialog.type}
+                title={alertDialog.title}
+                onClose={closeDialog}
+                onConfirm={alertDialog.onConfirm}
+                confirmLabel={alertDialog.type === 'error' ? "Delete" : "Confirm"}
             />
 
             <SubmitFacultyModal

@@ -65,7 +65,7 @@ export function PublicEditSubmissionModal({ isOpen, onClose, selectedFaculty, re
                             <span className="bg-[#003468] text-white p-2 rounded-lg">
                                 <Save className="h-5 w-5" />
                             </span>
-                            <span>Edit Faculty Submission (FORM E-2)</span>
+                            <span>Edit Profile (FORM E-2)</span>
                         </div>
                         <button
                             onClick={() => onClose(false)}
@@ -109,7 +109,7 @@ export function PublicEditSubmissionModal({ isOpen, onClose, selectedFaculty, re
                                     ) : (
                                         <>
                                             <Save className="mr-2 h-5 w-5" />
-                                            Update Submission
+                                            Update
                                         </>
                                     )}
                                 </Button>

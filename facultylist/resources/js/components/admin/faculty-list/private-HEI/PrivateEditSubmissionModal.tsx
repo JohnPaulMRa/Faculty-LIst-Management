@@ -78,7 +78,7 @@ export function PrivateEditSubmissionModal({ isOpen, onClose, selectedFaculty, r
                             <span className="bg-[#003468] text-white p-2 rounded-lg">
                                 <Save className="h-5 w-5" />
                             </span>
-                            <span>Edit Faculty Submission</span>
+                            <span>Edit Profile (FORM E-5)</span>
                         </div>
                         <button
                             onClick={() => onClose(false)}
@@ -122,7 +122,7 @@ export function PrivateEditSubmissionModal({ isOpen, onClose, selectedFaculty, r
                                     ) : (
                                         <>
                                             <Save className="mr-2 h-5 w-5" />
-                                            Update Submission
+                                            Update
                                         </>
                                     )}
                                 </Button>

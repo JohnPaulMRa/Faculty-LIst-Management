@@ -14,6 +14,12 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
     Table,
     TableBody,
     TableCell,
@@ -372,9 +378,18 @@ const DisciplineTableRow = memo(({
                 <div className="flex items-center gap-2">
                     {program.code}
                     {importStatus === 'error' && (
-                        <span title={program.originalData?._importError}>
-                            <AlertCircle className="h-3.5 w-3.5 text-red-500 hover:text-red-700" />
-                        </span>
+                        <TooltipProvider>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <span className="cursor-help">
+                                        <AlertCircle className="h-3.5 w-3.5 text-red-500 hover:text-red-700" />
+                                    </span>
+                                </TooltipTrigger>
+                                <TooltipContent className="bg-red-600 border-red-700 text-white">
+                                    <p>{program.originalData?._importError}</p>
+                                </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
                     )}
                 </div>
             </TableCell>
@@ -421,34 +436,55 @@ const DisciplineTableRow = memo(({
                             </span>
                         )}
                         {importStatus === 'error' && (
-                            <span
-                                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-200 text-red-700 text-[10px] font-semibold cursor-help"
-                                title={program.originalData?._importError}
-                            >
-                                <AlertCircle className="h-2.5 w-2.5" /> Error
-                            </span>
+                            <TooltipProvider>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-200 text-red-700 text-[10px] font-semibold cursor-help">
+                                            <AlertCircle className="h-2.5 w-2.5" /> Error
+                                        </span>
+                                    </TooltipTrigger>
+                                    <TooltipContent className="bg-red-600 border-red-700 text-white">
+                                        <p>{program.originalData?._importError}</p>
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
                         )}
                     </div>
                 ) : (
                     <div className="flex items-center justify-end gap-2">
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => onEdit(program.originalData)}
-                            className="h-8 w-8 bg-amber-400 hover:bg-amber-500 text-amber-950 rounded-xl shadow-md border-b-2 border-amber-600 active:border-b-0 active:translate-y-px transition-all"
-                            title="Edit"
-                        >
-                            <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => onDelete(program.id)}
-                            className="h-8 w-8 bg-red-500 hover:bg-red-600 text-white rounded-xl shadow-md border-b-2 border-red-700 active:border-b-0 active:translate-y-px transition-all"
-                            title="Delete"
-                        >
-                            <Trash2 className="h-4 w-4" />
-                        </Button>
+                        <TooltipProvider>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={() => onEdit(program.originalData)}
+                                        className="h-8 w-8 bg-amber-400 hover:bg-amber-500 text-amber-950 rounded-xl shadow-md border-b-2 border-amber-600 active:border-b-0 active:translate-y-px transition-all"
+                                    >
+                                        <Pencil className="h-4 w-4" />
+                                    </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    <p>Edit Discipline</p>
+                                </TooltipContent>
+                            </Tooltip>
+
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={() => onDelete(program.id)}
+                                        className="h-8 w-8 bg-red-500 hover:bg-red-600 text-white rounded-xl shadow-md border-b-2 border-red-700 active:border-b-0 active:translate-y-px transition-all"
+                                    >
+                                        <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                </TooltipTrigger>
+                                <TooltipContent className="bg-red-600 border-red-700 text-white">
+                                    <p>Delete Discipline</p>
+                                </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
                     </div>
                 )}
             </TableCell>

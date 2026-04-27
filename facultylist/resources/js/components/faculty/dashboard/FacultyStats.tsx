@@ -30,7 +30,7 @@ const FacultyStats: FC<FacultyStatsProps> = ({ stats }) => {
     const statusData = [
         { name: 'Completed', value: stats.status.completed, color: '#10b981' },
         { name: 'Not yet Completed', value: stats.status.notYetCompleted, color: '#f59e0b' },
-        { name: 'No Submission', value: stats.status.noSubmission, color: '#f43f5e' },
+        { name: 'No Update', value: stats.status.noSubmission, color: '#f43f5e' },
     ];
 
     const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }: any) => {

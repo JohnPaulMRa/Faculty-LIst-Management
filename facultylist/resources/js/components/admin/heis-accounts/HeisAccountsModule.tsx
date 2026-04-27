@@ -8,6 +8,8 @@ import AddHEIsModal from './AddHEIsModal';
 import CreateFacultyAccountModal from './CreateFacultyAccountModal';
 import { HeisTable } from './HeisTable';
 import { UserAccountsTable } from './UserAccountsTable';
+import { useAlertDialog } from '@/components/faculty/hooks/useAlertDialog';
+import AlertDialogModal from '@/components/common/AlertDialogModal';
 
 
 
@@ -32,6 +34,7 @@ export default function HeisAccountsModule({ heis = [], accounts = [] }: HeisAcc
     const [selectedHei, setSelectedHei] = useState<Hei | null>(null);
     const [isCreateAccountModalOpen, setIsCreateAccountModalOpen] = useState(false);
     const [selectedAccount, setSelectedAccount] = useState<UserAccount | null>(null);
+    const { alertDialog, showAlert, showConfirm, closeDialog } = useAlertDialog();
 
     const handleEditHei = (hei: Hei) => {
         setSelectedHei(hei);
@@ -39,9 +42,12 @@ export default function HeisAccountsModule({ heis = [], accounts = [] }: HeisAcc
     };
 
     const handleDeleteHei = (hei: Hei) => {
-        if (confirm(`Are you sure you want to delete ${hei.name}?`)) {
-            router.delete(route('admin.heis.destroy', hei.id));
-        }
+        showConfirm(
+            `Are you sure you want to delete ${hei.name}?`,
+            () => router.delete(route('admin.heis.destroy', hei.id)),
+            "Confirm HEI Deletion",
+            "error"
+        );
     };
 
     const closeHeiModal = (open: boolean) => {
@@ -55,9 +61,12 @@ export default function HeisAccountsModule({ heis = [], accounts = [] }: HeisAcc
     };
 
     const handleDeleteAccount = (account: UserAccount) => {
-        if (confirm(`Are you sure you want to delete the account for ${account.name}?`)) {
-            router.delete(route('admin.users.destroy', account.id));
-        }
+        showConfirm(
+            `Are you sure you want to delete the account for ${account.name}?`,
+            () => router.delete(route('admin.users.destroy', account.id)),
+            "Confirm Account Deletion",
+            "error"
+        );
     };
 
     const closeAccountModal = (open: boolean) => {
@@ -183,6 +192,16 @@ export default function HeisAccountsModule({ heis = [], accounts = [] }: HeisAcc
                     )}
                 </div>
             </div>
+
+            <AlertDialogModal
+                open={alertDialog.open}
+                message={alertDialog.message}
+                type={alertDialog.type}
+                title={alertDialog.title}
+                onClose={closeDialog}
+                onConfirm={alertDialog.onConfirm}
+                confirmLabel="Delete"
+            />
 
             <AddHEIsModal
                 isOpen={isHeiModalOpen}

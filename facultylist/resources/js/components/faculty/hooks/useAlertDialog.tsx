@@ -1,24 +1,24 @@
 import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
 
-export type AlertType = 'info' | 'success' | 'error' | 'confirm';
+export type AlertDialogType = 'info' | 'success' | 'error' | 'confirm';
 
-export interface AlertModalState {
+export interface AlertDialogState {
     open: boolean;
     title?: string;
     message: string;
-    type: AlertType;
+    type: AlertDialogType;
     onConfirm?: () => void;
 }
 
-export const useAlertModal = () => {
-    const [alertModal, setAlertModal] = useState<AlertModalState>({
+export const useAlertDialog = () => {
+    const [alertDialog, setAlertDialog] = useState<AlertDialogState>({
         open: false,
         message: '',
         type: 'info',
     });
 
-    const showAlert = useCallback((message: string, type: Exclude<AlertType, 'confirm'> = 'info', title?: string) => {
+    const showAlert = useCallback((message: string, type: Exclude<AlertDialogType, 'confirm'> = 'info', title?: string) => {
         const fullMessage = title ? `${title}: ${message}` : message;
         
         switch (type) {
@@ -35,28 +35,28 @@ export const useAlertModal = () => {
         }
     }, []);
 
-    const showConfirm = useCallback((message: string, onConfirm: () => void, title: string = 'Confirm Action') => {
-        setAlertModal({
+    const showConfirm = useCallback((message: string, onConfirm: () => void, title: string = 'Confirm Action', type: AlertDialogType = 'confirm') => {
+        setAlertDialog({
             open: true,
             message,
-            type: 'confirm',
+            type,
             title,
             onConfirm: () => {
                 onConfirm();
-                setAlertModal((prev) => ({ ...prev, open: false }));
+                setAlertDialog((prev) => ({ ...prev, open: false }));
             },
         });
     }, []);
 
-    const closeAlert = useCallback(() => {
-        setAlertModal((prev) => ({ ...prev, open: false }));
+    const closeDialog = useCallback(() => {
+        setAlertDialog((prev) => ({ ...prev, open: false }));
     }, []);
 
     return {
-        alertModal,
+        alertDialog,
         showAlert,
         showConfirm,
-        closeAlert,
-        setAlertModal,
+        closeDialog,
+        setAlertDialog,
     };
 };

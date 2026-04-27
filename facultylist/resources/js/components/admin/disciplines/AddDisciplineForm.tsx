@@ -2,7 +2,7 @@
 import { Plus, X } from "lucide-react";
 import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import { Combobox } from "@/components/ui/combobox";
+// Removed Combobox import as it is no longer used
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { normalizeProgramName } from "@/lib/utils";
@@ -25,147 +25,7 @@ export default function AddDisciplineForm({ onCancel, onSubmit, majors = [], pro
     const [specificDesc, setSpecificDesc] = useState("");
     const [programName, setProgramName] = useState("");
 
-    const groupOptions = useMemo(() => {
-        const unique = new Map();
-        const majorsArray = Array.isArray(majors) ? majors : [];
-        majorsArray.forEach((m: any) => {
-            if (!unique.has(m.description)) {
-                unique.set(m.description, m.code);
-            }
-        });
-        return Array.from(unique.entries()).map(([label, value]) => ({ label, value }));
-    }, [majors]);
-
-    const handleGroupSelect = (code: string) => {
-        const majorsArray = Array.isArray(majors) ? majors : [];
-        const found = majorsArray.find(m => m.code === code);
-        setGroupCode(code);
-        setGroupDesc(found?.description ?? "");
-        setMajorCode("");
-        setMajorDesc("");
-        setSpecificCode("");
-        setSpecificDesc("");
-    };
-
-    const majorOptions = useMemo(() => {
-        if (!groupCode) return [];
-        const majorsArray = Array.isArray(majors) ? majors : [];
-        const group = majorsArray.find(m => m.code === groupCode);
-        const allRelevantMajors = group?.groups ?? [];
-        const unique = new Map();
-        allRelevantMajors.forEach((g: any) => {
-            if (!unique.has(g.description)) {
-                unique.set(g.description, g.code);
-            }
-        });
-        return Array.from(unique.entries()).map(([label, value]) => ({ label, value }));
-    }, [majors, groupCode]);
-
-    const handleMajorSelect = (code: string) => {
-        const group = majors.find(m => m.code === groupCode);
-        const found = (group?.groups ?? []).find((g: any) => g.code === code);
-
-        setMajorCode(code);
-        setMajorDesc(found?.description ?? "");
-        setSpecificCode("");
-        setSpecificDesc("");
-    };
-
-    const specificOptions = useMemo(() => {
-        let list: any[] = [];
-        const g = groupCode ? majors.find(m => m.code === groupCode) : null;
-
-        // Try to find the major object to get its nested specifics
-        let m: any = null;
-        if (g) {
-            const mByCode = (majorCode && majorCode !== groupCode)
-                ? (g.groups ?? []).find((mg: any) => mg.code === majorCode)
-                : null;
-
-            const mByDesc = majorDesc
-                ? (g.groups ?? []).find((mg: any) => mg.description?.trim().toLowerCase() === majorDesc.trim().toLowerCase())
-                : null;
-
-            m = mByCode || mByDesc;
-        }
-
-        // If not found in current group, search ALL groups for this major
-        if (!m && majorDesc) {
-            for (const anyG of majors) {
-                const found = (anyG.groups ?? []).find((mg: any) => mg.description?.trim().toLowerCase() === majorDesc.trim().toLowerCase());
-                if (found) {
-                    m = found;
-                    break;
-                }
-            }
-        }
-
-        if (m) {
-            list = m.specifics ?? [];
-        } else {
-            // No major selected or found, keep list empty as per user request for "lazy" loading
-            return [];
-        }
-
-        // Supplement with existing programs from serverPrograms if available
-        if (majorDesc) {
-            const existingSpecifics = serverPrograms
-                .filter((p: any) => p.major?.trim().toLowerCase() === majorDesc.trim().toLowerCase())
-                .map((p: any) => ({ code: p.code, description: p.name }));
-
-            list = [...list, ...existingSpecifics];
-        }
-
-        const unique = new Map();
-        list.forEach((s: any) => {
-            if (s && s.description) {
-                const key = s.description.trim().toLowerCase();
-                if (!unique.has(key)) {
-                    unique.set(key, { label: s.description.trim(), value: s.code });
-                }
-            }
-        });
-
-        return Array.from(unique.values())
-            .sort((a, b) => a.label.localeCompare(b.label));
-    }, [majors, groupCode, majorCode, majorDesc, serverPrograms]);
-
-    const handleSpecificSelect = (code: string) => {
-        let found: any = null;
-        let foundGroup: any = null;
-        let foundMajor: any = null;
-
-        // Search through all groups and majors to find this specific code
-        for (const g of majors) {
-            for (const m of (g.groups ?? [])) {
-                const s = (m.specifics ?? []).find((spec: any) => spec.code === code);
-                if (s) {
-                    found = s;
-                    foundGroup = g;
-                    foundMajor = m;
-                    break;
-                }
-            }
-            if (found) break;
-        }
-
-        if (found) {
-            setSpecificCode(code);
-            setSpecificDesc(found.description);
-            // Auto-fill parents if not already matching
-            if (groupDesc !== foundGroup.description) {
-                setGroupCode(foundGroup.code);
-                setGroupDesc(foundGroup.description);
-            }
-            if (majorDesc !== foundMajor.description) {
-                setMajorCode(foundMajor.code);
-                setMajorDesc(foundMajor.description);
-            }
-        } else {
-            setSpecificCode(code);
-            // If not found in our list (free input), just keep the code
-        }
-    };
+    // Selection handlers removed as Comboboxes were replaced with Inputs
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -246,28 +106,14 @@ export default function AddDisciplineForm({ onCancel, onSubmit, majors = [], pro
                                 const val = e.target.value.replace(/[^A-Za-z0-9]/g, "").slice(0, 10).toUpperCase();
                                 setSpecificCode(val);
 
-                                // Sync parent codes (Hierarchy: 2-4-6 digits)
+                                // Sync parent codes (Hierarchy: 2-4-6 digits) but removed description auto-filling
                                 const gCode = val.length >= 2 ? val.slice(0, 2) : "";
                                 const mCode = val.length >= 4 ? val.slice(0, 4) : "";
 
                                 if (gCode) setGroupCode(gCode);
                                 if (mCode) setMajorCode(mCode);
-
-                                // Try to find matching descriptions to auto-fill the comboboxes
-                                const foundGroup = gCode ? majors.find(m => m.code === gCode) : null;
-                                if (foundGroup) {
-                                    setGroupDesc(foundGroup.description);
-                                    const foundMajor = mCode ? (foundGroup.groups ?? []).find((g: any) => g.code === mCode) : null;
-                                    if (foundMajor) {
-                                        setMajorDesc(foundMajor.description);
-                                        const foundSpecific = (foundMajor.specifics ?? []).find((s: any) => s.code === val);
-                                        if (foundSpecific) {
-                                            setSpecificDesc(foundSpecific.description);
-                                        }
-                                    }
-                                }
                             }}
-                            className="h-14 bg-slate-50 text-center font-black text-xl focus-visible:ring-2 focus-visible:ring-blue-600/10 focus-visible:border-blue-500 border-slate-200 hover:border-blue-400 rounded-xl transition-all shadow-sm text-blue-600"
+                            className="h-12 bg-slate-50 text-center font-bold text-base focus-visible:ring-2 focus-visible:ring-blue-600/10 focus-visible:border-blue-500 border-slate-200 hover:border-blue-400 rounded-xl transition-all shadow-sm text-blue-600"
                             placeholder=" "
                             maxLength={10}
                         />
@@ -277,20 +123,11 @@ export default function AddDisciplineForm({ onCancel, onSubmit, majors = [], pro
                         <Label className="text-base font-bold text-gray-600 uppercase tracking-wider ml-1">
                             Discipline Group <span className="text-red-500">*</span>
                         </Label>
-                        <Combobox
-                            options={groupDesc && !groupOptions.find(o => o.value === groupCode || o.label.toLowerCase() === groupDesc.toLowerCase())
-                                ? [{ label: groupDesc, value: groupCode }, ...groupOptions]
-                                : groupOptions}
-                            value={groupCode}
-                            onChange={handleGroupSelect}
-                            onInputChange={(typed) => {
-                                setGroupDesc(typed);
-                            }}
-                            allowFreeInput
-                            placeholder=" "
-                            showClear={true}
-                            containerClassName="w-full h-12"
-                            className="h-full border-slate-200 hover:border-blue-400 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-600/10 rounded-xl shadow-sm text-base font-medium transition-all"
+                        <Input
+                            value={groupDesc}
+                            onChange={(e) => setGroupDesc(e.target.value)}
+                            className="h-12 border-slate-200 hover:border-blue-400 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-600/10 rounded-xl shadow-sm text-base font-medium transition-all"
+                            placeholder="Enter Discipline Group"
                         />
                     </div>
 
@@ -299,20 +136,11 @@ export default function AddDisciplineForm({ onCancel, onSubmit, majors = [], pro
                         <Label className="text-base font-bold text-gray-600 uppercase tracking-wider ml-1">
                             Major Discipline <span className="text-red-500">*</span>
                         </Label>
-                        <Combobox
-                            options={majorDesc && !majorOptions.find(o => o.value === majorCode || o.label.toLowerCase() === majorDesc.toLowerCase())
-                                ? [{ label: majorDesc, value: majorCode }, ...majorOptions]
-                                : majorOptions}
-                            value={majorCode}
-                            onChange={handleMajorSelect}
-                            onInputChange={(typed) => {
-                                setMajorDesc(typed);
-                            }}
-                            allowFreeInput
-                            placeholder=" "
-                            showClear={true}
-                            containerClassName="w-full h-12"
-                            className="h-full border-slate-200 hover:border-blue-400 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-600/10 rounded-xl shadow-sm text-base font-medium transition-all"
+                        <Input
+                            value={majorDesc}
+                            onChange={(e) => setMajorDesc(e.target.value)}
+                            className="h-12 border-slate-200 hover:border-blue-400 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-600/10 rounded-xl shadow-sm text-base font-medium transition-all"
+                            placeholder="Enter Major Discipline"
                         />
                     </div>
 
@@ -321,20 +149,11 @@ export default function AddDisciplineForm({ onCancel, onSubmit, majors = [], pro
                         <Label className="text-base font-bold text-gray-600 uppercase tracking-wider ml-1">
                             Specific Discipline <span className="text-red-500">*</span>
                         </Label>
-                        <Combobox
-                            options={specificDesc && !specificOptions.find(o => o.value === specificCode || o.label.toLowerCase() === specificDesc.toLowerCase())
-                                ? [{ label: specificDesc, value: specificCode }, ...specificOptions]
-                                : specificOptions}
-                            value={specificCode}
-                            onChange={handleSpecificSelect}
-                            onInputChange={(typed) => {
-                                setSpecificDesc(typed);
-                            }}
-                            allowFreeInput
-                            placeholder=" "
-                            showClear={true}
-                            containerClassName="w-full h-12"
-                            className="h-full border-slate-200 hover:border-blue-400 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-600/10 rounded-xl shadow-sm text-base font-medium transition-all"
+                        <Input
+                            value={specificDesc}
+                            onChange={(e) => setSpecificDesc(e.target.value)}
+                            className="h-12 border-slate-200 hover:border-blue-400 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-600/10 rounded-xl shadow-sm text-base font-medium transition-all"
+                            placeholder="Enter Specific Discipline"
                         />
                     </div>
 

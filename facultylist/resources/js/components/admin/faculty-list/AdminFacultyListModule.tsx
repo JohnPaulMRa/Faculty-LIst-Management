@@ -282,8 +282,8 @@ export default function AdminFacultyListModule({
                                             </div>
                                         </th>
                                         <th className="px-3 py-3 font-bold w-[20%] text-center">
-                                            <div className="flex items-center gap-1 cursor-pointer hover:text-white/80 transition-colors" onClick={() => onSort("academic_year")}>
-                                                Academic Year <ArrowUpDown className="h-3 w-3 opacity-70" />
+                                            <div className="flex items-center justify-center gap-1 cursor-pointer hover:text-white/80 transition-colors" onClick={() => onSort("academic_year")}>
+                                                Submitted Academic Year <ArrowUpDown className="h-3 w-3 opacity-70" />
                                             </div>
                                         </th>
                                         <th className="px-3 py-3 font-bold w-[20%] text-center">
@@ -310,7 +310,7 @@ export default function AdminFacultyListModule({
                                                 <td className="px-3 py-2 text-left font-semibold text-gray-900">
                                                     <div>{school.name}</div>
                                                 </td>
-                                                <td className="px-3 py-2 text-left  text-blue-700">
+                                                <td className="px-3 py-2 text-center text-blue-700">
                                                     {school.academic_year || 'N/A'}
                                                 </td>
 

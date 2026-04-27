@@ -1,13 +1,13 @@
 import { router } from '@inertiajs/react';
-import type { AlertType } from '@/components/faculty/hooks';
+import type { AlertDialogType } from '@/components/faculty/hooks';
 import { useFacultyImport } from '@/components/faculty/useFacultyImport';
 import { edit } from '@/routes/faculty';
 import type { Faculty } from '@/types/faculty';
 
 export interface UseFacultyActionsProps {
-    // From useAlertModal
-    showAlert: (message: string, type?: Exclude<AlertType, 'confirm'>, title?: string) => void;
-    showConfirm: (message: string, onConfirm: () => void, title?: string) => void;
+    // From useAlertDialog
+    showAlert: (message: string, type?: Exclude<AlertDialogType, 'confirm'>, title?: string) => void;
+    showConfirm: (message: string, onConfirm: () => void, title?: string, type?: AlertDialogType) => void;
     
     // From useFacultyModals
     setIsSubmitModalOpen: (open: boolean) => void;
@@ -96,7 +96,8 @@ export const useFacultyActions = ({
                     onError: () => showAlert('Failed to delete faculty. Please check connection.', 'error'),
                 });
             },
-            'Delete Record'
+            'Delete Record',
+            'error'
         );
     };
 

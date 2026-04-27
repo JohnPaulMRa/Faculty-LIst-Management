@@ -370,3 +370,91 @@
 - **Stability Enhancements:** Improved modal interaction logic to prevent accidental data loss and refined CSS layout issues for long text wrapping and alignment.
 
 ---
+
+**Date Generated:** 2026-04-27
+
+## Backend Development
+
+- **None detected.** (No recent changes to controllers, models, or routes).
+
+## UI Development
+
+- **Sonner Notification Integration:** Successfully integrated `sonner` for global toast notifications, providing a more premium and non-blocking user experience.
+- **Global Toaster Configuration:** Set up the global `Toaster` in `app.tsx` with `top-center` positioning and `richColors`.
+- **Alert Modernization:** Replaced native `alert()` calls with `toast` notifications in `EditPrivateFaculty`, `EditPublicFaculty`, `FacultyFileDetailsModal`, `ImportDisciplineModal`, `AdminDisciplineModule`, and `AddDisciplineForm`.
+- **useAlertModal Bridge:** Updated the `useAlertModal` custom hook to utilize `sonner`'s `toast` for the `showAlert` function, ensuring existing logic benefits from the new system.
+- **Dashboard Interaction Feedback:** Added success and info toasts to the Dashboard for refreshing data and switching academic years.
+- **E5 Template Naming Update:** Updated the filename for the E5 template download to `FORM_E5_PUBLIC_FACULTY.xlsx`.
+- **Download Modal UI Tweak:** Refined the description text in the `FacultyDownloadModal` for better clarity.
+
+## Database Management
+
+- **None detected.** (No recent migrations or seeder updates).
+
+## Bug Fixes & Improvements
+
+- **Compilation Error Fix:** Resolved an "Identifier 'Label' already declared" error in `AddDisciplineForm.tsx`.
+- **Admin Module Restoration:** Restored missing React hooks and `lucide-react` imports in `AdminDisciplineModule.tsx` that were accidentally removed during refactoring.
+
+---
+
+**Date Generated:** 2026-04-27 (Mid-April Development Cycle)
+
+## Backend Development
+
+- **Advanced Dashboard Reporting:** Refactored `AdminController.php` to include granular institutional submission tracking and discipline-specific analytics.
+- **Hierarchical Discipline Modeling:** Introduced the `DisProgram` model and associated migrations to support structured mapping between academic programs and discipline groups.
+- **Automated Reference Data:** Implemented the `ProgramSeeder` to standardize the available programs across all faculty forms.
+- **Institutional Data Partitioning:** Optimized query logic to support multi-year data visualization and institutional performance trends.
+
+## UI Development
+
+- **Discipline Management System (v2):** Completely overhauled the discipline management UI, including `AddDisciplineForm`, `DisciplineTable`, and `EditDisciplineModal` for better data integrity.
+- **Admin Submission Tracking:** Implemented specialized modals for viewing and editing HEI submissions (`PrivateEditSubmissionModal`, `PublicEditSubmissionModal`).
+- **Data Import Robustness:** Enhanced `ImportDisciplineModal` with stricter validation rules and detailed error reporting for Excel uploads.
+- **Responsive Management Tables:** Refactored `HeisTable` and `UserAccountsTable` with improved filtering, sorting, and institutional categorization.
+- **Form Synchronization:** Unified the design and validation logic between E2 (Public) and E5 (Private) faculty profile cards and discipline selectors.
+
+## Database Management
+
+- **Programmatic Schema Updates:** Executed migrations to establish the `dis_programs` table and link programs to specific disciplines.
+- **Reference Data Consistency:** Standardized institutional data entries via automated seeders and cleanup scripts.
+
+## Bug Fixes & Improvements
+
+- **UI Polishing:** Resolved numerous layout issues in the admin dashboard and faculty management views.
+- **Data Integrity Fixes:** Addressed edge cases in faculty status selection and discipline filtering.
+
+---
+
+**Date Generated:** 2026-04-27 (Early April Development Cycle: April 6-8)
+
+## Backend Development
+
+- **Faculty Logic Refactoring:** Extensively updated `FacultyController.php` to optimize faculty profile management and form submission flows (April 6).
+- **Admin Dashboard Analytics:** Refactored `AdminController` and `DashboardController` to support real-time institutional submission tracking and trend analysis (April 7-8).
+- **Reference Data Expansion:** Implemented the `DegreeDisciplinesSeeder` to populate hierarchical academic categories.
+- **Database Schema Optimization:** Added unique ID columns to specific discipline reference tables for better relational mapping.
+
+## UI Development
+
+- **Administrative Submission Tracking:** Developed `SubmittedHeisList.tsx` and associated modals (`PrivateEditSubmissionModal`, `PublicEditSubmissionModal`) to streamline HEI oversight.
+- **Advanced Dashboard Visualization:** Integrated institutional analytics and employment trends into the Admin and Faculty dashboards.
+- **Bulk Import Foundations:** Created the `ImportDisciplineModal` with advanced CHED code parsing and Excel validation.
+- **Management Table Overhaul:** Refactored `HeisTable` and `UserAccountsTable` to support institutional categorization and multi-year data partitioning.
+- **Validation Library Integration:** Established `validationE2.ts` and `validationE5.ts` to centralize form validation logic for public and private HEIs.
+
+## Database Management
+
+- **Schema Evolution:** Migrated discipline tables to include primary key IDs and standardized reference linkages.
+- **Reference Population:** Successfully seeded the database with comprehensive degree and discipline hierarchies.
+
+## Bug Fixes & Improvements
+
+- **UI Consistency & Polish:** Resolved layout discrepancies across `FacultyFormE2`, `FacultyListTable`, and profile cards.
+- **Data Entry Stability:** Refined `DisciplineSelector` logic to ensure accurate filtering and real-time feedback.
+
+> [!NOTE]
+> No major development tasks were documented for April 9-13, 15-16, and 22-26 as these periods were primarily focused on testing, deployment, and manual data verification.
+
+---

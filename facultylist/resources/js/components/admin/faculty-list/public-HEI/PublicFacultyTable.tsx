@@ -10,6 +10,12 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 import { cn } from '@/lib/utils';
 import { PublicViewSubmissionModal } from './PublicViewSubmissionModal';
@@ -20,7 +26,7 @@ const FacultyStatusSelect = ({ initialStatus, memberId }: { initialStatus: strin
         const lower = (initialStatus || '').toLowerCase();
         if (lower === 'completed') return 'completed';
         if (lower === 'submitted') return 'submitted';
-        if (lower === 'no_submission' || lower === 'no submission' || lower === 'no_submition') return 'no_submission';
+        if (lower === 'no_submission' || lower === 'no submission' || lower === 'no_submition' || lower === 'no update') return 'no_submission';
         return 'pending';
     });
     const [isUpdating, setIsUpdating] = useState(false);
@@ -30,7 +36,7 @@ const FacultyStatusSelect = ({ initialStatus, memberId }: { initialStatus: strin
         const lower = (initialStatus || '').toLowerCase();
         if (lower === 'completed') setStatus('completed');
         else if (lower === 'submitted') setStatus('submitted');
-        else if (lower === 'no_submission' || lower === 'no submission' || lower === 'no_submition') setStatus('no_submission');
+        else if (lower === 'no_submission' || lower === 'no submission' || lower === 'no_submition' || lower === 'no update') setStatus('no_submission');
         else setStatus('pending');
     }, [initialStatus]);
 
@@ -54,8 +60,8 @@ const FacultyStatusSelect = ({ initialStatus, memberId }: { initialStatus: strin
             bg: "bg-rose-50",
             text: "text-rose-700",
             border: "border-rose-200",
-            label: "No Submission",
-            dbValue: "No Submission"
+            label: "No update",
+            dbValue: "No update"
         };
         return {
             bg: "bg-amber-50",
@@ -107,7 +113,7 @@ const FacultyStatusSelect = ({ initialStatus, memberId }: { initialStatus: strin
                     <span>Not yet Completed</span>
                 </SelectItem>
                 <SelectItem value="no_submission" className="text-[11px] font-semibold text-rose-700 focus:bg-rose-50 focus:text-rose-700 rounded-sm">
-                    <span>No Submission</span>
+                    <span>No update</span>
                 </SelectItem>
             </SelectContent>
         </Select>
@@ -281,9 +287,9 @@ const SingleYearPublicTable = ({ faculty, schoolYear, referenceData, onViewSubmi
                         <tr className="bg-linear-to-r from-[#003468] to-[#1a4f8c] text-white uppercase text-[11px] font-bold tracking-widest">
                             <th className="px-3 py-3 font-bold text-center w-[20px] border-r border-white/10">#</th>
                             <th className="px-3 py-3 font-bold text-left">
-                                <div className="flex items-center gap-1 cursor-pointer hover:text-white/80 transition-colors" onClick={() => onSort("schoolYear")}>
-                                    Academic Year <ArrowUpDown className="h-3 w-3 opacity-70" />
-                                </div>
+                                    <div className="flex items-center justify-center gap-1 cursor-pointer hover:text-white/80 transition-colors" onClick={() => onSort("schoolYear")}>
+                                        Submitted Academic Year <ArrowUpDown className="h-3 w-3 opacity-70" />
+                                    </div>
                             </th>
                             <th className="px-3 py-3 font-bold text-left">
                                 <div className="flex items-center gap-1 cursor-pointer hover:text-white/80 transition-colors" onClick={() => onSort("name")}>
@@ -294,7 +300,7 @@ const SingleYearPublicTable = ({ faculty, schoolYear, referenceData, onViewSubmi
                             <th className="px-3 py-3 font-bold text-center w-[200px]">Group</th>
                             <th className="px-3 py-3 font-bold text-center">GENERIC FACULTY RANK</th>
                             <th className="px-3 py-3 font-bold text-center">Tenured Status</th>
-                            <th className="px-3 py-3 font-bold text-center italic">SUBMITTED FILE</th>
+                            <th className="px-3 py-3 font-bold text-center italic">Profile</th>
                             <th className="px-3 py-3 font-bold text-center w-[170px]">Action</th>
                         </tr>
                     </thead>
@@ -304,7 +310,7 @@ const SingleYearPublicTable = ({ faculty, schoolYear, referenceData, onViewSubmi
                                 return (
                                     <tr key={member.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
                                         <td className="px-3 py-2 text-center text-gray-500 border-r border-gray-100">{startEntry + index}</td>
-                                        <td className="px-3 py-2 text-left font-bold text-blue-700">{member.schoolYear}</td>
+                                        <td className="px-3 py-2 text-center font-bold text-blue-700">{member.schoolYear}</td>
                                         <td className="px-3 py-2 text-left font-semibold text-gray-900">{member.name}</td>
                                         <td className="px-3 py-2 text-center text-black">{getGenderLabel(member.gender)}</td>
                                         <td className="px-3 py-2 text-center text-black font-semibold uppercase text-[10px]">{getGroupLabel(member.group)}</td>
@@ -312,17 +318,25 @@ const SingleYearPublicTable = ({ faculty, schoolYear, referenceData, onViewSubmi
                                         <td className="px-3 py-2 text-center text-black">{getTenureLabel(member.is_tenured)}</td>
                                         <td className="px-3 py-2 text-center">
                                             <div className="flex items-center justify-center">
-                                                <Button
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    onClick={() => onViewSubmission(member)}
-                                                    disabled={isLoadingId === member.id}
-                                                    className="h-7 px-3 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-sm border-b-2 border-blue-800 active:border-b-0 active:translate-y-px transition-all text-[10px] font-bold flex items-center gap-1.5"
-                                                    title="View Submission"
-                                                >
-                                                    {isLoadingId === member.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileText className="h-3.5 w-3.5" />}
-                                                    VIEW SUBMISSION
-                                                </Button>
+                                                <TooltipProvider>
+                                                    <Tooltip>
+                                                        <TooltipTrigger asChild>
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                onClick={() => onViewSubmission(member)}
+                                                                disabled={isLoadingId === member.id}
+                                                                className="h-7 px-3 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-sm border-b-2 border-blue-800 active:border-b-0 active:translate-y-px transition-all text-[10px] font-bold flex items-center gap-1.5"
+                                                            >
+                                                                {isLoadingId === member.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileText className="h-3.5 w-3.5" />}
+                                                                View Profile
+                                                            </Button>
+                                                        </TooltipTrigger>
+                                                        <TooltipContent>
+                                                            <p>Profile Details</p>
+                                                        </TooltipContent>
+                                                    </Tooltip>
+                                                </TooltipProvider>
                                             </div>
                                         </td>
                                         <td className="px-3 py-2 text-center">
