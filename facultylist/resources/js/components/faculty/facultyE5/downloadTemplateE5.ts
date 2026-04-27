@@ -92,5 +92,5 @@ export const downloadTemplateE5 = (): void => {
   XLSX.utils.book_append_sheet(wb, ws1, "Faculty Data Entry Form");
   XLSX.utils.book_append_sheet(wb, ws2, "Reference");
 
-  XLSX.writeFile(wb, "CHED_FORM_E5.xlsx");
+  XLSX.writeFile(wb, "FORM_E5_PUBLIC_FACULTY.xlsx");
 };

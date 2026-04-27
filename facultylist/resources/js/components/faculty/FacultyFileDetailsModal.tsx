@@ -2,6 +2,7 @@
  
 import type { FC} from 'react';
 import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 import {
     Dialog,
     DialogContent,
@@ -126,7 +127,7 @@ const FacultyFileDetailsModal: FC<Props> = ({ isOpen, onOpenChange, faculty, onS
             }
             msg += `\n\nAll fields must be filled out before saving.`;
             
-            alert(msg);
+            toast.warning(msg);
             return;
         }
 

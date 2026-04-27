@@ -6,6 +6,7 @@ import * as XLSX from "xlsx";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { normalizeProgramName } from "@/lib/utils";
+import { toast } from "sonner";
 
 export interface ParsedDisciplineRow {
     code: string;
@@ -311,7 +312,7 @@ export default function ImportDisciplineModal({
             router.reload({ only: ['programs'], preserveScroll: true } as any);
         } catch (error: any) {
             console.error("Bulk import error:", error);
-            alert("Error: " + (error.response?.data?.message || "Bulk import failed."));
+            toast.error("Error: " + (error.response?.data?.message || "Bulk import failed."));
         } finally {
             setImporting(false);
             setImportDone(true);

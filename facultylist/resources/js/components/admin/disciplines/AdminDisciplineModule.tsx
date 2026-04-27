@@ -4,6 +4,7 @@ import { router } from '@inertiajs/react';
 import { FileSpreadsheet, X } from 'lucide-react';
 import { useState, useMemo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 import AddDisciplineForm from './AddDisciplineForm';
 import DisciplineTable, { type Program } from './DisciplineTable';
 import EditDisciplineModal from './EditDisciplineModal';
@@ -156,14 +157,14 @@ export default function AdminDisciplineModule({
                     if (flash?.error) {
                         // Restore previous state on error
                         setLocalPrograms(previousPrograms);
-                        setTimeout(() => alert('Error: ' + flash.error), 10);
+                        toast.error('Error: ' + flash.error);
                     }
                 },
                 onError: (errors) => {
                     // Restore previous state on error
                     setLocalPrograms(previousPrograms);
                     const messages = Object.values(errors).join('\n');
-                    alert('Error:\n' + messages);
+                    toast.error('Error:\n' + messages);
                 }
             });
         }
@@ -176,20 +177,20 @@ export default function AdminDisciplineModule({
                 setProcessing(false);
                 const flash = (page.props as any).flash;
                 if (flash?.error) {
-                    setTimeout(() => alert('Error: ' + flash.error), 10);
+                    toast.error('Error: ' + flash.error);
                 } else {
                     if (onSuccess) {
                         onSuccess();
                     } else {
                         setFormResetKey(prev => prev + 1);
                     }
-                    setTimeout(() => alert('Discipline added successfully.'), 10);
+                    toast.success('Discipline added successfully.');
                 }
             },
             onError: (errors) => {
                 setProcessing(false);
                 const messages = Object.values(errors).join('\n');
-                alert('Validation error:\n' + messages);
+                toast.error('Validation error:\n' + messages);
             },
             onFinish: () => {
                 setProcessing(false);
@@ -216,7 +217,7 @@ export default function AdminDisciplineModule({
                 setProcessing(false);
                 const flash = (page.props as any).flash;
                 if (flash?.error) {
-                    alert('Error: ' + flash.error);
+                    toast.error('Error: ' + flash.error);
                 } else {
                     setIsEditModalOpen(false);
                 }
@@ -224,7 +225,7 @@ export default function AdminDisciplineModule({
             onError: (errors) => {
                 setProcessing(false);
                 const messages = Object.values(errors).join('\n');
-                alert('Validation error:\n' + messages);
+                toast.error('Validation error:\n' + messages);
             },
         });
     };

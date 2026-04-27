@@ -6,6 +6,7 @@ import { Combobox } from "@/components/ui/combobox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { normalizeProgramName } from "@/lib/utils";
+import { toast } from "sonner";
 
 interface AddDisciplineFormProps {
     onCancel?: () => void;
@@ -169,7 +170,7 @@ export default function AddDisciplineForm({ onCancel, onSubmit, majors = [], pro
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         console.log("Submit button clicked!");
-        if (!groupCode) { alert("Please select or enter a Discipline Group."); return; }
+        if (!groupCode) { toast.warning("Please select or enter a Discipline Group."); return; }
 
         const hasMajor = !!(majorCode && majorDesc);
         const hasSpecific = !!(specificCode && specificDesc);
@@ -177,17 +178,17 @@ export default function AddDisciplineForm({ onCancel, onSubmit, majors = [], pro
         console.log("Validation check:", { hasMajor, hasSpecific, majorCode, majorDesc, specificCode, specificDesc });
 
         if (!hasMajor && !hasSpecific) {
-            alert("Please provide at least a Major Discipline (name and code) or a Specific Discipline (name and code).");
+            toast.warning("Please provide at least a Major Discipline (name and code) or a Specific Discipline (name and code).");
             return;
         }
 
         if (majorDesc && !majorCode) {
-            alert("Major Discipline code is required.");
+            toast.warning("Major Discipline code is required.");
             return;
         }
 
         if (specificDesc && !specificCode) {
-            alert("Specific Discipline code is required.");
+            toast.warning("Specific Discipline code is required.");
             return;
         }
 

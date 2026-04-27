@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { toast } from 'sonner';
 
 export type AlertType = 'info' | 'success' | 'error' | 'confirm';
 
@@ -18,12 +19,20 @@ export const useAlertModal = () => {
     });
 
     const showAlert = useCallback((message: string, type: Exclude<AlertType, 'confirm'> = 'info', title?: string) => {
-        setAlertModal({
-            open: true,
-            message,
-            type,
-            title,
-        });
+        const fullMessage = title ? `${title}: ${message}` : message;
+        
+        switch (type) {
+            case 'success':
+                toast.success(fullMessage);
+                break;
+            case 'error':
+                toast.error(fullMessage);
+                break;
+            case 'info':
+            default:
+                toast.info(fullMessage);
+                break;
+        }
     }, []);
 
     const showConfirm = useCallback((message: string, onConfirm: () => void, title: string = 'Confirm Action') => {

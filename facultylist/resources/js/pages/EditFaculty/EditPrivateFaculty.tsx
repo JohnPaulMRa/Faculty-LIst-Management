@@ -4,6 +4,7 @@ import { Head, router } from '@inertiajs/react';
 import { Save, Loader2, ArrowLeft } from 'lucide-react';
 import { useState, useCallback } from 'react';
 import type { FC } from 'react';
+import { toast } from 'sonner';
 
 import { FacultyProfileCardsE5 } from '@/components/faculty/facultyE5/FacultyProfileCardsE5';
 import { Button } from '@/components/ui/button';
@@ -117,7 +118,7 @@ const Edit: FC<EditProps> = ({ faculty, referenceData, isSubmitted = false }) =>
         const missingFields = getMissingE5Fields(formData, isE5);
 
         if (missingFields.length > 0) {
-            alert(`Missing Required Details (CHED Compliance):\n\n• ${missingFields.join('\n• ')}\n\nOnly fields applicable to the faculty's degree and workload are required.`);
+            toast.warning(`Missing Required Details (CHED Compliance):\n\n• ${missingFields.join('\n• ')}\n\nOnly fields applicable to the faculty's degree and workload are required.`);
             return;
         }
 
@@ -149,6 +150,7 @@ const Edit: FC<EditProps> = ({ faculty, referenceData, isSubmitted = false }) =>
 
         router.put(update({ id: faculty.id }).url, syncedData, {
             onSuccess: () => {
+                toast.success("Faculty updated successfully!");
                 // Processing handled by onFinish or page visit
                 router.visit(facultyprofile().url);
             },
@@ -157,7 +159,7 @@ const Edit: FC<EditProps> = ({ faculty, referenceData, isSubmitted = false }) =>
                 if (Object.keys(errors).length > 0) {
                     msg += "\n" + Object.values(errors).join("\n");
                 }
-                alert(msg);
+                toast.error(msg);
             },
             onFinish: () => {
                 setProcessing(false);

@@ -2,6 +2,7 @@ import { Head, router } from '@inertiajs/react';
 import { Save, Loader2, ArrowLeft } from 'lucide-react';
 import { useState, useCallback } from 'react';
 import type { FC } from 'react';
+import { toast } from 'sonner';
 
 import FacultyFormE2 from '@/components/faculty/facultyE2/FacultyFormE2';
 import { Button } from '@/components/ui/button';
@@ -82,7 +83,7 @@ const EditPublicFaculty: FC<EditProps> = ({ faculty, referenceData, isSubmitted 
             }
             msg += `\n\nOnly fields applicable to the faculty's degree and workload are required.`;
 
-            alert(msg);
+            toast.warning(msg);
             return;
         }
 
@@ -90,6 +91,7 @@ const EditPublicFaculty: FC<EditProps> = ({ faculty, referenceData, isSubmitted 
 
         router.put(update({ id: faculty.id }).url, formData, {
             onSuccess: () => {
+                toast.success("Faculty updated successfully!");
                 router.visit(facultyprofile().url);
             },
             onError: (errors) => {
@@ -97,7 +99,7 @@ const EditPublicFaculty: FC<EditProps> = ({ faculty, referenceData, isSubmitted 
                 if (Object.keys(errors).length > 0) {
                     msg += "\n" + Object.values(errors).join("\n");
                 }
-                alert(msg);
+                toast.error(msg);
             },
             onFinish: () => {
                 setProcessing(false);
