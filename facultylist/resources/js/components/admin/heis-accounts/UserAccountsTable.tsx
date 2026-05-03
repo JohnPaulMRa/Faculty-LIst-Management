@@ -129,28 +129,23 @@ export function UserAccountsTable({ accounts, searchQuery, onClearSearch, onEdit
                 <table className="w-full border-collapse text-sm whitespace-nowrap">
                     <thead>
                         <tr className="bg-linear-to-r from-[#003468] to-[#1a4f8c] text-white uppercase text-[11px] font-bold tracking-widest">
-                            <th className="px-4 py-3 font-bold w-[40px] text-center border-r border-white/10">#</th>
-                            <th className="px-4 py-3 font-bold w-[28%] text-left">
-                                <div className="flex items-center gap-2 cursor-pointer hover:text-white/80 transition-colors" onClick={() => onSort("name")}>
-                                    UserName <ArrowUpDown className="h-3 w-3 opacity-70" />
+                            <th className="px-6 py-4 font-bold w-[5%] text-center">#</th>
+                            <th className="px-6 py-4 font-bold w-[20%] text-center">
+                                <div className="flex items-center justify-center gap-2 cursor-pointer hover:text-white/80 transition-colors" onClick={() => onSort("name")}>
+                                    User Name <ArrowUpDown className="h-3 w-3 opacity-70" />
                                 </div>
                             </th>
-                            <th className="px-4 py-3 font-bold w-[27%] text-left">
-                                <div className="flex items-center gap-2 cursor-pointer hover:text-white/80 transition-colors" onClick={() => onSort("email")}>
-                                    Email <ArrowUpDown className="h-3 w-3 opacity-70" />
-                                </div>
-                            </th>
-                            <th className="px-4 py-3 font-bold w-[10%] text-center">
+                            <th className="px-6 py-4 font-bold w-[20%] text-center">
                                 <div className="flex items-center justify-center gap-2 cursor-pointer hover:text-white/80 transition-colors" onClick={() => onSort("hei_type")}>
                                     HEIs Type <ArrowUpDown className="h-3 w-3 opacity-70" />
                                 </div>
                             </th>
-                            <th className="px-4 py-3 font-bold w-[20%] text-center">
+                            <th className="px-6 py-4 font-bold w-[20%] text-center">
                                 <div className="flex items-center justify-center gap-2 cursor-pointer hover:text-white/80 transition-colors" onClick={() => onSort("role")}>
                                     Role <ArrowUpDown className="h-3 w-3 opacity-70" />
                                 </div>
                             </th>
-                            <th className="px-4 py-3 font-bold w-[10%] text-center">Action</th>
+                            <th className="px-6 py-4 font-bold w-[10%] text-center">Action</th>
                         </tr>
                     </thead>
                     <tbody className="bg-white text-sm">
@@ -160,17 +155,14 @@ export function UserAccountsTable({ accounts, searchQuery, onClearSearch, onEdit
                                     key={account.id}
                                     className="border-b border-slate-100 hover:bg-slate-50 transition-colors cursor-pointer group"
                                 >
-                                    <td className="px-4 py-3 text-center text-gray-500 border-r border-gray-100">
+                                    <td className="px-6 py-4 text-center text-gray-500">
                                         {startEntry + index}
                                     </td>
-                                    <td className="px-4 py-3 text-left font-semibold text-gray-900">
+                                    <td className="px-6 py-4 text-center font-bold text-slate-900">
                                         {account.name}
                                     </td>
-                                    <td className="px-4 py-3 text-left text-gray-600">
-                                        {account.email}
-                                    </td>
-                                    <td className="px-4 py-3 text-center">
-                                        <span className={`px-2 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider ${account.hei_type?.toLowerCase() === 'private'
+                                    <td className="px-6 py-4 text-center">
+                                        <span className={`px-2.5 py-1 rounded-full text-[11px] font-black uppercase tracking-wider ${account.hei_type?.toLowerCase() === 'private'
                                             ? 'bg-blue-100 text-blue-700'
                                             : account.hei_type?.toLowerCase() === 'public'
                                                 ? 'bg-orange-100 text-orange-700'
@@ -179,9 +171,9 @@ export function UserAccountsTable({ accounts, searchQuery, onClearSearch, onEdit
                                             {account.hei_type || 'N/A'}
                                         </span>
                                     </td>
-                                    <td className="px-4 py-3 text-center">
-                                        <span className={`px-2 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider ${account.role.toLowerCase() === 'admin'
-                                            ? 'bg-red-500 text-white'
+                                    <td className="px-6 py-4 text-center">
+                                        <span className={`px-2.5 py-1 rounded-full text-[11px] font-black uppercase tracking-wider ${account.role.toLowerCase() === 'admin'
+                                            ? 'bg-red-600 text-white shadow-sm'
                                             : account.role.toLowerCase() === 'private'
                                                 ? 'bg-blue-100 text-blue-700'
                                                 : account.role.toLowerCase() === 'public'
@@ -191,7 +183,7 @@ export function UserAccountsTable({ accounts, searchQuery, onClearSearch, onEdit
                                             {account.role}
                                         </span>
                                     </td>
-                                    <td className="px-4 py-3 font-bold text-center">
+                                    <td className="px-6 py-4 font-bold text-center">
                                         <div className="flex items-center justify-center gap-2">
                                             <TooltipProvider>
                                                 <Tooltip>
@@ -232,7 +224,7 @@ export function UserAccountsTable({ accounts, searchQuery, onClearSearch, onEdit
                             ))
                         ) : (
                             <tr>
-                                <td colSpan={6} className="px-6 py-12 text-center text-gray-500 text-sm border-b border-gray-300 bg-gray-50">
+                                <td colSpan={5} className="px-6 py-12 text-center text-gray-500 text-sm border-b border-gray-300 bg-gray-50">
                                     <div className="flex flex-col items-center justify-center text-gray-500">
                                         <Users className="h-12 w-12 text-gray-300 mb-4" />
                                         <h3 className="text-lg font-medium text-gray-900 mb-1">No user accounts found</h3>

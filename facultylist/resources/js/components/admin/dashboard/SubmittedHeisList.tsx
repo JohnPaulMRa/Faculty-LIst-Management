@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { ClipboardList, ExternalLink, School, Users, Calendar, ArrowRight } from 'lucide-react';
+import { ClipboardList, School, Users, Calendar, ArrowRight } from 'lucide-react';
 import type { FC } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -40,8 +40,8 @@ export const SubmittedHeisList: FC<SubmittedHeisListProps> = ({ recentSubmission
                     </div>
                 </div>
             </CardHeader>
-            <CardContent className="p-0 flex-1 overflow-auto">
-                <div className="divide-y divide-gray-100/50">
+            <CardContent className="p-0 flex-1 overflow-hidden">
+                <div className="divide-y divide-gray-100/50 overflow-y-auto max-h-[420px]">
                     {recentSubmissions.length > 0 ? (
                         recentSubmissions.map((submission) => (
                             <div key={submission.id} className="flex items-center gap-4 p-5 hover:bg-gray-50/50 transition-all group cursor-pointer border-l-4 border-transparent hover:border-blue-500">
@@ -109,18 +109,7 @@ export const SubmittedHeisList: FC<SubmittedHeisListProps> = ({ recentSubmission
                         </div>
                     )}
                 </div>
-                {recentSubmissions.length > 0 && (
-                    <div className="p-4 border-t border-gray-100 bg-gray-50/50">
-                        <Link
-                            href={`/admin/faculty-list`}
-                            className="text-[11px] font-black text-gray-600 hover:text-blue-600 flex items-center justify-center gap-2 transition-all uppercase tracking-widest"
-                            data-testid="view-details-link"
-                        >
 
-                            <ExternalLink className="h-3 w-3" />
-                        </Link>
-                    </div>
-                )}
             </CardContent>
         </Card>
     );

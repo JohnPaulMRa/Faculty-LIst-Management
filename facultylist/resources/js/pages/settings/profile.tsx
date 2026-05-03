@@ -63,7 +63,7 @@ export default function Profile({
 
                     <form onSubmit={submit} className="space-y-6">
                         <div className="grid gap-2">
-                            <Label htmlFor="name">Name</Label>
+                            <Label htmlFor="name">User Name</Label>
 
                             <Input
                                 id="name"
@@ -82,26 +82,6 @@ export default function Profile({
                                     />
                                 </div>
 
-                        <div className="grid gap-2">
-                            <Label htmlFor="email">Email address</Label>
-
-                            <Input
-                                id="email"
-                                type="email"
-                                className="mt-1 block w-full"
-                                value={data.email}
-                                onChange={(e) => setData('email', e.target.value)}
-                                name="email"
-                                required
-                                autoComplete="username"
-                                placeholder="Email address"
-                            />
-
-                            <InputError
-                                className="mt-2"
-                                message={errors.email}
-                            />
-                        </div>
 
                         {hei && (
                             <>
@@ -232,7 +212,6 @@ export default function Profile({
                     </form>
             </div>
 
-            <DeleteUser />
         </SettingsLayout>
     );
 }

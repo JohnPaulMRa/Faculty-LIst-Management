@@ -42,7 +42,7 @@ class AdminController extends Controller
         return redirect()->back()->with('success', 'HEI created successfully.');
     }
 
-    public function updateHei(Request $request, $id)
+    public function updateHei(Request $request, int $id)
     {
         $hei = Hei::findOrFail($id);
         $validated = $request->validate([
@@ -66,7 +66,7 @@ class AdminController extends Controller
         return redirect()->back()->with('success', 'HEI updated successfully.');
     }
 
-    public function destroyHei($id)
+    public function destroyHei(int $id)
     {
         $hei = Hei::findOrFail($id);
         $hei->delete();
@@ -76,15 +76,30 @@ class AdminController extends Controller
 
     public function dashboard(Request $request)
     {
-        $distributionData = $this->getDashboardDistributionData();
+        $academicYears = HeiSubmission::select('academic_year')
+            ->distinct()
+            ->orderByDesc('academic_year')
+            ->pluck('academic_year');
+            
+        $defaultYear = $academicYears->first();
+        
+        $yearDiscipline = $request->input('year_discipline', $defaultYear);
+        $yearHei = $request->input('year_hei', $defaultYear);
+
+        $distributionData = $this->getDashboardDistributionData($yearDiscipline);
 
         return Inertia::render('Admin/AdminDashboard', [
             'heis' => $this->getDashboardHeis(),
             'recentActivities' => $this->getDashboardRecentActivities(),
             'recentSubmissions' => $this->getRecentSubmissions(),
             'distributionData' => $distributionData['all'],
+            'totals' => $distributionData['totals'],
             'statusData' => $distributionData['statusData'],
+            'heiDistributionData' => $this->getHeiDistributionData($yearHei),
             'disciplineUpdates' => $this->getDashboardDisciplineUpdates(),
+            'academicYears' => $academicYears,
+            'selectedYearDiscipline' => $yearDiscipline,
+            'selectedYearHei' => $yearHei
         ]);
     }
 
@@ -147,62 +162,214 @@ class AdminController extends Controller
             });
     }
 
-    private function getDashboardDistributionData()
+    private function getDashboardDistributionData(?string $academicYear = null)
     {
-        $groups = DB::table('discipline_group')->orderBy('code')->get();
-        $specifics = DB::table('specific_discipline')->orderBy('code')->get();
+        $distribution = [];
+        $totals = [
+            'baccalaureate' => 0,
+            'master' => 0,
+            'doctorate' => 0,
+            'preBaccalaureate' => 0,
+            'unclassified' => 0,
+            'overall' => 0
+        ];
 
-        // Count specific disciplines per group (not faculty members)
-        $formatDistribution = function () use ($groups, $specifics) {
-            $distribution = [];
+        $disciplineMap = DB::table('specific_discipline')
+            ->join('discipline_group', 'specific_discipline.group_code', '=', 'discipline_group.code')
+            ->select(['specific_discipline.code as spec_code', 'discipline_group.description as group_name'])
+            ->get()
+            ->keyBy('spec_code')
+            ->toArray();
 
-            foreach ($groups as $group) {
-                // Count all specific disciplines that belong to this group
-                $groupSpecifics = $specifics->filter(function ($s) use ($group) {
-                    return str_starts_with($s->code, $group->code);
-                });
-
-                $groupCount = $groupSpecifics->count();
-
-                if ($groupCount > 0) {
-                    $distribution[] = [
-                        'name' => $group->description,
-                        'count' => $groupCount,
-                    ];
-                }
-            }
-
-            // Merge duplicates with the same name (e.g. two 'General' groups in the table)
-            $merged = [];
-            foreach ($distribution as $item) {
-                $key = strtolower(trim($item['name']));
-                if (isset($merged[$key])) {
-                    $merged[$key]['count'] += $item['count'];
-                } else {
-                    $merged[$key] = $item;
-                }
-            }
-            $distribution = array_values($merged);
-
-            // Sort descending by count
-            usort($distribution, function ($a, $b) {
-                return $b['count'] <=> $a['count'];
-            });
-
-            return $distribution;
+        $getLevel = function ($code) {
+            if (!$code || $code == '999' || $code == '000') return 'unclassified';
+            $codeStr = (string)$code;
+            if (str_starts_with($codeStr, '1') || str_starts_with($codeStr, '2') || str_starts_with($codeStr, '3') || str_starts_with($codeStr, '4')) return 'preBaccalaureate';
+            if (str_starts_with($codeStr, '5') || str_starts_with($codeStr, '6')) return 'baccalaureate';
+            if (str_starts_with($codeStr, '8')) return 'master';
+            if (str_starts_with($codeStr, '7') || str_starts_with($codeStr, '9')) return 'doctorate';
+            return 'unclassified';
         };
 
-        $data = $formatDistribution();
+        $getDisciplineCodeE2 = function ($faculty, $level) {
+            if ($level === 'baccalaureate' && !empty($faculty->discipline_bachelors)) return $faculty->discipline_bachelors;
+            if ($level === 'master' && !empty($faculty->discipline_masters)) return $faculty->discipline_masters;
+            if ($level === 'doctorate' && !empty($faculty->discipline_doctorate)) return $faculty->discipline_doctorate;
+            return $faculty->discipline_load_1 ?? null;
+        };
+
+        $getDisciplineCodeE5 = function ($faculty, $level) {
+            if ($level === 'baccalaureate' && !empty($faculty->bachelors_code)) return $faculty->bachelors_code;
+            if ($level === 'master' && !empty($faculty->masters_code)) return $faculty->masters_code;
+            if ($level === 'doctorate' && !empty($faculty->doctorate_code)) return $faculty->doctorate_code;
+            return $faculty->discipline_code ?? null;
+        };
+
+        $processFaculty = function ($facultyList, $isE5) use (&$distribution, &$totals, $disciplineMap, $getLevel, $getDisciplineCodeE2, $getDisciplineCodeE5) {
+            foreach ($facultyList as $f) {
+                $degreeCode = $isE5 ? ($f->highest_degree_code ?? null) : ($f->degree ?? null);
+                $level = $getLevel($degreeCode);
+                
+                // Group unclassified/others into a generic 'unclassified' category for the chart
+                // but ensure they are included in the overall totals.
+                $chartLevel = ($level === 'preBaccalaureate') ? 'preBaccalaureate' : $level;
+
+                $specCode = $isE5 ? $getDisciplineCodeE5($f, $level) : $getDisciplineCodeE2($f, $level);
+                
+                $groupName = '#N/A';
+                if ($specCode && isset($disciplineMap[$specCode])) {
+                    $groupName = trim($disciplineMap[$specCode]->group_name);
+                }
+
+                $groupKey = strtolower($groupName);
+                if (!isset($distribution[$groupKey])) {
+                    $distribution[$groupKey] = [
+                        'name' => $groupName,
+                        'baccalaureate' => 0,
+                        'master' => 0,
+                        'doctorate' => 0,
+                        'preBaccalaureate' => 0,
+                        'unclassified' => 0,
+                        'count' => 0,
+                    ];
+                }
+
+                $distribution[$groupKey][$level]++;
+                $distribution[$groupKey]['count']++;
+                $totals[$level]++;
+                $totals['overall']++;
+            }
+        };
+
+        $submissionsQuery = DB::table('hei_submissions')
+            ->select('hei_id')
+            ->whereRaw('LOWER(status) = ?', ['submitted']);
+            
+        if ($academicYear) {
+            $submissionsQuery->where('academic_year', $academicYear);
+        }
+        
+        $validHeiIds = $submissionsQuery->distinct()->pluck('hei_id')->toArray();
+
+        // Fetch faculty belonging to submitted HEIs for the selected academic year
+        $facultyE2 = DB::table('faculty_e2')->whereIn('hei_id', $validHeiIds)->get();
+        $facultyE5 = DB::table('faculty_e5')->whereIn('hei_id', $validHeiIds)->get();
+
+        $processFaculty($facultyE2, false);
+        $processFaculty($facultyE5, true);
+
+        // Always show ALL discipline groups, even those with 0 faculty
+        $allGroups = DB::table('discipline_group')->orderBy('description')->pluck('description');
+        foreach ($allGroups as $groupName) {
+            $groupKey = strtolower(trim($groupName));
+            if (!isset($distribution[$groupKey])) {
+                $distribution[$groupKey] = [
+                    'name' => trim($groupName),
+                    'baccalaureate' => 0,
+                    'master' => 0,
+                    'doctorate' => 0,
+                    'preBaccalaureate' => 0,
+                    'unclassified' => 0,
+                    'count' => 0,
+                ];
+            }
+        }
+
+        $distributionArray = array_values($distribution);
+        usort($distributionArray, function ($a, $b) {
+            return strcmp($a['name'], $b['name']);
+        });
 
         return [
-            'all' => $data,
-            'private' => $data,
-            'public' => $data,
+            'all' => $distributionArray,
+            'totals' => $totals,
             'statusData' => [
                 ['name' => 'Active', 'value' => Hei::where('is_active', true)->count(), 'color' => '#16a34a'],
-                ['name' => 'Inactive', 'value' => Hei::where('is_active', false)->count(), 'color' => '#9ca3af'],
-            ],
+                ['name' => 'Inactive', 'value' => Hei::where('is_active', false)->count(), 'color' => '#dc2626'],
+            ]
         ];
+    }
+
+    private function getHeiDistributionData(?string $academicYear = null)
+    {
+        $heiData = [];
+        
+        $submissionsQuery = DB::table('hei_submissions')
+            ->select('hei_id')
+            ->whereRaw('LOWER(status) = ?', ['submitted']);
+            
+        if ($academicYear) {
+            $submissionsQuery->where('academic_year', $academicYear);
+        }
+        
+        $validHeiIds = $submissionsQuery->distinct()->pluck('hei_id')->toArray();
+        
+        $heis = DB::table('heis')->whereIn('id', $validHeiIds)->get()->keyBy('id');
+        
+        $facultyE2 = DB::table('faculty_e2')->whereIn('hei_id', $validHeiIds)->get();
+        $facultyE5 = DB::table('faculty_e5')->whereIn('hei_id', $validHeiIds)->get();
+
+        $getLevel = function ($code) {
+             if (!$code || $code == '999' || $code == '000') return 'Unclassified';
+             $codeStr = (string)$code;
+             if (str_starts_with($codeStr, '1') || str_starts_with($codeStr, '2') || str_starts_with($codeStr, '3') || str_starts_with($codeStr, '4')) return 'Pre-Baccalaureate';
+             if (str_starts_with($codeStr, '5') || str_starts_with($codeStr, '6')) return 'Baccalaureate';
+             if (str_starts_with($codeStr, '8')) return 'Master';
+             if (str_starts_with($codeStr, '7') || str_starts_with($codeStr, '9')) return 'Doctorate';
+             return 'Unclassified';
+        };
+
+        $process = function($list, $isE5) use (&$heiData, $heis, $getLevel) {
+            foreach($list as $f) {
+                $hei = $heis[$f->hei_id] ?? null;
+                if (!$hei) continue;
+                
+                $heiCode = $hei->hei_code ?? 'N/A';
+                $degreeCode = $isE5 ? ($f->highest_degree_code ?? null) : ($f->degree ?? null);
+                $level = $getLevel($degreeCode);
+                
+                // Gender mapping
+                $genderVal = $isE5 ? ($f->gender_code ?? null) : ($f->gender ?? null);
+                $gender = 'MALE'; // Default
+                if ($genderVal == '2' || strtolower($genderVal) == 'female' || $genderVal == 'F') {
+                    $gender = 'FEMALE';
+                } else if ($genderVal == '1' || strtolower($genderVal) == 'male' || $genderVal == 'M') {
+                    $gender = 'MALE';
+                } else {
+                    // Based on previous tinker, e2_genders was ["1","2"] and e5_genders was ["2","1"]
+                    // If it's 1 or 2, we can assume 1=Male, 2=Female
+                    if ($genderVal == '1') $gender = 'MALE';
+                    else if ($genderVal == '2') $gender = 'FEMALE';
+                }
+
+                if (!isset($heiData[$heiCode])) {
+                    $heiData[$heiCode] = [
+                        'code' => $heiCode,
+                        'name' => $hei->name,
+                        'degrees' => []
+                    ];
+                }
+
+                if (!isset($heiData[$heiCode]['degrees'][$level])) {
+                    $heiData[$heiCode]['degrees'][$level] = [
+                        'FEMALE' => 0,
+                        'MALE' => 0,
+                        'total' => 0
+                    ];
+                }
+
+                $heiData[$heiCode]['degrees'][$level][$gender]++;
+                $heiData[$heiCode]['degrees'][$level]['total']++;
+            }
+        };
+
+        $process($facultyE2, false);
+        $process($facultyE5, true);
+
+        // Sort by hei code
+        ksort($heiData);
+
+        return array_values($heiData);
     }
 
     private function getDashboardDisciplineUpdates()
@@ -255,17 +422,17 @@ class AdminController extends Controller
     private function getReferenceData()
     {
         return [
-            'gender' => DB::table('e5_ref_gender')->select('code', 'description as desc')->get(),
-            'fullTimePartTime' => DB::table('e5_ref_full_time_part_time')->select('code', 'description as desc')->get(),
-            'highestDegree' => DB::table('e5_ref_highest_degree')->select('code', 'description as desc')->get(),
-            'professionalLicense' => DB::table('e5_ref_professional_license')->select('code', 'description as desc')->get(),
-            'tenure' => DB::table('e5_ref_tenure')->select('code', 'description as desc')->get(),
-            'tenureE2' => DB::table('e2_ref_tenure')->select('code', 'description as desc')->get(),
-            'facultyRank' => DB::table('e5_ref_faculty_rank')->select('code', 'description as desc')->get(),
-            'teachingLoad' => DB::table('e5_ref_teaching_load')->select('code', 'description as desc')->get(),
-            'annualSalary' => DB::table('e5_ref_annual_salary')->select('code', 'description as desc')->get(),
+            'gender' => DB::table('e5_ref_gender')->select(['code', 'description as desc'])->get(),
+            'fullTimePartTime' => DB::table('e5_ref_full_time_part_time')->select(['code', 'description as desc'])->get(),
+            'highestDegree' => DB::table('e5_ref_highest_degree')->select(['code', 'description as desc'])->get(),
+            'professionalLicense' => DB::table('e5_ref_professional_license')->select(['code', 'description as desc'])->get(),
+            'tenure' => DB::table('e5_ref_tenure')->select(['code', 'description as desc'])->get(),
+            'tenureE2' => DB::table('e2_ref_tenure')->select(['code', 'description as desc'])->get(),
+            'facultyRank' => DB::table('e5_ref_faculty_rank')->select(['code', 'description as desc'])->get(),
+            'teachingLoad' => DB::table('e5_ref_teaching_load')->select(['code', 'description as desc'])->get(),
+            'annualSalary' => DB::table('e5_ref_annual_salary')->select(['code', 'description as desc'])->get(),
             'groupDiscipline' => DB::table('major_discipline')
-                ->select('code', 'description as desc')
+                ->select(['code', 'description as desc'])
                 ->orderBy('code')
                 ->get(),
             'disciplines' => DB::table('specific_discipline')
@@ -739,7 +906,7 @@ class AdminController extends Controller
     }
 
 
-    public function updateDiscipline(Request $request, $id)
+    public function updateDiscipline(Request $request, string $id)
     {
         $validated = $request->validate([
             'type' => 'nullable|string|in:major,specific',
@@ -838,7 +1005,7 @@ class AdminController extends Controller
         }
     }
 
-    public function destroyDiscipline($id)
+    public function destroyDiscipline(string $id)
     {
         try {
             // Handle new prefixed IDs (p for program, s for specific, m for major)
@@ -938,7 +1105,7 @@ class AdminController extends Controller
         ]);
     }
 
-    private function getFacultyE2($heiId, $search)
+    private function getFacultyE2(int $heiId, ?string $search)
     {
         return Faculty::where('hei_id', $heiId)
             ->when($search, function ($query, $search) {
@@ -970,7 +1137,7 @@ class AdminController extends Controller
             });
     }
 
-    private function getFacultyE5($heiId, $search)
+    private function getFacultyE5(int $heiId, ?string $search)
     {
         return FacultyE5::where('hei_id', $heiId)
             ->when($search, function ($query, $search) {
@@ -1024,7 +1191,7 @@ class AdminController extends Controller
         return redirect()->back()->with('success', 'Faculty account created successfully.');
     }
 
-    public function updateUserAccount(Request $request, $id)
+    public function updateUserAccount(Request $request, int $id)
     {
         $user = \App\Models\User::findOrFail($id);
 
@@ -1049,7 +1216,7 @@ class AdminController extends Controller
         return redirect()->back()->with('success', 'User account updated successfully.');
     }
 
-    public function destroyUserAccount($id)
+    public function destroyUserAccount(int $id)
     {
         $user = \App\Models\User::findOrFail($id);
 
@@ -1063,7 +1230,7 @@ class AdminController extends Controller
         return redirect()->back()->with('success', 'User account deleted successfully.');
     }
 
-    public function showFaculty($id)
+    public function showFaculty(string $id)
     {
         $isE5 = str_starts_with($id, 'e5_') || str_starts_with($id, 'e5-');
         $realId = str_replace(['e5_', 'e5-', 'e2-', 'e2_'], '', $id);

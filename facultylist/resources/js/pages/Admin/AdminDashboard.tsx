@@ -1,7 +1,7 @@
 import { Head } from '@inertiajs/react';
 import AdminOverview from '@/components/admin/dashboard/AdminOverview';
 
-import { AnalyticsOverview, StatusOverview } from '@/components/admin/dashboard/AnalyticsOverview';
+import { AnalyticsOverview, StatusOverview, HEIDistributionTable } from '@/components/admin/dashboard/AnalyticsOverview';
 import SchoolList from '@/components/admin/dashboard/SchoolList';
 import SubmittedHeisList from '@/components/admin/dashboard/SubmittedHeisList';
 import AppSidebarLayout from '@/layouts/app/app-sidebar-layout';
@@ -18,7 +18,21 @@ interface DashboardSchool {
 
 interface DistributionItem {
     name: string;
+    baccalaureate: number;
+    master: number;
+    doctorate: number;
+    preBaccalaureate: number;
+    unclassified: number;
     count: number;
+}
+
+interface DistributionTotals {
+    baccalaureate: number;
+    master: number;
+    doctorate: number;
+    preBaccalaureate: number;
+    unclassified: number;
+    overall: number;
 }
 
 interface StatusItem {
@@ -26,8 +40,6 @@ interface StatusItem {
     value: number;
     color: string;
 }
-
-
 
 interface Submission {
     id: number;
@@ -44,15 +56,25 @@ interface Submission {
 interface AdminDashboardProps {
     heis: DashboardSchool[];
     distributionData: DistributionItem[];
+    totals?: DistributionTotals;
     statusData: StatusItem[];
+    heiDistributionData: any[];
     recentSubmissions: Submission[];
+    academicYears?: string[];
+    selectedYearDiscipline?: string;
+    selectedYearHei?: string;
 }
 
 export default function AdminDashboard({
     heis = [],
     distributionData = [],
+    totals = { baccalaureate: 0, master: 0, doctorate: 0, preBaccalaureate: 0, unclassified: 0, overall: 0 },
     statusData = [],
-    recentSubmissions = []
+    heiDistributionData = [],
+    recentSubmissions = [],
+    academicYears = [],
+    selectedYearDiscipline,
+    selectedYearHei
 }: AdminDashboardProps) {
     return (
         <AppSidebarLayout breadcrumbs={[{ title: 'Admin Dashboard', href: '/admin/dashboard' }]}>
@@ -63,30 +85,37 @@ export default function AdminDashboard({
                 <AdminOverview />
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* Stats & School List */}
-                    <div className="lg:col-span-2 flex flex-col gap-8">
-                        {/* Stats Grid */}
+                    {/* Top Row: Submissions and Status */}
+                    <div className="lg:col-span-2">
+                        <SubmittedHeisList recentSubmissions={recentSubmissions} />
+                    </div>
+                    <div className="lg:col-span-1">
+                        <StatusOverview />
+                    </div>
 
-                        {/* School List */}
-                        <div className="flex-1 min-h-[300px]">
-                            <SchoolList schools={heis} />
+                    {/* Bottom Row: Distribution Analytics */}
+                    <div className="lg:col-span-2">
+                        <AnalyticsOverview
+                            distributionData={distributionData}
+                            totals={totals}
+                            academicYears={academicYears}
+                            selectedAcademicYear={selectedYearDiscipline}
+                            queryParamName="year_discipline"
+                        />
+                    </div>
+                    <div className="lg:col-span-1 relative min-h-[500px]">
+                        <div className="absolute inset-0">
+                            <HEIDistributionTable 
+                                data={heiDistributionData} 
+                                academicYears={academicYears}
+                                selectedAcademicYear={selectedYearHei}
+                                queryParamName="year_hei"
+                            />
                         </div>
                     </div>
-
-                    {/* Status Overview */}
-                    <div className="flex flex-col">
-                        <StatusOverview statusData={statusData} />
-                    </div>
-                </div>
-
-                {/* Analytics Section */}
-                <div className="mt-8 grid grid-cols-1 xl:grid-cols-2 gap-8">
-                    <AnalyticsOverview
-                        distributionData={distributionData}
-                    />
-                    <SubmittedHeisList recentSubmissions={recentSubmissions} />
                 </div>
             </div>
         </AppSidebarLayout>
     );
 }
+

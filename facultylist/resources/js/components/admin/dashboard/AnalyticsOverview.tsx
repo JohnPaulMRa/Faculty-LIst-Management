@@ -1,41 +1,67 @@
-import { BarChart3, Calendar as CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
-import { useState } from 'react';
-import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell } from 'recharts';
+import { BarChart3, Calendar as CalendarIcon, ChevronLeft, ChevronRight, GraduationCap, Award, BookOpen, User, FolderArchive } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { router } from '@inertiajs/react';
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell, Legend } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
 interface DistributionItem {
     name: string;
+    baccalaureate: number;
+    master: number;
+    doctorate: number;
+    preBaccalaureate: number;
+    unclassified: number;
     count: number;
-    children?: DistributionItem[];
+}
+
+interface DistributionTotals {
+    baccalaureate: number;
+    master: number;
+    doctorate: number;
+    preBaccalaureate: number;
+    unclassified: number;
+    overall: number;
 }
 
 interface AnalyticsOverviewProps {
     distributionData: DistributionItem[];
+    totals?: DistributionTotals;
+    academicYears?: string[];
+    selectedAcademicYear?: string;
+    queryParamName?: string;
 }
 
-// Unique, high-contrast colors per discipline group
-const COLORS = [
-    '#ff5722', '#343a4e', '#00838f', '#8bc34a', '#ffc107',
-    '#7c4dff', '#e91e63', '#3f51b5', '#009688', '#4caf50',
-    '#ff9800', '#607d8b', '#f44336', '#ad1457', '#2e7d32',
-    '#0277bd', '#ef6c00', '#4527a0', '#1565c0', '#2196f3',
-    '#827717', '#00695c',
-];
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const BarTooltip = ({ active, payload }: any) => {
+const BarTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
-        const item = payload[0].payload;
+        const total = payload.reduce((acc: number, entry: any) => acc + entry.value, 0);
+
         return (
-            <div className="bg-white/80 backdrop-blur-md p-4 border border-slate-200/60 shadow-xl rounded-2xl text-xs min-w-[200px] animate-in fade-in zoom-in duration-200">
-                <div className="flex items-center gap-3 font-bold text-slate-900 mb-2 uppercase tracking-tight">
-                    <div className="w-3 h-3 rounded-full shrink-0 shadow-sm" style={{ backgroundColor: payload[0].fill }} />
-                    <span className="truncate">{item.name}</span>
+            <div className="bg-white/95 backdrop-blur-md p-4 border border-slate-200 shadow-xl rounded-2xl text-xs min-w-[220px] animate-in fade-in duration-200">
+                <div className="font-bold text-slate-900 mb-3 uppercase tracking-tight border-b border-slate-100 pb-2">
+                    {label}
                 </div>
-                <div className="flex justify-between items-center text-slate-500 font-bold bg-slate-50/50 p-2 rounded-xl border border-slate-100/50">
-                    <span>Disciplines:</span>
-                    <span className="text-blue-600 text-sm font-black">{item.count}</span>
+                <div className="space-y-1.5">
+                    {payload.map((entry: any, index: number) => {
+                        if (entry.value === 0) return null;
+                        const percentage = total > 0 ? ((entry.value / total) * 100).toFixed(1) : "0";
+                        return (
+                            <div key={index} className="flex justify-between items-center text-slate-600 font-medium">
+                                <div className="flex items-center gap-2">
+                                    <div className="w-2.5 h-2.5 rounded-full shadow-xs" style={{ backgroundColor: entry.color }} />
+                                    <span>{entry.name}</span>
+                                </div>
+                                <div className="flex gap-2">
+                                    <span className="font-bold text-slate-900">{entry.value}</span>
+                                    <span className="text-slate-400 text-[10px] w-8 text-right">({percentage}%)</span>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+                <div className="flex justify-between items-center text-slate-700 font-black bg-slate-50 p-2 mt-3 rounded-lg border border-slate-100">
+                    <span>Total Programs:</span>
+                    <span className="text-blue-600">{total}</span>
                 </div>
             </div>
         );
@@ -43,67 +69,156 @@ const BarTooltip = ({ active, payload }: any) => {
     return null;
 };
 
-export function AnalyticsOverview({ distributionData = [] }: AnalyticsOverviewProps) {
-    const sortedData = [...distributionData]
-        .filter(d => d.count > 0)
-        .sort((a, b) => b.count - a.count);
+export function AnalyticsOverview({
+    distributionData = [],
+    totals = { baccalaureate: 0, master: 0, doctorate: 0, preBaccalaureate: 0, unclassified: 0, overall: 0 },
+    academicYears = [],
+    selectedAcademicYear,
+    queryParamName = 'academic_year'
+}: AnalyticsOverviewProps) {
+
+    const columns = [
+        { key: 'baccalaureate', label: 'Baccalaureate' },
+        { key: 'doctorate', label: 'Doctorate' },
+        { key: 'master', label: 'Master' },
+        { key: 'preBaccalaureate', label: 'Pre-Bacc' },
+    ];
+
+    const sortedData = useMemo(() => {
+        return distributionData
+            .filter(d => d.name !== '#N/A')
+            .sort((a, b) => a.name.localeCompare(b.name));
+    }, [distributionData]);
+
+    const grandTotal = totals.overall;
 
     return (
         <Card className="rounded-2xl shadow-sm border border-gray-100 bg-white overflow-hidden">
             <CardHeader className="p-6 pb-4 border-b border-gray-100/50 bg-gray-50/30">
-                <div className="flex items-center gap-3">
-                    <div className="p-2.5 rounded-xl bg-orange-50 text-orange-600 shadow-sm border border-orange-100">
-                        <BarChart3 className="h-5 w-5" />
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2.5 rounded-xl bg-blue-50 text-blue-600 shadow-sm border border-blue-100">
+                            <BarChart3 className="h-5 w-5" />
+                        </div>
+                        <div>
+                            <CardTitle className="text-lg font-bold tracking-tight text-gray-900">
+                                Discipline Groups Distribution
+                            </CardTitle>
+                            <CardDescription className="text-xs text-gray-500 mt-0.5">
+                                Count of faculty by discipline group and degree level
+                            </CardDescription>
+                        </div>
                     </div>
-                    <div>
-                        <CardTitle className="text-lg font-bold tracking-tight text-gray-900">
-                            Disciplines Groups
-                        </CardTitle>
-                        <CardDescription className="text-xs text-gray-500 mt-0.5">
-                            Overview of discipline groups distribution
-                        </CardDescription>
+                    <div className="flex items-center gap-2">
+                        {academicYears.length > 0 && (
+                            <select
+                                className="text-xs font-semibold bg-white border border-gray-200 rounded-lg px-3 py-2 text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                value={selectedAcademicYear || ''}
+                                onChange={(e) => {
+                                    const params = new URLSearchParams(window.location.search);
+                                    params.set(queryParamName, e.target.value);
+                                    
+                                    const data: any = {};
+                                    params.forEach((value, key) => { data[key] = value; });
+                                    
+                                    router.get(route('admin.dashboard'), data, { preserveState: true, preserveScroll: true, replace: true });
+                                }}
+                            >
+                                <option value="">All Academic Years</option>
+                                {academicYears.map(year => (
+                                    <option key={year} value={year}>{year}</option>
+                                ))}
+                            </select>
+                        )}
                     </div>
                 </div>
             </CardHeader>
-            <CardContent className="p-6">
-                <div style={{ height: Math.max(400, sortedData.length * 36 + 20) }} className="w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                        <BarChart
-                            data={sortedData}
-                            layout="vertical"
-                            margin={{ top: 0, right: 50, left: 0, bottom: 0 }}
-                        >
-                            <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f0f0f0" />
-                            <XAxis
-                                type="number"
-                                tick={{ fontSize: 10, fill: '#6b7280' }}
-                                axisLine={false}
-                                tickLine={false}
-                            />
-                            <YAxis
-                                type="category"
-                                dataKey="name"
-                                width={230}
-                                tick={{ fontSize: 10, fill: '#374151', fontWeight: 600 }}
-                                axisLine={false}
-                                tickLine={false}
-                            />
-                            <Tooltip content={<BarTooltip />} cursor={{ fill: 'rgba(0,0,0,0.04)' }} />
-                            <Bar dataKey="count" radius={[0, 3, 3, 0]} isAnimationActive={false} minPointSize={4}>
-                                {sortedData.map((_, index) => (
-                                    <Cell
-                                        key={`cell-${index}`}
-                                        fill={COLORS[index % COLORS.length]}
-                                    />
-                                ))}
-                            </Bar>
-                        </BarChart>
-                    </ResponsiveContainer>
-                </div>
+
+            <CardContent className="p-0 overflow-x-auto">
+                <table className="w-full text-sm border-collapse">
+                    <thead>
+                        <tr className="bg-slate-700 text-white">
+                            <th className="text-left px-4 py-4 text-sm font-bold uppercase tracking-wider w-[45%]">
+                                Row Labels
+                            </th>
+                            {columns.map(col => (
+                                <th key={col.key} className="text-right px-4 py-4 text-sm font-bold uppercase tracking-wider whitespace-nowrap">
+                                     {col.label}
+                                 </th>
+                            ))}
+                            <th className="text-right px-4 py-4 text-sm font-bold uppercase tracking-wider whitespace-nowrap bg-slate-900">
+                                Grand Total
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {sortedData.length === 0 ? (
+                            <tr>
+                                <td colSpan={6} className="text-center py-12 text-gray-400 text-sm">
+                                    No data available for the selected academic year.
+                                </td>
+                            </tr>
+                        ) : (
+                            sortedData.map((row, idx) => {
+                                const rowTotal = columns.reduce((sum, col) => sum + ((row as any)[col.key] || 0), 0);
+                                const isEmpty = rowTotal === 0;
+                                return (
+                                    <tr
+                                        key={row.name}
+                                        className={cn(
+                                            'border-b border-gray-100 transition-colors',
+                                            isEmpty
+                                                ? 'bg-white hover:bg-gray-50'
+                                                : idx % 2 === 0
+                                                    ? 'bg-blue-50/20 hover:bg-blue-50/60'
+                                                    : 'bg-white hover:bg-blue-50/60'
+                                        )}
+                                    >
+                                        <td className="px-4 py-4 text-sm font-bold text-slate-900 uppercase tracking-tight">
+                                            {row.name}
+                                        </td>
+                                        {columns.map(col => {
+                                            const val = (row as any)[col.key] || 0;
+                                            return (
+                                                <td key={col.key} className={cn(
+                                                    'px-4 py-3.5 text-right text-sm tabular-nums',
+                                                    val > 0 ? 'text-gray-900 font-bold' : 'text-gray-300'
+                                                )}>
+                                                    {val > 0 ? val : '0'}
+                                                </td>
+                                            );
+                                        })}
+                                        <td className="px-4 py-3.5 text-right font-black text-sm text-slate-900 bg-slate-100/50 tabular-nums border-l border-gray-100">
+                                            {rowTotal}
+                                        </td>
+                                    </tr>
+                                );
+                            })
+                        )}
+                    </tbody>
+                    <tfoot className="bg-slate-800 text-white font-bold">
+                        <tr>
+                            <td className="px-4 py-4 text-sm uppercase tracking-wider">Grand Total</td>
+                            {columns.map(col => {
+                                const colTotal = sortedData.reduce((sum, row) => sum + ((row as any)[col.key] || 0), 0);
+                                return (
+                                    <td key={col.key} className="px-4 py-4 text-right text-sm tabular-nums">
+                                        {colTotal}
+                                    </td>
+                                );
+                            })}
+                            <td className="px-4 py-4 text-right text-sm tabular-nums bg-slate-900 font-black">
+                                {grandTotal}
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
             </CardContent>
         </Card>
     );
 }
+
+
 
 function SimpleCalendar() {
     const [currentDate, setCurrentDate] = useState(new Date());
@@ -189,7 +304,7 @@ function SimpleCalendar() {
 
 export function StatusOverview() {
     return (
-        <Card className="rounded-2xl shadow-sm border border-gray-100 bg-white overflow-hidden h-full flex flex-col">
+        <Card className="rounded-2xl shadow-sm border border-gray-100 bg-white overflow-hidden flex flex-col">
             <CardHeader className="p-6 pb-4 border-b border-gray-100/50 bg-gray-50/30">
                 <div className="flex items-center gap-3">
                     <div className="p-2.5 rounded-xl bg-indigo-50 text-indigo-600 shadow-sm border border-indigo-100">
@@ -207,6 +322,186 @@ export function StatusOverview() {
             </CardHeader>
             <CardContent className="p-6 flex-1">
                 <SimpleCalendar />
+            </CardContent>
+        </Card>
+    );
+}
+
+interface HEIDistributionData {
+    code: string;
+    name: string;
+    degrees: {
+        [level: string]: {
+            FEMALE: number;
+            MALE: number;
+            total: number;
+        };
+    };
+}
+
+interface HEIDistributionTableProps {
+    data: HEIDistributionData[];
+    academicYears?: string[];
+    selectedAcademicYear?: string;
+    queryParamName?: string;
+}
+
+export function HEIDistributionTable({ 
+    data = [], 
+    academicYears = [], 
+    selectedAcademicYear,
+    queryParamName = 'academic_year'
+}: HEIDistributionTableProps) {
+    return (
+        <Card className="rounded-2xl shadow-sm border border-gray-100 bg-white overflow-hidden flex flex-col h-full">
+            <CardHeader className="p-6 pb-4 border-b border-gray-100/50 bg-gray-50/30">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2.5 rounded-xl bg-indigo-50 text-indigo-600 shadow-sm border border-indigo-100">
+                            <GraduationCap className="h-5 w-5" />
+                        </div>
+                        <div>
+                            <CardTitle className="text-lg font-bold tracking-tight text-gray-900">
+                                HEIs Distribution by Degree & Gender
+                            </CardTitle>
+                            <CardDescription className="text-xs text-gray-500 mt-0.5">
+                                Breakdown of faculty across HEIs, degree levels, and gender
+                            </CardDescription>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        {academicYears.length > 0 && (
+                            <select
+                                className="text-xs font-semibold bg-white border border-gray-200 rounded-lg px-3 py-2 text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                value={selectedAcademicYear || ''}
+                                onChange={(e) => {
+                                    const params = new URLSearchParams(window.location.search);
+                                    params.set(queryParamName, e.target.value);
+                                    
+                                    const data: any = {};
+                                    params.forEach((value, key) => { data[key] = value; });
+                                    
+                                    router.get(route('admin.dashboard'), data, { preserveState: true, preserveScroll: true, replace: true });
+                                }}
+                            >
+                                <option value="">All Academic Years</option>
+                                {academicYears.map(year => (
+                                    <option key={year} value={year}>{year}</option>
+                                ))}
+                            </select>
+                        )}
+                    </div>
+                </div>
+            </CardHeader>
+
+            <CardContent className="p-0 overflow-y-auto flex-1 min-h-0 relative">
+                <table className="w-full text-sm border-collapse table-fixed">
+                    <thead className="sticky top-0 z-20 shadow-sm">
+                        <tr className="bg-slate-800 text-white">
+                            <th className="text-left px-4 py-4 text-sm font-bold uppercase tracking-wider w-[25%] sticky top-0 bg-slate-800">HEIs</th>
+                            <th className="text-left px-4 py-4 text-sm font-bold uppercase tracking-wider w-[25%] sticky top-0 bg-slate-800">Degree</th>
+                            <th className="text-right px-4 py-4 text-sm font-bold uppercase tracking-wider w-[15%] sticky top-0 bg-slate-800">Female</th>
+                            <th className="text-right px-4 py-4 text-sm font-bold uppercase tracking-wider w-[15%] sticky top-0 bg-slate-800">Male</th>
+                            <th className="text-right px-4 py-4 text-sm font-bold uppercase tracking-wider w-[20%] sticky top-0 bg-slate-900 shadow-sm">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {data.length === 0 ? (
+                            <tr>
+                                <td colSpan={5} className="text-center py-12 text-gray-400 text-sm">
+                                    No data available for the selected academic year.
+                                </td>
+                            </tr>
+                        ) : (
+                            data.map((hei) => (
+                                <React.Fragment key={hei.code}>
+                                    {/* HEI Header Row */}
+                                    <tr className="bg-slate-100/80 group">
+                                        <td className="px-4 py-4 text-sm font-black text-slate-800 border-y border-slate-200" colSpan={5}>
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-1.5 h-6 bg-indigo-600 rounded-full"></div>
+                                                {hei.name}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    
+                                    {/* Degree Rows */}
+                                    {(() => {
+                                        const degreeOrder = [
+                                            'Baccalaureate', 
+                                            'Doctorate', 
+                                            'Master',
+                                            'Pre-Baccalaureate'
+                                        ];
+                                        
+                                        return degreeOrder.map((degree, dIdx) => {
+                                            const counts = hei.degrees[degree] || { FEMALE: 0, MALE: 0, total: 0 };
+                                            
+                                            return (
+                                                <tr 
+                                                    key={degree} 
+                                                    className={cn(
+                                                        'border-b border-gray-100 transition-colors',
+                                                        dIdx % 2 === 0 ? 'bg-blue-50/5' : 'bg-white'
+                                                    )}
+                                                >
+                                                    <td className="px-4 py-4"></td>
+                                                    <td className="px-4 py-4 text-sm font-black text-slate-900 italic">
+                                                        {degree}
+                                                    </td>
+                                                    <td className={cn(
+                                                        "px-4 py-4 text-right text-base tabular-nums",
+                                                        counts.FEMALE > 0 ? "text-gray-900 font-bold" : "text-gray-300"
+                                                    )}>
+                                                        {counts.FEMALE > 0 ? counts.FEMALE : '0'}
+                                                    </td>
+                                                    <td className={cn(
+                                                        "px-4 py-4 text-right text-base tabular-nums",
+                                                        counts.MALE > 0 ? "text-gray-900 font-bold" : "text-gray-300"
+                                                    )}>
+                                                        {counts.MALE > 0 ? counts.MALE : '0'}
+                                                    </td>
+                                                    <td className={cn(
+                                                        "px-4 py-4 text-right text-base tabular-nums font-black border-l border-gray-100",
+                                                        counts.total > 0 ? "text-slate-900 bg-slate-100/50" : "text-gray-300 bg-gray-50/50"
+                                                    )}>
+                                                        {counts.total > 0 ? counts.total : '0'}
+                                                    </td>
+                                                </tr>
+                                            );
+                                        });
+                                    })()}
+
+                                    {/* HEI Total Row (Red Bar like in screenshot) */}
+                                    {(() => {
+                                        // Sum ONLY the visible degrees for table mathematical accuracy
+                                        const visibleDegrees = ['Baccalaureate', 'Doctorate', 'Master', 'Pre-Baccalaureate'];
+                                        const femaleTotal = visibleDegrees.reduce((sum, d) => sum + (hei.degrees[d]?.FEMALE || 0), 0);
+                                        const maleTotal = visibleDegrees.reduce((sum, d) => sum + (hei.degrees[d]?.MALE || 0), 0);
+                                        const overallTotal = femaleTotal + maleTotal;
+                                        
+                                        return (
+                                            <tr className="bg-red-600 text-white font-black shadow-inner">
+                                                <td className="px-4 py-4 text-sm uppercase tracking-wider" colSpan={2}>
+                                                    TOTAL
+                                                </td>
+                                                <td className="px-4 py-4 text-right text-base tabular-nums">
+                                                    {femaleTotal}
+                                                </td>
+                                                <td className="px-4 py-4 text-right text-base tabular-nums">
+                                                    {maleTotal}
+                                                </td>
+                                                <td className="px-4 py-4 text-right text-base tabular-nums bg-red-700 border-l border-red-800">
+                                                    {overallTotal}
+                                                </td>
+                                            </tr>
+                                        );
+                                    })()}
+                                </React.Fragment>
+                            ))
+                        )}
+                    </tbody>
+                </table>
             </CardContent>
         </Card>
     );
