@@ -110,7 +110,7 @@ const FacultyImportModal: FC<Props> = ({
                                         <UploadCloud className="h-7 w-7 text-emerald-600" />
                                     </div>
                                     <p className="text-base font-bold text-slate-700">Click to upload XLSX/CSV</p>
-                                    <p className="text-xs text-slate-400 mt-1">Maximum file size: 10MB</p>
+
                                 </div>
                                 <input type="file" ref={fileInputRef} className="hidden" accept=".csv, .xlsx" onChange={handleFileChange} />
                             </div>

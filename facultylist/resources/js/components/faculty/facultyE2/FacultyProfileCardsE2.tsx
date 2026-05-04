@@ -237,10 +237,10 @@ const FormCombobox: FC<FormComboboxProps> = ({
                     <Input
                         value={value || ''}
                         onChange={(e) => onChange(e.target.value)}
-                        readOnly={readOnly}
+                        readOnly={true}
                         className={codeInputClass}
                         placeholder="Code"
-                        disabled={readOnly}
+                        disabled={true}
                     />
                 )}
                 <div className="flex-1 min-w-0">

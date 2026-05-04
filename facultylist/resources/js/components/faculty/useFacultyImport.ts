@@ -281,7 +281,7 @@ export function useFacultyImport({
             }
 
             showConfirm(
-                `Ready to import ${mappedData.length} records ${detectedGroup ? `(${detectedGroup}) ` : ''}into Academic Year: ${importYear}?`,
+                `Ready to import ${mappedData.length} Records into Academic Year: ${importYear}?`,
                 () => {
                     try {
                         const importRoute = importType === 'E5' ? '/faculty/import-e5' : '/faculty/import';

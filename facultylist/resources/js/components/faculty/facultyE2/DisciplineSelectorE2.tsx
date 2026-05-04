@@ -325,13 +325,13 @@ const DisciplineSelectorE2: FC<Props> = ({
                     <Input
                         value={value || ''}
                         onChange={(e) => handleDisciplineChange(e.target.value)}
-                        readOnly={readOnly}
+                        readOnly={true}
                         className={cn(
                             "w-32 shrink-0 bg-gray-50 text-center font-bold text-gray-900 focus-visible:ring-0 disabled:opacity-100 rounded-md border border-input h-12 text-[15px] flex items-center justify-center shadow-none",
-                            readOnly ? "cursor-not-allowed" : "cursor-text"
+                            "cursor-not-allowed"
                         )}
                         placeholder="Code"
-                        disabled={readOnly}
+                        disabled={true}
                     />
                 )}
 

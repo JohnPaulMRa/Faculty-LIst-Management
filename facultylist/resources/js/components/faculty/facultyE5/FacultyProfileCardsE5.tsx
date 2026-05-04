@@ -124,12 +124,13 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                                 <Input
                                     className={cn(
                                         "w-32 shrink-0 bg-gray-50 text-center font-bold focus-visible:ring-0 border border-input rounded-md h-12 px-3 text-[15px] flex items-center text-gray-900 disabled:opacity-100 disabled:bg-gray-50",
-                                        readOnly ? "cursor-not-allowed" : "cursor-text"
+                                        "cursor-not-allowed"
                                     )}
                                     value={formData.fullTimeCode || ''}
                                     onChange={(e) => onErrorSafeChange('fullTimeCode', e.target.value)}
                                     placeholder="Code"
-                                    readOnly={readOnly}
+                                    readOnly={true}
+                                    disabled={true}
                                 />
 
                                 <Combobox
@@ -149,12 +150,13 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                                 <Input
                                     className={cn(
                                         "w-32 shrink-0 bg-gray-50 text-center font-bold focus-visible:ring-0 border border-input rounded-md h-12 px-3 text-[15px] flex items-center text-gray-900 disabled:opacity-100 disabled:bg-gray-50",
-                                        readOnly ? "cursor-not-allowed" : "cursor-text"
+                                        "cursor-not-allowed"
                                     )}
                                     value={formData.genderCode || ''}
                                     onChange={(e) => onErrorSafeChange('genderCode', e.target.value)}
                                     placeholder="Code"
-                                    readOnly={readOnly}
+                                    readOnly={true}
+                                    disabled={true}
                                 />
 
                                 <Combobox
@@ -208,12 +210,13 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                                 <Input
                                     className={cn(
                                         "w-32 shrink-0 bg-gray-50 text-center font-bold focus-visible:ring-0 border border-input rounded-md h-12 px-3 text-[15px] flex items-center shadow-none text-gray-900 disabled:opacity-100 disabled:bg-gray-50",
-                                        readOnly ? "cursor-not-allowed" : "cursor-text"
+                                        "cursor-not-allowed"
                                     )}
                                     value={formData.degree || ''}
                                     onChange={(e) => onErrorSafeChange('degree', e.target.value)}
                                     placeholder="Code"
-                                    readOnly={readOnly}
+                                    readOnly={true}
+                                    disabled={true}
                                 />
 
                                 <Combobox
@@ -301,12 +304,13 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                                 <Input
                                     className={cn(
                                         "w-32 shrink-0 bg-gray-50 text-center font-bold focus-visible:ring-0 border border-input rounded-md h-12 px-3 text-[15px] flex items-center text-gray-900 disabled:opacity-100 disabled:bg-gray-50",
-                                        readOnly ? "cursor-not-allowed" : "cursor-text"
+                                        "cursor-not-allowed"
                                     )}
                                     value={formData.licenseCode || ''}
                                     onChange={(e) => onErrorSafeChange('licenseCode', e.target.value)}
                                     placeholder="Code"
-                                    readOnly={readOnly}
+                                    readOnly={true}
+                                    disabled={true}
                                 />
 
                                 <Combobox
@@ -327,12 +331,13 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                                 <Input
                                     className={cn(
                                         "w-32 shrink-0 bg-gray-50 text-center font-bold focus-visible:ring-0 border border-input rounded-md h-12 px-3 text-[15px] flex items-center text-gray-900 disabled:opacity-100 disabled:bg-gray-50",
-                                        readOnly ? "cursor-not-allowed" : "cursor-text"
+                                        "cursor-not-allowed"
                                     )}
                                     value={formData.rankCode || ''}
                                     onChange={(e) => onErrorSafeChange('rankCode', e.target.value)}
                                     placeholder="Code"
-                                    readOnly={readOnly}
+                                    readOnly={true}
+                                    disabled={true}
                                 />
 
                                 <Combobox
@@ -354,12 +359,13 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                                 <Input
                                     className={cn(
                                         "w-32 shrink-0 bg-gray-50 text-center font-bold focus-visible:ring-0 border border-input rounded-md h-12 text-[15px] text-gray-900 disabled:opacity-100 disabled:bg-gray-50",
-                                        readOnly ? "cursor-not-allowed" : "cursor-text"
+                                        "cursor-not-allowed"
                                     )}
                                     value={formData.loadCode || ''}
                                     onChange={(e) => onErrorSafeChange('loadCode', e.target.value)}
                                     placeholder="Code"
-                                    readOnly={readOnly}
+                                    readOnly={true}
+                                    disabled={true}
                                 />
 
                                 <Combobox
@@ -379,12 +385,13 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                                 <Input
                                     className={cn(
                                         "w-32 shrink-0 bg-gray-50 text-center font-bold focus-visible:ring-0 border border-input rounded-md h-12 text-[15px] text-gray-900 disabled:opacity-100 disabled:bg-gray-50",
-                                        readOnly ? "cursor-not-allowed" : "cursor-text"
+                                        "cursor-not-allowed"
                                     )}
                                     value={formData.salaryCode || ''}
                                     onChange={(e) => onErrorSafeChange('salaryCode', e.target.value)}
                                     placeholder="Code"
-                                    readOnly={readOnly}
+                                    readOnly={true}
+                                    disabled={true}
                                 />
 
                                 <Combobox
@@ -406,12 +413,13 @@ export const FacultyProfileCardsE5: FC<FacultyProfileCardsProps> = ({ formData, 
                                 <Input
                                     className={cn(
                                         "w-32 shrink-0 bg-gray-50 text-center font-bold focus-visible:ring-0 border border-input rounded-md h-12 text-[15px] text-gray-900 disabled:opacity-100 disabled:bg-gray-50",
-                                        readOnly ? "cursor-not-allowed" : "cursor-text"
+                                        "cursor-not-allowed"
                                     )}
                                     value={formData.tenureCode || ''}
                                     onChange={(e) => onErrorSafeChange('tenureCode', e.target.value)}
                                     placeholder="Code"
-                                    readOnly={readOnly}
+                                    readOnly={true}
+                                    disabled={true}
                                 />
 
                                 <Combobox
