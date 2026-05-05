@@ -1,4 +1,3 @@
-import { Link } from '@inertiajs/react';
 import { ClipboardList, School, Users, Calendar, ArrowRight } from 'lucide-react';
 import type { FC } from 'react';
 import { Badge } from '@/components/ui/badge';

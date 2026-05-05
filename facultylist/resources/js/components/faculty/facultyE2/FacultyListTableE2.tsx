@@ -3,9 +3,6 @@ import { Link } from '@inertiajs/react';
 import { Trash2, Pencil, ArrowUpDown } from 'lucide-react';
 import React, { useState, useMemo } from 'react';
 import type { FC } from 'react';
-import { edit } from '@/routes/faculty';
-import type { Faculty } from '@/types/faculty';
-import { IMPORT_GROUPS } from '@/types/faculty/constants';
 import { Combobox } from '@/components/ui/combobox';
 import {
     Tooltip,
@@ -13,15 +10,16 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { edit } from '@/routes/faculty';
+import type { Faculty } from '@/types/faculty';
+import { IMPORT_GROUPS } from '@/types/faculty/constants';
 
 // --- TYPES / INTERFACES ---
 
 interface FacultyListTableE2Props {
     facultyList: Faculty[];
     yearFilter: string;
-    onFileClick: (faculty: Faculty) => void;
     onDelete: (id: string) => void;
-    onEdit: (faculty: Faculty) => void;
     referenceData?: any;
     isLocked?: boolean;
 }
@@ -39,9 +37,7 @@ const PAGE_SIZE_OPTIONS = [10, 15, 25, 50];
 const FacultyListTableE2: FC<FacultyListTableE2Props> = ({
     facultyList,
     yearFilter,
-    onFileClick,
     onDelete,
-    onEdit,
     referenceData,
     isLocked,
 }) => {

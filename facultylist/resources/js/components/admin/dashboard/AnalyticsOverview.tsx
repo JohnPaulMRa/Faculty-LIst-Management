@@ -1,7 +1,6 @@
-import { BarChart3, Calendar as CalendarIcon, ChevronLeft, ChevronRight, GraduationCap, Award, BookOpen, User, FolderArchive } from 'lucide-react';
-import React, { useState, useMemo } from 'react';
 import { router } from '@inertiajs/react';
-import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell, Legend } from 'recharts';
+import { BarChart3, Calendar as CalendarIcon, ChevronLeft, ChevronRight, GraduationCap } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
@@ -32,42 +31,7 @@ interface AnalyticsOverviewProps {
     queryParamName?: string;
 }
 
-const BarTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
-        const total = payload.reduce((acc: number, entry: any) => acc + entry.value, 0);
-
-        return (
-            <div className="bg-white/95 backdrop-blur-md p-4 border border-slate-200 shadow-xl rounded-2xl text-xs min-w-[220px] animate-in fade-in duration-200">
-                <div className="font-bold text-slate-900 mb-3 uppercase tracking-tight border-b border-slate-100 pb-2">
-                    {label}
-                </div>
-                <div className="space-y-1.5">
-                    {payload.map((entry: any, index: number) => {
-                        if (entry.value === 0) return null;
-                        const percentage = total > 0 ? ((entry.value / total) * 100).toFixed(1) : "0";
-                        return (
-                            <div key={index} className="flex justify-between items-center text-slate-600 font-medium">
-                                <div className="flex items-center gap-2">
-                                    <div className="w-2.5 h-2.5 rounded-full shadow-xs" style={{ backgroundColor: entry.color }} />
-                                    <span>{entry.name}</span>
-                                </div>
-                                <div className="flex gap-2">
-                                    <span className="font-bold text-slate-900">{entry.value}</span>
-                                    <span className="text-slate-400 text-[10px] w-8 text-right">({percentage}%)</span>
-                                </div>
-                            </div>
-                        );
-                    })}
-                </div>
-                <div className="flex justify-between items-center text-slate-700 font-black bg-slate-50 p-2 mt-3 rounded-lg border border-slate-100">
-                    <span>Total Programs:</span>
-                    <span className="text-blue-600">{total}</span>
-                </div>
-            </div>
-        );
-    }
-    return null;
-};
+// Removed unused BarTooltip
 
 export function AnalyticsOverview({
     distributionData = [],
@@ -118,7 +82,7 @@ export function AnalyticsOverview({
                                     const params = new URLSearchParams(window.location.search);
                                     params.set(queryParamName, e.target.value);
                                     
-                                    const data: any = {};
+                                    const data: Record<string, string> = {};
                                     params.forEach((value, key) => { data[key] = value; });
                                     
                                     router.get(route('admin.dashboard'), data, { preserveState: true, preserveScroll: true, replace: true });
@@ -160,7 +124,7 @@ export function AnalyticsOverview({
                             </tr>
                         ) : (
                             sortedData.map((row, idx) => {
-                                const rowTotal = columns.reduce((sum, col) => sum + ((row as any)[col.key] || 0), 0);
+                                const rowTotal = columns.reduce((sum, col) => sum + (row[col.key as keyof DistributionItem] as number || 0), 0);
                                 const isEmpty = rowTotal === 0;
                                 return (
                                     <tr
@@ -178,7 +142,7 @@ export function AnalyticsOverview({
                                             {row.name}
                                         </td>
                                         {columns.map(col => {
-                                            const val = (row as any)[col.key] || 0;
+                                            const val = row[col.key as keyof DistributionItem] as number || 0;
                                             return (
                                                 <td key={col.key} className={cn(
                                                     'px-4 py-3.5 text-right text-sm tabular-nums',
@@ -200,7 +164,7 @@ export function AnalyticsOverview({
                         <tr>
                             <td className="px-4 py-4 text-sm uppercase tracking-wider">Grand Total</td>
                             {columns.map(col => {
-                                const colTotal = sortedData.reduce((sum, row) => sum + ((row as any)[col.key] || 0), 0);
+                                const colTotal = sortedData.reduce((sum, row) => sum + (row[col.key as keyof DistributionItem] as number || 0), 0);
                                 return (
                                     <td key={col.key} className="px-4 py-4 text-right text-sm tabular-nums">
                                         {colTotal}
@@ -327,7 +291,7 @@ export function StatusOverview() {
     );
 }
 
-interface HEIDistributionData {
+export interface HEIDistributionData {
     code: string;
     name: string;
     degrees: {
@@ -378,7 +342,7 @@ export function HEIDistributionTable({
                                     const params = new URLSearchParams(window.location.search);
                                     params.set(queryParamName, e.target.value);
                                     
-                                    const data: any = {};
+                                    const data: Record<string, string> = {};
                                     params.forEach((value, key) => { data[key] = value; });
                                     
                                     router.get(route('admin.dashboard'), data, { preserveState: true, preserveScroll: true, replace: true });

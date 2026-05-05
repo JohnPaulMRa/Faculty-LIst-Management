@@ -1,7 +1,5 @@
 import { Transition } from '@headlessui/react';
-import { Form, Head, Link, usePage, useForm } from '@inertiajs/react';
-import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController';
-import DeleteUser from '@/components/delete-user';
+import { Head, Link, usePage, useForm } from '@inertiajs/react';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
@@ -26,7 +24,14 @@ export default function Profile({
 }: {
     mustVerifyEmail: boolean;
     status?: string;
-    hei?: any;
+    hei?: {
+        name?: string;
+        hei_code?: string;
+        type?: string;
+        contact_number?: string;
+        email?: string;
+        address?: string;
+    };
 }) {
     const { auth } = usePage<SharedData>().props;
 

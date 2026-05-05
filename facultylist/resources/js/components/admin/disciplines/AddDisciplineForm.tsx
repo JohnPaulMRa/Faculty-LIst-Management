@@ -1,22 +1,20 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Plus, X } from "lucide-react";
-import { useState, useMemo } from "react";
+import { useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 // Removed Combobox import as it is no longer used
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { normalizeProgramName } from "@/lib/utils";
-import { toast } from "sonner";
 
 interface AddDisciplineFormProps {
     onCancel?: () => void;
     onSubmit: (data: any, onSuccess?: () => void) => void;
-    majors: any[];
     processing?: boolean;
-    serverPrograms?: any;
 }
 
-export default function AddDisciplineForm({ onCancel, onSubmit, majors = [], processing = false, serverPrograms }: AddDisciplineFormProps) {
+export default function AddDisciplineForm({ onCancel, onSubmit, processing = false }: AddDisciplineFormProps) {
     const [groupCode, setGroupCode] = useState("");
     const [groupDesc, setGroupDesc] = useState("");
     const [majorCode, setMajorCode] = useState("");

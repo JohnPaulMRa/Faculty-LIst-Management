@@ -2,7 +2,6 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { normalizeProgramName } from "@/lib/utils";
 import {
     Dialog,
     DialogContent,
@@ -13,6 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { normalizeProgramName } from "@/lib/utils";
 
 interface EditDisciplineModalProps {
     isOpen: boolean;

@@ -1,11 +1,11 @@
 import { Button } from '@/components/ui/button';
+import { Combobox } from '@/components/ui/combobox';
 import {
     Dialog,
     DialogContent,
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
-import { Combobox } from '@/components/ui/combobox';
 
 interface SubmitFacultyModalProps {
     isOpen: boolean;

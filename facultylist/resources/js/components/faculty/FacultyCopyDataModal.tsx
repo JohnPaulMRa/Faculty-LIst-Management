@@ -3,8 +3,8 @@
 import { router } from '@inertiajs/react';
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Combobox } from '@/components/ui/combobox';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 interface FacultyCopyDataModalProps {
     isOpen: boolean;

@@ -106,7 +106,7 @@ export function useFacultyImport({
 
             // --- Robust Column Detection for E2 ---
             // Initialize with -1 to ensure we only map what we actually find
-            let colMap: Record<string, number> = {
+            const colMap: Record<string, number> = {
                 name: -1,
                 last_name: -1,
                 first_name: -1,

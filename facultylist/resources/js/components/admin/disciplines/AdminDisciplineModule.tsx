@@ -3,14 +3,14 @@
 import { router } from '@inertiajs/react';
 import { FileSpreadsheet, X } from 'lucide-react';
 import { useState, useMemo, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import AlertDialogModal from '@/components/common/AlertDialogModal';
+import { useAlertDialog } from '@/components/faculty/hooks/useAlertDialog';
+import { Button } from '@/components/ui/button';
 import AddDisciplineForm from './AddDisciplineForm';
 import DisciplineTable, { type Program } from './DisciplineTable';
 import EditDisciplineModal from './EditDisciplineModal';
 import ImportDisciplineModal, { type ParsedDisciplineRow } from './ImportDisciplineModal';
-import { useAlertDialog } from '@/components/faculty/hooks/useAlertDialog';
-import AlertDialogModal from '@/components/common/AlertDialogModal';
 
 
 interface SpecificDiscipline {
@@ -51,12 +51,14 @@ export default function AdminDisciplineModule({
 
     /** Local state for programs to enable optimistic UI updates (deletes) */
     const [localPrograms, setLocalPrograms] = useState<Program[]>(serverPrograms?.data || []);
-    const { alertDialog, showAlert, showConfirm, closeDialog } = useAlertDialog();
+    const { alertDialog, showConfirm, closeDialog } = useAlertDialog();
 
     // Sync local state when server props change
+    // Using a key on the component is generally better for resetting state, 
+    // but for optimistic UI we need to keep the state.
     useEffect(() => {
         if (serverPrograms?.data) {
-            setLocalPrograms(serverPrograms.data);
+            setLocalPrograms(serverPrograms.data); // eslint-disable-line react-hooks/set-state-in-effect
         }
     }, [serverPrograms]);
 
@@ -261,9 +263,7 @@ export default function AdminDisciplineModule({
                     <AddDisciplineForm
                         key={formResetKey}
                         onSubmit={handleAddSubmit}
-                        majors={disciplines}
                         processing={processing}
-                        serverPrograms={localPrograms}
                     />
 
                     <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 flex flex-col gap-8">
@@ -323,7 +323,6 @@ export default function AdminDisciplineModule({
                 isOpen={isImportModalOpen}
                 onClose={() => setIsImportModalOpen(false)}
                 onParsed={handleParsed}
-                disciplines={disciplines}
             />
         </div>
     );

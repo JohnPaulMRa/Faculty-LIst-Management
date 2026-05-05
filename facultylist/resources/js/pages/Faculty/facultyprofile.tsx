@@ -170,8 +170,6 @@ const FacultyProfile: FC<FacultyProfileProps> = ({
                                     setImportType(type);
                                     setImportGroup('');
                                 }}
-                                importGroup={importGroup}
-                                setImportGroup={setImportGroup}
                                 importYear={importYear}
                                 setImportYear={setImportYear}
                                 onFileImport={handleFileImport}
@@ -206,9 +204,7 @@ const FacultyProfile: FC<FacultyProfileProps> = ({
                             <FacultyListTableE5
                                 facultyList={filteredFacultyList}
                                 yearFilter={yearFilter}
-                                onFileClick={handleFileClick}
                                 onDelete={handleDelete}
-                                onEdit={handleEdit}
                                 referenceData={referenceData}
                                 isLocked={isYearLocked}
                             />
@@ -216,9 +212,7 @@ const FacultyProfile: FC<FacultyProfileProps> = ({
                             <FacultyListTableE2
                                 facultyList={filteredFacultyList}
                                 yearFilter={yearFilter}
-                                onFileClick={handleFileClick}
                                 onDelete={handleDelete}
-                                onEdit={handleEdit}
                                 referenceData={referenceData}
                                 isLocked={isYearLocked}
                             />

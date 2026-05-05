@@ -1,6 +1,8 @@
 import { router } from '@inertiajs/react';
 import { Search, Plus, Building, Users } from 'lucide-react';
 import { useState } from 'react';
+import AlertDialogModal from '@/components/common/AlertDialogModal';
+import { useAlertDialog } from '@/components/faculty/hooks/useAlertDialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import type { Hei } from '@/types/hei';
@@ -8,8 +10,6 @@ import AddHEIsModal from './AddHEIsModal';
 import CreateFacultyAccountModal from './CreateFacultyAccountModal';
 import { HeisTable } from './HeisTable';
 import { UserAccountsTable } from './UserAccountsTable';
-import { useAlertDialog } from '@/components/faculty/hooks/useAlertDialog';
-import AlertDialogModal from '@/components/common/AlertDialogModal';
 
 
 
@@ -34,7 +34,7 @@ export default function HeisAccountsModule({ heis = [], accounts = [] }: HeisAcc
     const [selectedHei, setSelectedHei] = useState<Hei | null>(null);
     const [isCreateAccountModalOpen, setIsCreateAccountModalOpen] = useState(false);
     const [selectedAccount, setSelectedAccount] = useState<UserAccount | null>(null);
-    const { alertDialog, showAlert, showConfirm, closeDialog } = useAlertDialog();
+    const { alertDialog, showConfirm, closeDialog } = useAlertDialog();
 
     const handleEditHei = (hei: Hei) => {
         setSelectedHei(hei);

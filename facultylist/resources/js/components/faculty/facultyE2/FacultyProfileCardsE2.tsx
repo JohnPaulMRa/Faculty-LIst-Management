@@ -6,7 +6,7 @@ import {
     Award,
     ChevronRight
 } from 'lucide-react';
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import type { FC } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -329,11 +329,11 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
     // --- HELPERS (MATCH E5) ---
 
     // Helper to handle change if not readOnly
-    const onErrorSafeChange = (field: keyof PublicFaculty, value: any, desc?: string) => {
+    const onErrorSafeChange = useCallback((field: keyof PublicFaculty, value: any, desc?: string) => {
         if (!readOnly && handleChange) {
             handleChange(field, value, desc);
         }
-    };
+    }, [readOnly, handleChange]);
 
     // --- AUTO-CALCULATIONS ---
     useEffect(() => {
@@ -398,7 +398,9 @@ export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
         formData.grad_lab_contact, formData.grad_lec_contact,
         formData.load_research, formData.load_extension, formData.load_study,
         formData.load_production, formData.load_admin, formData.load_others,
-        readOnly
+        formData.ug_total_units, formData.ug_total_hours, formData.ug_total_contact,
+        formData.grad_total_units, formData.grad_total_contact, formData.load_total,
+        readOnly, onErrorSafeChange
     ]);
 
     // Reusable formatter for reference lists

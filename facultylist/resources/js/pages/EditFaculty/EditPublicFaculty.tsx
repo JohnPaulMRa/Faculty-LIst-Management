@@ -13,36 +13,46 @@ import { update } from '@/routes/faculty';
 import type { PublicFaculty } from '@/types/faculty';
 import { IMPORT_GROUPS } from '@/types/faculty/constants';
 
+interface FormData extends PublicFaculty {
+    discipline_load_1_desc?: string;
+    discipline_load_2_desc?: string;
+    discipline_bachelors_desc?: string;
+    discipline_masters_desc?: string;
+    discipline_doctorate_desc?: string;
+}
+
 
 interface EditProps {
     faculty: PublicFaculty;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    referenceData: any;
+    referenceData: {
+        disciplines?: { code: string, desc: string }[];
+        [key: string]: unknown;
+    };
     isSubmitted?: boolean;
 }
 
 const EditPublicFaculty: FC<EditProps> = ({ faculty, referenceData, isSubmitted = false }) => {
     // Helper to normalize data
-    const getInitialFormData = useCallback((fac: PublicFaculty, ref: any) => {
+    const getInitialFormData = useCallback((fac: PublicFaculty, ref: { disciplines?: { code: string, desc: string }[] }): FormData => {
         const disciplines = ref?.disciplines as { code: string, desc: string }[];
-        const getDesc = (code?: any) => disciplines?.find(item => String(item.code) === String(code))?.desc || '';
+        const getDesc = (code?: string | number) => disciplines?.find(item => String(item.code) === String(code))?.desc || '';
 
         return {
             ...fac,
-            discipline_load_1_desc: (fac as any).discipline_load_1_desc || getDesc(fac.discipline_load_1),
-            discipline_load_2_desc: (fac as any).discipline_load_2_desc || getDesc(fac.discipline_load_2),
-            discipline_bachelors_desc: (fac as any).discipline_bachelors_desc || getDesc(fac.discipline_bachelors),
-            discipline_masters_desc: (fac as any).discipline_masters_desc || getDesc(fac.discipline_masters),
-            discipline_doctorate_desc: (fac as any).discipline_doctorate_desc || getDesc(fac.discipline_doctorate),
-        };
+            discipline_load_1_desc: (fac as unknown as FormData).discipline_load_1_desc || getDesc(fac.discipline_load_1),
+            discipline_load_2_desc: (fac as unknown as FormData).discipline_load_2_desc || getDesc(fac.discipline_load_2),
+            discipline_bachelors_desc: (fac as unknown as FormData).discipline_bachelors_desc || getDesc(fac.discipline_bachelors),
+            discipline_masters_desc: (fac as unknown as FormData).discipline_masters_desc || getDesc(fac.discipline_masters),
+            discipline_doctorate_desc: (fac as unknown as FormData).discipline_doctorate_desc || getDesc(fac.discipline_doctorate),
+        } as FormData;
     }, []);
 
-    const [formData, setFormData] = useState<Partial<PublicFaculty>>(() => getInitialFormData(faculty, referenceData));
+    const [formData, setFormData] = useState<FormData>(() => getInitialFormData(faculty, referenceData));
     const [processing, setProcessing] = useState(false);
 
     // Update state when faculty or referenceData changes (Update during render pattern)
     const [prevFacultyId, setPrevFacultyId] = useState(faculty.id);
-    const [prevRef, setPrevRef] = useState(referenceData);
+    const [prevRef, setPrevRef] = useState<Record<string, unknown>>(referenceData);
 
     if (faculty.id !== prevFacultyId || referenceData !== prevRef) {
         setPrevFacultyId(faculty.id);
@@ -58,14 +68,14 @@ const EditPublicFaculty: FC<EditProps> = ({ faculty, referenceData, isSubmitted 
     const groupLabel = (selectedGroup ? selectedGroup.label : (formData.import_group || 'Form E-2 Entry')).replace(/^GROUP\s+/, '');
     const groupRemarks = selectedGroup?.remarks;
 
-    const handleChange = (field: keyof PublicFaculty | string, value: string, desc?: string) => {
+    const handleChange = (field: string, value: string, desc?: string) => {
         setFormData(prev => {
             const newData = { ...prev, [field]: value };
             // If it's a discipline field, also update its description field for the UI
             if (desc !== undefined) {
-                (newData as any)[`${field}_desc`] = desc;
+                (newData as unknown as Record<string, string>)[`${field}_desc`] = desc;
             }
-            return newData;
+            return newData as FormData;
         });
     };
 
@@ -89,7 +99,8 @@ const EditPublicFaculty: FC<EditProps> = ({ faculty, referenceData, isSubmitted 
 
         setProcessing(true);
 
-        router.put(update({ id: faculty.id }).url, formData, {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        router.put(update({ id: faculty.id }).url, formData as any, {
             onSuccess: () => {
                 toast.success("Faculty updated successfully!");
                 router.visit(facultyprofile().url);

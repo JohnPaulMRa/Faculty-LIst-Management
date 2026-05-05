@@ -1,8 +1,7 @@
 import { Head } from '@inertiajs/react';
 import AdminOverview from '@/components/admin/dashboard/AdminOverview';
 
-import { AnalyticsOverview, StatusOverview, HEIDistributionTable } from '@/components/admin/dashboard/AnalyticsOverview';
-import SchoolList from '@/components/admin/dashboard/SchoolList';
+import { AnalyticsOverview, StatusOverview, HEIDistributionTable, type HEIDistributionData } from '@/components/admin/dashboard/AnalyticsOverview';
 import SubmittedHeisList from '@/components/admin/dashboard/SubmittedHeisList';
 import AppSidebarLayout from '@/layouts/app/app-sidebar-layout';
 
@@ -58,7 +57,7 @@ interface AdminDashboardProps {
     distributionData: DistributionItem[];
     totals?: DistributionTotals;
     statusData: StatusItem[];
-    heiDistributionData: any[];
+    heiDistributionData: HEIDistributionData[];
     recentSubmissions: Submission[];
     academicYears?: string[];
     selectedYearDiscipline?: string;
@@ -66,10 +65,8 @@ interface AdminDashboardProps {
 }
 
 export default function AdminDashboard({
-    heis = [],
     distributionData = [],
     totals = { baccalaureate: 0, master: 0, doctorate: 0, preBaccalaureate: 0, unclassified: 0, overall: 0 },
-    statusData = [],
     heiDistributionData = [],
     recentSubmissions = [],
     academicYears = [],

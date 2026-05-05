@@ -5,7 +5,6 @@ import { Search } from "lucide-react";
 import { useState, useMemo, useEffect, memo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { normalizeProgramName } from "@/lib/utils";
 import {
     Select,
     SelectContent,
@@ -14,12 +13,6 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger,
-} from "@/components/ui/tooltip";
-import {
     Table,
     TableBody,
     TableCell,
@@ -27,6 +20,13 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { normalizeProgramName } from "@/lib/utils";
 
 export interface Program {
     id: string;

@@ -2,8 +2,6 @@ import { Link } from '@inertiajs/react';
 import { Trash2, Pencil, ArrowUpDown } from 'lucide-react';
 import type { FC } from 'react';
 import { useState, useMemo } from 'react';
-import { edit } from '@/routes/faculty';
-import type { Faculty } from '@/types/faculty';
 import { Combobox } from '@/components/ui/combobox';
 import {
     Tooltip,
@@ -11,13 +9,13 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { edit } from '@/routes/faculty';
+import type { Faculty } from '@/types/faculty';
 
 type Props = {
     facultyList: Faculty[];
     yearFilter: string;
-    onFileClick: (faculty: Faculty) => void;
     onDelete: (id: string) => void;
-    onEdit: (faculty: Faculty) => void;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     referenceData: any;
     isLocked?: boolean;
@@ -28,9 +26,7 @@ const PAGE_SIZE_OPTIONS = [10, 15, 25, 50];
 const FacultyListTableE5: FC<Props> = ({
     facultyList,
     yearFilter,
-    onFileClick,
     onDelete,
-    onEdit,
     referenceData,
     isLocked,
 }) => {

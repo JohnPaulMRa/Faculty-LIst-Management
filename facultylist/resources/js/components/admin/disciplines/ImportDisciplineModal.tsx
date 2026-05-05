@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { router } from "@inertiajs/react";
+import axios from "axios";
 import { Upload, FileSpreadsheet, X, AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
 import { useRef, useState, useCallback } from "react";
+import { toast } from "sonner";
 import * as XLSX from "xlsx";
-import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { normalizeProgramName } from "@/lib/utils";
-import { toast } from "sonner";
 
 export interface ParsedDisciplineRow {
     code: string;
@@ -23,8 +23,6 @@ interface ImportDisciplineModalProps {
     onClose: () => void;
     /** Called immediately after a file is successfully parsed, with valid rows only */
     onParsed: (rows: ParsedDisciplineRow[]) => void;
-    /** Existing disciplines for duplicate prevention */
-    disciplines?: any[];
 }
 
 // Column header mapping (case-insensitive, trimmed):
@@ -51,25 +49,12 @@ function cellValue(raw: any): string | null {
 }
 
 /** Build the composite duplicate key used for deduplication */
-function dupKey(
-    disciplineGroup: string,
-    majorDiscipline: string | null,
-    specificDiscipline: string | null,
-    program: string
-): string {
-    return [
-        disciplineGroup.toUpperCase(),
-        (majorDiscipline ?? "").toUpperCase(),
-        (specificDiscipline ?? "").toUpperCase(),
-        program.toUpperCase(),
-    ].join("|");
-}
+// Removed unused dupKey
 
 export default function ImportDisciplineModal({
     isOpen,
     onClose,
     onParsed,
-    disciplines = [],
 }: ImportDisciplineModalProps) {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const isCancelled = useRef(false);
@@ -235,7 +220,7 @@ export default function ImportDisciplineModal({
             };
             reader.readAsArrayBuffer(file);
         },
-        [onParsed, disciplines]
+        [onParsed]
     );
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -254,7 +239,6 @@ export default function ImportDisciplineModal({
     );
 
     const validRows   = rows.filter((r) => r._status === "pending");
-    const invalidRows = rows.filter((r) => r._status === "error");
 
     const handleImport = async () => {
         if (validRows.length === 0) return;

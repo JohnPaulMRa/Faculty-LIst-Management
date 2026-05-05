@@ -3,6 +3,7 @@ import { FileSpreadsheet, UploadCloud } from 'lucide-react';
 import type { FC, ChangeEvent } from 'react';
 import { useRef } from 'react';
 import { Button } from '@/components/ui/button';
+import { Combobox } from "@/components/ui/combobox";
 import {
     Dialog,
     DialogContent,
@@ -13,8 +14,6 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Combobox } from "@/components/ui/combobox";
-import { IMPORT_GROUPS } from '@/types/faculty';
 
 
 type Props = {
@@ -22,8 +21,6 @@ type Props = {
     onOpenChange: (open: boolean) => void;
     importType: 'E2' | 'E5';
     setImportType: (type: 'E2' | 'E5') => void;
-    importGroup: string;
-    setImportGroup: (group: string) => void;
     importYear: string;
     setImportYear: (year: string) => void;
     onFileImport: (file: File) => void;
@@ -35,8 +32,6 @@ const FacultyImportModal: FC<Props> = ({
     onOpenChange,
     importType,
     setImportType,
-    importGroup,
-    setImportGroup,
     importYear,
     setImportYear,
     onFileImport,

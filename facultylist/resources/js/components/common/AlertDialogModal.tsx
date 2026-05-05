@@ -6,7 +6,6 @@ import {
     AlertDialogCancel,
     AlertDialogContent,
     AlertDialogDescription,
-    AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
@@ -69,7 +68,7 @@ const AlertDialogModal: FC<AlertDialogModalProps> = ({
                     )}
                     <AlertDialogAction
                         className={`h-11 px-8 font-bold text-white shadow-lg rounded-xl transition-all active:scale-[0.98] border-none ${type === 'error' ? 'bg-red-600 hover:bg-red-700 shadow-red-600/20' : type === 'success' ? 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-600/20' : type === 'confirm' ? 'bg-blue-600 hover:bg-blue-700 shadow-blue-600/20' : 'bg-blue-600 hover:bg-blue-700 shadow-blue-600/20'}`}
-                        onClick={(e) => {
+                        onClick={() => {
                             if (isConfirmationType && onConfirm) {
                                 onConfirm();
                             }
