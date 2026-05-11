@@ -73,23 +73,26 @@ const CreateFacultyAccountModal: FC<Props> = ({ isOpen, onOpenChange, heis, acco
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
             <DialogContent
-                className="sm:max-w-[500px] rounded-[4px]"
+                className="sm:max-w-[500px] rounded-3xl p-0 overflow-hidden border-none shadow-2xl"
                 onInteractOutside={(e) => e.preventDefault()}
             >
-                <DialogHeader>
-                    <DialogTitle className="text-xl">
-                        {account ? 'Edit User Account' : 'Create Faculty Login Account'}
-                    </DialogTitle>
-                    <DialogDescription>
-                        {account 
-                            ? 'Update account details. Leave password blank if you don\'t want to change it.' 
-                            : 'Provide a username, assign an HEIs, and set a password for the new faculty member.'}
-                    </DialogDescription>
-                </DialogHeader>
+                <div className="bg-linear-to-r from-[#003468] to-[#1a4f8c] p-8">
+                    <DialogHeader>
+                        <DialogTitle className="text-2xl font-black text-white uppercase tracking-tight">
+                            {account ? 'Edit User Account' : 'Create Faculty Account'}
+                        </DialogTitle>
+                        <DialogDescription className="text-blue-100/80 text-sm mt-2 font-medium">
+                            {account 
+                                ? 'Update account details. Leave password blank if you don\'t want to change it.' 
+                                : 'Provide a username, assign an HEIs, and set a password for the new faculty member.'}
+                        </DialogDescription>
+                    </DialogHeader>
+                </div>
 
-                <form onSubmit={handleSubmit} className="space-y-5 py-4">
+                <form onSubmit={handleSubmit}>
+                    <div className="p-8 space-y-6 bg-white">
                     <div className="grid gap-2">
-                        <Label htmlFor="username" className="text-sm font-semibold">User name <span className="text-red-500">*</span></Label>
+                        <Label htmlFor="username" className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">User name <span className="text-red-500">*</span></Label>
                         <Input
                             id="username"
                             type="text"
@@ -97,16 +100,16 @@ const CreateFacultyAccountModal: FC<Props> = ({ isOpen, onOpenChange, heis, acco
                             onChange={(e) => setData('username', e.target.value)}
                             placeholder="Enter user name"
                             required
-                            className="h-10"
+                            className="h-12 rounded-xl border-slate-200 focus-visible:ring-2 focus-visible:ring-blue-600/10 focus-visible:border-blue-500 font-medium shadow-sm transition-all"
                         />
-                        {errors.username && <p className="text-sm text-red-500">{errors.username}</p>}
+                        {errors.username && <p className="text-xs text-red-500 font-bold mt-1 ml-1">{errors.username}</p>}
                     </div>
 
                     <div className="grid gap-2">
-                        <Label htmlFor="hei" className="text-sm font-semibold">HEIs <span className="text-red-500">*</span></Label>
+                        <Label htmlFor="hei" className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">HEIs <span className="text-red-500">*</span></Label>
                         <select
                             id="hei"
-                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                            className="flex h-12 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600/10 focus-visible:border-blue-500 disabled:cursor-not-allowed disabled:opacity-50 font-medium shadow-sm transition-all appearance-none"
                             value={data.hei_id}
                             onChange={(e) => setData('hei_id', e.target.value)}
                             required
@@ -118,11 +121,11 @@ const CreateFacultyAccountModal: FC<Props> = ({ isOpen, onOpenChange, heis, acco
                                 </option>
                             ))}
                         </select>
-                        {errors.hei_id && <p className="text-sm text-red-500">{errors.hei_id}</p>}
+                        {errors.hei_id && <p className="text-xs text-red-500 font-bold mt-1 ml-1">{errors.hei_id}</p>}
                     </div>
 
                     <div className="grid gap-2">
-                        <Label htmlFor="password" className="text-sm font-semibold">
+                        <Label htmlFor="password" className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">
                             Password {account ? '(Optional)' : <span className="text-red-500">*</span>}
                         </Label>
                         <div className="relative">
@@ -132,21 +135,21 @@ const CreateFacultyAccountModal: FC<Props> = ({ isOpen, onOpenChange, heis, acco
                                 value={data.password}
                                 onChange={(e) => setData('password', e.target.value)}
                                 required={!account}
-                                className="h-10 pr-10"
+                                className="h-12 rounded-xl border-slate-200 focus-visible:ring-2 focus-visible:ring-blue-600/10 focus-visible:border-blue-500 font-medium shadow-sm transition-all pr-12"
                             />
                             <button
                                 type="button"
                                 onClick={() => setShowPassword(!showPassword)}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-600 transition-colors"
                             >
-                                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                             </button>
                         </div>
-                        {errors.password && <p className="text-sm text-red-500">{errors.password}</p>}
+                        {errors.password && <p className="text-xs text-red-500 font-bold mt-1 ml-1">{errors.password}</p>}
                     </div>
 
                     <div className="grid gap-2">
-                        <Label htmlFor="password_confirmation" className="text-sm font-semibold">
+                        <Label htmlFor="password_confirmation" className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">
                             Confirm Password {account ? '(Optional)' : <span className="text-red-500">*</span>}
                         </Label>
                         <Input
@@ -155,20 +158,30 @@ const CreateFacultyAccountModal: FC<Props> = ({ isOpen, onOpenChange, heis, acco
                             value={data.password_confirmation}
                             onChange={(e) => setData('password_confirmation', e.target.value)}
                             required={!account && data.password !== ''}
-                            className="h-10"
+                            className="h-12 rounded-xl border-slate-200 focus-visible:ring-2 focus-visible:ring-blue-600/10 focus-visible:border-blue-500 font-medium shadow-sm transition-all"
                         />
                     </div>
 
-                    <DialogFooter className="pt-4">
-                        <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+                    <DialogFooter className="pt-6 flex gap-3">
+                        <Button 
+                            type="button" 
+                            variant="outline" 
+                            onClick={() => onOpenChange(false)}
+                            className="rounded-xl h-11 px-6 font-bold uppercase tracking-wider text-xs border-slate-200 hover:bg-slate-50"
+                        >
                             Cancel
                         </Button>
-                        <Button type="submit" disabled={processing}>
+                        <Button 
+                            type="submit" 
+                            disabled={processing}
+                            className="rounded-xl h-11 px-8 font-black uppercase tracking-wider text-xs bg-[#003468] text-white hover:bg-[#002850] shadow-md shadow-blue-900/10 transition-all"
+                        >
                             {processing 
                                 ? (account ? 'Updating...' : 'Creating...') 
                                 : (account ? 'Update Account' : 'Create Account')}
                         </Button>
                     </DialogFooter>
+                </div>
                 </form>
             </DialogContent>
         </Dialog>

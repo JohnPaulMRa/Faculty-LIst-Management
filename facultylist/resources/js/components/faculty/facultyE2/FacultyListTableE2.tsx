@@ -1,8 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState, useMemo } from 'react';
-import type { FC } from 'react';
 import { Link } from '@inertiajs/react';
 import { Trash2, Pencil, ArrowUpDown } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import type { FC } from 'react';
+import { Combobox } from '@/components/ui/combobox';
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { edit } from '@/routes/faculty';
 import type { Faculty } from '@/types/faculty';
 import { IMPORT_GROUPS } from '@/types/faculty/constants';
@@ -12,28 +19,27 @@ import { IMPORT_GROUPS } from '@/types/faculty/constants';
 interface FacultyListTableE2Props {
     facultyList: Faculty[];
     yearFilter: string;
-    onFileClick: (faculty: Faculty) => void;
     onDelete: (id: string) => void;
-    onEdit: (faculty: Faculty) => void;
     referenceData?: any;
+    isLocked?: boolean;
 }
 
+// --- SortConfig Interface ---
 interface SortConfig {
     key: string;
     direction: 'asc' | 'desc';
 }
 
 // --- CONSTANTS ---
-
 const PAGE_SIZE_OPTIONS = [10, 15, 25, 50];
 
 // --- MAIN COMPONENT ---
-
 const FacultyListTableE2: FC<FacultyListTableE2Props> = ({
     facultyList,
     yearFilter,
     onDelete,
-    referenceData
+    referenceData,
+    isLocked,
 }) => {
     // --- HOOKS ---
 
@@ -85,15 +91,23 @@ const FacultyListTableE2: FC<FacultyListTableE2Props> = ({
         setCurrentPage(1);
     };
 
+    const formatStatus = (status: string): string => {
+        const s = (status || '').trim();
+        const lower = s.toLowerCase();
+        if (lower === 'no submission') return 'No update';
+        return status;
+    };
+
     const getStatusBadgeStyle = (status: string): string => {
-        const s = status?.trim();
-        const styles: Record<string, string> = {
-            'Updated': 'bg-green-400 text-white border-green-600 shadow-sm',
-            'Submitted': 'bg-green-500 text-white border-green-700 shadow-sm',
-            'No Submission': 'bg-red-400 text-white border-red-600 shadow-sm',
-            'Not Yet Completed': 'bg-red-400 text-white border-red-600 shadow-sm',
-        };
-        return styles[s] || 'bg-gray-100 text-gray-800 border border-gray-300 shadow-sm';
+        const s = (status || '').trim();
+        const lower = s.toLowerCase();
+
+        if (lower === 'updated') return 'bg-green-400 text-white border-green-600 shadow-sm';
+        if (lower === 'submitted' || lower === 'completed') return 'bg-green-500 text-white border-green-700 shadow-sm';
+        if (lower === 'not yet completed') return 'bg-amber-400 text-white border-amber-600 shadow-sm';
+        if (lower === 'no submission' || lower === 'no update' || lower === 'not updated') return 'bg-red-400 text-white border-red-600 shadow-sm';
+
+        return 'bg-gray-100 text-gray-800 border border-gray-300 shadow-sm';
     };
 
     const getGenderLabel = (code?: string) => {
@@ -104,7 +118,7 @@ const FacultyListTableE2: FC<FacultyListTableE2Props> = ({
 
     const getTenuredLabel = (code?: string) => {
         if (!code) return 'N/A';
-        const found = referenceData?.tenured?.find((g: any) => String(g.code) === String(code));
+        const found = referenceData?.tenureE2?.find((g: any) => String(g.code) === String(code));
         return found ? found.desc : code;
     };
 
@@ -146,40 +160,56 @@ const FacultyListTableE2: FC<FacultyListTableE2Props> = ({
             const genderLabel = faculty.form_type === 'E2' ? getGenderLabel(faculty.gender) : 'N/A';
             const groupLabel = getFacultyGroup(faculty);
             const rankLabel = getFacultyRankLabel(faculty);
-            const tenuredLabel = faculty.form_type === 'E2' ? getTenuredLabel(faculty.tenured) : 'N/A';
-            const statusBadgeClass = `text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-none font-bold ${getStatusBadgeStyle(faculty.status)}`;
+            const tenuredLabel = faculty.form_type === 'E2' ? getTenuredLabel(faculty.is_tenured) : 'N/A';
+            const statusBadgeClass = `text-[10px] uppercase tracking-widest px-3 py-1 rounded-full font-bold shadow-sm ${getStatusBadgeStyle(faculty.status)}`;
             const editUrl = edit({ id: faculty.id }).url;
 
             return (
-                <tr key={faculty.id} className="border-b border-gray-300 hover:bg-gray-100 transition-colors">
+                <tr key={faculty.id} className="border-b border-gray-100 hover:bg-slate-50 transition-colors">
                     <td className="px-3 py-2 text-center text-black">{rowIndex}</td>
                     <td className="px-3 py-2 text-center text-black">{faculty.joined_year}</td>
-                    <td className="px-3 py-2 text-center font-semibold text-gray-900">{faculty.name}</td>
+                    <td className="px-3 py-2 text-left font-semibold text-gray-900">{faculty.name}</td>
                     <td className="px-3 py-2 text-center text-black">{genderLabel}</td>
                     <td className="px-3 py-2 text-center text-black font-medium">{groupLabel}</td>
                     <td className="px-3 py-2 text-center text-black font-medium">{rankLabel}</td>
                     <td className="px-3 py-2 text-center text-black">{tenuredLabel}</td>
                     <td className="px-3 py-2 text-center">
                         <span className={statusBadgeClass}>
-                            {faculty.status}
+                            {formatStatus(faculty.status)}
                         </span>
                     </td>
                     <td className="px-3 py-2 font-bold text-center">
                         <div className="flex items-center justify-center gap-2">
-                            <Link
-                                href={editUrl}
-                                className="flex items-center justify-center h-8 w-8 bg-amber-400 hover:bg-amber-500 text-amber-950 rounded-xl shadow-md border-b-2 border-amber-600 active:border-b-0 active:translate-y-px transition-all"
-                                title="Edit Profile"
-                            >
-                                <Pencil className="h-4 w-4" />
-                            </Link>
-                            <button
-                                onClick={() => onDelete(faculty.id)}
-                                className="flex items-center justify-center h-8 w-8 bg-red-500 hover:bg-red-600 text-white rounded-xl shadow-md border-b-2 border-red-700 active:border-b-0 active:translate-y-px transition-all"
-                                title="Delete"
-                            >
-                                <Trash2 className="h-4 w-4" />
-                            </button>
+                            <TooltipProvider>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <Link
+                                            href={editUrl}
+                                            className="flex items-center justify-center h-8 w-8 bg-amber-400 hover:bg-amber-500 text-amber-950 rounded-xl shadow-md border-b-2 border-amber-600 active:border-b-0 active:translate-y-px transition-all"
+                                        >
+                                            <Pencil className="h-4 w-4" />
+                                        </Link>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        <p>{isLocked ? "View Profile" : "Edit Profile"}</p>
+                                    </TooltipContent>
+                                </Tooltip>
+
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <button
+                                            onClick={() => !isLocked && onDelete(faculty.id)}
+                                            disabled={isLocked}
+                                            className={isLocked ? "flex items-center justify-center h-8 w-8 bg-slate-200 text-slate-400 rounded-xl shadow-none cursor-not-allowed" : "flex items-center justify-center h-8 w-8 bg-red-500 hover:bg-red-600 text-white rounded-xl shadow-md border-b-2 border-red-700 active:border-b-0 active:translate-y-px transition-all"}
+                                        >
+                                            <Trash2 className="h-4 w-4" />
+                                        </button>
+                                    </TooltipTrigger>
+                                    <TooltipContent className={isLocked ? "bg-slate-800" : "bg-red-600 border-red-700 text-white"}>
+                                        <p>{isLocked ? "Record Locked" : "Delete"}</p>
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
                         </div>
                     </td>
                 </tr>
@@ -194,40 +224,42 @@ const FacultyListTableE2: FC<FacultyListTableE2Props> = ({
     );
 
     const paginationControls = facultyList.length > 0 && (
-        <div className="flex items-center justify-between px-4 py-2 border-t border-gray-200 bg-white text-sm text-gray-600 rounded-none">
-            <span>
-                Showing {Math.min((currentPage - 1) * pageSize + 1, facultyList.length)}–{Math.min(currentPage * pageSize, facultyList.length)} of {facultyList.length} entries
+        <div className="flex items-center justify-between px-6 py-4 border-t border-slate-100 bg-white text-sm text-slate-600">
+            <span className="font-medium">
+                Showing <span className="text-blue-600 font-bold">{Math.min((currentPage - 1) * pageSize + 1, facultyList.length)}</span>–<span className="text-blue-600 font-bold">{Math.min(currentPage * pageSize, facultyList.length)}</span> of <span className="text-slate-900 font-bold">{facultyList.length}</span> entries
             </span>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-2">
                 <button
                     onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                     disabled={currentPage === 1}
-                    className="px-2 py-1.5 border border-gray-300 rounded-none text-sm disabled:opacity-40 hover:bg-gray-100 font-medium"
+                    className="h-10 px-4 border border-slate-200 rounded-xl text-sm disabled:opacity-30 hover:bg-slate-50 font-bold transition-all"
                 >
                     Previous
                 </button>
-                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                    const start = Math.max(1, Math.min(currentPage - 2, totalPages - 4));
-                    const page = start + i;
-                    if (page <= 0 || page > totalPages) return null;
+                <div className="flex items-center gap-1.5">
+                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                        const start = Math.max(1, Math.min(currentPage - 2, totalPages - 4));
+                        const page = start + i;
+                        if (page <= 0 || page > totalPages) return null;
 
-                    const isPageActive = currentPage === page;
-                    const pageButtonClass = `px-3 py-1.5 border rounded-none text-sm font-medium ${isPageActive ? 'bg-blue-500 text-white border-blue-500' : 'border-gray-300 hover:bg-gray-100'}`;
+                        const isPageActive = currentPage === page;
+                        const pageButtonClass = `h-10 w-10 border rounded-xl text-sm font-bold transition-all ${isPageActive ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-600/20 scale-105' : 'border-slate-200 hover:border-blue-400 hover:bg-blue-50 text-slate-600'}`;
 
-                    return (
-                        <button
-                            key={page}
-                            onClick={() => setCurrentPage(page)}
-                            className={pageButtonClass}
-                        >
-                            {page}
-                        </button>
-                    );
-                })}
+                        return (
+                            <button
+                                key={page}
+                                onClick={() => setCurrentPage(page)}
+                                className={pageButtonClass}
+                            >
+                                {page}
+                            </button>
+                        );
+                    })}
+                </div>
                 <button
                     onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                     disabled={currentPage === totalPages || totalPages === 0}
-                    className="px-2 py-1.5 border border-gray-300 rounded-none text-sm disabled:opacity-40 hover:bg-gray-100 font-medium"
+                    className="h-10 px-4 border border-slate-200 rounded-xl text-sm disabled:opacity-30 hover:bg-slate-50 font-bold transition-all"
                 >
                     Next
                 </button>
@@ -238,59 +270,65 @@ const FacultyListTableE2: FC<FacultyListTableE2Props> = ({
     // --- MAIN RENDER ---
 
     return (
-        <div className="flex flex-col bg-white shadow-none overflow-hidden">
-            {/* SPREADSHEET HEADER */}
-            <div className="bg-gray-50 text-black px-4 py-3 text-sm font-bold uppercase tracking-wide border-b border-gray-300">
-                FACULTY DATA RECORDS (E2)
-            </div>
+        <div className="flex flex-col bg-white overflow-hidden">
+            {/* SPREADSHEET HEADER & CONTROLS */}
+            <div className="bg-white flex items-center justify-between px-6 py-4 text-slate-900 border-b border-slate-100 shadow-sm">
+                <div className="flex items-center text-xs font-bold uppercase tracking-wider text-slate-900">
+                    <span>Show</span>
+                    <div className="w-24 mx-3">
+                        <Combobox
+                            options={PAGE_SIZE_OPTIONS.map(opt => ({ label: String(opt), value: opt }))}
+                            value={pageSize}
+                            onChange={(val) => handlePageSizeChange(Number(val))}
+                            placeholder=""
+                            className="h-10 border-slate-200 bg-slate-50 shadow-none focus-within:ring-2 focus-within:ring-blue-600/10 rounded-xl text-slate-900 px-3 font-bold"
+                        />
+                    </div>
+                    <span>entries</span>
 
-            {/* Pagination Size Select */}
-            <div className="flex items-center gap-1 px-4 py-2 border-b border-gray-200 bg-white">
-                <span className="text-sm text-gray-600">Show</span>
-                <select
-                    value={pageSize}
-                    onChange={(e) => handlePageSizeChange(Number(e.target.value))}
-                    className="border border-gray-300 rounded-none text-xs px-2 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-gray-400"
-                >
-                    {PAGE_SIZE_OPTIONS.map(opt => (
-                        <option key={opt} value={opt}>{opt}</option>
-                    ))}
-                </select>
-                <span className="text-xs text-gray-600">entries</span>
+                    {isLocked && (
+                        <div className="flex items-center gap-2 text-amber-700 font-bold italic text-[11px] tracking-widest bg-amber-50/50 px-4 py-1.5 rounded-xl border border-amber-200/60 ml-6 uppercase">
+                            This record has been submitted and is now locked. No further changes can be made.
+                        </div>
+                    )}
+                </div>
+                <div className="text-sm font-bold uppercase tracking-widest text-slate-900">
+                    FACULTY DATA RECORDS (E2)
+                </div>
             </div>
 
             <div className="overflow-x-auto">
-                <table className="w-full border-collapse text-sm whitespace-nowrap font-sans">
+                <table className="w-full border-collapse text-sm whitespace-nowrap">
                     <thead>
-                        <tr className="bg-blue-500 text-white border-b border-gray-300">
-                            <th className="px-3 py-2 font-bold text-center w-[0%]">#</th>
+                        <tr className="bg-linear-to-r from-[#003468] to-[#1a4f8c] text-white uppercase text-[11px] font-bold tracking-widest border-b border-blue-800">
+                            <th className="px-3 py-3 font-bold text-center w-[0%] border-r border-white/10">#</th>
                             <th className="px-3 py-2 font-bold text-center w-[10%]">
                                 <button className="flex items-center justify-center w-full gap-1 hover:text-gray-200" onClick={() => handleSort('joined_year')}>
                                     Academic Year <ArrowUpDown className="h-4 w-4" />
                                 </button>
                             </th>
-                            <th className="px-3 py-2 font-bold text-center w-[10%]">
-                                <button className="flex items-center justify-center w-full gap-1 hover:text-gray-200" onClick={() => handleSort('name')}>
+                            <th className="px-3 py-2 font-bold text-left w-[10%]">
+                                <button className="flex items-center justify-start w-full gap-1 text-white hover:text-white/80 transition-colors" onClick={() => handleSort('name')}>
                                     Faculty Name <ArrowUpDown className="h-4 w-4" />
                                 </button>
                             </th>
                             <th className="px-3 py-2 font-bold text-center w-[5%]">
-                                <button className="flex items-center justify-center w-full gap-1 hover:text-gray-200" onClick={() => handleSort('name')}>
+                                <button className="flex items-center justify-center w-full gap-1 text-white hover:text-white/80 transition-colors" onClick={() => handleSort('name')}>
                                     Gender <ArrowUpDown className="h-4 w-4" />
                                 </button>
                             </th>
                             <th className="px-3 py-2 font-bold text-center w-[5%]">
-                                <button className="flex items-center justify-center w-full gap-1 hover:text-gray-200" onClick={() => handleSort('group')}>
+                                <button className="flex items-center justify-center w-full gap-1 text-white hover:text-white/80 transition-colors" onClick={() => handleSort('group')}>
                                     Group <ArrowUpDown className="h-4 w-4" />
                                 </button>
                             </th>
                             <th className="px-3 py-2 font-bold text-center w-[10%]">
-                                <button className="flex items-center justify-center w-full gap-1 hover:text-gray-200" onClick={() => handleSort('rank')}>
+                                <button className="flex items-center justify-center w-full gap-1 text-white hover:text-white/80 transition-colors" onClick={() => handleSort('rank')}>
                                     GENERIC FACULTY RANK <ArrowUpDown className="h-4 w-4" />
                                 </button>
                             </th>
                             <th className="px-3 py-2 font-bold text-center w-[10%]">
-                                <button className="flex items-center justify-center w-full gap-1 hover:text-gray-200" onClick={() => handleSort('name')}>
+                                <button className="flex items-center justify-center w-full gap-1 text-white hover:text-white/80 transition-colors" onClick={() => handleSort('is_tenured')}>
                                     Tenured <ArrowUpDown className="h-4 w-4" />
                                 </button>
                             </th>

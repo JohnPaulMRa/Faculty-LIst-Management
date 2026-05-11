@@ -1,66 +1,34 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Plus, X } from "lucide-react";
-import { useState, useMemo } from "react";
+import { useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Combobox } from "@/components/ui/combobox";
+// Removed Combobox import as it is no longer used
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { normalizeProgramName } from "@/lib/utils";
 
 interface AddDisciplineFormProps {
     onCancel?: () => void;
-     
-    onSubmit: (data: any) => void;
-     
-    majors: any[];
+    onSubmit: (data: any, onSuccess?: () => void) => void;
     processing?: boolean;
 }
 
-export default function AddDisciplineForm({ onCancel, onSubmit, majors = [], processing = false }: AddDisciplineFormProps) {
+export default function AddDisciplineForm({ onCancel, onSubmit, processing = false }: AddDisciplineFormProps) {
     const [groupCode, setGroupCode] = useState("");
     const [groupDesc, setGroupDesc] = useState("");
     const [majorCode, setMajorCode] = useState("");
     const [majorDesc, setMajorDesc] = useState("");
     const [specificCode, setSpecificCode] = useState("");
     const [specificDesc, setSpecificDesc] = useState("");
+    const [programName, setProgramName] = useState("");
 
-    const groupOptions = useMemo(() =>
-        majors
-            .map((m: any) => ({ label: m.description, value: m.code })),
-        [majors]
-    );
-
-    const handleGroupSelect = (code: string) => {
-        const found = majors.find(m => m.code === code);
-        setGroupCode(code);
-        setGroupDesc(found?.description ?? "");
-        setMajorCode(code);    // pre-fill major prefix
-        setMajorDesc("");
-        setSpecificCode(code); // pre-fill specific prefix
-        setSpecificDesc("");
-    };
-
-    const majorOptions = useMemo(() => {
-        const group = majors.find(m => m.code === groupCode);
-        return (group?.groups ?? [])
-            .map((g: any) => ({
-                label: g.description,
-                value: g.code,
-            }));
-    }, [majors, groupCode]);
-
-    const handleMajorSelect = (code: string) => {
-        const group = majors.find(m => m.code === groupCode);
-        const found = (group?.groups ?? []).find((g: any) => g.code === code);
-        setMajorCode(code);
-        setMajorDesc(found?.description ?? "");
-        setSpecificCode(code); // pre-fill specific code prefix
-        setSpecificDesc("");
-    };
+    // Selection handlers removed as Comboboxes were replaced with Inputs
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         console.log("Submit button clicked!");
-        if (!groupCode) { alert("Please select or enter a Discipline Group."); return; }
+        if (!groupCode) { toast.warning("Please select or enter a Discipline Group."); return; }
 
         const hasMajor = !!(majorCode && majorDesc);
         const hasSpecific = !!(specificCode && specificDesc);
@@ -68,26 +36,35 @@ export default function AddDisciplineForm({ onCancel, onSubmit, majors = [], pro
         console.log("Validation check:", { hasMajor, hasSpecific, majorCode, majorDesc, specificCode, specificDesc });
 
         if (!hasMajor && !hasSpecific) {
-            alert("Please provide at least a Major Discipline (name and code) or a Specific Discipline (name and code).");
+            toast.warning("Please provide at least a Major Discipline (name and code) or a Specific Discipline (name and code).");
             return;
         }
 
-        if (majorDesc && (!majorCode || majorCode.length < 4)) {
-            alert("Major Discipline code must be at least 4 digits.");
+        if (majorDesc && !majorCode) {
+            toast.warning("Major Discipline code is required.");
             return;
         }
 
-        if (specificDesc && (!specificCode || specificCode.length < 6)) {
-            alert("Specific Discipline code must be at least 6 digits.");
+        if (specificDesc && !specificCode) {
+            toast.warning("Specific Discipline code is required.");
             return;
         }
 
         const finalCode = hasSpecific ? specificCode : majorCode;
+        const normalizedProgram = normalizeProgramName(programName);
+
         onSubmit({
             code: finalCode,
             groupName: groupDesc,
             majorName: majorDesc,
             specificDiscipline: specificDesc || null,
+            program: normalizedProgram || null,
+        }, () => {
+            // On success: preserve group + major selection, clear only the specific code/name
+            // so the admin can quickly add another specific under the same group/major
+            setSpecificCode("");
+            setSpecificDesc("");
+            setProgramName("");
         });
     };
 
@@ -95,11 +72,12 @@ export default function AddDisciplineForm({ onCancel, onSubmit, majors = [], pro
         setGroupCode(""); setGroupDesc("");
         setMajorCode(""); setMajorDesc("");
         setSpecificCode(""); setSpecificDesc("");
+        setProgramName("");
     };
 
     return (
-        <div className="bg-white border border-gray-100 p-6 mb-8 animate-in fade-in slide-in-from-top-4 duration-500">
-            <div className="flex justify-between items-center mb-6">
+        <div className="bg-white border border-gray-100 p-8 mb-8 rounded-2xl shadow-sm animate-in fade-in slide-in-from-top-4 duration-500">
+            <div className="flex justify-between items-center mb-8 pb-4 border-b border-gray-100">
                 <div>
                     <h2 className="text-xl font-bold text-gray-900"> New Discipline</h2>
                     <p className="text-sm text-gray-500 mt-1">
@@ -113,90 +91,80 @@ export default function AddDisciplineForm({ onCancel, onSubmit, majors = [], pro
                 )}
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid grid-cols-[70px_1fr_1fr_1fr] gap-4 items-end">
+            <form onSubmit={handleSubmit} className="space-y-8">
+                <div className="grid grid-cols-[140px_1fr_1fr_1fr_1fr] gap-6 items-end">
                     {/* Code */}
-                    <div className="space-y-1.5">
-                        <Label className="text-[10px] uppercase tracking-wider font-semibold text-gray-500 ml-0.5">
+                    <div className="space-y-2">
+                        <Label className="text-base font-semibold text-gray-600 uppercase tracking-wider ml-1">
                             Code <span className="text-red-500">*</span>
                         </Label>
                         <Input
                             value={specificCode}
                             onChange={(e) => {
-                                const val = e.target.value.replace(/\D/g, "").slice(0, 10);
+                                const val = e.target.value.replace(/[^A-Za-z0-9]/g, "").slice(0, 10).toUpperCase();
                                 setSpecificCode(val);
 
-                                // Sync parent codes
-                                const gCode = val.length >= 2 ? val.slice(0, 2) : val;
-                                const mCode = val.length >= 6 ? val.slice(0, 6) : (val.length >= 4 ? val.slice(0, 4) : val);
+                                // Sync parent codes (Hierarchy: 2-4-6 digits) but removed description auto-filling
+                                const gCode = val.length >= 2 ? val.slice(0, 2) : "";
+                                const mCode = val.length >= 4 ? val.slice(0, 4) : "";
 
-                                setGroupCode(gCode);
-                                setMajorCode(mCode);
-
-                                // Try to find matching descriptions to auto-fill the comboboxes
-                                const foundGroup = majors.find(m => m.code === gCode);
-                                if (foundGroup) {
-                                    setGroupDesc(foundGroup.description);
-                                    const foundMajor = (foundGroup.groups ?? []).find((g: any) => g.code === mCode);
-                                    if (foundMajor) {
-                                        setMajorDesc(foundMajor.description);
-                                    }
-                                }
+                                if (gCode) setGroupCode(gCode);
+                                if (mCode) setMajorCode(mCode);
                             }}
-                            className="h-10 rounded-none font-mono text-xs text-center border-gray-500 focus-visible:ring-1 focus-visible:ring-gray-400"
-                            placeholder=""
+                            className="h-12 bg-slate-50 text-center font-bold text-base focus-visible:ring-2 focus-visible:ring-blue-600/10 focus-visible:border-blue-500 border-slate-200 hover:border-blue-400 rounded-xl transition-all shadow-sm text-blue-600"
+                            placeholder=" "
                             maxLength={10}
                         />
                     </div>
 
-                    {/* Discipline Group */}
-                    <div className="space-y-1.5">
-                        <Label className="text-[10px] uppercase tracking-wider font-semibold text-gray-500 ml-0.5">
+                    <div className="space-y-2">
+                        <Label className="text-base font-bold text-gray-600 uppercase tracking-wider ml-1">
                             Discipline Group <span className="text-red-500">*</span>
                         </Label>
-                        <Combobox
-                            options={groupOptions}
-                            value={groupCode}
-                            onChange={handleGroupSelect}
-                            onInputChange={(typed) => {
-                                setGroupDesc(typed);
-                            }}
-                            allowFreeInput
-                            placeholder=""
-                            containerClassName="w-full h-10"
-                            className="h-full rounded-none border border-gray-500 text-sm"
+                        <Input
+                            value={groupDesc}
+                            onChange={(e) => setGroupDesc(e.target.value)}
+                            className="h-12 border-slate-200 hover:border-blue-400 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-600/10 rounded-xl shadow-sm text-base font-medium transition-all"
+                            placeholder="Enter Discipline Group"
                         />
                     </div>
 
                     {/* Major Discipline */}
-                    <div className="space-y-1.5">
-                        <Label className="text-[10px] uppercase tracking-wider font-semibold text-gray-500 ml-0.5">
+                    <div className="space-y-2">
+                        <Label className="text-base font-bold text-gray-600 uppercase tracking-wider ml-1">
                             Major Discipline <span className="text-red-500">*</span>
                         </Label>
-                        <Combobox
-                            options={majorOptions}
-                            value={majorCode}
-                            onChange={handleMajorSelect}
-                            onInputChange={(typed) => {
-                                setMajorDesc(typed);
-                            }}
-                            allowFreeInput
-                            placeholder=""
-                            containerClassName="w-full h-10"
-                            className="h-full rounded-none border border-gray-500 text-sm"
+                        <Input
+                            value={majorDesc}
+                            onChange={(e) => setMajorDesc(e.target.value)}
+                            className="h-12 border-slate-200 hover:border-blue-400 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-600/10 rounded-xl shadow-sm text-base font-medium transition-all"
+                            placeholder="Enter Major Discipline"
                         />
                     </div>
 
                     {/* Specific Discipline */}
-                    <div className="space-y-1.5">
-                        <Label className="text-[10px] uppercase tracking-wider font-semibold text-gray-500 ml-0.5">
+                    <div className="space-y-2">
+                        <Label className="text-base font-bold text-gray-600 uppercase tracking-wider ml-1">
                             Specific Discipline <span className="text-red-500">*</span>
                         </Label>
                         <Input
                             value={specificDesc}
                             onChange={(e) => setSpecificDesc(e.target.value)}
-                            className="h-10 rounded-none text-sm border-gray-500 focus-visible:ring-1 focus-visible:ring-gray-400"
-                            placeholder=""
+                            className="h-12 border-slate-200 hover:border-blue-400 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-600/10 rounded-xl shadow-sm text-base font-medium transition-all"
+                            placeholder="Enter Specific Discipline"
+                        />
+                    </div>
+
+                    {/* Program */}
+                    <div className="space-y-2">
+                        <Label className="text-base font-bold text-gray-600 uppercase tracking-wider ml-1">
+                            Program <span className="text-red-500">*</span>
+                        </Label>
+                        <Input
+                            value={programName}
+                            onChange={(e) => setProgramName(e.target.value)}
+                            className="h-12 border-slate-200 hover:border-blue-400 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-600/10 rounded-xl shadow-sm text-base font-medium transition-all"
+                            placeholder="e.g. BS in Information Technology"
                         />
                     </div>
                 </div>

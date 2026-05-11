@@ -14,6 +14,7 @@ class FacultyController extends Controller
             'highestDegree' => DB::table('e5_ref_highest_degree')->select('code', 'description as desc')->get(),
             'professionalLicense' => DB::table('e5_ref_professional_license')->select('code', 'description as desc')->get(),
             'tenure' => DB::table('e5_ref_tenure')->select('code', 'description as desc')->get(),
+            'tenureE2' => DB::table('e2_ref_tenure')->select('code', 'description as desc')->get(),
             'facultyRank' => DB::table('e5_ref_faculty_rank')->select('code', 'description as desc')->get(),
             'teachingLoad' => DB::table('e5_ref_teaching_load')->select('code', 'description as desc')->get(),
             'annualSalary' => DB::table('e5_ref_annual_salary')->select('code', 'description as desc')->get(),
@@ -22,37 +23,71 @@ class FacultyController extends Controller
                 ->orderBy('code')
                 ->get(),
             'disciplines' => DB::table('specific_discipline')
-                ->select(DB::raw('SUBSTRING(code, 1, 2) as major_group_code'), 'code', 'description as desc')
-                ->orderBy('code')
-                ->get()
+                ->leftJoin('dis_programs', 'specific_discipline.code', '=', 'dis_programs.specific_discipline_code')
+                ->select([
+                    DB::raw('SUBSTRING(specific_discipline.code, 1, 2) as major_group_code'),
+                    'specific_discipline.code',
+                    DB::raw('COALESCE(dis_programs.program_name, specific_discipline.description) as `desc`')
+                ])
+                ->orderBy('specific_discipline.code')
+                ->get(),
+            // All disciplines under Education Science and Teacher Training (group_code = 14)
+            'educationDisciplines' => DB::table('specific_discipline')
+                ->leftJoin('dis_programs', 'specific_discipline.code', '=', 'dis_programs.specific_discipline_code')
+                ->select([
+                    'specific_discipline.code',
+                    DB::raw('COALESCE(dis_programs.program_name, specific_discipline.description) as `desc`')
+                ])
+                ->where(function ($q) {
+                    $q->where('specific_discipline.group_code', '14')
+                        ->orWhere('specific_discipline.code', 'like', '14%');
+                })
+                ->orderBy('desc')
+                ->get(),
         ];
     }
 
     public function index(Request $request)
     {
         $user = \Illuminate\Support\Facades\Auth::user();
-        if (!$user || !$user->hei_id) {
-            // Ideally redirect or show empty state if no school
-            $heiId = null;
-        } else {
-            $heiId = $user->hei_id;
-        }
+        $heiId = ($user && $user->hei_id) ? $user->hei_id : null;
 
-        // Auto-seed logic removed
+        $search = $request->input('search');
+        $year = $request->filled('year') ? trim($request->input('year')) : null;
 
+        // Fetch paginated or filtered collection of faculty
+        $facultyE2 = $this->getFacultyE2Data($heiId, $search, $year);
+        $facultyE5 = $this->getFacultyE5Data($heiId, $search, $year);
+
+        $facultyData = $facultyE2->concat($facultyE5);
+
+        // Metadata and Reference Data
+        $availableYears = $this->getAvailableYears($heiId);
+        $referenceData = $this->getReferenceData();
+
+        $hei = $heiId ? \App\Models\Hei::find($heiId) : null;
+
+        return \Inertia\Inertia::render('Faculty/facultyprofile', [
+            'initialFacultyData' => $facultyData,
+            'filters' => $request->only(['search', 'year']),
+            'referenceData' => $referenceData,
+            'availableYears' => $availableYears,
+            'schoolName' => $hei ? ($hei->name ?? 'HEI Name') : 'HEI Name',
+            'schoolType' => $hei ? ($hei->type ?? 'private') : 'private',
+        ]);
+    }
+
+    private function getFacultyE2Data($heiId, $search, $year)
+    {
         $query = \App\Models\Faculty::query();
-        if ($heiId) {
-            $query->where('hei_id', $heiId);
+
+        if (!$heiId) {
+            $query->whereRaw('1 = 0');
         } else {
-            // If no school, maybe show nothing? or all if super admin?
-            // For safety, let's show nothing if not admin.
-            // But for now, let's assume they must be scoped.
-            $query->whereRaw('1 = 0'); // Show nothing
+            $query->where('hei_id', $heiId);
         }
 
-        // Search Filter
-        if ($request->filled('search')) {
-            $search = $request->input('search');
+        if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
                     ->orWhere('department', 'like', "%{$search}%")
@@ -60,79 +95,68 @@ class FacultyController extends Controller
             });
         }
 
-        // Year Filter - only apply if a specific year is provided (not empty / "All Years")
-        if ($request->filled('year')) {
-            $year = trim($request->input('year'));
-            $query->where('joined_year', '=', $year);
+        if ($year) {
+            $query->where('joined_year', $year);
         }
 
-        // Fetch Reference Data from Database
-        $referenceData = $this->getReferenceData();
-
-        $facultyE2 = $query->get()->map(function ($item) {
+        return $query->get()->map(function (\App\Models\Faculty $item) {
             $data = $item->toArray();
             $data['status'] = $item->status ?? 'Not Updated';
-            // Map E2 fields to be consistent with E5 frontend keys if needed
-            // For E2, degree and rank are already named 'degree' and 'rank'
             return (object) $data;
         });
+    }
 
-        // Fetch E5 Data and map to match E2 structure for frontend consistency
-        $queryE5 = \App\Models\FacultyE5::query();
-        if ($heiId) {
-            $queryE5->where('hei_id', $heiId);
+    private function getFacultyE5Data($heiId, $search, $year)
+    {
+        $query = \App\Models\FacultyE5::query();
+
+        if (!$heiId) {
+            $query->whereRaw('1 = 0');
         } else {
-            $queryE5->whereRaw('1 = 0');
+            $query->where('hei_id', $heiId);
         }
 
-        if ($request->filled('search')) {
-            $search = $request->input('search');
-            $queryE5->where(function ($q) use ($search) {
+        if ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%");
             });
         }
-        if ($request->filled('year')) {
-            $year = trim($request->input('year'));
-            $queryE5->where('joined_year', '=', $year);
+
+        if ($year) {
+            $query->where('joined_year', $year);
         }
 
-
-        $facultyE5 = $queryE5->get()->map(function ($item) {
-            // Convert to array to avoid Model serialization casting ID attribute back to int
+        return $query->get()->map(function (\App\Models\FacultyE5 $item) {
             $data = $item->toArray();
             $data['original_id'] = $item->id;
-            $data['id'] = 'e5_' . $item->id; // e.g. "e5_1"
-
-            // Map fields manually since we are using array
+            $data['id'] = 'e5_' . $item->id;
             $data['fullTimeCode'] = $item->ft_pt_code;
             $data['genderCode'] = $item->gender_code;
             $data['disciplineCode'] = $item->discipline_code;
             $data['status'] = $item->status ?? 'Not Updated';
-
             return (object) $data;
         });
-
-        $facultyData = $facultyE2->concat($facultyE5);
-
-        // Get dynamic years from DB (union both tables)
-        if ($heiId) {
-            $yearsE2 = \App\Models\Faculty::select('joined_year')->where('hei_id', $heiId)->whereNotNull('joined_year')->distinct()->pluck('joined_year');
-            $yearsE5 = \App\Models\FacultyE5::select('joined_year')->where('hei_id', $heiId)->whereNotNull('joined_year')->distinct()->pluck('joined_year');
-        } else {
-            $yearsE2 = collect([]);
-            $yearsE5 = collect([]);
-        }
-        $availableYears = $yearsE2->concat($yearsE5)->unique()->sortDesc()->values();
-
-        return \Inertia\Inertia::render('Faculty/facultyprofile', [
-            'initialFacultyData' => $facultyData,
-            'filters' => $request->only(['search', 'year']),
-            'referenceData' => $referenceData,
-            'availableYears' => $availableYears,
-            'schoolName' => $heiId ? (\App\Models\Hei::find($heiId)->name ?? 'HEI Name') : 'HEI Name',
-            'schoolType' => $heiId ? (\App\Models\Hei::find($heiId)->type ?? 'private') : 'private',
-        ]);
     }
+
+
+    private function getAvailableYears($heiId)
+    {
+        if (!$heiId)
+            return [];
+
+        $yearsE2 = \App\Models\Faculty::where('hei_id', $heiId)
+            ->whereNotNull('joined_year')
+            ->distinct()
+            ->pluck('joined_year');
+
+        $yearsE5 = \App\Models\FacultyE5::where('hei_id', $heiId)
+            ->whereNotNull('joined_year')
+            ->distinct()
+            ->pluck('joined_year');
+
+        return $yearsE2->concat($yearsE5)->unique()->sortDesc()->values()->toArray();
+    }
+
 
     public function edit($id)
     {
@@ -160,6 +184,7 @@ class FacultyController extends Controller
                 $data['tenureCode'] = $faculty->tenure_code;
                 $data['salaryCode'] = $faculty->salary_range_code;
                 $data['loadCode'] = $faculty->teaching_load_code;
+                $data['subjects'] = $faculty->subjects;
                 $data['id'] = $id; // "e5_..."
 
                 $faculty = (object) $data;
@@ -189,9 +214,17 @@ class FacultyController extends Controller
 
         $component = $isE5 ? 'EditFaculty/EditPrivateFaculty' : 'EditFaculty/EditPublicFaculty';
 
+        // Check if the record's academic year is already submitted
+        $heiId = \Illuminate\Support\Facades\Auth::user()->hei_id;
+        $isSubmitted = \App\Models\HeiSubmission::where('hei_id', $heiId)
+            ->where('academic_year', $faculty->joined_year)
+            ->where('status', 'Submitted')
+            ->exists();
+
         return \Inertia\Inertia::render($component, [
             'faculty' => $faculty,
             'referenceData' => $referenceData,
+            'isSubmitted' => $isSubmitted,
         ]);
     }
 
@@ -305,39 +338,108 @@ class FacultyController extends Controller
             $isE5 = str_starts_with($id, 'e5_');
             $realId = $isE5 ? substr($id, 3) : $id;
 
+            \Illuminate\Support\Facades\Log::info("Faculty Update Request - ID: {$id}, RealID: {$realId}, isE5: " . ($isE5 ? 'Yes' : 'No'), $request->all());
+
             if ($isE5) {
                 $faculty = \App\Models\FacultyE5::findOrFail($realId);
 
-                // Map frontend fields (camelCase) to DB columns (snake_case)
-                $input = $request->all();
-                $data = [
-                    'name' => $input['name'] ?? $faculty->name,
-                    'email' => $input['email'] ?? $faculty->email,
-                    'joined_year' => $input['joined_year'] ?? $faculty->joined_year,
-                    'status' => $input['status'] ?? $faculty->status,
-                    'employment' => $input['employment'] ?? $faculty->employment,
-                    'ft_pt_code' => $input['fullTimeCode'] ?? $faculty->ft_pt_code,
-                    'gender_code' => $input['genderCode'] ?? $faculty->gender_code,
-                    'discipline_code' => $input['disciplineCode'] ?? $faculty->discipline_code,
-                    'highest_degree_code' => $input['degree'] ?? $faculty->highest_degree_code,
-                    'rank_code' => $input['rankCode'] ?? $faculty->rank_code,
-                    'bachelors_code' => $input['bachelorsCode'] ?? $faculty->bachelors_code,
-                    'masters_code' => $input['mastersCode'] ?? $faculty->masters_code,
-                    'doctorate_code' => $input['doctorateCode'] ?? $faculty->doctorate_code,
-                    'license_code' => $input['licenseCode'] ?? $faculty->license_code,
-                    'tenure_code' => $input['tenureCode'] ?? $faculty->tenure_code,
-                    'salary_range_code' => $input['salaryCode'] ?? $faculty->salary_range_code,
-                    'teaching_load_code' => $input['loadCode'] ?? $faculty->teaching_load_code,
-                    'subjects' => $input['subjects'] ?? $faculty->subjects,
-                ];
+                // Map incoming camelCase fields to snake_case only if they exist in the request
+                $updateData = [];
+                if ($request->has('name'))
+                    $updateData['name'] = $request->name;
+                if ($request->has('email'))
+                    $updateData['email'] = $request->email;
+                if ($request->has('status'))
+                    $updateData['status'] = $request->status;
+                if ($request->has('joined_year'))
+                    $updateData['joined_year'] = $request->joined_year;
+                if ($request->has('employment'))
+                    $updateData['employment'] = $request->employment;
+                if ($request->has('fullTimeCode'))
+                    $updateData['ft_pt_code'] = $request->fullTimeCode;
+                if ($request->has('genderCode'))
+                    $updateData['gender_code'] = $request->genderCode;
+                if ($request->has('disciplineCode'))
+                    $updateData['discipline_code'] = $request->disciplineCode;
+                if ($request->has('degree'))
+                    $updateData['highest_degree_code'] = $request->degree;
+                if ($request->has('rankCode'))
+                    $updateData['rank_code'] = $request->rankCode;
+                if ($request->has('tenureCode'))
+                    $updateData['tenure_code'] = $request->tenureCode;
+                if ($request->has('salaryCode'))
+                    $updateData['salary_range_code'] = $request->salaryCode;
+                if ($request->has('loadCode'))
+                    $updateData['teaching_load_code'] = $request->loadCode;
+                if ($request->has('licenseCode'))
+                    $updateData['license_code'] = $request->licenseCode;
+                if ($request->has('bachelorsCode'))
+                    $updateData['bachelors_code'] = $request->bachelorsCode;
+                if ($request->has('mastersCode'))
+                    $updateData['masters_code'] = $request->mastersCode;
+                if ($request->has('doctorateCode'))
+                    $updateData['doctorate_code'] = $request->doctorateCode;
+                if ($request->has('subjects'))
+                    $updateData['subjects'] = $request->subjects;
 
-                $faculty->update($data);
+                $faculty->fill($updateData);
+                $faculty->save();
             } else {
                 $faculty = \App\Models\Faculty::findOrFail($realId);
-                $faculty->update($request->all());
+                // For E2, we can mostly update directly from request keys that match column names
+                $faculty->fill($request->only([
+                    'name',
+                    'email',
+                    'status',
+                    'department',
+                    'college',
+                    'rank',
+                    'degree',
+                    'employment',
+                    'gender',
+                    'is_tenured',
+                    'joined_year',
+                    'salary_grade',
+                    'annual_salary',
+                    'on_leave',
+                    'fte',
+                    'pursuing_degree',
+                    'discipline_load_1',
+                    'discipline_load_2',
+                    'discipline_bachelors',
+                    'discipline_masters',
+                    'discipline_doctorate',
+                    'masters_thesis',
+                    'doctorate_dissertation',
+                    'ug_lab_units',
+                    'ug_lec_units',
+                    'ug_total_units',
+                    'ug_lab_hours',
+                    'ug_lec_hours',
+                    'ug_total_hours',
+                    'ug_lab_contact',
+                    'ug_lec_contact',
+                    'ug_total_contact',
+                    'grad_lab_units',
+                    'grad_lec_units',
+                    'grad_total_units',
+                    'grad_lab_contact',
+                    'grad_lec_contact',
+                    'grad_total_contact',
+                    'load_research',
+                    'load_extension',
+                    'load_study',
+                    'load_production',
+                    'load_admin',
+                    'load_others',
+                    'load_total'
+                ]));
+                $faculty->save();
             }
 
-            return redirect()->back()->with('success', 'Faculty updated successfully.');
+
+            \Illuminate\Support\Facades\Log::info("Faculty Update Successful - ID: {$id}");
+            return redirect()->back()->with('success', 'Status updated successfully.');
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Faculty Update Error: ' . $e->getMessage());
             return redirect()->back()->withErrors(['system' => 'Update failed: ' . $e->getMessage()]);
@@ -368,48 +470,58 @@ class FacultyController extends Controller
             'year' => 'required|string',
         ]);
 
-        \Illuminate\Support\Facades\Log::info("FacultyController@submit called with year: " . $request->input('year'));
+        $year = trim($request->input('year'));
+        \Illuminate\Support\Facades\Log::info("FacultyController@submit called for year: {$year}");
 
-        $year = $request->input('year');
-
-        // Logic to updated statuses for the given year
-        // Update both E2 and E5 tables, scoped to the user's school
         $user = \Illuminate\Support\Facades\Auth::user();
         if (!$user || !$user->hei_id) {
             return redirect()->back()->with('error', 'You must be associated with an HEI to submit.');
         }
 
-        $updatedCountE2 = \App\Models\Faculty::where('joined_year', $year)
+        // 1. Update all 'Not Updated' or 'Updated' records to 'Submitted' for the given year
+        \App\Models\Faculty::where('joined_year', $year)
             ->where('hei_id', $user->hei_id)
+            ->where('status', '!=', 'Submitted') // Only update if not already submitted
             ->update(['status' => 'Submitted']);
 
-        $updatedCountE5 = \App\Models\FacultyE5::where('joined_year', $year)
+        \App\Models\FacultyE5::where('joined_year', $year)
             ->where('hei_id', $user->hei_id)
+            ->where('status', '!=', 'Submitted')
             ->update(['status' => 'Submitted']);
 
-        $totalUpdated = $updatedCountE2 + $updatedCountE5;
+        // 2. Count ALL submitted records for this year to store in the submission record
+        $totalE2 = \App\Models\Faculty::where('joined_year', $year)
+            ->where('hei_id', $user->hei_id)
+            ->where('status', 'Submitted')
+            ->count();
 
-        if ($totalUpdated > 0) {
-            // Create Submission Record
-            // Correctly use the user's school name
+        $totalE5 = \App\Models\FacultyE5::where('joined_year', $year)
+            ->where('hei_id', $user->hei_id)
+            ->where('status', 'Submitted')
+            ->count();
+
+        $totalSubmitted = $totalE2 + $totalE5;
+
+        if ($totalSubmitted > 0) {
             $heiName = $user->hei ? $user->hei->name : (\App\Models\Hei::find($user->hei_id)->name ?? 'Unknown HEI');
-            $submittedBy = $user ? $user->name : 'Unknown User';
-            $facultyCount = $totalUpdated;
+            $submittedBy = $user->name ?? 'Unknown User';
 
+            // Create or update submission record
             \App\Models\HeiSubmission::create([
-                'hei_id' => $user->hei_id, // Ensure SchoolSubmission has hei_id if possible, or join it
+                'hei_id' => $user->hei_id,
                 'hei_name' => $heiName,
                 'academic_year' => $year,
                 'submitted_by' => $submittedBy,
-                'total_faculty' => $facultyCount,
+                'total_faculty' => $totalSubmitted,
                 'status' => 'Submitted',
             ]);
 
-            return redirect()->back()->with('success', "Successfully submitted {$totalUpdated} faculty records for {$year}.");
+            return redirect()->back()->with('success', "Successfully submitted {$totalSubmitted} faculty records for {$year}.");
         }
 
-        return redirect()->back()->with('error', "No records found to submit for {$year}.");
+        return redirect()->back()->with('error', "No records found to submit for {$year}. Please ensure faculty records are added for this year.");
     }
+
 
     public function copyData(Request $request)
     {

@@ -33,26 +33,31 @@ const FacultyDownloadModal: FC<FacultyDownloadModalProps> = ({ isOpen, onOpenCha
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
             <DialogContent
-                className="sm:max-w-4xl bg-white text-black p-0 overflow-hidden rounded-none"
-                onInteractOutside={(e) => {
-                    e.preventDefault();
-                }}
+                className="sm:max-w-xl p-0 overflow-hidden border-none shadow-2xl rounded-2xl bg-white"
+                onInteractOutside={(e) => e.preventDefault()}
             >
-                <DialogHeader className="px-6 pt-6 pb-2">
-                    <DialogTitle className="text-2xl font-bold text-[#003468]">Download Template</DialogTitle>
-                    <DialogDescription className="text-gray-500 text-base">
-                        Select which form template you would like to download.
-                    </DialogDescription>
-                </DialogHeader>
-                <div className="flex flex-col gap-4 p-6 pt-2">
+                <div className="bg-linear-to-r from-[#003468] to-[#1a4f8c] px-8 py-6 text-white">
+                    <DialogHeader>
+                        <DialogTitle className="text-2xl font-bold tracking-tight">Download Template</DialogTitle>
+                        <DialogDescription className="text-blue-50/90 text-sm mt-1">
+                            Click the button below to download the form template.
+                        </DialogDescription>
+                    </DialogHeader>
+                </div>
+                <div className="grid gap-6 p-8">
                     {(schoolType?.toLowerCase().trim() === 'public' || !schoolType) && (
                         <Button
                             onClick={() => handleDownloadTemplate('E2')}
                             variant="outline"
-                            className="flex flex-col items-center justify-center h-32 gap-3 border-dashed border-2 border-gray-300 text-[#003468] hover:border-[#003468] hover:bg-gray-100 transition-all rounded-md shadow-sm"
+                            className="flex flex-col items-center justify-center h-40 gap-4 border-dashed border-2 border-slate-200 text-[#003468] hover:border-[#003468] hover:bg-blue-50/30 transition-all duration-300 rounded-2xl group shadow-sm"
                         >
-                            <FileSpreadsheet className="h-12 w-12 text-[#003468]" />
-                            <span className="text-lg font-bold text-[#003468]">Public: FORM E2</span>
+                            <div className="h-16 w-16 rounded-2xl bg-blue-50 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <FileSpreadsheet className="h-8 w-8 text-[#003468]" />
+                            </div>
+                            <div className="text-center">
+                                <span className="block text-lg font-bold text-[#003468]">Public: FORM E2</span>
+                                <span className="text-xs text-slate-500 font-medium">Standard format for Public HEIs</span>
+                            </div>
                         </Button>
                     )}
 
@@ -60,10 +65,15 @@ const FacultyDownloadModal: FC<FacultyDownloadModalProps> = ({ isOpen, onOpenCha
                         <Button
                             onClick={() => handleDownloadTemplate('E5')}
                             variant="outline"
-                            className="flex flex-col items-center justify-center h-32 gap-3 border-dashed border-2 border-gray-300 text-[#003468] hover:border-[#003468] hover:bg-gray-100 transition-all rounded-md shadow-sm"
+                            className="flex flex-col items-center justify-center h-40 gap-4 border-dashed border-2 border-slate-200 text-[#003468] hover:border-[#003468] hover:bg-blue-50/30 transition-all duration-300 rounded-2xl group shadow-sm"
                         >
-                            <FileSpreadsheet className="h-12 w-12 text-[#003468]" />
-                            <span className="text-lg font-bold text-[#003468]">Private: FORM E5</span>
+                            <div className="h-16 w-16 rounded-2xl bg-blue-50 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <FileSpreadsheet className="h-8 w-8 text-[#003468]" />
+                            </div>
+                            <div className="text-center">
+                                <span className="block text-lg font-bold text-[#003468]">Private: FORM E5</span>
+                                <span className="text-xs text-slate-500 font-medium">Standard format for Private HEIs</span>
+                            </div>
                         </Button>
                     )}
                 </div>

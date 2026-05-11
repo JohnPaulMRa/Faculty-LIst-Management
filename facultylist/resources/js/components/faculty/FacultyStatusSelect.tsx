@@ -1,11 +1,5 @@
 import type { FC } from 'react';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
+import { Combobox } from "@/components/ui/combobox";
 
 type Props = {
     value?: string;
@@ -16,7 +10,7 @@ type Props = {
 };
 
 const STATUS_OPTIONS = [
-    "Not Updated",
+    "No update",
     "Submitted"
 ];
 
@@ -28,18 +22,17 @@ const FacultyStatusSelect: FC<Props> = ({
     className
 }) => {
     return (
-        <Select value={value} onValueChange={onValueChange} disabled={disabled}>
-            <SelectTrigger className={className}>
-                <SelectValue placeholder={placeholder} />
-            </SelectTrigger>
-            <SelectContent>
-                {STATUS_OPTIONS.map((status) => (
-                    <SelectItem key={status} value={status}>
-                        {status}
-                    </SelectItem>
-                ))}
-            </SelectContent>
-        </Select>
+        <Combobox
+            value={value}
+            onChange={onValueChange}
+            disabled={disabled}
+            placeholder={placeholder}
+            options={STATUS_OPTIONS.map((status) => ({
+                label: status,
+                value: status
+            }))}
+            className={className}
+        />
     );
 };
 

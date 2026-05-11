@@ -1,13 +1,13 @@
 import { router } from '@inertiajs/react';
-import { edit } from '@/routes/faculty';
+import type { AlertDialogType } from '@/components/faculty/hooks';
 import { useFacultyImport } from '@/components/faculty/useFacultyImport';
+import { edit } from '@/routes/faculty';
 import type { Faculty } from '@/types/faculty';
-import { AlertType } from '@/components/faculty/hooks';
 
 export interface UseFacultyActionsProps {
-    // From useAlertModal
-    showAlert: (message: string, type?: Exclude<AlertType, 'confirm'>, title?: string) => void;
-    showConfirm: (message: string, onConfirm: () => void, title?: string) => void;
+    // From useAlertDialog
+    showAlert: (message: string, type?: Exclude<AlertDialogType, 'confirm'>, title?: string) => void;
+    showConfirm: (message: string, onConfirm: () => void, title?: string, type?: AlertDialogType) => void;
     
     // From useFacultyModals
     setIsSubmitModalOpen: (open: boolean) => void;
@@ -16,7 +16,6 @@ export interface UseFacultyActionsProps {
     setSelectedFile: (file: Faculty | null) => void;
     setImportGroup: (group: string) => void;
     submitYear: string;
-    setSubmitYear: (year: string) => void;
     importType: 'E2' | 'E5';
     importGroup: string;
     importYear: string;
@@ -27,6 +26,7 @@ export interface UseFacultyActionsProps {
 }
 
 // Basic declaration for Ziggy's route helper if not imported
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 declare function route(name?: string, params?: any, absolute?: boolean): string;
 
 export const useFacultyActions = ({
@@ -38,7 +38,6 @@ export const useFacultyActions = ({
     setSelectedFile,
     setImportGroup,
     submitYear,
-    setSubmitYear,
     importType,
     importGroup,
     importYear,
@@ -65,6 +64,7 @@ export const useFacultyActions = ({
                     {
                         preserveState: true,
                         preserveScroll: true,
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         onSuccess: (page: any) => {
                             if (page.props.flash?.error) {
                                 showAlert(page.props.flash.error, 'error');
@@ -85,6 +85,7 @@ export const useFacultyActions = ({
             'Delete this record? This action cannot be undone.',
             () => {
                 router.delete(`/faculty/${id}`, {
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     onSuccess: (page: any) => {
                         if (page.props.flash?.error) {
                             showAlert(page.props.flash.error, 'error', 'Delete Failed');
@@ -95,7 +96,8 @@ export const useFacultyActions = ({
                     onError: () => showAlert('Failed to delete faculty. Please check connection.', 'error'),
                 });
             },
-            'Delete Record'
+            'Delete Record',
+            'error'
         );
     };
 
@@ -110,6 +112,7 @@ export const useFacultyActions = ({
 
     const handleUpdateFaculty = (updatedFaculty: Faculty) => {
         router.put(`/faculty/${updatedFaculty.id}`, updatedFaculty, {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             onSuccess: (page: any) => {
                 if (page.props.flash?.error) {
                     showAlert(page.props.flash.error, 'error', 'Update Failed');

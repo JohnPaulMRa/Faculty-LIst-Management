@@ -1,5 +1,6 @@
 import { Head, router } from '@inertiajs/react';
 import React, { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 import FacultyOverview from '@/components/faculty/dashboard/FacultyOverview';
 import FacultyStats from '@/components/faculty/dashboard/FacultyStats';
 import FacultyTrends from '@/components/faculty/dashboard/FacultyTrends';
@@ -22,8 +23,9 @@ interface DashboardStats {
         female: number;
     };
     status: {
-        updated: number;
-        notUpdated: number;
+        completed: number;
+        noSubmission: number;
+        notYetCompleted: number;
     };
     qualifications: {
         label: string;
@@ -69,7 +71,10 @@ export default function Dashboard({ overview, selectedYear: initialYear, availab
         setIsLoading(true);
         router.reload({
             only: ['overview', 'selectedYear'],
-            onFinish: () => setIsLoading(false),
+            onFinish: () => {
+                setIsLoading(false);
+                toast.success('Dashboard data refreshed');
+            },
         });
     };
 
@@ -79,7 +84,10 @@ export default function Dashboard({ overview, selectedYear: initialYear, availab
         router.visit(dashboard().url, {
             data: { year: year === 'All Years' ? '' : year },
             preserveScroll: true,
-            onFinish: () => setIsLoading(false),
+            onFinish: () => {
+                setIsLoading(false);
+                toast.info(`Switched to academic year: ${year}`);
+            },
         });
     };
 

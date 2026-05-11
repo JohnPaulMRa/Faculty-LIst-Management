@@ -19,9 +19,12 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): Response
     {
+        $user = $request->user()->load('hei');
+        
         return Inertia::render('settings/profile', [
-            'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
+            'mustVerifyEmail' => $user instanceof MustVerifyEmail,
             'status' => $request->session()->get('status'),
+            'hei' => $user->hei,
         ]);
     }
 
@@ -30,7 +33,7 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
+        $request->user()->fill($request->only('name', 'email'));
 
         if ($request->user()->isDirty('email')) {
             $request->user()->email_verified_at = null;
@@ -38,8 +41,21 @@ class ProfileController extends Controller
 
         $request->user()->save();
 
+        if ($request->user()->hei) {
+            $request->user()->hei->update([
+                'name' => $request->input('hei_name'),
+                'hei_code' => $request->input('hei_code'),
+                'type' => $request->input('hei_type'),
+                'address' => $request->input('hei_address'),
+                'contact_number' => $request->input('hei_contact_number'),
+                'email' => $request->input('hei_email'),
+            ]);
+        }
+
         return to_route('profile.edit');
     }
+
+
 
     /**
      * Delete the user's account.

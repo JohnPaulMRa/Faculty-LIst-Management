@@ -1,225 +1,474 @@
-import { BarChart3, PieChart as PieChartIcon, ArrowLeft } from 'lucide-react';
-import { useState, useEffect } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
-import { Button } from '@/components/ui/button';
+import { router } from '@inertiajs/react';
+import { BarChart3, Calendar as CalendarIcon, ChevronLeft, ChevronRight, GraduationCap } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { cn } from '@/lib/utils';
 
 interface DistributionItem {
     name: string;
+    baccalaureate: number;
+    master: number;
+    doctorate: number;
+    preBaccalaureate: number;
+    unclassified: number;
     count: number;
-    children?: DistributionItem[];
 }
 
-interface StatusItem {
-    name: string;
-    value: number;
-    color: string;
+interface DistributionTotals {
+    baccalaureate: number;
+    master: number;
+    doctorate: number;
+    preBaccalaureate: number;
+    unclassified: number;
+    overall: number;
 }
 
 interface AnalyticsOverviewProps {
-    privateDistributionData: DistributionItem[];
-    publicDistributionData: DistributionItem[];
+    distributionData: DistributionItem[];
+    totals?: DistributionTotals;
+    academicYears?: string[];
+    selectedAcademicYear?: string;
+    queryParamName?: string;
 }
 
-interface StatusOverviewProps {
-    statusData: StatusItem[];
-}
+// Removed unused BarTooltip
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const CustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
-        return (
-            <div className="bg-white p-2 border border-gray-200 shadow-sm text-xs rounded-none">
-                <p className="font-bold text-gray-900">{label}</p>
-                <p className="text-gray-600">
-                    {payload[0].value} Disciplines
-                </p>
-            </div>
-        );
-    }
-    return null;
-};
+export function AnalyticsOverview({
+    distributionData = [],
+    totals = { baccalaureate: 0, master: 0, doctorate: 0, preBaccalaureate: 0, unclassified: 0, overall: 0 },
+    academicYears = [],
+    selectedAcademicYear,
+    queryParamName = 'academic_year'
+}: AnalyticsOverviewProps) {
 
-export function AnalyticsOverview({ privateDistributionData = [], publicDistributionData = [] }: AnalyticsOverviewProps) {
-    const [activeTab, setActiveTab] = useState<string>('private');
-    const [history, setHistory] = useState<{ name: string; data: DistributionItem[] }[]>([{ name: 'All Groups', data: privateDistributionData }]);
+    const columns = [
+        { key: 'baccalaureate', label: 'Baccalaureate' },
+        { key: 'doctorate', label: 'Doctorate' },
+        { key: 'master', label: 'Master' },
+        { key: 'preBaccalaureate', label: 'Pre-Bacc' },
+    ];
 
-    const activeDistributionData = activeTab === 'private' ? privateDistributionData : publicDistributionData;
+    const sortedData = useMemo(() => {
+        return distributionData
+            .filter(d => d.name !== '#N/A')
+            .sort((a, b) => a.name.localeCompare(b.name));
+    }, [distributionData]);
 
-    useEffect(() => {
-        // Reset to top level if parent data completely changes or tab changes
-         
-        setHistory([{ name: 'All Groups', data: activeDistributionData }]);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [activeTab, privateDistributionData, publicDistributionData]);
-
-    const currentData = history[history.length - 1].data || [];
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const handleBarClick = (data: any) => {
-        const item = data?.payload || data;
-        if (item && item.children && item.children.length > 0) {
-            setHistory([...history, { name: item.name, data: item.children }]);
-        }
-    };
-
-    const handleBackClick = () => {
-        if (history.length > 1) {
-            setHistory(history.slice(0, -1));
-        }
-    };
+    const grandTotal = totals.overall;
 
     return (
-        <Card className="shadow-none border border-gray-200 rounded-none bg-white">
-            <CardHeader className="pb-2 border-b border-gray-100 flex flex-row items-center justify-between">
-                <div>
-                    <CardTitle className="text-base font-bold text-gray-900 flex items-center gap-2">
-                        <BarChart3 className="h-4 w-4 text-gray-500" />
-                        Distribution Overview
-                    </CardTitle>
-                    <CardDescription className="text-xs text-gray-500 mt-1">
-                        {history.length > 1
-                            ? `Showing specific disciplines for ${history[history.length - 1].name}`
-                            : "Distribution of disciplines by group"}
-                    </CardDescription>
-                </div>
-                <div className="flex items-center gap-4">
-                    {history.length <= 1 && (
-                        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-[200px]">
-                            <TabsList className="grid w-full grid-cols-2">
-                                <TabsTrigger value="private">Private</TabsTrigger>
-                                <TabsTrigger value="public">Public</TabsTrigger>
-                            </TabsList>
-                        </Tabs>
-                    )}
-                    {history.length > 1 && (
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={handleBackClick}
-                            className="h-8 text-xs flex items-center gap-1"
-                        >
-                            <ArrowLeft className="h-3 w-3" /> Back
-                        </Button>
-                    )}
-                </div>
-            </CardHeader>
-            <CardContent className="p-4 pt-6">
-                <div style={{ height: `${Math.max(400, currentData.length * 32)}px` }} className="w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                        <BarChart
-                            data={currentData}
-                            layout="vertical"
-                            margin={{ top: 0, right: 30, left: 120, bottom: 0 }}
-                        >
-                            <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#f8fafc" />
-                            <XAxis
-                                type="number"
-                                tick={{ fontSize: 11, fill: '#64748b' }}
-                                axisLine={false}
-                                tickLine={false}
-                                tickMargin={10}
-                            />
-                            <YAxis
-                                type="category"
-                                dataKey="name"
-                                tick={{ fontSize: 11, fill: '#475569', fontWeight: 500 }}
-                                width={220}
-                                axisLine={false}
-                                tickLine={false}
-                                tickMargin={15}
-                                interval={0}
-                            />
-                            <Tooltip content={<CustomTooltip />} cursor={{ fill: '#f1f5f9' }} />
-                            <Bar
-                                dataKey="count"
-                                radius={[0, 4, 4, 0]}
-                                barSize={14}
-                                onClick={handleBarClick}
-                                cursor={currentData.some(d => d.children && d.children.length > 0) ? "pointer" : "default"}
+        <Card className="rounded-2xl shadow-sm border border-gray-100 bg-white overflow-hidden">
+            <CardHeader className="p-6 pb-4 border-b border-gray-100/50 bg-gray-50/30">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2.5 rounded-xl bg-blue-50 text-blue-600 shadow-sm border border-blue-100">
+                            <BarChart3 className="h-5 w-5" />
+                        </div>
+                        <div>
+                            <CardTitle className="text-lg font-bold tracking-tight text-gray-900">
+                                Discipline Groups Distribution
+                            </CardTitle>
+                            <CardDescription className="text-xs text-gray-500 mt-0.5">
+                                Count of faculty by discipline group and degree level
+                            </CardDescription>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        {academicYears.length > 0 && (
+                            <select
+                                className="text-xs font-semibold bg-white border border-gray-200 rounded-lg px-3 py-2 text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                value={selectedAcademicYear || ''}
+                                onChange={(e) => {
+                                    const params = new URLSearchParams(window.location.search);
+                                    params.set(queryParamName, e.target.value);
+                                    
+                                    const data: Record<string, string> = {};
+                                    params.forEach((value, key) => { data[key] = value; });
+                                    
+                                    router.get(route('admin.dashboard'), data, { preserveState: true, preserveScroll: true, replace: true });
+                                }}
                             >
-                                {currentData.map((entry, index) => {
-                                    const maxCount = Math.max(...currentData.map(d => d.count), 1);
-                                    const ratio = entry.count / maxCount;
-
-                                    // RdYlGn Palette (Red -> Orange -> Yellow -> Green -> Dark Green)
-                                    const palette = [
-                                        [215, 48, 39],   // Red (0)
-                                        [244, 109, 67],  // Orange (1)
-                                        [253, 174, 97],  // Light Orange (2)
-                                        [254, 224, 139], // Yellow (3)
-                                        [217, 239, 139], // Light Yellow-Green (4)
-                                        [166, 217, 106], // Light Green (5)
-                                        [102, 189, 99],  // Green (6)
-                                        [26, 152, 80]    // Dark Green (7)
-                                    ];
-
-                                    const numSegments = palette.length - 1;
-                                    const scaled = ratio * numSegments;
-                                    const segment = Math.min(Math.floor(scaled), numSegments - 1);
-                                    const t = scaled - segment;
-
-                                    const c1 = palette[segment];
-                                    const c2 = palette[segment + 1];
-
-                                    // Linear interpolation between the two colors
-                                    const r = Math.round(c1[0] + (c2[0] - c1[0]) * t);
-                                    const g = Math.round(c1[1] + (c2[1] - c1[1]) * t);
-                                    const b = Math.round(c1[2] + (c2[2] - c1[2]) * t);
-
-                                    return <Cell key={`cell-${index}`} fill={`rgb(${r}, ${g}, ${b})`} />;
-                                })}
-                            </Bar>
-                        </BarChart>
-                    </ResponsiveContainer>
-                </div>
-            </CardContent>
-        </Card>
-    );
-}
-
-export function StatusOverview({ statusData = [] }: StatusOverviewProps) {
-    return (
-        <Card className="shadow-none border border-gray-200 rounded-none bg-white h-full">
-            <CardHeader className="pb-2 border-b border-gray-100">
-                <CardTitle className="text-base font-bold text-gray-900 flex items-center gap-2">
-                    <PieChartIcon className="h-4 w-4 text-gray-500" />
-                    Status Overview
-                </CardTitle>
-                <CardDescription className="text-xs text-gray-500">
-                    Current status of all schools
-                </CardDescription>
-            </CardHeader>
-            <CardContent className="p-4">
-                <div className="h-[300px] w-full flex items-center justify-center">
-                    <ResponsiveContainer width="100%" height="100%">
-                        <PieChart>
-                            <Pie
-                                data={statusData}
-                                cx="50%"
-                                cy="50%"
-                                innerRadius={60}
-                                outerRadius={80}
-                                paddingAngle={2}
-                                dataKey="value"
-                            >
-                                {statusData.map((entry, index) => (
-                                    <Cell key={`cell-${index}`} fill={entry.color} strokeWidth={0} />
+                                <option value="">All Academic Years</option>
+                                {academicYears.map(year => (
+                                    <option key={year} value={year}>{year}</option>
                                 ))}
-                            </Pie>
-                            <Tooltip />
-                            <Legend
-                                verticalAlign="bottom"
-                                height={36}
-                                iconType="square"
-                                iconSize={10}
-                                wrapperStyle={{ fontSize: '12px', color: '#374151' }}
-                            />
-                        </PieChart>
-                    </ResponsiveContainer>
+                            </select>
+                        )}
+                    </div>
                 </div>
+            </CardHeader>
+
+            <CardContent className="p-0 overflow-x-auto">
+                <table className="w-full text-sm border-collapse">
+                    <thead>
+                        <tr className="bg-slate-700 text-white">
+                            <th className="text-left px-4 py-4 text-sm font-bold uppercase tracking-wider w-[45%]">
+                                Row Labels
+                            </th>
+                            {columns.map(col => (
+                                <th key={col.key} className="text-right px-4 py-4 text-sm font-bold uppercase tracking-wider whitespace-nowrap">
+                                     {col.label}
+                                 </th>
+                            ))}
+                            <th className="text-right px-4 py-4 text-sm font-bold uppercase tracking-wider whitespace-nowrap bg-slate-900">
+                                Grand Total
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {sortedData.length === 0 ? (
+                            <tr>
+                                <td colSpan={6} className="text-center py-12 text-gray-400 text-sm">
+                                    No data available for the selected academic year.
+                                </td>
+                            </tr>
+                        ) : (
+                            sortedData.map((row, idx) => {
+                                const rowTotal = columns.reduce((sum, col) => sum + (row[col.key as keyof DistributionItem] as number || 0), 0);
+                                const isEmpty = rowTotal === 0;
+                                return (
+                                    <tr
+                                        key={row.name}
+                                        className={cn(
+                                            'border-b border-gray-100 transition-colors',
+                                            isEmpty
+                                                ? 'bg-white hover:bg-gray-50'
+                                                : idx % 2 === 0
+                                                    ? 'bg-blue-50/20 hover:bg-blue-50/60'
+                                                    : 'bg-white hover:bg-blue-50/60'
+                                        )}
+                                    >
+                                        <td className="px-4 py-4 text-sm font-bold text-slate-900 uppercase tracking-tight">
+                                            {row.name}
+                                        </td>
+                                        {columns.map(col => {
+                                            const val = row[col.key as keyof DistributionItem] as number || 0;
+                                            return (
+                                                <td key={col.key} className={cn(
+                                                    'px-4 py-3.5 text-right text-sm tabular-nums',
+                                                    val > 0 ? 'text-gray-900 font-bold' : 'text-gray-300'
+                                                )}>
+                                                    {val > 0 ? val : '0'}
+                                                </td>
+                                            );
+                                        })}
+                                        <td className="px-4 py-3.5 text-right font-black text-sm text-slate-900 bg-slate-100/50 tabular-nums border-l border-gray-100">
+                                            {rowTotal}
+                                        </td>
+                                    </tr>
+                                );
+                            })
+                        )}
+                    </tbody>
+                    <tfoot className="bg-slate-800 text-white font-bold">
+                        <tr>
+                            <td className="px-4 py-4 text-sm uppercase tracking-wider">Grand Total</td>
+                            {columns.map(col => {
+                                const colTotal = sortedData.reduce((sum, row) => sum + (row[col.key as keyof DistributionItem] as number || 0), 0);
+                                return (
+                                    <td key={col.key} className="px-4 py-4 text-right text-sm tabular-nums">
+                                        {colTotal}
+                                    </td>
+                                );
+                            })}
+                            <td className="px-4 py-4 text-right text-sm tabular-nums bg-slate-900 font-black">
+                                {grandTotal}
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
             </CardContent>
         </Card>
     );
 }
+
+
+
+function SimpleCalendar() {
+    const [currentDate, setCurrentDate] = useState(new Date());
+
+    const daysInMonth = (year: number, month: number) => new Date(year, month + 1, 0).getDate();
+    const firstDayOfMonth = (year: number, month: number) => new Date(year, month, 1).getDay();
+
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+
+    const days = [];
+    const totalDays = daysInMonth(year, month);
+    const startDay = firstDayOfMonth(year, month);
+
+    const prevMonthDays = daysInMonth(year, month - 1);
+    for (let i = startDay - 1; i >= 0; i--) {
+        days.push({ day: prevMonthDays - i, currentMonth: false });
+    }
+
+    for (let i = 1; i <= totalDays; i++) {
+        days.push({ day: i, currentMonth: true });
+    }
+
+    const nextMonthDays = 42 - days.length;
+    for (let i = 1; i <= nextMonthDays; i++) {
+        days.push({ day: i, currentMonth: false });
+    }
+
+    const monthNames = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    ];
+
+    const prevMonth = () => setCurrentDate(new Date(year, month - 1, 1));
+    const nextMonth = () => setCurrentDate(new Date(year, month + 1, 1));
+
+    const isToday = (day: number) => {
+        const today = new Date();
+        return today.getDate() === day && today.getMonth() === month && today.getFullYear() === year;
+    };
+
+    return (
+        <div className="w-full">
+            <div className="flex items-center justify-between mb-6">
+                <h3 className="font-bold text-gray-900 text-sm tracking-tight">
+                    {monthNames[month]} {year}
+                </h3>
+                <div className="flex gap-1">
+                    <button onClick={prevMonth} className="p-1.5 hover:bg-gray-100 rounded-lg transition-all text-gray-400 hover:text-gray-900 border border-transparent hover:border-gray-200 shadow-none hover:shadow-xs">
+                        <ChevronLeft className="h-4 w-4" />
+                    </button>
+                    <button onClick={nextMonth} className="p-1.5 hover:bg-gray-100 rounded-lg transition-all text-gray-400 hover:text-gray-900 border border-transparent hover:border-gray-200 shadow-none hover:shadow-xs">
+                        <ChevronRight className="h-4 w-4" />
+                    </button>
+                </div>
+            </div>
+            <div className="grid grid-cols-7 gap-1 text-center mb-3">
+                {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(d => (
+                    <div key={d} className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                        {d}
+                    </div>
+                ))}
+            </div>
+            <div className="grid grid-cols-7 gap-2">
+                {days.map((d, index) => (
+                    <div
+                        key={index}
+                        className={cn(
+                            "h-9 flex items-center justify-center text-xs rounded-xl transition-all duration-200 cursor-default",
+                            d.currentMonth ? "text-gray-900 font-semibold" : "text-gray-300",
+                            d.currentMonth && isToday(d.day)
+                                ? "bg-indigo-600 text-white font-black shadow-md shadow-indigo-200 scale-105"
+                                : d.currentMonth ? "hover:bg-indigo-50 hover:text-indigo-600" : ""
+                        )}
+                    >
+                        {d.day}
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+}
+
+export function StatusOverview() {
+    return (
+        <Card className="rounded-2xl shadow-sm border border-gray-100 bg-white overflow-hidden flex flex-col">
+            <CardHeader className="p-6 pb-4 border-b border-gray-100/50 bg-gray-50/30">
+                <div className="flex items-center gap-3">
+                    <div className="p-2.5 rounded-xl bg-indigo-50 text-indigo-600 shadow-sm border border-indigo-100">
+                        <CalendarIcon className="h-5 w-5" />
+                    </div>
+                    <div>
+                        <CardTitle className="text-lg font-bold tracking-tight text-gray-900">
+                            Calendar
+                        </CardTitle>
+                        <CardDescription className="text-xs text-gray-500 mt-0.5">
+                            Monthly administrative overview
+                        </CardDescription>
+                    </div>
+                </div>
+            </CardHeader>
+            <CardContent className="p-6 flex-1">
+                <SimpleCalendar />
+            </CardContent>
+        </Card>
+    );
+}
+
+export interface HEIDistributionData {
+    code: string;
+    name: string;
+    degrees: {
+        [level: string]: {
+            FEMALE: number;
+            MALE: number;
+            total: number;
+        };
+    };
+}
+
+interface HEIDistributionTableProps {
+    data: HEIDistributionData[];
+    academicYears?: string[];
+    selectedAcademicYear?: string;
+    queryParamName?: string;
+}
+
+export function HEIDistributionTable({ 
+    data = [], 
+    academicYears = [], 
+    selectedAcademicYear,
+    queryParamName = 'academic_year'
+}: HEIDistributionTableProps) {
+    return (
+        <Card className="rounded-2xl shadow-sm border border-gray-100 bg-white overflow-hidden flex flex-col h-full">
+            <CardHeader className="p-6 pb-4 border-b border-gray-100/50 bg-gray-50/30">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2.5 rounded-xl bg-indigo-50 text-indigo-600 shadow-sm border border-indigo-100">
+                            <GraduationCap className="h-5 w-5" />
+                        </div>
+                        <div>
+                            <CardTitle className="text-lg font-bold tracking-tight text-gray-900">
+                                HEIs Distribution by Degree & Gender
+                            </CardTitle>
+                            <CardDescription className="text-xs text-gray-500 mt-0.5">
+                                Breakdown of faculty across HEIs, degree levels, and gender
+                            </CardDescription>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        {academicYears.length > 0 && (
+                            <select
+                                className="text-xs font-semibold bg-white border border-gray-200 rounded-lg px-3 py-2 text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                value={selectedAcademicYear || ''}
+                                onChange={(e) => {
+                                    const params = new URLSearchParams(window.location.search);
+                                    params.set(queryParamName, e.target.value);
+                                    
+                                    const data: Record<string, string> = {};
+                                    params.forEach((value, key) => { data[key] = value; });
+                                    
+                                    router.get(route('admin.dashboard'), data, { preserveState: true, preserveScroll: true, replace: true });
+                                }}
+                            >
+                                <option value="">All Academic Years</option>
+                                {academicYears.map(year => (
+                                    <option key={year} value={year}>{year}</option>
+                                ))}
+                            </select>
+                        )}
+                    </div>
+                </div>
+            </CardHeader>
+
+            <CardContent className="p-0 overflow-y-auto flex-1 min-h-0 relative">
+                <table className="w-full text-sm border-collapse table-fixed">
+                    <thead className="sticky top-0 z-20 shadow-sm">
+                        <tr className="bg-slate-800 text-white">
+                            <th className="text-left px-4 py-4 text-sm font-bold uppercase tracking-wider w-[25%] sticky top-0 bg-slate-800">HEIs</th>
+                            <th className="text-left px-4 py-4 text-sm font-bold uppercase tracking-wider w-[25%] sticky top-0 bg-slate-800">Degree</th>
+                            <th className="text-right px-4 py-4 text-sm font-bold uppercase tracking-wider w-[15%] sticky top-0 bg-slate-800">Female</th>
+                            <th className="text-right px-4 py-4 text-sm font-bold uppercase tracking-wider w-[15%] sticky top-0 bg-slate-800">Male</th>
+                            <th className="text-right px-4 py-4 text-sm font-bold uppercase tracking-wider w-[20%] sticky top-0 bg-slate-900 shadow-sm">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {data.length === 0 ? (
+                            <tr>
+                                <td colSpan={5} className="text-center py-12 text-gray-400 text-sm">
+                                    No data available for the selected academic year.
+                                </td>
+                            </tr>
+                        ) : (
+                            data.map((hei) => (
+                                <React.Fragment key={hei.code}>
+                                    {/* HEI Header Row */}
+                                    <tr className="bg-slate-100/80 group">
+                                        <td className="px-4 py-4 text-sm font-black text-slate-800 border-y border-slate-200" colSpan={5}>
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-1.5 h-6 bg-indigo-600 rounded-full"></div>
+                                                {hei.name}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    
+                                    {/* Degree Rows */}
+                                    {(() => {
+                                        const degreeOrder = [
+                                            'Baccalaureate', 
+                                            'Doctorate', 
+                                            'Master',
+                                            'Pre-Baccalaureate'
+                                        ];
+                                        
+                                        return degreeOrder.map((degree, dIdx) => {
+                                            const counts = hei.degrees[degree] || { FEMALE: 0, MALE: 0, total: 0 };
+                                            
+                                            return (
+                                                <tr 
+                                                    key={degree} 
+                                                    className={cn(
+                                                        'border-b border-gray-100 transition-colors',
+                                                        dIdx % 2 === 0 ? 'bg-blue-50/5' : 'bg-white'
+                                                    )}
+                                                >
+                                                    <td className="px-4 py-4"></td>
+                                                    <td className="px-4 py-4 text-sm font-black text-slate-900 italic">
+                                                        {degree}
+                                                    </td>
+                                                    <td className={cn(
+                                                        "px-4 py-4 text-right text-base tabular-nums",
+                                                        counts.FEMALE > 0 ? "text-gray-900 font-bold" : "text-gray-300"
+                                                    )}>
+                                                        {counts.FEMALE > 0 ? counts.FEMALE : '0'}
+                                                    </td>
+                                                    <td className={cn(
+                                                        "px-4 py-4 text-right text-base tabular-nums",
+                                                        counts.MALE > 0 ? "text-gray-900 font-bold" : "text-gray-300"
+                                                    )}>
+                                                        {counts.MALE > 0 ? counts.MALE : '0'}
+                                                    </td>
+                                                    <td className={cn(
+                                                        "px-4 py-4 text-right text-base tabular-nums font-black border-l border-gray-100",
+                                                        counts.total > 0 ? "text-slate-900 bg-slate-100/50" : "text-gray-300 bg-gray-50/50"
+                                                    )}>
+                                                        {counts.total > 0 ? counts.total : '0'}
+                                                    </td>
+                                                </tr>
+                                            );
+                                        });
+                                    })()}
+
+                                    {/* HEI Total Row (Red Bar like in screenshot) */}
+                                    {(() => {
+                                        // Sum ONLY the visible degrees for table mathematical accuracy
+                                        const visibleDegrees = ['Baccalaureate', 'Doctorate', 'Master', 'Pre-Baccalaureate'];
+                                        const femaleTotal = visibleDegrees.reduce((sum, d) => sum + (hei.degrees[d]?.FEMALE || 0), 0);
+                                        const maleTotal = visibleDegrees.reduce((sum, d) => sum + (hei.degrees[d]?.MALE || 0), 0);
+                                        const overallTotal = femaleTotal + maleTotal;
+                                        
+                                        return (
+                                            <tr className="bg-red-600 text-white font-black shadow-inner">
+                                                <td className="px-4 py-4 text-sm uppercase tracking-wider" colSpan={2}>
+                                                    TOTAL
+                                                </td>
+                                                <td className="px-4 py-4 text-right text-base tabular-nums">
+                                                    {femaleTotal}
+                                                </td>
+                                                <td className="px-4 py-4 text-right text-base tabular-nums">
+                                                    {maleTotal}
+                                                </td>
+                                                <td className="px-4 py-4 text-right text-base tabular-nums bg-red-700 border-l border-red-800">
+                                                    {overallTotal}
+                                                </td>
+                                            </tr>
+                                        );
+                                    })()}
+                                </React.Fragment>
+                            ))
+                        )}
+                    </tbody>
+                </table>
+            </CardContent>
+        </Card>
+    );
+}
+
+

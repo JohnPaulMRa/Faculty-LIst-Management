@@ -1,9 +1,8 @@
 import { Head } from '@inertiajs/react';
 import AdminOverview from '@/components/admin/dashboard/AdminOverview';
-import AdminStatsCard from '@/components/admin/dashboard/AdminStatsCard';
-import { AnalyticsOverview, StatusOverview } from '@/components/admin/dashboard/AnalyticsOverview';
-import EmploymentTrends from '@/components/admin/dashboard/EmploymentTrends';
-import SchoolList from '@/components/admin/dashboard/SchoolList';
+
+import { AnalyticsOverview, StatusOverview, HEIDistributionTable, type HEIDistributionData } from '@/components/admin/dashboard/AnalyticsOverview';
+import SubmittedHeisList from '@/components/admin/dashboard/SubmittedHeisList';
 import AppSidebarLayout from '@/layouts/app/app-sidebar-layout';
 
 interface DashboardSchool {
@@ -13,18 +12,26 @@ interface DashboardSchool {
     status: string;
 }
 
-interface DashboardStat {
-    title: string;
-    value: string;
-    trend?: string;
-    subtext?: string;
-}
 
 
 
 interface DistributionItem {
     name: string;
+    baccalaureate: number;
+    master: number;
+    doctorate: number;
+    preBaccalaureate: number;
+    unclassified: number;
     count: number;
+}
+
+interface DistributionTotals {
+    baccalaureate: number;
+    master: number;
+    doctorate: number;
+    preBaccalaureate: number;
+    unclassified: number;
+    overall: number;
 }
 
 interface StatusItem {
@@ -33,37 +40,38 @@ interface StatusItem {
     color: string;
 }
 
-
-
-interface TrendSeries {
-    name: string;
-    color: string;
-    data: number[];
-}
-
-interface TrendsData {
-    years: string[];
-    series: TrendSeries[];
+interface Submission {
+    id: number;
+    hei_id: number;
+    hei_name: string;
+    academic_year: string;
+    total_faculty: number;
+    type: string;
+    submitted_by: string;
+    time: string;
+    date: string;
 }
 
 interface AdminDashboardProps {
     heis: DashboardSchool[];
-    stats: DashboardStat[];
-    privateDistributionData: DistributionItem[];
-    publicDistributionData: DistributionItem[];
+    distributionData: DistributionItem[];
+    totals?: DistributionTotals;
     statusData: StatusItem[];
-    privateEmploymentTrends: TrendsData;
-    publicEmploymentTrends: TrendsData;
+    heiDistributionData: HEIDistributionData[];
+    recentSubmissions: Submission[];
+    academicYears?: string[];
+    selectedYearDiscipline?: string;
+    selectedYearHei?: string;
 }
 
 export default function AdminDashboard({
-    heis = [],
-    stats = [],
-    privateDistributionData = [],
-    publicDistributionData = [],
-    statusData = [],
-    privateEmploymentTrends,
-    publicEmploymentTrends
+    distributionData = [],
+    totals = { baccalaureate: 0, master: 0, doctorate: 0, preBaccalaureate: 0, unclassified: 0, overall: 0 },
+    heiDistributionData = [],
+    recentSubmissions = [],
+    academicYears = [],
+    selectedYearDiscipline,
+    selectedYearHei
 }: AdminDashboardProps) {
     return (
         <AppSidebarLayout breadcrumbs={[{ title: 'Admin Dashboard', href: '/admin/dashboard' }]}>
@@ -74,39 +82,37 @@ export default function AdminDashboard({
                 <AdminOverview />
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* Stats & School List */}
-                    <div className="lg:col-span-2 flex flex-col gap-8">
-                        {/* Stats Grid */}
-                        <div className="grid grid-cols-2 gap-4">
-                            {stats.map((stat, index) => (
-                                <AdminStatsCard key={index} {...stat} />
-                            ))}
-                        </div>
-
-                        {/* School List */}
-                        <div className="flex-1 min-h-[300px]">
-                            <SchoolList schools={heis} />
-                        </div>
+                    {/* Top Row: Submissions and Status */}
+                    <div className="lg:col-span-2">
+                        <SubmittedHeisList recentSubmissions={recentSubmissions} />
+                    </div>
+                    <div className="lg:col-span-1">
+                        <StatusOverview />
                     </div>
 
-                    {/* Status Overview */}
-                    <div className="flex flex-col">
-                        <StatusOverview statusData={statusData} />
+                    {/* Bottom Row: Distribution Analytics */}
+                    <div className="lg:col-span-2">
+                        <AnalyticsOverview
+                            distributionData={distributionData}
+                            totals={totals}
+                            academicYears={academicYears}
+                            selectedAcademicYear={selectedYearDiscipline}
+                            queryParamName="year_discipline"
+                        />
                     </div>
-                </div>
-
-                {/* Analytics Section */}
-                <div className="mt-8 grid grid-cols-1 xl:grid-cols-2 gap-8">
-                    <AnalyticsOverview
-                        privateDistributionData={privateDistributionData}
-                        publicDistributionData={publicDistributionData}
-                    />
-                    <EmploymentTrends 
-                        privateTrends={privateEmploymentTrends}
-                        publicTrends={publicEmploymentTrends}
-                    />
+                    <div className="lg:col-span-1 relative min-h-[500px]">
+                        <div className="absolute inset-0">
+                            <HEIDistributionTable 
+                                data={heiDistributionData} 
+                                academicYears={academicYears}
+                                selectedAcademicYear={selectedYearHei}
+                                queryParamName="year_hei"
+                            />
+                        </div>
+                    </div>
                 </div>
             </div>
         </AppSidebarLayout>
     );
 }
+

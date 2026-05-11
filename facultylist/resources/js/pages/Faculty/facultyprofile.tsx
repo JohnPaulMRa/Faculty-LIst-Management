@@ -1,34 +1,34 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+// Vite touch: Re-evaluating FacultyListTableE2 after refactoring to ensure import resolution.
+
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Head, router } from '@inertiajs/react';
 import { FileDown } from 'lucide-react';
 import type { FC } from 'react';
-import AlertModal from '@/components/common/AlertModal';
+import AlertDialogModal from '@/components/common/AlertDialogModal';
 
 import { FacultyCopyDataModal } from '@/components/faculty/FacultyCopyDataModal';
 import FacultyDownloadModal from '@/components/faculty/FacultyDownloadModal';
-import FacultyListTableE2 from '@/features/faculty/components/tables/FacultyListTableE2';
+import FacultyListTableE2 from '@/components/faculty/facultyE2/FacultyListTableE2';
 import FacultyListTableE5 from '@/components/faculty/facultyE5/FacultyListTableE5';
 import FacultyFileDetailsModal from '@/components/faculty/FacultyFileDetailsModal';
 import FacultyImportModal from '@/components/faculty/FacultyImportModal';
 import { FacultyToolbar } from '@/components/faculty/FacultyToolbar';
-import { SubmitFacultyModal } from '@/components/faculty/SubmitFacultyModal';
-import { 
-    useAlertModal, 
-    AlertType, 
-    useFacultyFilters, 
-    useFacultyActions, 
-    useFacultyModals 
+import {
+    useAlertDialog,
+    useFacultyFilters,
+    useFacultyActions,
+    useFacultyModals
 } from '@/components/faculty/hooks';
+import { SubmitFacultyModal } from '@/components/faculty/SubmitFacultyModal';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 
-import { getCurrentAcademicYear } from '@/lib/utils';
 import type { BreadcrumbItem } from '@/types';
 import type { Faculty } from '@/types/faculty';
 
 // Basic declaration for Ziggy's route helper
- 
+
 declare function route(name?: string, params?: any, absolute?: boolean): string;
 
 const breadcrumbs: BreadcrumbItem[] = [];
@@ -39,7 +39,7 @@ interface FacultyProfileProps {
         search?: string;
         year?: string;
     };
-     
+
     referenceData: any;
     availableYears?: string[];
     schoolName?: string;
@@ -54,10 +54,9 @@ const FacultyProfile: FC<FacultyProfileProps> = ({
     schoolName = 'School Name',
     schoolType = 'private',
 }) => {
-     
     // --- Custom Hooks ---
-    const { alertModal, showAlert, showConfirm, closeAlert } = useAlertModal();
-    
+    const { alertDialog, showAlert, showConfirm, closeDialog } = useAlertDialog();
+
     const {
         searchQuery,
         setSearchQuery,
@@ -65,6 +64,7 @@ const FacultyProfile: FC<FacultyProfileProps> = ({
         setYearFilter,
         filteredFacultyList,
         handleYearChange,
+        isYearLocked,
     } = useFacultyFilters({ initialFacultyData, filters, availableYears: availableYears || [] });
 
     const {
@@ -97,7 +97,6 @@ const FacultyProfile: FC<FacultyProfileProps> = ({
         setSelectedFile,
         setImportGroup,
         submitYear,
-        setSubmitYear,
         importType,
         importGroup,
         importYear,
@@ -107,14 +106,14 @@ const FacultyProfile: FC<FacultyProfileProps> = ({
 
     return (
         <>
-            <AlertModal
-                open={alertModal.open}
-                message={alertModal.message}
-                type={alertModal.type}
-                title={alertModal.title}
-                onClose={closeAlert}
-                onConfirm={alertModal.onConfirm}
-                confirmLabel="Confirm"
+            <AlertDialogModal
+                open={alertDialog.open}
+                message={alertDialog.message}
+                type={alertDialog.type}
+                title={alertDialog.title}
+                onClose={closeDialog}
+                onConfirm={alertDialog.onConfirm}
+                confirmLabel={alertDialog.type === 'error' ? "Delete" : "Confirm"}
             />
 
             <SubmitFacultyModal
@@ -171,8 +170,6 @@ const FacultyProfile: FC<FacultyProfileProps> = ({
                                     setImportType(type);
                                     setImportGroup('');
                                 }}
-                                importGroup={importGroup}
-                                setImportGroup={setImportGroup}
                                 importYear={importYear}
                                 setImportYear={setImportYear}
                                 onFileImport={handleFileImport}
@@ -189,7 +186,9 @@ const FacultyProfile: FC<FacultyProfileProps> = ({
                     </div>
 
                     {/* DATA TABLE */}
-                    <div className="flex flex-col rounded-none border border-gray-300 bg-white shadow-sm overflow-hidden">
+                    <div className="flex flex-col rounded-none border border-blue-100/60 bg-white shadow-xl shadow-blue-900/5 overflow-hidden relative">
+
+
                         <FacultyToolbar
                             searchQuery={searchQuery}
                             onSearchChange={setSearchQuery}
@@ -198,25 +197,24 @@ const FacultyProfile: FC<FacultyProfileProps> = ({
                             onYearChange={handleYearChange}
                             onCopyData={() => setIsCopyModalOpen(true)}
                             onSubmit={handleSubmit}
+                            isLocked={isYearLocked}
                         />
 
                         {schoolType?.toLowerCase() === 'private' ? (
                             <FacultyListTableE5
                                 facultyList={filteredFacultyList}
                                 yearFilter={yearFilter}
-                                onFileClick={handleFileClick}
                                 onDelete={handleDelete}
-                                onEdit={handleEdit}
                                 referenceData={referenceData}
+                                isLocked={isYearLocked}
                             />
                         ) : (
                             <FacultyListTableE2
                                 facultyList={filteredFacultyList}
                                 yearFilter={yearFilter}
-                                onFileClick={handleFileClick}
                                 onDelete={handleDelete}
-                                onEdit={handleEdit}
                                 referenceData={referenceData}
+                                isLocked={isYearLocked}
                             />
                         )}
                     </div>

@@ -1,18 +1,23 @@
 {
     "php.validate.enable": false,
+    "php.validate.run": "onSave",
     "intelephense.environment.phpVersion": "8.2.12",
+    "intelephense.environment.memoryLimit": 4096,
+    "css.lint.unknownAtRules": "ignore",
     "intelephense.files.exclude": [
         "**/.git/**",
         "**/.svn/**",
         "**/.hg/**",
         "**/CVS/**",
         "**/.DS_Store/**",
+        "**/.history/**",
         "**/node_modules/**",
         "**/bower_components/**",
-        "**/vendor/**/(tests|Tests)/**",
-        "**/.history/**",
-        "**/vendor/**/vendor/**",
-        "**/storage/framework/views/**",
-        "**/facultylist/storage/framework/views/**"
-    ]
+        "**/vendor/**",
+        "**/storage/**"
+    ],
+    "files.watcherExclude": {
+        "**/vendor/**": true,
+        "**/node_modules/**": true
+    }
 }

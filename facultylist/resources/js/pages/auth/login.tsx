@@ -62,7 +62,7 @@ export default function Login({ // You might want to rename this component to 'L
                                     Login to your account
                                 </h1>
                                 <p className="text-sm text-muted-foreground">
-                                    Enter your email and password below to Login
+                                    Enter your user name and password below to Login
                                 </p>
                             </div>
 
@@ -76,7 +76,7 @@ export default function Login({ // You might want to rename this component to 'L
                                     <>
                                         <div className="grid gap-4">
                                             <div className="grid gap-2">
-                                                <Label htmlFor="email">Email address</Label>
+                                                <Label htmlFor="email">User Name</Label>
                                                 <Input
                                                     id="email"
                                                     type="email"
@@ -85,7 +85,7 @@ export default function Login({ // You might want to rename this component to 'L
                                                     autoFocus
                                                     tabIndex={1}
                                                     autoComplete="email"
-                                                    placeholder="email@example.com"
+                                                    placeholder="User Name"
                                                 />
                                                 <InputError message={errors.email} />
                                             </div>

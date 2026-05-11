@@ -17,6 +17,13 @@ class ProfileUpdateRequest extends FormRequest
      */
     public function rules(): array
     {
-        return $this->profileRules($this->user()->id);
+        return array_merge($this->profileRules($this->user()->id), [
+            'hei_address' => ['nullable', 'string', 'max:255'],
+            'hei_contact_number' => ['nullable', 'string', 'max:50'],
+            'hei_email' => ['nullable', 'string', 'email', 'max:255'],
+            'hei_name' => ['nullable', 'string', 'max:255'],
+            'hei_code' => ['nullable', 'string', 'max:50'],
+            'hei_type' => ['nullable', 'string', 'in:Public,Private,public,private'],
+        ]);
     }
 }

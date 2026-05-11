@@ -162,50 +162,50 @@ export default function DisciplineFormModal({ isOpen, onClose, onSubmit, initial
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent
-                className="sm:max-w-[500px] rounded-[4px] bg-white"
+                className="sm:max-w-[600px] rounded-2xl bg-white shadow-2xl p-0 overflow-hidden border-none"
                 onInteractOutside={(e) => e.preventDefault()}
             >
-                <DialogHeader className="px-6 pt-6 pb-4 border-b border-gray-100">
-                    <DialogTitle className="text-xl font-bold">
+                <DialogHeader className="px-8 pt-8 pb-6 border-b border-gray-100 bg-linear-to-r from-[#003468] to-[#1a4f8c] text-white">
+                    <DialogTitle className="text-2xl font-bold tracking-tight">
                         {initialData ? 'Edit Discipline' : (specificSubCode ? 'Add Specific Discipline' : 'Add Discipline')}
                     </DialogTitle>
-                    <DialogDescription>
+                    <DialogDescription className="text-blue-100 opacity-90">
                         {initialData ? 'Update the details below.' : (specificSubCode ? 'Enter the details for the specific discipline.' : 'Enter the details for the major discipline.')}
                     </DialogDescription>
                 </DialogHeader>
-                <form onSubmit={handleSubmit} className="px-6 py-4 grid gap-5">
+                <form onSubmit={handleSubmit} className="px-8 py-8 grid gap-8">
 
                     {/* ADD MODE: Clean Hierarchical Entry */}
                     {!initialData && (
                         <div className="space-y-6">
                             {/* Level 1: Group */}
-                            <div className="space-y-1.5">
-                                <Label className="text-[10px] uppercase tracking-wider font-semibold text-gray-500 ml-1">Discipline Group</Label>
+                            <div className="space-y-2">
+                                <Label className="text-base font-bold text-gray-600 uppercase tracking-wider ml-1">Discipline Group</Label>
                                 <Combobox
                                     options={groupOptions}
                                     value={parentGroupCode}
                                     onChange={handleParentGroupChange}
-                                    placeholder="Select Group..."
-                                    className="rounded-none border-gray-200 h-10"
+                                    placeholder="Select Group"
+                                    className="border-gray-300 hover:border-gray-400 focus-within:border-[#003468] focus-within:ring-1 focus-within:ring-[#003468]/20 rounded-md shadow-none h-12"
                                 />
                             </div>
 
                             {/* Level 2: Major */}
-                            <div className="space-y-1.5">
-                                <Label className="text-[10px] uppercase tracking-wider font-semibold text-gray-500 ml-1">Major Discipline</Label>
-                                <div className="flex gap-2">
+                            <div className="space-y-2">
+                                <Label className="text-base font-bold text-gray-600 uppercase tracking-wider ml-1">Major Discipline</Label>
+                                <div className="flex gap-3">
                                     <div className="flex-1">
                                         <Input
                                             value={formData.majorName}
                                             onChange={(e) => setFormData({ ...formData, majorName: e.target.value })}
-                                            className="rounded-none h-10 border-gray-200 focus-visible:ring-1 focus-visible:ring-black"
-                                            placeholder="Enter Major name..."
+                                            className="h-12 border-gray-300 hover:border-gray-400 focus-visible:ring-1 focus-visible:ring-[#003468]/20 focus-visible:border-[#003468] rounded-md"
+                                            placeholder="Enter Major name"
                                         />
                                     </div>
-                                    <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 px-3 h-10 shrink-0">
-                                        <span className="text-[10px] font-bold text-gray-400 uppercase">Code</span>
+                                    <div className="flex items-center gap-3 bg-gray-50 border border-gray-200 px-4 h-12 shrink-0 rounded-md shadow-inner">
+                                        <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">CODE</span>
                                         <Input
-                                            className="w-8 h-7 border-none bg-transparent font-mono text-sm p-0 focus-visible:ring-0 text-center"
+                                            className="w-10 h-8 border-none bg-transparent font-bold text-base p-0 focus-visible:ring-0 text-center text-gray-700"
                                             maxLength={2}
                                             value={majorSubCode}
                                             onChange={(e) => setMajorSubCode(e.target.value)}
@@ -213,27 +213,27 @@ export default function DisciplineFormModal({ isOpen, onClose, onSubmit, initial
                                         />
                                     </div>
                                 </div>
-                                <div className="px-1">
-                                    <p className="text-[9px] text-gray-400 font-mono">Full Prefix: {parentGroupCode || '??'}{majorSubCode || '??'}</p>
+                                <div className="px-2">
+                                    <p className="text-[10px] text-gray-400 font-mono tracking-tight">Full Prefix: <span className="text-[#003468] font-bold">{parentGroupCode || '??'}</span><span className="text-blue-500 font-bold">{majorSubCode || '??'}</span></p>
                                 </div>
                             </div>
 
                             {/* Level 3: Specific */}
-                            <div className="space-y-1.5">
-                                <Label className="text-[10px] uppercase tracking-wider font-semibold text-gray-500 ml-1">Specific Discipline (Optional)</Label>
-                                <div className="flex gap-2">
+                            <div className="space-y-2">
+                                <Label className="text-base font-bold text-gray-600 uppercase tracking-wider ml-1">Specific Discipline (Optional)</Label>
+                                <div className="flex gap-3">
                                     <div className="flex-1">
                                         <Input
                                             value={formData.specificDiscipline}
                                             onChange={(e) => setFormData({ ...formData, specificDiscipline: e.target.value })}
-                                            className="rounded-none h-10 border-gray-200 focus-visible:ring-1 focus-visible:ring-black"
-                                            placeholder="Enter Specific name..."
+                                            className="h-12 border-gray-300 hover:border-gray-400 focus-visible:ring-1 focus-visible:ring-[#003468]/20 focus-visible:border-[#003468] rounded-md"
+                                            placeholder="Enter Specific name"
                                         />
                                     </div>
-                                    <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 px-3 h-10 shrink-0">
-                                        <span className="text-[10px] font-bold text-gray-400 uppercase">Code</span>
+                                    <div className="flex items-center gap-3 bg-gray-50 border border-gray-200 px-4 h-12 shrink-0 rounded-md shadow-inner">
+                                        <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">CODE</span>
                                         <Input
-                                            className="w-8 h-7 border-none bg-transparent font-mono text-sm p-0 focus-visible:ring-0 text-center"
+                                            className="w-10 h-8 border-none bg-transparent font-bold text-base p-0 focus-visible:ring-0 text-center text-gray-700"
                                             maxLength={2}
                                             value={specificSubCode}
                                             onChange={(e) => setSpecificSubCode(e.target.value)}
@@ -241,8 +241,8 @@ export default function DisciplineFormModal({ isOpen, onClose, onSubmit, initial
                                         />
                                     </div>
                                 </div>
-                                <div className="px-1">
-                                    <p className="text-[9px] text-gray-400 font-mono">Full Code: {parentGroupCode || '??'}{majorSubCode || '??'}{specificSubCode || '??'}</p>
+                                <div className="px-2">
+                                    <p className="text-[10px] text-gray-400 font-mono tracking-tight">Full Code: <span className="text-[#003468] font-bold">{parentGroupCode || '??'}</span><span className="text-blue-400 font-bold">{majorSubCode || '??'}</span><span className="text-blue-300 font-bold">{specificSubCode || '??'}</span></p>
                                 </div>
                             </div>
                         </div>
@@ -259,16 +259,16 @@ export default function DisciplineFormModal({ isOpen, onClose, onSubmit, initial
                                         <Input
                                             value={formData.groupName}
                                             onChange={(e) => setFormData({ ...formData, groupName: e.target.value })}
-                                            className="rounded-none h-10 border-gray-200 focus-visible:ring-1 focus-visible:ring-black uppercase"
+                                            className="rounded-xl h-11 border-slate-200 focus-visible:ring-2 focus-visible:ring-blue-600/10 focus-visible:border-blue-500 uppercase font-medium shadow-sm transition-all"
                                             placeholder="Discipline Group name"
                                         />
                                     </div>
-                                    <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 px-3 h-10 shrink-0">
-                                        <span className="text-[10px] font-bold text-gray-400 uppercase">Code</span>
+                                    <div className="flex items-center gap-3 bg-slate-50 border border-slate-200 px-4 h-11 shrink-0 rounded-xl shadow-sm">
+                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Code</span>
                                         <Input
                                             value={formData.groupCode}
                                             onChange={(e) => setFormData({ ...formData, groupCode: e.target.value })}
-                                            className="w-10 h-7 border-none bg-transparent font-mono text-sm p-0 focus-visible:ring-0 text-center"
+                                            className="w-12 h-8 border-none bg-transparent font-mono text-sm p-0 focus-visible:ring-0 text-center font-bold text-blue-600"
                                             placeholder="XXXX"
                                             maxLength={4}
                                         />
@@ -284,16 +284,16 @@ export default function DisciplineFormModal({ isOpen, onClose, onSubmit, initial
                                         <Input
                                             value={formData.majorCode ? (formData.majorName || '') : ''}
                                             onChange={(e) => setFormData({ ...formData, majorName: e.target.value, groupDescription: e.target.value })}
-                                            className="rounded-none h-10 border-gray-200 focus-visible:ring-1 focus-visible:ring-black"
+                                            className="rounded-xl h-11 border-slate-200 focus-visible:ring-2 focus-visible:ring-blue-600/10 focus-visible:border-blue-500 font-medium shadow-sm transition-all"
                                             placeholder={formData.majorCode ? 'Major Discipline name' : '—'}
                                         />
                                     </div>
-                                    <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 px-3 h-10 shrink-0">
-                                        <span className="text-[10px] font-bold text-gray-400 uppercase">Code</span>
+                                    <div className="flex items-center gap-3 bg-slate-50 border border-slate-200 px-4 h-11 shrink-0 rounded-xl shadow-sm">
+                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Code</span>
                                         <Input
                                             value={formData.majorCode || ''}
                                             onChange={(e) => setFormData({ ...formData, majorCode: e.target.value })}
-                                            className="w-14 h-7 border-none bg-transparent font-mono text-sm p-0 focus-visible:ring-0 text-center"
+                                            className="w-16 h-8 border-none bg-transparent font-mono text-sm p-0 focus-visible:ring-0 text-center font-bold text-blue-600"
                                             placeholder="XXXXXX"
                                             maxLength={6}
                                         />
@@ -309,7 +309,7 @@ export default function DisciplineFormModal({ isOpen, onClose, onSubmit, initial
                                         <Input
                                             value={initialData.type === 'specific' ? formData.specificDiscipline : ''}
                                             onChange={(e) => setFormData({ ...formData, specificDiscipline: e.target.value })}
-                                            className="rounded-none h-10 border-gray-200 focus-visible:ring-1 focus-visible:ring-black"
+                                            className="rounded-xl h-11 border-slate-200 focus-visible:ring-2 focus-visible:ring-blue-600/10 focus-visible:border-blue-500 font-medium shadow-sm transition-all"
                                             placeholder={initialData.type === 'specific' ? 'Specific Discipline name' : '—'}
                                         />
                                     </div>
@@ -333,11 +333,11 @@ export default function DisciplineFormModal({ isOpen, onClose, onSubmit, initial
 
 
 
-                    <DialogFooter className="mt-6 pt-4 border-t border-gray-100">
-                        <Button type="button" variant="outline" onClick={onClose} className="rounded-none border-gray-300">
+                    <DialogFooter className="mt-8 pt-6 border-t border-gray-100 flex gap-3">
+                        <Button type="button" variant="outline" onClick={onClose} className="rounded-xl border-gray-300 h-12 px-6 font-semibold uppercase tracking-wider text-xs">
                             Cancel
                         </Button>
-                        <Button type="submit" disabled={processing} className="rounded-none bg-black text-white hover:bg-gray-800 disabled:opacity-60">
+                        <Button type="submit" disabled={processing} className="rounded-xl bg-[#003468] text-white hover:bg-[#1a4f8c] disabled:opacity-60 h-12 px-8 font-bold uppercase tracking-wider text-xs shadow-lg shadow-blue-900/10">
                             {processing ? 'Saving...' : (initialData ? 'Save Changes' : (specificSubCode ? 'Add Specific' : 'Add Discipline'))}
                         </Button>
                     </DialogFooter>

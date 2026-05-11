@@ -1,17 +1,11 @@
 import { Button } from '@/components/ui/button';
+import { Combobox } from '@/components/ui/combobox';
 import {
     Dialog,
     DialogContent,
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
 
 interface SubmitFacultyModalProps {
     isOpen: boolean;
@@ -33,62 +27,57 @@ export function SubmitFacultyModal({
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
             <DialogContent
-                className="sm:max-w-xl p-0 overflow-hidden border-0 shadow-lg rounded-none"
+                className="sm:max-w-xl p-0 overflow-hidden border-0 shadow-2xl rounded-2xl"
                 onInteractOutside={(e) => e.preventDefault()}
             >
-                <div className="px-6 py-6 pb-4">
-                    <DialogHeader className="mb-6">
-                        <DialogTitle className="text-xl font-bold tracking-tight text-slate-900">
+                <div className="bg-linear-to-r from-[#003468] to-[#1a4f8c] px-8 py-6 text-white">
+                    <DialogHeader>
+                        <DialogTitle className="text-2xl font-bold tracking-tight">
                             Submit Faculty List
                         </DialogTitle>
                     </DialogHeader>
+                </div>
+                <div className="px-8 py-8">
 
                     <div className="space-y-6">
                         <p className="text-sm leading-relaxed text-slate-600">
                             Select the Academic Year you want to submit the faculty list for. Once submitted, the records will be locked for review by the regional office.
                         </p>
 
-                        <div className="grid gap-5 bg-slate-50/50 p-5 rounded-lg border border-slate-100">
-                            <div className="space-y-2">
-                                <label className="text-sm font-semibold text-slate-700">Target Academic Year</label>
-                                <Select value={submitYear} onValueChange={setSubmitYear}>
-                                    <SelectTrigger className="w-full bg-white transition-shadow focus:ring-2 focus:ring-blue-600/20">
-                                        <SelectValue placeholder="Select Academic Year" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {availableYears && availableYears.length > 0 ? (
-                                            availableYears.map((year) => (
-                                                <SelectItem key={year} value={year}>
-                                                    {year}
-                                                </SelectItem>
-                                            ))
-                                        ) : (
-                                            <div className="px-3 py-2 text-xs text-muted-foreground">
-                                                No academic years found
-                                            </div>
-                                        )}
-                                    </SelectContent>
-                                </Select>
+                        <div className="grid gap-6 bg-slate-50 p-6 rounded-xl border border-slate-100 shadow-inner">
+                            <div className="space-y-3">
+                                <label className="text-base font-bold text-slate-600 uppercase tracking-wider ml-1">Target Academic Year</label>
+                                <Combobox
+                                    value={submitYear}
+                                    onChange={setSubmitYear}
+                                    options={(availableYears || []).map((year) => ({
+                                        label: year,
+                                        value: year
+                                    }))}
+                                    placeholder="Select Academic Year"
+                                    className="w-full h-12 bg-white border-slate-200 hover:border-blue-400 focus-within:ring-2 focus-within:ring-blue-600/20 rounded-md"
+                                />
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div className="flex items-center justify-end gap-3 bg-slate-50 px-6 py-4 border-t border-slate-100">
+                <div className="flex items-center justify-end gap-3 bg-slate-50 px-8 py-5 border-t border-slate-100">
                     <Button
                         variant="outline"
                         onClick={() => onOpenChange(false)}
-                        className="font-medium text-slate-600 hover:text-slate-900 border-slate-200 hover:bg-slate-100"
+                        className="h-11 px-6 font-semibold text-slate-600 border-slate-300 hover:bg-slate-100 rounded-xl"
                     >
                         Cancel
                     </Button>
                     <Button
                         onClick={onConfirmSubmit}
                         disabled={!submitYear}
-                        className="bg-blue-600 font-medium text-white shadow-sm hover:bg-blue-700 focus-visible:ring-4 focus-visible:ring-blue-600/20"
+                        className="bg-[#003468] text-white hover:bg-[#1a4f8c] font-bold shadow-lg shadow-blue-900/10 rounded-xl h-11 px-8 transition-all active:scale-[0.98]"
                     >
                         Submit List
                     </Button>
+
                 </div>
             </DialogContent>
         </Dialog>

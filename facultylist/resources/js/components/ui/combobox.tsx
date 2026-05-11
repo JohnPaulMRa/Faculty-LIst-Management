@@ -1,6 +1,6 @@
 import * as PopoverPrimitive from "@radix-ui/react-popover"
 import { Command as CommandPrimitive } from "cmdk"
-import { Check, ChevronsUpDown } from "lucide-react"
+import { Check, ChevronsUpDown, X } from "lucide-react"
 import * as React from "react"
 
 import {
@@ -28,6 +28,7 @@ interface ComboboxProps {
     containerClassName?: string
     allowFreeInput?: boolean
     showCodePrefix?: boolean
+    showClear?: boolean
 }
 
 export function Combobox({
@@ -42,10 +43,12 @@ export function Combobox({
     containerClassName,
     allowFreeInput = false,
     showCodePrefix = false,
+    showClear = false,
 }: ComboboxProps) {
     const [open, setOpen] = React.useState(false)
     const [inputValue, setInputValue] = React.useState("")
     const isMouseDownOnDropdown = React.useRef(false)
+    const clearingOnFocus = React.useRef(false)
 
     const selectedOption = React.useMemo(
         () => options.find((opt) => String(opt.value) === String(value)),
@@ -54,26 +57,28 @@ export function Combobox({
 
     // Sync input value with selected option or clear if value is explicitly cleared
     React.useEffect(() => {
-        if (selectedOption) {
-             
-            setInputValue(selectedOption.label)
-        } else {
-            // If there's no selected option and we're not allowing free input, or if the value is explicitly cleared
-            if (!allowFreeInput || !value) {
-                 
-                setInputValue("")
+        // Only sync from selection when CLOSED.
+        // When OPEN, the user is likely typing/searching and we don't want to overwrite their search
+        // with the full description of the previous selection, which would then filter out all other options.
+        if (!open) {
+            if (selectedOption) {
+                setInputValue(selectedOption.label)
+            } else {
+                // If there's no selected option and we're not allowing free input, or if the value is explicitly cleared
+                if (!allowFreeInput || !value) {
+                    setInputValue("")
+                }
             }
         }
-    }, [selectedOption, allowFreeInput, value])
+    }, [selectedOption, allowFreeInput, value, open])
 
     return (
-        <Command shouldFilter={true} className={cn("overflow-visible bg-transparent", containerClassName)}>
+        <Command shouldFilter={true} className={cn("overflow-visible bg-transparent shadow-none", containerClassName)}>
             <Popover open={open} onOpenChange={() => { }}>
                 <PopoverPrimitive.Anchor asChild>
                     <div
                         className={cn(
-                            "flex w-full items-center rounded-md border border-input bg-white text-[12px] shadow-xs transition-colors focus-within:ring-1 focus-within:ring-ring disabled:cursor-not-allowed disabled:opacity-50 overflow-hidden h-12 px-3",
-                            disabled && "opacity-50 pointer-events-none",
+                            "flex w-full items-center rounded-md border border-input bg-white text-[12px] transition-colors focus-within:ring-1 focus-within:ring-ring disabled:cursor-not-allowed overflow-hidden h-12 px-3",
                             className
                         )}
                     >
@@ -89,12 +94,17 @@ export function Combobox({
                                     setInputValue(val)
                                     if (!open) setOpen(true)
                                     if (onInputChange) onInputChange(val)
-                                    if (val === '' && value) {
+                                    if (val === '' && value && !clearingOnFocus.current) {
                                         onChange('')
                                     }
+                                    clearingOnFocus.current = false
                                 }}
                                 onFocus={() => {
-                                    if (!disabled) setOpen(true)
+                                    if (!disabled) {
+                                        setOpen(true)
+                                        clearingOnFocus.current = true
+                                        setInputValue("")
+                                    }
                                 }}
                                 onBlur={() => {
                                     if (isMouseDownOnDropdown.current) return
@@ -110,22 +120,40 @@ export function Combobox({
                                 }}
                                 placeholder={placeholder}
                                 disabled={disabled}
-                                className="flex-1 min-w-0 bg-transparent outline-none placeholder:text-muted-foreground text-[15px] "
+                                className="flex-1 min-w-0 bg-transparent outline-none placeholder:text-muted-foreground text-[15px] disabled:cursor-not-allowed"
                             />
-                            <ChevronsUpDown
-                                className="ml-2 h-4 w-4 shrink-0 opacity-40 cursor-pointer hover:opacity-70 transition-opacity"
-                                onMouseDown={(e) => {
-                                    e.preventDefault()
-                                    if (!disabled) setOpen((prev) => !prev)
-                                }}
-                            />
+                            <div className="flex items-center gap-1 shrink-0">
+                                {showClear && value && (
+                                    <X
+                                        className={cn("h-4 w-4 opacity-40 transition-opacity", disabled ? "cursor-not-allowed" : "cursor-pointer hover:opacity-70")}
+                                        onMouseDown={(e) => {
+                                            e.preventDefault()
+                                            onChange("")
+                                            setInputValue("")
+                                        }}
+                                    />
+                                )}
+                                <ChevronsUpDown
+                                    className={cn("h-4 w-4 opacity-40 transition-opacity", disabled ? "cursor-not-allowed" : "cursor-pointer hover:opacity-70")}
+                                    onMouseDown={(e) => {
+                                        e.preventDefault()
+                                        if (!disabled) {
+                                            const newOpen = !open
+                                            setOpen(newOpen)
+                                            // Clear search when opening to show all options
+                                            if (newOpen) setInputValue("")
+                                        }
+                                    }}
+                                />
+                            </div>
                         </div>
                     </div>
                 </PopoverPrimitive.Anchor>
                 <PopoverContent
-                    className="p-0"
+                    className="p-0 shadow-none rounded-md"
                     style={{ width: "var(--radix-popover-trigger-width)" }}
                     align="start"
+                    sideOffset={0}
                     onOpenAutoFocus={(e) => e.preventDefault()}
                     onInteractOutside={(e) => {
                         // Prevent Radix from auto-closing; we control open state manually
@@ -140,7 +168,7 @@ export function Combobox({
                             {options.map((option) => (
                                 <CommandItem
                                     key={option.value}
-                                    value={String(option.label)}
+                                    value={`${String(option.value)} ${String(option.label)}`}
                                     onSelect={() => {
                                         onChange(String(option.value) === String(value) ? "" : String(option.value))
                                         setInputValue(String(option.label))

@@ -1,16 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
-import { Button } from '@/components/ui/button';
 import PublicFacultyTable from './PublicFacultyTable';
 
 interface PublicSchoolViewProps {
     schoolName: string;
     faculty: any[];
+    referenceData?: any;
+    submittedYears: string[];
 }
 
-export function PublicSchoolView({ schoolName, faculty }: PublicSchoolViewProps) {
+export function PublicSchoolView({ schoolName, faculty = [], referenceData = {}, submittedYears = [] }: PublicSchoolViewProps) {
     return (
-        <div className="bg-white p-6 border border-gray-200 shadow-sm rounded-xl animate-in fade-in zoom-in-95 duration-200">
+        <div className="bg-white p-6 rounded-xl animate-in fade-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between mb-6">
                 <div>
                     <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
@@ -19,12 +20,9 @@ export function PublicSchoolView({ schoolName, faculty }: PublicSchoolViewProps)
                     </h2>
                     <p className="text-xs text-gray-500 mt-1">Viewing all faculty members for this public school.</p>
                 </div>
-                <Button variant="outline" size="sm" className="rounded-md border-gray-300">
-                    Download Report
-                </Button>
             </div>
 
-            <PublicFacultyTable faculty={faculty} />
+            <PublicFacultyTable faculty={faculty} referenceData={referenceData} submittedYears={submittedYears} />
         </div>
     );
 }

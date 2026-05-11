@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react';
 import { router } from '@inertiajs/react';
+import { useState, useMemo } from 'react';
 import { getCurrentAcademicYear } from '@/lib/utils';
 import type { Faculty } from '@/types/faculty';
 
@@ -47,6 +47,11 @@ export const useFacultyFilters = ({ initialFacultyData, filters, availableYears 
         router.get(window.location.pathname, { search: searchQuery, year }, { preserveScroll: true });
     };
 
+    const isYearLocked = useMemo(() => {
+        if (!yearFilter) return false;
+        return initialFacultyData.some(f => f.joined_year === yearFilter && (f.status === 'Submitted' || f.status === 'Completed'));
+    }, [initialFacultyData, yearFilter]);
+
     return {
         searchQuery,
         setSearchQuery,
@@ -54,5 +59,6 @@ export const useFacultyFilters = ({ initialFacultyData, filters, availableYears 
         setYearFilter,
         filteredFacultyList,
         handleYearChange,
+        isYearLocked,
     };
 };

@@ -1,112 +1,887 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React from 'react';
+import {
+    User,
+    GraduationCap,
+    Clock,
+    Award,
+    ChevronRight
+} from 'lucide-react';
+import React, { useEffect, useCallback } from 'react';
 import type { FC } from 'react';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Combobox } from '@/components/ui/combobox';
 import { Input } from '@/components/ui/input';
+import { Separator } from '@/components/ui/separator';
+import { cn } from '@/lib/utils';
 import type { PublicFaculty } from '@/types/faculty';
+import {
+    GENERIC_RANK_OPTIONS,
+    TENURE_OPTIONS,
+    SALARY_GRADE_OPTIONS,
+    ANNUAL_SALARY_OPTIONS,
+    ON_LEAVE_PAY_OPTIONS,
+    FTE_OPTIONS,
+    GENDER_OPTIONS,
+    HIGHEST_DEGREE_OPTIONS,
+    PURSUING_DEGREE_OPTIONS,
+    THESIS_OPTIONS,
+    DISSERTATION_OPTIONS
+} from '@/types/faculty/referenceDataE2';
+import DisciplineSelectorE2 from './DisciplineSelectorE2';
 
 // --- TYPES / INTERFACES ---
 
 interface FacultyProfileCardsE2Props {
     formData: Partial<PublicFaculty>;
-    handleChange?: (field: keyof PublicFaculty, value: any) => void;
+    handleChange?: (field: keyof PublicFaculty, value: any, desc?: string) => void;
+    readOnly?: boolean;
+    referenceData?: any;
+}
+
+interface SectionHeaderProps {
+    icon: React.ReactNode;
+    title: string;
+    badge?: string;
+    variant?: 'default' | 'white';
+}
+
+interface FormFieldProps {
+    label: string;
+    value: string;
+    onChange?: (value: string) => void;
+    placeholder?: string;
+    type?: string;
+    className?: string;
+    required?: boolean;
+    hint?: string;
+    error?: string;
+    readOnly?: boolean;
+    showCodePrefix?: boolean;
+}
+
+interface FormComboboxProps {
+    label: string;
+    value: string;
+    onChange: (value: string) => void;
+    options: { label: string; value: string | number }[];
+    placeholder?: string;
+    required?: boolean;
+    error?: string;
+    showCodePrefix?: boolean;
+    showClear?: boolean;
     readOnly?: boolean;
 }
 
+interface WorkloadGridProps {
+    title: string;
+    items: Array<{
+        label: string;
+        value: string;
+        onChange?: (value: string) => void;
+        highlighted?: boolean;
+        hint?: string;
+        readOnly?: boolean;
+        showCodePrefix?: boolean;
+    }>;
+}
+
+// --- SUB-COMPONENTS ---
+
+const SectionHeader: FC<SectionHeaderProps> = ({
+    icon,
+    title,
+    badge,
+    variant = 'default'
+}) => {
+    const isWhite = variant === 'white';
+
+    const iconWrapperClass = cn(
+        "p-2.5 rounded-xl shadow-sm transition-transform duration-200 hover:scale-105",
+        isWhite ? "bg-white text-[#003468]" : "bg-linear-to-br from-[#003468] to-[#1a4f8c] text-white"
+    );
+
+    const titleClass = cn(
+        "font-bold text-lg tracking-tight",
+        isWhite ? "text-white" : "text-[#003468]"
+    );
+
+    const badgeTextClass = cn(
+        "text-xs",
+        isWhite ? "text-blue-100" : "text-gray-500"
+    );
+
+    const badgeVariantClass = cn(
+        "text-xs border-0",
+        isWhite ? "bg-white/20 text-white backdrop-blur-md" : "bg-gray-50 text-gray-600"
+    );
+
+    const iconElement = React.isValidElement(icon)
+        ? React.cloneElement(icon as React.ReactElement<any>, { className: 'h-5 w-5' })
+        : icon;
+
+    return (
+        <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+                <div className={iconWrapperClass}>
+                    {iconElement}
+                </div>
+                <div>
+                    <h3 className={titleClass}>{title}</h3>
+                    {badge && <p className={badgeTextClass}>{badge}</p>}
+                </div>
+            </div>
+            {badge && (
+                <Badge
+                    variant="outline"
+                    className={badgeVariantClass}
+                >
+                    {badge}
+                </Badge>
+            )}
+        </div>
+    );
+};
+
+const FormField: FC<FormFieldProps> = ({
+    label,
+    value,
+    onChange,
+    placeholder,
+    type = 'text',
+    className = '',
+    required,
+    hint,
+    error,
+    readOnly,
+    showCodePrefix = false
+}) => {
+    const containerClass = cn(
+        "flex flex-1 items-center rounded-md border border-gray-300 bg-white transition-all duration-200 overflow-hidden h-12",
+        readOnly ? "bg-gray-50/50 border-gray-200 cursor-not-allowed" : "focus-within:border-[#003468] focus-within:ring-1 focus-within:ring-[#003468]/20 hover:border-gray-400",
+        error ? "border-red-500 focus-within:border-red-500 focus-within:ring-red-500/20" : ""
+    );
+
+    const inputClass = cn(
+        "border-0 focus-visible:ring-0 shadow-none h-full flex-1 px-3 text-[15px] text-gray-900",
+        readOnly && "cursor-not-allowed",
+        className
+    );
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (onChange) onChange(e.target.value);
+    };
+
+    return (
+        <div className="grid gap-3">
+            <div className="grid gap-3">
+                <label className="text-base font-bold text-gray-900">
+                    {label}
+                    {required && <span className="text-red-500 ml-1">*</span>}
+                </label>
+                {hint && <span className="text-[12px] text-gray-400 italic">{hint}</span>}
+            </div>
+            <div className="flex items-center gap-2">
+                {showCodePrefix && (
+                    <div className="shrink-0 h-12 w-32 bg-gray-50 border border-input flex items-center justify-center text-[15px] font-bold text-gray-900 uppercase rounded-md px-3 text-center disabled:opacity-100 disabled:bg-gray-50 cursor-not-allowed">
+                        CODE
+                    </div>
+                )}
+                <div className={containerClass}>
+                    <Input
+                        type={type}
+                        value={value || ''}
+                        onChange={handleInputChange}
+                        placeholder={placeholder}
+                        readOnly={readOnly}
+                        className={inputClass}
+                    />
+                </div>
+            </div>
+            {error && <p className="text-lg text-red-500 mt-1">{error}</p>}
+        </div>
+    );
+};
+
+const FormCombobox: FC<FormComboboxProps> = ({
+    label,
+    value,
+    onChange,
+    options,
+    placeholder,
+    required,
+    error,
+    showCodePrefix = true,
+    showClear = false,
+    readOnly = false
+}) => {
+    const comboboxClass = cn(
+        'border-gray-300 hover:border-gray-400 focus-within:border-[#003468] focus-within:ring-1 focus-within:ring-[#003468]/20 rounded-md shadow-none h-12',
+        error ? 'border-red-500 focus-within:ring-red-500/20 focus-within:border-red-500' : '',
+        readOnly && "cursor-not-allowed"
+    );
+
+    const codeInputClass = cn(
+        "shrink-0 h-12 w-32 bg-gray-50 border border-input flex items-center justify-center text-[15px] font-bold text-gray-900 uppercase rounded-md px-3 text-center focus-visible:ring-0 shadow-none disabled:opacity-100 disabled:bg-gray-50",
+        readOnly ? "cursor-not-allowed" : "cursor-text"
+    );
+
+    return (
+        <div className="grid gap-3">
+            <label className="text-base font-bold text-gray-900">
+                {label}
+                {required && <span className="text-red-500 ml-1">*</span>}
+            </label>
+            <div className="flex items-center gap-2">
+                {showCodePrefix && (
+                    <Input
+                        value={value || ''}
+                        onChange={(e) => onChange(e.target.value)}
+                        readOnly={true}
+                        className={codeInputClass}
+                        placeholder="Code"
+                        disabled={true}
+                    />
+                )}
+                <div className="flex-1 min-w-0">
+                    <Combobox
+                        value={value}
+                        onChange={onChange}
+                        options={options}
+                        placeholder={placeholder}
+                        disabled={readOnly}
+                        showCodePrefix={false}
+                        showClear={showClear && !readOnly}
+                        className={comboboxClass}
+                    />
+                </div>
+            </div>
+            {error && <p className="text-[12px] text-red-500 mt-1">{error}</p>}
+        </div>
+    );
+};
+
+const WorkloadGrid: FC<WorkloadGridProps> = ({
+    title,
+    items
+}) => (
+    <div className="space-y-3">
+        <div className="flex items-center gap-2">
+            <ChevronRight className="h-4 w-4 text-[#003468]" />
+            <span className="text-sm font-bold text-[#003468] uppercase tracking-wider">{title}</span>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {items.map((item, index) => {
+                const containerClass = cn(
+                    "flex flex-1 items-center rounded-md border overflow-hidden h-12",
+                    item.highlighted ? 'bg-blue-50/50 border-blue-200' : 'bg-white border-gray-300 hover:border-gray-400',
+                    item.readOnly && "cursor-not-allowed"
+                );
+
+                const inputClass = cn(
+                    "border-0 focus-visible:ring-0 shadow-none h-full w-full flex-1 text-center px-3 text-[15px] text-gray-900",
+                    item.highlighted ? 'font-bold text-[#003468] bg-transparent' : 'bg-transparent',
+                    item.readOnly && "cursor-not-allowed"
+                );
+
+                const handleItemChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+                    if (item.onChange) item.onChange(e.target.value);
+                };
+
+                return (
+                    <div key={index} className="space-y-1">
+                        <div className="flex items-center justify-between">
+                            <label className="text-base font-bold text-gray-900 uppercase leading-tight">
+                                {item.label}
+                            </label>
+                            {item.hint && <span className="text-[10px] text-gray-400 font-medium">{item.hint}</span>}
+                        </div>
+                        <div className="flex items-center gap-2">
+                            {item.showCodePrefix && (
+                                <div className="shrink-0 h-12 w-32 bg-gray-50 border border-input flex items-center justify-center text-[15px] font-bold text-gray-900 uppercase rounded-md px-3 text-center disabled:opacity-100 disabled:bg-gray-50 cursor-not-allowed">
+                                    CODE
+                                </div>
+                            )}
+                            <div className={containerClass}>
+                                <Input
+                                    value={item.value || ''}
+                                    onChange={handleItemChange}
+                                    readOnly={item.readOnly}
+                                    className={cn(inputClass, item.readOnly && "disabled:opacity-100")}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                );
+            })}
+        </div>
+    </div>
+);
+
 // --- MAIN COMPONENT ---
 
-export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({ 
-    formData, 
-    handleChange, 
-    readOnly = false 
+export const FacultyProfileCardsE2: FC<FacultyProfileCardsE2Props> = ({
+    formData,
+    handleChange,
+    readOnly = false,
+    referenceData
 }) => {
-    // --- DERIVED ---
+    // --- HELPERS (MATCH E5) ---
 
-    const cardClass = cn(
-        "space-y-3",
-        !readOnly && "bg-white p-4 border border-gray-200 shadow-sm"
-    );
-    
-    // --- HANDLERS ---
-
-    const handleFieldChange = (field: keyof PublicFaculty, value: any) => {
+    // Helper to handle change if not readOnly
+    const onErrorSafeChange = useCallback((field: keyof PublicFaculty, value: any, desc?: string) => {
         if (!readOnly && handleChange) {
-            handleChange(field, value);
+            handleChange(field, value, desc);
         }
+    }, [readOnly, handleChange]);
+
+    // --- AUTO-CALCULATIONS ---
+    useEffect(() => {
+        if (readOnly) return;
+
+        const toNum = (val: any) => {
+            if (typeof val === 'number') return val;
+            if (!val || typeof val !== 'string') return 0;
+            const parsed = parseFloat(val.replace(/,/g, ''));
+            return isNaN(parsed) ? 0 : parsed;
+        };
+
+        // 1. Undergrad Credit Units
+        const ugTotalUnits = toNum(formData.ug_lab_units) + toNum(formData.ug_lec_units);
+        if (toNum(formData.ug_total_units) !== ugTotalUnits) {
+            onErrorSafeChange('ug_total_units', ugTotalUnits.toString());
+        }
+
+        // 2. Undergrad Hours
+        const ugTotalHours = toNum(formData.ug_lab_hours) + toNum(formData.ug_lec_hours);
+        if (toNum(formData.ug_total_hours) !== ugTotalHours) {
+            onErrorSafeChange('ug_total_hours', ugTotalHours.toString());
+        }
+
+        // 3. Undergrad Contact
+        const ugTotalContact = toNum(formData.ug_lab_contact) + toNum(formData.ug_lec_contact);
+        if (toNum(formData.ug_total_contact) !== ugTotalContact) {
+            onErrorSafeChange('ug_total_contact', ugTotalContact.toString());
+        }
+
+        // 4. Grad Credit Units
+        const gradTotalUnits = toNum(formData.grad_lab_units) + toNum(formData.grad_lec_units);
+        if (toNum(formData.grad_total_units) !== gradTotalUnits) {
+            onErrorSafeChange('grad_total_units', gradTotalUnits.toString());
+        }
+
+        // 5. Grad Contact
+        const gradTotalContact = toNum(formData.grad_lab_contact) + toNum(formData.grad_lec_contact);
+        if (toNum(formData.grad_total_contact) !== gradTotalContact) {
+            onErrorSafeChange('grad_total_contact', gradTotalContact.toString());
+        }
+
+        // 6. Total Work Load
+        // Calculation: Sum of all Official Load fields + Undergrad Total Units + Grad Total Units
+        const loadTotal = toNum(formData.load_research) +
+            toNum(formData.load_extension) +
+            toNum(formData.load_study) +
+            toNum(formData.load_production) +
+            toNum(formData.load_admin) +
+            toNum(formData.load_others) +
+            ugTotalUnits +
+            gradTotalUnits;
+
+        if (toNum(formData.load_total) !== loadTotal) {
+            onErrorSafeChange('load_total', loadTotal.toString());
+        }
+    }, [
+        formData.ug_lab_units, formData.ug_lec_units,
+        formData.ug_lab_hours, formData.ug_lec_hours,
+        formData.ug_lab_contact, formData.ug_lec_contact,
+        formData.grad_lab_units, formData.grad_lec_units,
+        formData.grad_lab_contact, formData.grad_lec_contact,
+        formData.load_research, formData.load_extension, formData.load_study,
+        formData.load_production, formData.load_admin, formData.load_others,
+        formData.ug_total_units, formData.ug_total_hours, formData.ug_total_contact,
+        formData.grad_total_units, formData.grad_total_contact, formData.load_total,
+        readOnly, onErrorSafeChange
+    ]);
+
+    // Reusable formatter for reference lists
+    const mapToOptions = (list: { code: string, desc: string }[]) => {
+        return (list || [])
+            .filter(item => item && item.desc && item.desc.trim() !== "")
+            .map(item => ({ label: item.desc, value: item.code }));
     };
 
     // --- JSX COMPONENTS ---
 
-    const facultyDetailsCard = (
-        <div className={cardClass}>
-            <h3 className="font-bold text-gray-900 border-b pb-2">Faculty Details (E2)</h3>
-            <div className="flex flex-col gap-3">
-                <div className="grid gap-1">
-                    <label className="text-xs font-semibold text-gray-600 uppercase tracking-tight">Faculty Name</label>
-                    <Input 
-                        value={formData.name || ''} 
-                        onChange={(e) => handleFieldChange('name', e.target.value)}
-                        className="uppercase focus-visible:ring-0 disabled:opacity-100 disabled:bg-white rounded-none h-9 text-sm"
+    const generalInfoCard = (
+        <Card className="border border-gray-200 shadow-md overflow-hidden rounded-4px bg-white">
+            <CardHeader className="bg-linear-to-r from-[#003468] to-[#1a4f8c] pb-6 pt-6 px-6 border-b-0">
+                <SectionHeader
+                    icon={<User />}
+                    title="General Information"
+                    variant="white"
+                />
+            </CardHeader>
+            <CardContent className="pt-5">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <FormField
+                        label="NAME OF FACULTY ( Last name, first name, middle initial)"
+                        value={formData.name || ''}
+                        onChange={(value) => onErrorSafeChange('name', value)}
+                        placeholder="e.g. DOE, JOHN A."
+                        required
                         readOnly={readOnly}
-                        disabled={readOnly}
-                        placeholder="Last name, first name, middle initial"
+                    />
+                    <FormCombobox
+                        label="Generic Faculty Rank"
+                        value={formData.rank || ''}
+                        onChange={(value) => onErrorSafeChange('rank', value)}
+                        options={mapToOptions(GENERIC_RANK_OPTIONS)}
+                        placeholder="Select Rank"
+                        required
+                        showCodePrefix={true}
+                        showClear={true}
+                        readOnly={readOnly}
+                    />
+                    <FormField
+                        label="HOME COLLEGE"
+                        value={formData.college || ''}
+                        onChange={(value) => onErrorSafeChange('college', value)}
+                        readOnly={readOnly}
+                    />
+                    <FormField
+                        label="HOME DEPARTMENT"
+                        value={formData.department || ''}
+                        onChange={(value) => onErrorSafeChange('department', value)}
+                        readOnly={readOnly}
                     />
                 </div>
-                <div className="grid gap-1">
-                    <label className="text-xs font-semibold text-gray-600 uppercase tracking-tight">Generic Faculty Rank (Code)</label>
-                    <Input 
-                        value={formData.rank || ''} 
-                        onChange={(e) => handleFieldChange('rank', e.target.value)}
-                        className="focus-visible:ring-0 disabled:opacity-100 disabled:bg-white rounded-none h-9 text-sm"
+
+                <Separator className="my-6" />
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <FormCombobox
+                        label="IS FACULTY MEMBER TENURED?"
+                        value={formData.is_tenured || ''}
+                        onChange={(value) => onErrorSafeChange('is_tenured', value)}
+                        options={mapToOptions(referenceData?.tenureE2 || TENURE_OPTIONS)}
+                        placeholder="Select Option"
+                        showCodePrefix={true}
+                        showClear={true}
                         readOnly={readOnly}
-                        disabled={readOnly}
-                        placeholder="Code"
+                    />
+                    <FormCombobox
+                        label="SSL Salary Grade"
+                        value={formData.salary_grade || ''}
+                        onChange={(value) => onErrorSafeChange('salary_grade', value)}
+                        options={mapToOptions(SALARY_GRADE_OPTIONS)}
+                        placeholder="Select Salary Grade"
+                        showCodePrefix={true}
+                        showClear={true}
+                        readOnly={readOnly}
+                    />
+                    <FormCombobox
+                        label="ANNUAL BASIC SALARY"
+                        value={formData.annual_salary || ''}
+                        onChange={(value) => onErrorSafeChange('annual_salary', value)}
+                        options={mapToOptions(ANNUAL_SALARY_OPTIONS)}
+                        placeholder="Select Salary Range"
+                        showCodePrefix={true}
+                        showClear={true}
+                        readOnly={readOnly}
+                    />
+                    <FormCombobox
+                        label="ON LEAVE WITHOUT PAY?"
+                        value={formData.on_leave || ''}
+                        onChange={(value) => onErrorSafeChange('on_leave', value)}
+                        options={mapToOptions(ON_LEAVE_PAY_OPTIONS)}
+                        placeholder="Select Option"
+                        showCodePrefix={true}
+                        showClear={true}
+                        readOnly={readOnly}
+                    />
+                    <FormCombobox
+                        label="FULL-TIME EQUIVALENT (FTE)"
+                        value={formData.fte || ''}
+                        onChange={(value) => onErrorSafeChange('fte', value)}
+                        options={mapToOptions(FTE_OPTIONS)}
+                        showCodePrefix={true}
+                        showClear={true}
+                        readOnly={readOnly}
+                    />
+                    <FormCombobox
+                        label="GENDER OF FACULTY"
+                        value={formData.gender || ''}
+                        onChange={(value) => onErrorSafeChange('gender', value)}
+                        options={mapToOptions(GENDER_OPTIONS)}
+                        placeholder="Select Gender"
+                        required
+                        showCodePrefix={true}
+                        showClear={true}
+                        readOnly={readOnly}
                     />
                 </div>
-                <div className="grid gap-1">
-                    <label className="text-xs font-semibold text-gray-600 uppercase tracking-tight">Home Department</label>
-                    <Input 
-                        value={formData.department || ''} 
-                        onChange={(e) => handleFieldChange('department', e.target.value)}
-                        className="uppercase focus-visible:ring-0 disabled:opacity-100 disabled:bg-white rounded-none h-9 text-sm"
-                        readOnly={readOnly}
-                        disabled={readOnly}
-                    />
-                </div>
-            </div>
-        </div>
+            </CardContent>
+        </Card>
     );
 
-    const educationCard = (
-        <div className={cardClass}>
-            <h3 className="font-bold text-gray-900 border-b pb-2">Education</h3>
-            <div className="flex flex-col gap-3">
-                <div className="grid gap-1">
-                    <label className="text-xs font-semibold text-gray-600 uppercase tracking-tight">Highest Degree Attained (Code)</label>
-                    <Input 
-                        value={formData.degree || ''} 
-                        onChange={(e) => handleFieldChange('degree', e.target.value)}
-                        className="focus-visible:ring-0 disabled:opacity-100 disabled:bg-white rounded-none h-9 text-sm"
+    const educationalAttainmentCard = (
+        <Card className="border border-gray-200 shadow-md overflow-hidden rounded-xl bg-white">
+            <CardHeader className="bg-linear-to-r from-[#003468] to-[#1a4f8c] pb-6 pt-6 px-6 border-b-0">
+                <SectionHeader
+                    icon={<GraduationCap />}
+                    title="Educational Attainment"
+                    variant="white"
+                />
+            </CardHeader>
+            <CardContent className="pt-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <FormCombobox
+                        label="Highest Degree Attained"
+                        value={formData.degree || ''}
+                        onChange={(value) => onErrorSafeChange('degree', value)}
+                        options={mapToOptions(HIGHEST_DEGREE_OPTIONS)}
+                        placeholder="Select Degree"
+                        showCodePrefix={true}
+                        showClear={true}
                         readOnly={readOnly}
-                        disabled={readOnly}
-                        placeholder="Code"
+                    />
+                    <FormCombobox
+                        label="Actively Pursuing Next Degree?"
+                        value={formData.pursuing_degree || ''}
+                        onChange={(value) => onErrorSafeChange('pursuing_degree', value)}
+                        options={mapToOptions(PURSUING_DEGREE_OPTIONS)}
+                        placeholder="Select Option"
+                        showCodePrefix={true}
+                        showClear={true}
+                        readOnly={readOnly}
                     />
                 </div>
-            </div>
-        </div>
+
+                <Separator className="my-6" />
+
+                <div className="space-y-4">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div className="grid gap-3">
+                            <label className="text-base font-bold text-gray-900">SPECIFIC DISCIPLINE (1) OF PRIMARY TEACHING LOAD</label>
+                            <DisciplineSelectorE2
+                                value={formData.discipline_load_1}
+                                description={(formData as any).discipline_load_1_desc}
+                                onChange={(code, desc) => onErrorSafeChange('discipline_load_1', code, desc)}
+                                referenceData={referenceData}
+                                placeholder="Select Primary Discipline (1)"
+                                showGroup={false}
+                                filterCategory="education"
+                                showClear={true}
+                                readOnly={readOnly}
+                            />
+                        </div>
+                        <div className="grid gap-3">
+                            <label className="text-base font-bold text-gray-900">SPECIFIC DISCIPLINE (2) OF PRIMARY TEACHING LOAD</label>
+                            <DisciplineSelectorE2
+                                value={formData.discipline_load_2}
+                                description={(formData as any).discipline_load_2_desc}
+                                onChange={(code, desc) => onErrorSafeChange('discipline_load_2', code, desc)}
+                                referenceData={referenceData}
+                                placeholder="Select Primary Discipline (2)"
+                                showGroup={false}
+                                filterCategory="education"
+                                showClear={true}
+                                readOnly={readOnly}
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <Separator className="my-6" />
+
+                <div className="space-y-4">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        <div className="grid gap-3">
+                            <label className="text-base font-bold text-gray-900">SPECIFIC DISCIPLINE OF BACHELORS DEGREE</label>
+                            <DisciplineSelectorE2
+                                value={formData.discipline_bachelors}
+                                description={(formData as any).discipline_bachelors_desc}
+                                onChange={(code, desc) => onErrorSafeChange('discipline_bachelors', code, desc)}
+                                referenceData={referenceData}
+                                placeholder="Select Bachelors Degree"
+                                showGroup={false}
+                                filterCategory="bachelors"
+                                showClear={true}
+                                readOnly={readOnly}
+                            />
+                        </div>
+                        <div className="grid gap-3">
+                            <label className="text-base font-bold text-gray-900">SPECIFIC DISCIPLINE OF MASTERS DEGREE</label>
+                            <DisciplineSelectorE2
+                                value={formData.discipline_masters}
+                                description={(formData as any).discipline_masters_desc}
+                                onChange={(code, desc) => onErrorSafeChange('discipline_masters', code, desc)}
+                                referenceData={referenceData}
+                                placeholder="Select Masters Degree"
+                                showGroup={false}
+                                filterCategory="masters"
+                                showClear={true}
+                                readOnly={readOnly}
+                            />
+                        </div>
+                        <div className="grid gap-3">
+                            <label className="text-base font-bold text-gray-900">SPECIFIC DISCIPLINE OF DOCTORATE DEGREE</label>
+                            <DisciplineSelectorE2
+                                value={formData.discipline_doctorate}
+                                description={(formData as any).discipline_doctorate_desc}
+                                onChange={(code, desc) => onErrorSafeChange('discipline_doctorate', code, desc)}
+                                referenceData={referenceData}
+                                placeholder="Select Doctorate Degree"
+                                showGroup={false}
+                                filterCategory="doctorate"
+                                showClear={true}
+                                readOnly={readOnly}
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <Separator className="my-6" />
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <FormCombobox
+                        label="MASTERS DEGREE WITH THESIS?"
+                        value={formData.masters_thesis || ''}
+                        onChange={(value) => onErrorSafeChange('masters_thesis', value)}
+                        options={mapToOptions(THESIS_OPTIONS)}
+                        placeholder="Select Option"
+                        showCodePrefix={true}
+                        showClear={true}
+                        readOnly={readOnly}
+                    />
+                    <FormCombobox
+                        label="DOCTORATE WITH DISSERTATION?"
+                        value={formData.doctorate_dissertation || ''}
+                        onChange={(value) => onErrorSafeChange('doctorate_dissertation', value)}
+                        options={mapToOptions(DISSERTATION_OPTIONS)}
+                        placeholder="Select Option"
+                        showCodePrefix={true}
+                        showClear={true}
+                        readOnly={readOnly}
+                    />
+                </div>
+            </CardContent>
+        </Card>
+    );
+
+    const workloadCard = (
+        <Card className="border border-gray-200 shadow-md overflow-hidden rounded-xl bg-white">
+            <CardHeader className="bg-linear-to-r from-[#003468] to-[#1a4f8c] pb-6 pt-6 px-6 border-b-0">
+                <SectionHeader
+                    icon={<Clock />}
+                    title="Workload"
+                    variant="white"
+                />
+            </CardHeader>
+            <CardContent className="pt-6 space-y-8">
+                <WorkloadGrid
+                    title="CREDIT UNITS"
+                    items={[
+                        {
+                            label: "LAB CREDIT UNITS TEACHING Undergrad",
+                            value: formData.ug_lab_units || '',
+                            onChange: (value) => onErrorSafeChange('ug_lab_units', value),
+                            readOnly: readOnly
+                        },
+                        {
+                            label: "LECTURE CREDIT UNITS TEACHING Undergrad",
+                            value: formData.ug_lec_units || '',
+                            onChange: (value) => onErrorSafeChange('ug_lec_units', value),
+                            readOnly: readOnly
+                        },
+                        {
+                            label: "TOTAL TEACHING CREDIT UNITS Undergrad (Lab+Lect)",
+                            value: formData.ug_total_units || '',
+                            highlighted: true,
+                            readOnly: true
+                        }
+                    ]}
+                />
+                <Separator className="my-6" />
+                <WorkloadGrid
+                    title="HOURS PER WEEK TEACHING"
+                    items={[
+                        {
+                            label: "LAB HOURS PER WEEK TEACHING Undergrad",
+                            value: formData.ug_lab_hours || '',
+                            onChange: (value) => onErrorSafeChange('ug_lab_hours', value),
+                            readOnly: readOnly
+                        },
+                        {
+                            label: "LECTURE HOURS PER WEEK TEACHING Undergrad",
+                            value: formData.ug_lec_hours || '',
+                            onChange: (value) => onErrorSafeChange('ug_lec_hours', value),
+                            readOnly: readOnly
+                        },
+                        {
+                            label: "TOTAL TEACHING HOURS PER WEEK Undergrad",
+                            value: formData.ug_total_hours || '',
+                            highlighted: true,
+                            readOnly: true
+                        }
+                    ]}
+                />
+                <Separator className="my-6" />
+                <WorkloadGrid
+                    title="CONTACT - HOURS"
+                    items={[
+                        {
+                            label: "Student Contact Hours Lab Undergrad",
+                            value: formData.ug_lab_contact || '',
+                            onChange: (value) => onErrorSafeChange('ug_lab_contact', value),
+                            readOnly: readOnly
+                        },
+                        {
+                            label: "Student Contact Hours Lecture Undergrad",
+                            value: formData.ug_lec_contact || '',
+                            onChange: (value) => onErrorSafeChange('ug_lec_contact', value),
+                            readOnly: readOnly
+                        },
+                        {
+                            label: "STUDENT CONTACT-HOURS Undergrad (Lab+Lect)",
+                            value: formData.ug_total_contact || '',
+                            highlighted: true,
+                            readOnly: true
+                        }
+                    ]}
+                />
+                <Separator className="my-6" />
+                <WorkloadGrid
+                    title="CREDIT UNITS"
+                    items={[
+                        {
+                            label: "LAB CREDIT UNITS TEACHING Graduate Level",
+                            value: formData.grad_lab_units || '',
+                            onChange: (value) => onErrorSafeChange('grad_lab_units', value),
+                            readOnly: readOnly
+                        },
+                        {
+                            label: "LECTURE CREDIT UNITS TEACHING Graduate Level",
+                            value: formData.grad_lec_units || '',
+                            onChange: (value) => onErrorSafeChange('grad_lec_units', value),
+                            readOnly: readOnly
+                        },
+                        {
+                            label: "TOTAL TEACHING CREDIT UNITS Graduate (Lab+Lect)",
+                            value: formData.grad_total_units || '',
+                            highlighted: true,
+                            readOnly: true
+                        }
+                    ]}
+                />
+                <Separator className="my-6" />
+                <WorkloadGrid
+                    title="Contact - Hours"
+                    items={[
+                        {
+                            label: "Student Contact Hours Lab Graduate",
+                            value: formData.grad_lab_contact || '',
+                            onChange: (value) => onErrorSafeChange('grad_lab_contact', value),
+                            readOnly: readOnly
+                        },
+                        {
+                            label: "Student Contact Hours Lecture Graduate",
+                            value: formData.grad_lec_contact || '',
+                            onChange: (value) => onErrorSafeChange('grad_lec_contact', value),
+                            readOnly: readOnly
+                        },
+                        {
+                            label: "STUDENT CONTACT-HOURS Graduate (Lab+Lect)",
+                            value: formData.grad_total_contact || '',
+                            highlighted: true,
+                            readOnly: true
+                        }
+                    ]}
+                />
+            </CardContent>
+        </Card>
+    );
+
+    const officialCreditLoadCard = (
+        <Card className="border border-gray-200 shadow-md overflow-hidden rounded-xl bg-white lg:col-span-2">
+            <CardHeader className="bg-linear-to-r from-[#003468] to-[#1a4f8c] pb-6 pt-6 px-6 border-b-0">
+                <SectionHeader
+                    icon={<Award />}
+                    title="Official Credit Load"
+                    variant="white"
+                />
+            </CardHeader>
+            <CardContent className="pt-6">
+                <WorkloadGrid
+                    title="CREDIT UNITS"
+                    items={[
+                        {
+                            label: "OFFICIAL RESEARCH LOAD",
+                            value: formData.load_research || '',
+                            onChange: (value) => onErrorSafeChange('load_research', value),
+                            readOnly: readOnly
+                        },
+                        {
+                            label: "OFFICIAL EXTENSION LOAD",
+                            value: formData.load_extension || '',
+                            onChange: (value) => onErrorSafeChange('load_extension', value),
+                            readOnly: readOnly
+                        },
+                        {
+                            label: "OFFICIAL STUDY LOAD",
+                            value: formData.load_study || '',
+                            onChange: (value) => onErrorSafeChange('load_study', value),
+                            readOnly: readOnly
+                        },
+                        {
+                            label: "OFFICIAL LOAD FOR PRODUCTION",
+                            value: formData.load_production || '',
+                            onChange: (value) => onErrorSafeChange('load_production', value),
+                            readOnly: readOnly
+                        },
+                        {
+                            label: "OFFICIAL ADMINISTRATIVE LOAD",
+                            value: formData.load_admin || '',
+                            onChange: (value) => onErrorSafeChange('load_admin', value),
+                            readOnly: readOnly
+                        },
+                        {
+                            label: "OTHER OFFICIAL LOAD CREDITS",
+                            value: formData.load_others || '',
+                            onChange: (value) => onErrorSafeChange('load_others', value),
+                            readOnly: readOnly
+                        },
+                        {
+                            label: "TOTAL WORK LOAD",
+                            value: formData.load_total || '',
+                            highlighted: true,
+                            readOnly: true
+                        },
+                    ]}
+                />
+            </CardContent>
+        </Card>
     );
 
     // --- MAIN RENDER ---
 
     return (
-         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 pb-4">
-            {facultyDetailsCard}
-            {educationCard}
+        <div className="space-y-6 pb-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+                <div className="lg:col-span-2">
+                    {generalInfoCard}
+                </div>
+                <div className="lg:col-span-2">
+                    {educationalAttainmentCard}
+                </div>
+                <div className="lg:col-span-2">
+                    {workloadCard}
+                </div>
+
+                <div className="lg:col-span-2">
+                    {officialCreditLoadCard}
+                </div>
+            </div>
         </div>
     );
 };
-
-// --- HELPER FUNCTIONS ---
-
-function cn(...classes: any[]) {
-    return classes.filter(Boolean).join(' ');
-}
