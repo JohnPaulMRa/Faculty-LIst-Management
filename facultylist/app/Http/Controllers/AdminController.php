@@ -16,6 +16,10 @@ use App\Models\RefMajorDiscipline;
 use App\Models\RefSpecificDiscipline;
 use App\Models\DisProgram;
 use Illuminate\Database\QueryException;
+use function redirect;
+use function collect;
+use function response;
+use function now;
 
 class AdminController extends Controller
 {
@@ -802,98 +806,124 @@ class AdminController extends Controller
             return response()->json(['success' => true, 'report' => $report]);
         }
 
-        $groups = [];
-        $majors = [];
-        $specifics = [];
-        $programs = [];
+        // 5. Batch Processing (Performance Rule) - Process in chunks of 500
+        $chunks = array_chunk($rows, 500);
+        $globalIndexOffset = 0;
 
-        foreach ($rows as $index => $row) {
-            // 1. Trim and Normalize
-            $code = trim($row['code'] ?? '');
-            $groupName = trim($row['groupName'] ?? '');
-            $majorName = trim($row['majorName'] ?? '');
-            $specificName = trim($row['specificDiscipline'] ?? '');
-            $programName = trim($row['program'] ?? '');
+        foreach ($chunks as $chunk) {
+            $groups = [];
+            $majors = [];
+            $specifics = [];
+            $programs = [];
 
-            // 2. Data Validation (Per Row)
-            // Rule: Program and Discipline Group are NOT null. Code is also required for our mapping.
-            if (empty($programName) || empty($groupName) || empty($code)) {
-                $report['total_invalid']++;
+            foreach ($chunk as $index => $row) {
+                // 1. Trim and Normalize
+                $code = trim($row['code'] ?? '');
+                $groupName = trim($row['groupName'] ?? '');
+                $majorName = trim($row['majorName'] ?? '');
+                $specificName = trim($row['specificDiscipline'] ?? '');
+                $programName = trim($row['program'] ?? '');
+
+                // 2. Data Validation (Per Row)
+                // Rule: Program and Discipline Group are NOT null. Code is also required for our mapping.
+                if (empty($programName) || empty($groupName) || empty($code)) {
+                    $report['total_invalid']++;
+                    $report['errors'][] = [
+                        'row' => $globalIndexOffset + $index + 2, // 1-indexed + header
+                        'reason' => 'Missing required field (Code, Group, or Program)'
+                    ];
+                    continue;
+                }
+
+                // Normalization
+                $normalizedProgram = $this->normalizeProgramName($programName);
+                
+                // Codes
+                $groupCode = substr($code, 0, 2);
+                $majorCode = (strlen($code) >= 4) ? substr($code, 0, 4) : null;
+
+                // Collect Groups
+                if ($groupName) {
+                    $groups[$groupCode] = [
+                        'code' => $groupCode,
+                        'description' => $groupName,
+                        'slug' => Str::slug($groupName, '_'),
+                        'updated_at' => now(),
+                        'created_at' => now(),
+                    ];
+                }
+
+                // Collect Majors
+                if ($majorName && $majorCode) {
+                    $majors[$majorCode] = [
+                        'code' => $majorCode,
+                        'description' => $majorName,
+                        'slug' => Str::slug($majorName, '_'),
+                        'updated_at' => now(),
+                        'created_at' => now(),
+                    ];
+                }
+
+                // Collect Specifics
+                $specifics[$code] = [
+                    'code' => $code,
+                    'description' => $specificName ?: $code,
+                    'slug' => Str::slug($specificName ?: $code, '_'),
+                    'group_code' => $groupCode,
+                    'major_code' => $majorCode,
+                    'updated_at' => now(),
+                    'created_at' => now(),
+                ];
+
+                // Collect Programs
+                // Note: programs array index doesn't need to be keyed by code because we insert raw rows
+                $programs[] = [
+                    'specific_discipline_code' => $code,
+                    'program_name' => $normalizedProgram,
+                    'updated_at' => now(),
+                    'created_at' => now(),
+                ];
+            }
+
+            // 6. Transaction Safety: Wrap each batch in a transaction
+            try {
+                DB::transaction(function () use ($groups, $majors, $specifics, $programs, &$report) {
+                    // Strict Duplicate Rule: Insert if new, Ignore if duplicate
+                    if (!empty($groups)) {
+                        DB::table('discipline_group')->insertOrIgnore(array_values($groups));
+                    }
+                    if (!empty($majors)) {
+                        DB::table('major_discipline')->insertOrIgnore(array_values($majors));
+                    }
+                    if (!empty($specifics)) {
+                        DB::table('specific_discipline')->insertOrIgnore(array_values($specifics));
+                    }
+                    if (!empty($programs)) {
+                        // Unique Programs by filtering out PHP array duplicates just in case before inserting
+                        // Though insertOrIgnore handles DB duplicates, PHP duplicates in same batch would be ignored by DB anyway
+                        $uniquePrograms = collect($programs)->unique(function ($item) {
+                            return $item['specific_discipline_code'] . '-' . $item['program_name'];
+                        })->values()->all();
+
+                        $inserted = DB::table('dis_programs')->insertOrIgnore($uniquePrograms);
+                        $report['total_inserted'] += $inserted;
+                        
+                        // Deducting duplicates from the raw attempted count in this chunk
+                        $report['total_duplicates'] += count($programs) - $inserted;
+                    }
+                });
+            } catch (\Exception $e) {
+                // If batch fails: Rollback that batch only, continue next batch
+                \Log::error('Discipline Import Batch Error: ' . $e->getMessage());
                 $report['errors'][] = [
-                    'row' => $index + 2, // 1-indexed + header
-                    'reason' => 'Missing required field (Code, Group, or Program)'
+                    'row' => 'Batch starting at ' . ($globalIndexOffset + 2),
+                    'reason' => 'Batch failed and rolled back. DB Error: ' . $e->getMessage()
                 ];
-                continue;
+                $report['total_invalid'] += count($chunk); // Consider whole batch failed/invalid if it rolled back
             }
 
-            // Normalization
-            $normalizedProgram = $this->normalizeProgramName($programName);
-            
-            // Codes
-            $groupCode = substr($code, 0, 2);
-            $majorCode = (strlen($code) >= 4) ? substr($code, 0, 4) : null;
-
-            // Collect Groups
-            if ($groupName) {
-                $groups[$groupCode] = [
-                    'code' => $groupCode,
-                    'description' => $groupName,
-                    'slug' => Str::slug($groupName, '_'),
-                    'updated_at' => now(),
-                    'created_at' => now(),
-                ];
-            }
-
-            // Collect Majors
-            if ($majorName && $majorCode) {
-                $majors[$majorCode] = [
-                    'code' => $majorCode,
-                    'description' => $majorName,
-                    'slug' => Str::slug($majorName, '_'),
-                    'updated_at' => now(),
-                    'created_at' => now(),
-                ];
-            }
-
-            // Collect Specifics
-            $specifics[$code] = [
-                'code' => $code,
-                'description' => $specificName ?: $code,
-                'slug' => Str::slug($specificName ?: $code, '_'),
-                'group_code' => $groupCode,
-                'major_code' => $majorCode,
-                'updated_at' => now(),
-                'created_at' => now(),
-            ];
-
-            // Collect Programs
-            $programs[] = [
-                'specific_discipline_code' => $code,
-                'program_name' => $normalizedProgram,
-                'updated_at' => now(),
-                'created_at' => now(),
-            ];
+            $globalIndexOffset += count($chunk);
         }
-
-        // 3. Batch Processing & Transaction Safety
-        DB::transaction(function () use ($groups, $majors, $specifics, $programs, &$report) {
-            // Strict Duplicate Rule: Insert if new, Ignore if duplicate
-            if (!empty($groups)) {
-                DB::table('discipline_group')->insertOrIgnore(array_values($groups));
-            }
-            if (!empty($majors)) {
-                DB::table('major_discipline')->insertOrIgnore(array_values($majors));
-            }
-            if (!empty($specifics)) {
-                DB::table('specific_discipline')->insertOrIgnore(array_values($specifics));
-            }
-            if (!empty($programs)) {
-                // insertOrIgnore handles the unique index on [specific_discipline_code, program_name]
-                $inserted = DB::table('dis_programs')->insertOrIgnore(array_values($programs));
-                $report['total_inserted'] = $inserted;
-                $report['total_duplicates'] = count($programs) - $inserted;
-            }
-        });
 
         // 4. Post-Import Reconciliation
         $report['final_total'] = DB::table('dis_programs')->count();

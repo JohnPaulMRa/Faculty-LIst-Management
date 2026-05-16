@@ -296,10 +296,23 @@ export function useFacultyImport({
                                     }
                                     setIsImportModalOpen(false);
                                     setImportGroup('');
-                                    showAlert(
-                                        page.props.flash?.success || 'Faculty imported successfully.',
-                                        'success'
-                                    );
+                                    
+                                    if (page.props.flash?.report) {
+                                        const r = page.props.flash.report;
+                                        const msg = `Import complete!\n\n` +
+                                            `• Processed: ${r.total_excel} rows\n` +
+                                            `• Inserted: ${r.total_inserted}\n` +
+                                            `• Duplicates Skipped: ${r.total_duplicates}\n` +
+                                            `• Invalid Rows: ${r.total_invalid}\n\n` +
+                                            `Final Total in Database: ${r.final_total}`;
+                                        showAlert(msg, 'success', 'Import Reconciliation Report');
+                                    } else {
+                                        showAlert(
+                                            page.props.flash?.success || 'Faculty imported successfully.',
+                                            'success'
+                                        );
+                                    }
+
                                     setYearFilter(importYear);
                                     router.get(
                                         route('facultyprofile'),
