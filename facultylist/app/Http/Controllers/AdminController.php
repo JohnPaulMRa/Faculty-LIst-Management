@@ -806,6 +806,8 @@ class AdminController extends Controller
             return response()->json(['success' => true, 'report' => $report]);
         }
 
+        $chunks = array_chunk($rows, 500);
+        $globalRowOffset = 2; // Data starts at row 2 (1-indexed + header)
         // 5. Batch Processing (Performance Rule) - Process in chunks of 500
         $chunks = array_chunk($rows, 500);
         $globalIndexOffset = 0;
@@ -815,6 +817,11 @@ class AdminController extends Controller
             $majors = [];
             $specifics = [];
             $programs = [];
+            $chunkErrors = [];
+            $chunkInvalid = 0;
+
+            foreach ($chunk as $index => $row) {
+                $currentRow = $globalRowOffset + $index;
 
             foreach ($chunk as $index => $row) {
                 // 1. Trim and Normalize
@@ -827,6 +834,9 @@ class AdminController extends Controller
                 // 2. Data Validation (Per Row)
                 // Rule: Program and Discipline Group are NOT null. Code is also required for our mapping.
                 if (empty($programName) || empty($groupName) || empty($code)) {
+                    $chunkInvalid++;
+                    $chunkErrors[] = [
+                        'row' => $currentRow,
                     $report['total_invalid']++;
                     $report['errors'][] = [
                         'row' => $globalIndexOffset + $index + 2, // 1-indexed + header
@@ -885,6 +895,10 @@ class AdminController extends Controller
                 ];
             }
 
+            // 3. Batch Processing & Transaction Safety
+            if (!empty($programs) || !empty($groups) || !empty($majors) || !empty($specifics)) {
+                DB::beginTransaction();
+                try {
             // 6. Transaction Safety: Wrap each batch in a transaction
             try {
                 DB::transaction(function () use ($groups, $majors, $specifics, $programs, &$report) {
@@ -899,6 +913,30 @@ class AdminController extends Controller
                         DB::table('specific_discipline')->insertOrIgnore(array_values($specifics));
                     }
                     if (!empty($programs)) {
+                        // insertOrIgnore handles the unique index on [specific_discipline_code, program_name]
+                        $inserted = DB::table('dis_programs')->insertOrIgnore(array_values($programs));
+                        $report['total_inserted'] += $inserted;
+                        $report['total_duplicates'] += (count($programs) - $inserted);
+                    }
+                    
+                    $report['total_invalid'] += $chunkInvalid;
+                    $report['errors'] = array_merge($report['errors'], $chunkErrors);
+                    DB::commit();
+                } catch (\Exception $e) {
+                    DB::rollBack();
+                    \Illuminate\Support\Facades\Log::error('Discipline bulk insert chunk failed', ['error' => $e->getMessage()]);
+                    $report['total_invalid'] += count($chunk);
+                    $report['errors'][] = [
+                        'row' => "Batch {$globalRowOffset}-" . ($globalRowOffset + count($chunk) - 1),
+                        'reason' => 'Database error during batch insert. Chunk skipped.'
+                    ];
+                }
+            } else {
+                $report['total_invalid'] += $chunkInvalid;
+                $report['errors'] = array_merge($report['errors'], $chunkErrors);
+            }
+
+            $globalRowOffset += count($chunk);
                         // Unique Programs by filtering out PHP array duplicates just in case before inserting
                         // Though insertOrIgnore handles DB duplicates, PHP duplicates in same batch would be ignored by DB anyway
                         $uniquePrograms = collect($programs)->unique(function ($item) {

@@ -190,7 +190,7 @@ export default function AdminFacultyListModule({
                     <div>
                         <h1 className="text-3xl font-bold tracking-tight text-gray-900">Faculty Management</h1>
                         <p className="text-muted-foreground text-sm mt-1">
-                            Manage HEIs and faculty members. {selectedSchoolId ? "Viewing faculty for the selected school." : "Select a school to view details."}
+                            Manage HEIs and faculty members. {selectedSchoolId ? "Viewing faculty for the selected HEIs." : "Select a HEIs to view details."}
                         </p>
                     </div>
                     <div className="flex flex-col md:flex-row items-center gap-3 w-full md:w-auto">
@@ -198,7 +198,7 @@ export default function AdminFacultyListModule({
                             <div className="relative w-full md:w-64">
                                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
                                 <Input
-                                    placeholder="Search schools..."
+                                    placeholder="Search HEIs..."
                                     className="pl-9 h-10 w-full"
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
@@ -222,7 +222,7 @@ export default function AdminFacultyListModule({
                             className="bg-blue-500 hover:bg-blue-400 text-white border-0 h-9 px-4 rounded-md flex items-center gap-2 mb-5 shadow-sm font-medium transition-colors w-fit"
                         >
                             <ArrowLeft className="h-4 w-4 text-white" />
-                            Back to Schools
+                            Back to List
                         </Button>
                         {schools.find(s => s.id === selectedSchoolId)?.type === 'Private' ? (
                             <PrivateSchoolView

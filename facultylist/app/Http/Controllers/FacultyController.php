@@ -279,6 +279,95 @@ class FacultyController extends Controller
             'final_total' => 0
         ];
 
+        if (empty($data)) {
+            $report['final_total'] = \App\Models\Faculty::where('hei_id', $user->hei_id)->count();
+            return response()->json(['success' => true, 'report' => $report]);
+        }
+
+        $joinedYear = $data[0]['joined_year'] ?? null;
+
+        $existingCount = \App\Models\Faculty::where('hei_id', $user->hei_id)
+            ->where('joined_year', $joinedYear)
+            ->count();
+
+        if ($existingCount > 0) {
+            return redirect()->back()->with('error', "The selected academic year ({$joinedYear}) already exists. To prevent duplicate entries, re-importing to an existing academic year is not allowed.");
+        }
+
+        $existingNames = \App\Models\Faculty::where('hei_id', $user->hei_id)
+            ->where('joined_year', $joinedYear)
+            ->pluck('name')
+            ->map(fn($n) => strtolower(trim($n)))
+            ->toArray();
+
+        $chunks = array_chunk($data, 500);
+        $globalRowOffset = 2; // Data starts at row 2
+
+        foreach ($chunks as $chunk) {
+            $toInsert = [];
+            $chunkNames = [];
+            $chunkErrors = [];
+            $chunkInvalid = 0;
+            $chunkDuplicates = 0;
+
+            foreach ($chunk as $index => $record) {
+                $currentRow = $globalRowOffset + $index;
+                $name = trim($record['name'] ?? '');
+                if (empty($name)) {
+                    $chunkInvalid++;
+                    $chunkErrors[] = ['row' => $currentRow, 'reason' => 'Missing required field: Name'];
+                    continue;
+                }
+
+                $lowerName = strtolower($name);
+                if (in_array($lowerName, $existingNames) || in_array($lowerName, $chunkNames)) {
+                    $chunkDuplicates++;
+                    continue;
+                }
+
+                $insertData = array_merge($record, [
+                    'hei_id' => $user->hei_id,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+                
+                $toInsert[] = $insertData;
+                $chunkNames[] = $lowerName;
+            }
+
+            if (!empty($toInsert)) {
+                DB::beginTransaction();
+                try {
+                    \App\Models\Faculty::insert($toInsert);
+                    DB::commit();
+                    
+                    $report['total_inserted'] += count($toInsert);
+                    $report['total_invalid'] += $chunkInvalid;
+                    $report['total_duplicates'] += $chunkDuplicates;
+                    $report['errors'] = array_merge($report['errors'], $chunkErrors);
+                    $existingNames = array_merge($existingNames, $chunkNames);
+                } catch (\Exception $e) {
+                    DB::rollBack();
+                    \Illuminate\Support\Facades\Log::error('Faculty bulk insert chunk failed', ['error' => $e->getMessage()]);
+                    $report['total_invalid'] += count($chunk);
+                    $report['errors'][] = ['row' => "Batch {$globalRowOffset}-" . ($globalRowOffset + count($chunk) - 1), 'reason' => 'Database error during batch insert. Chunk skipped.'];
+                }
+            } else {
+                $report['total_invalid'] += $chunkInvalid;
+                $report['total_duplicates'] += $chunkDuplicates;
+                $report['errors'] = array_merge($report['errors'], $chunkErrors);
+            }
+
+            $globalRowOffset += count($chunk);
+        }
+
+        $report['final_total'] = \App\Models\Faculty::where('hei_id', $user->hei_id)->where('joined_year', $joinedYear)->count();
+
+        if ($report['total_inserted'] > 0) {
+            return redirect()->back()->with('success', "Successfully imported {$report['total_inserted']} records for Academic Year {$joinedYear}.");
+        } else {
+            return redirect()->back()->with('error', 'No new records were imported. They might already exist or the file was invalid.');
+        }
         // 5. Batch Processing (Performance Rule) - Process in chunks of 500
         $chunks = array_chunk($data, 500);
         $globalIndexOffset = 0;
@@ -371,6 +460,54 @@ class FacultyController extends Controller
             'final_total' => 0
         ];
 
+        if (empty($data)) {
+            $report['final_total'] = \App\Models\FacultyE5::where('hei_id', $user->hei_id)->count();
+            return response()->json(['success' => true, 'report' => $report]);
+        }
+
+        $joinedYear = $data[0]['joined_year'] ?? null;
+
+        $existingCount = \App\Models\FacultyE5::where('hei_id', $user->hei_id)
+            ->where('joined_year', $joinedYear)
+            ->count();
+
+        if ($existingCount > 0) {
+            return redirect()->back()->with('error', "The selected academic year ({$joinedYear}) already exists. To prevent duplicate entries, re-importing to an existing academic year is not allowed.");
+        }
+
+        $existingNames = \App\Models\FacultyE5::where('hei_id', $user->hei_id)
+            ->where('joined_year', $joinedYear)
+            ->pluck('name')
+            ->map(fn($n) => strtolower(trim($n)))
+            ->toArray();
+
+        $chunks = array_chunk($data, 500);
+        $globalRowOffset = 2; // Data starts at row 2
+
+        foreach ($chunks as $chunk) {
+            $toInsert = [];
+            $chunkNames = [];
+            $chunkErrors = [];
+            $chunkInvalid = 0;
+            $chunkDuplicates = 0;
+
+            foreach ($chunk as $index => $record) {
+                $currentRow = $globalRowOffset + $index;
+                $name = trim($record['name'] ?? '');
+                if (empty($name)) {
+                    $chunkInvalid++;
+                    $chunkErrors[] = ['row' => $currentRow, 'reason' => 'Missing required field: Name'];
+                    continue;
+                }
+
+                $lowerName = strtolower($name);
+                if (in_array($lowerName, $existingNames) || in_array($lowerName, $chunkNames)) {
+                    $chunkDuplicates++;
+                    continue;
+                }
+
+                $toInsert[] = [
+                    'name' => $name,
         // 5. Batch Processing (Performance Rule) - Process in chunks of 500
         $chunks = array_chunk($data, 500);
         $globalIndexOffset = 0;
@@ -411,6 +548,7 @@ class FacultyController extends Controller
                     'status' => $record['status'] ?? 'Not Updated',
                     'employment' => $record['employment'] ?? null,
                     'hei_id' => $user->hei_id,
+                    'joined_year' => $joinedYear,
                     'joined_year' => $record['joined_year'] ?? null,
 
                     'ft_pt_code' => $record['fullTimeCode'] ?? null,
@@ -426,6 +564,46 @@ class FacultyController extends Controller
                     'salary_range_code' => $record['salaryCode'] ?? null,
                     'teaching_load_code' => $record['loadCode'] ?? null,
                     'subjects' => $record['subjects'] ?? null,
+
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+                $chunkNames[] = $lowerName;
+            }
+
+            if (!empty($toInsert)) {
+                DB::beginTransaction();
+                try {
+                    \App\Models\FacultyE5::insert($toInsert);
+                    DB::commit();
+                    
+                    $report['total_inserted'] += count($toInsert);
+                    $report['total_invalid'] += $chunkInvalid;
+                    $report['total_duplicates'] += $chunkDuplicates;
+                    $report['errors'] = array_merge($report['errors'], $chunkErrors);
+                    $existingNames = array_merge($existingNames, $chunkNames);
+                } catch (\Exception $e) {
+                    DB::rollBack();
+                    \Illuminate\Support\Facades\Log::error('Faculty E5 bulk insert chunk failed', ['error' => $e->getMessage()]);
+                    $report['total_invalid'] += count($chunk);
+                    $report['errors'][] = ['row' => "Batch {$globalRowOffset}-" . ($globalRowOffset + count($chunk) - 1), 'reason' => 'Database error during batch insert. Chunk skipped.'];
+                }
+            } else {
+                $report['total_invalid'] += $chunkInvalid;
+                $report['total_duplicates'] += $chunkDuplicates;
+                $report['errors'] = array_merge($report['errors'], $chunkErrors);
+            }
+
+            $globalRowOffset += count($chunk);
+        }
+
+        $report['final_total'] = \App\Models\FacultyE5::where('hei_id', $user->hei_id)->where('joined_year', $joinedYear)->count();
+
+        if ($report['total_inserted'] > 0) {
+            return redirect()->back()->with('success', "Successfully imported {$report['total_inserted']} records for Academic Year {$joinedYear}.");
+        } else {
+            return redirect()->back()->with('error', 'No new records were imported. They might already exist or the file was invalid.');
+        }
                     
                     'created_at' => now(),
                     'updated_at' => now(),
