@@ -23,6 +23,7 @@ export interface UseFacultyActionsProps {
     // From useFacultyFilters
     searchQuery: string;
     setYearFilter: (year: string) => void;
+    availableYears: string[];
 }
 
 // Basic declaration for Ziggy's route helper if not imported
@@ -43,6 +44,7 @@ export const useFacultyActions = ({
     importYear,
     searchQuery,
     setYearFilter,
+    availableYears,
 }: UseFacultyActionsProps) => {
 
     const handleSubmit = () => {
@@ -137,6 +139,7 @@ export const useFacultyActions = ({
         setIsImportModalOpen,
         setImportGroup,
         setYearFilter,
+        availableYears,
     });
 
     return {

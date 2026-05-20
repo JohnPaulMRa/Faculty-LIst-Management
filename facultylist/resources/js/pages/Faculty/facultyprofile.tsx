@@ -102,6 +102,7 @@ const FacultyProfile: FC<FacultyProfileProps> = ({
         importYear,
         searchQuery,
         setYearFilter,
+        availableYears: availableYears || [],
     });
 
     return (

@@ -281,6 +281,14 @@ class FacultyController extends Controller
 
         $joinedYear = $data[0]['joined_year'] ?? null;
 
+        $existingCount = \App\Models\Faculty::where('hei_id', $user->hei_id)
+            ->where('joined_year', $joinedYear)
+            ->count();
+
+        if ($existingCount > 0) {
+            return redirect()->back()->with('error', "The selected academic year ({$joinedYear}) already exists. To prevent duplicate entries, re-importing to an existing academic year is not allowed.");
+        }
+
         $existingNames = \App\Models\Faculty::where('hei_id', $user->hei_id)
             ->where('joined_year', $joinedYear)
             ->pluck('name')
@@ -350,11 +358,11 @@ class FacultyController extends Controller
 
         $report['final_total'] = \App\Models\Faculty::where('hei_id', $user->hei_id)->where('joined_year', $joinedYear)->count();
 
-        return response()->json([
-            'success' => true,
-            'report' => $report,
-            'message' => 'Successfully processed ' . count($data) . ' records.'
-        ]);
+        if ($report['total_inserted'] > 0) {
+            return redirect()->back()->with('success', "Successfully imported {$report['total_inserted']} records for Academic Year {$joinedYear}.");
+        } else {
+            return redirect()->back()->with('error', 'No new records were imported. They might already exist or the file was invalid.');
+        }
     }
 
     public function bulkStoreE5(Request $request)
@@ -386,6 +394,14 @@ class FacultyController extends Controller
         }
 
         $joinedYear = $data[0]['joined_year'] ?? null;
+
+        $existingCount = \App\Models\FacultyE5::where('hei_id', $user->hei_id)
+            ->where('joined_year', $joinedYear)
+            ->count();
+
+        if ($existingCount > 0) {
+            return redirect()->back()->with('error', "The selected academic year ({$joinedYear}) already exists. To prevent duplicate entries, re-importing to an existing academic year is not allowed.");
+        }
 
         $existingNames = \App\Models\FacultyE5::where('hei_id', $user->hei_id)
             ->where('joined_year', $joinedYear)
@@ -476,11 +492,11 @@ class FacultyController extends Controller
 
         $report['final_total'] = \App\Models\FacultyE5::where('hei_id', $user->hei_id)->where('joined_year', $joinedYear)->count();
 
-        return response()->json([
-            'success' => true,
-            'report' => $report,
-            'message' => 'Successfully processed ' . count($data) . ' records.'
-        ]);
+        if ($report['total_inserted'] > 0) {
+            return redirect()->back()->with('success', "Successfully imported {$report['total_inserted']} records for Academic Year {$joinedYear}.");
+        } else {
+            return redirect()->back()->with('error', 'No new records were imported. They might already exist or the file was invalid.');
+        }
     }
 
     public function update(Request $request, $id)

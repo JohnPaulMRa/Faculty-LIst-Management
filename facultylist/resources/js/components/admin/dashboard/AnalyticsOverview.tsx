@@ -45,7 +45,7 @@ export function AnalyticsOverview({
         { key: 'baccalaureate', label: 'Baccalaureate' },
         { key: 'doctorate', label: 'Doctorate' },
         { key: 'master', label: 'Master' },
-        { key: 'preBaccalaureate', label: 'Pre-Bacc' },
+        { key: 'preBaccalaureate', label: 'Pre-Baccalaureate' },
     ];
 
     const sortedData = useMemo(() => {
@@ -81,10 +81,10 @@ export function AnalyticsOverview({
                                 onChange={(e) => {
                                     const params = new URLSearchParams(window.location.search);
                                     params.set(queryParamName, e.target.value);
-                                    
+
                                     const data: Record<string, string> = {};
                                     params.forEach((value, key) => { data[key] = value; });
-                                    
+
                                     router.get(route('admin.dashboard'), data, { preserveState: true, preserveScroll: true, replace: true });
                                 }}
                             >
@@ -107,8 +107,8 @@ export function AnalyticsOverview({
                             </th>
                             {columns.map(col => (
                                 <th key={col.key} className="text-right px-4 py-4 text-sm font-bold uppercase tracking-wider whitespace-nowrap">
-                                     {col.label}
-                                 </th>
+                                    {col.label}
+                                </th>
                             ))}
                             <th className="text-right px-4 py-4 text-sm font-bold uppercase tracking-wider whitespace-nowrap bg-slate-900">
                                 Grand Total
@@ -310,9 +310,9 @@ interface HEIDistributionTableProps {
     queryParamName?: string;
 }
 
-export function HEIDistributionTable({ 
-    data = [], 
-    academicYears = [], 
+export function HEIDistributionTable({
+    data = [],
+    academicYears = [],
     selectedAcademicYear,
     queryParamName = 'academic_year'
 }: HEIDistributionTableProps) {
@@ -341,10 +341,10 @@ export function HEIDistributionTable({
                                 onChange={(e) => {
                                     const params = new URLSearchParams(window.location.search);
                                     params.set(queryParamName, e.target.value);
-                                    
+
                                     const data: Record<string, string> = {};
                                     params.forEach((value, key) => { data[key] = value; });
-                                    
+
                                     router.get(route('admin.dashboard'), data, { preserveState: true, preserveScroll: true, replace: true });
                                 }}
                             >
@@ -388,22 +388,22 @@ export function HEIDistributionTable({
                                             </div>
                                         </td>
                                     </tr>
-                                    
+
                                     {/* Degree Rows */}
                                     {(() => {
                                         const degreeOrder = [
-                                            'Baccalaureate', 
-                                            'Doctorate', 
+                                            'Baccalaureate',
+                                            'Doctorate',
                                             'Master',
                                             'Pre-Baccalaureate'
                                         ];
-                                        
+
                                         return degreeOrder.map((degree, dIdx) => {
                                             const counts = hei.degrees[degree] || { FEMALE: 0, MALE: 0, total: 0 };
-                                            
+
                                             return (
-                                                <tr 
-                                                    key={degree} 
+                                                <tr
+                                                    key={degree}
                                                     className={cn(
                                                         'border-b border-gray-100 transition-colors',
                                                         dIdx % 2 === 0 ? 'bg-blue-50/5' : 'bg-white'
@@ -443,7 +443,7 @@ export function HEIDistributionTable({
                                         const femaleTotal = visibleDegrees.reduce((sum, d) => sum + (hei.degrees[d]?.FEMALE || 0), 0);
                                         const maleTotal = visibleDegrees.reduce((sum, d) => sum + (hei.degrees[d]?.MALE || 0), 0);
                                         const overallTotal = femaleTotal + maleTotal;
-                                        
+
                                         return (
                                             <tr className="bg-red-600 text-white font-black shadow-inner">
                                                 <td className="px-4 py-4 text-sm uppercase tracking-wider" colSpan={2}>

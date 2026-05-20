@@ -141,14 +141,7 @@ export default function Login({ // You might want to rename this component to 'L
 
                             {/* Register Link / Status Message */}
                             <div className="space-y-4">
-                                {canRegister && (
-                                    <div className="text-center text-sm text-muted-foreground">
-                                        Don't have an account?{' '}
-                                        <TextLink href={register()} tabIndex={5}>
-                                            Sign up
-                                        </TextLink>
-                                    </div>
-                                )}
+
 
                                 {status && (
                                     <div className="text-center text-sm font-medium text-green-600">

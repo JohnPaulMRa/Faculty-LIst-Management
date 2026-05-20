@@ -16,6 +16,7 @@ interface UseFacultyImportOptions {
     setIsImportModalOpen: (open: boolean) => void;
     setImportGroup: (group: string) => void;
     setYearFilter: (year: string) => void;
+    availableYears: string[];
 }
 
 /**
@@ -33,8 +34,19 @@ export function useFacultyImport({
     setIsImportModalOpen,
     setImportGroup,
     setYearFilter,
+    availableYears,
 }: UseFacultyImportOptions) {
     const handleFileImport = async (file: File): Promise<void> => {
+        if (!importYear) {
+            showAlert('Please specify an Academic Year before importing.', 'error', 'Import Restricted');
+            return;
+        }
+
+        if (availableYears.includes(importYear)) {
+            showAlert(`The Academic Year ${importYear} already exists in your records. To prevent duplicate entries, re-importing to an existing academic year is not allowed.`, 'error', 'Import Restricted');
+            return;
+        }
+
         const reader = new FileReader();
         reader.onload = async (e) => {
             const data = e.target?.result;
