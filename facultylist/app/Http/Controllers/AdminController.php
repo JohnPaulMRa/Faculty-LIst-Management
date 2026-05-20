@@ -802,98 +802,126 @@ class AdminController extends Controller
             return response()->json(['success' => true, 'report' => $report]);
         }
 
-        $groups = [];
-        $majors = [];
-        $specifics = [];
-        $programs = [];
+        $chunks = array_chunk($rows, 500);
+        $globalRowOffset = 2; // Data starts at row 2 (1-indexed + header)
 
-        foreach ($rows as $index => $row) {
-            // 1. Trim and Normalize
-            $code = trim($row['code'] ?? '');
-            $groupName = trim($row['groupName'] ?? '');
-            $majorName = trim($row['majorName'] ?? '');
-            $specificName = trim($row['specificDiscipline'] ?? '');
-            $programName = trim($row['program'] ?? '');
+        foreach ($chunks as $chunk) {
+            $groups = [];
+            $majors = [];
+            $specifics = [];
+            $programs = [];
+            $chunkErrors = [];
+            $chunkInvalid = 0;
 
-            // 2. Data Validation (Per Row)
-            // Rule: Program and Discipline Group are NOT null. Code is also required for our mapping.
-            if (empty($programName) || empty($groupName) || empty($code)) {
-                $report['total_invalid']++;
-                $report['errors'][] = [
-                    'row' => $index + 2, // 1-indexed + header
-                    'reason' => 'Missing required field (Code, Group, or Program)'
+            foreach ($chunk as $index => $row) {
+                $currentRow = $globalRowOffset + $index;
+                // 1. Trim and Normalize
+                $code = trim($row['code'] ?? '');
+                $groupName = trim($row['groupName'] ?? '');
+                $majorName = trim($row['majorName'] ?? '');
+                $specificName = trim($row['specificDiscipline'] ?? '');
+                $programName = trim($row['program'] ?? '');
+
+                // 2. Data Validation (Per Row)
+                // Rule: Program and Discipline Group are NOT null. Code is also required for our mapping.
+                if (empty($programName) || empty($groupName) || empty($code)) {
+                    $chunkInvalid++;
+                    $chunkErrors[] = [
+                        'row' => $currentRow,
+                        'reason' => 'Missing required field (Code, Group, or Program)'
+                    ];
+                    continue;
+                }
+
+                // Normalization
+                $normalizedProgram = $this->normalizeProgramName($programName);
+                
+                // Codes
+                $groupCode = substr($code, 0, 2);
+                $majorCode = (strlen($code) >= 4) ? substr($code, 0, 4) : null;
+
+                // Collect Groups
+                if ($groupName) {
+                    $groups[$groupCode] = [
+                        'code' => $groupCode,
+                        'description' => $groupName,
+                        'slug' => Str::slug($groupName, '_'),
+                        'updated_at' => now(),
+                        'created_at' => now(),
+                    ];
+                }
+
+                // Collect Majors
+                if ($majorName && $majorCode) {
+                    $majors[$majorCode] = [
+                        'code' => $majorCode,
+                        'description' => $majorName,
+                        'slug' => Str::slug($majorName, '_'),
+                        'updated_at' => now(),
+                        'created_at' => now(),
+                    ];
+                }
+
+                // Collect Specifics
+                $specifics[$code] = [
+                    'code' => $code,
+                    'description' => $specificName ?: $code,
+                    'slug' => Str::slug($specificName ?: $code, '_'),
+                    'group_code' => $groupCode,
+                    'major_code' => $majorCode,
+                    'updated_at' => now(),
+                    'created_at' => now(),
                 ];
-                continue;
-            }
 
-            // Normalization
-            $normalizedProgram = $this->normalizeProgramName($programName);
-            
-            // Codes
-            $groupCode = substr($code, 0, 2);
-            $majorCode = (strlen($code) >= 4) ? substr($code, 0, 4) : null;
-
-            // Collect Groups
-            if ($groupName) {
-                $groups[$groupCode] = [
-                    'code' => $groupCode,
-                    'description' => $groupName,
-                    'slug' => Str::slug($groupName, '_'),
+                // Collect Programs
+                $programs[] = [
+                    'specific_discipline_code' => $code,
+                    'program_name' => $normalizedProgram,
                     'updated_at' => now(),
                     'created_at' => now(),
                 ];
             }
 
-            // Collect Majors
-            if ($majorName && $majorCode) {
-                $majors[$majorCode] = [
-                    'code' => $majorCode,
-                    'description' => $majorName,
-                    'slug' => Str::slug($majorName, '_'),
-                    'updated_at' => now(),
-                    'created_at' => now(),
-                ];
+            // 3. Batch Processing & Transaction Safety
+            if (!empty($programs) || !empty($groups) || !empty($majors) || !empty($specifics)) {
+                DB::beginTransaction();
+                try {
+                    // Strict Duplicate Rule: Insert if new, Ignore if duplicate
+                    if (!empty($groups)) {
+                        DB::table('discipline_group')->insertOrIgnore(array_values($groups));
+                    }
+                    if (!empty($majors)) {
+                        DB::table('major_discipline')->insertOrIgnore(array_values($majors));
+                    }
+                    if (!empty($specifics)) {
+                        DB::table('specific_discipline')->insertOrIgnore(array_values($specifics));
+                    }
+                    if (!empty($programs)) {
+                        // insertOrIgnore handles the unique index on [specific_discipline_code, program_name]
+                        $inserted = DB::table('dis_programs')->insertOrIgnore(array_values($programs));
+                        $report['total_inserted'] += $inserted;
+                        $report['total_duplicates'] += (count($programs) - $inserted);
+                    }
+                    
+                    $report['total_invalid'] += $chunkInvalid;
+                    $report['errors'] = array_merge($report['errors'], $chunkErrors);
+                    DB::commit();
+                } catch (\Exception $e) {
+                    DB::rollBack();
+                    \Illuminate\Support\Facades\Log::error('Discipline bulk insert chunk failed', ['error' => $e->getMessage()]);
+                    $report['total_invalid'] += count($chunk);
+                    $report['errors'][] = [
+                        'row' => "Batch {$globalRowOffset}-" . ($globalRowOffset + count($chunk) - 1),
+                        'reason' => 'Database error during batch insert. Chunk skipped.'
+                    ];
+                }
+            } else {
+                $report['total_invalid'] += $chunkInvalid;
+                $report['errors'] = array_merge($report['errors'], $chunkErrors);
             }
 
-            // Collect Specifics
-            $specifics[$code] = [
-                'code' => $code,
-                'description' => $specificName ?: $code,
-                'slug' => Str::slug($specificName ?: $code, '_'),
-                'group_code' => $groupCode,
-                'major_code' => $majorCode,
-                'updated_at' => now(),
-                'created_at' => now(),
-            ];
-
-            // Collect Programs
-            $programs[] = [
-                'specific_discipline_code' => $code,
-                'program_name' => $normalizedProgram,
-                'updated_at' => now(),
-                'created_at' => now(),
-            ];
+            $globalRowOffset += count($chunk);
         }
-
-        // 3. Batch Processing & Transaction Safety
-        DB::transaction(function () use ($groups, $majors, $specifics, $programs, &$report) {
-            // Strict Duplicate Rule: Insert if new, Ignore if duplicate
-            if (!empty($groups)) {
-                DB::table('discipline_group')->insertOrIgnore(array_values($groups));
-            }
-            if (!empty($majors)) {
-                DB::table('major_discipline')->insertOrIgnore(array_values($majors));
-            }
-            if (!empty($specifics)) {
-                DB::table('specific_discipline')->insertOrIgnore(array_values($specifics));
-            }
-            if (!empty($programs)) {
-                // insertOrIgnore handles the unique index on [specific_discipline_code, program_name]
-                $inserted = DB::table('dis_programs')->insertOrIgnore(array_values($programs));
-                $report['total_inserted'] = $inserted;
-                $report['total_duplicates'] = count($programs) - $inserted;
-            }
-        });
 
         // 4. Post-Import Reconciliation
         $report['final_total'] = DB::table('dis_programs')->count();

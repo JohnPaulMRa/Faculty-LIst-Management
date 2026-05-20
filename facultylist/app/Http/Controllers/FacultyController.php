@@ -265,20 +265,96 @@ class FacultyController extends Controller
 
         $data = $request->input('faculty');
 
-        foreach ($data as $record) {
-            // Use updateOrCreate to avoid duplicates if name exists, or just create
-            // For now, strict create or basic updateOrCreate on email/name
-            \App\Models\Faculty::updateOrCreate(
-                [
-                    'name' => $record['name'],
-                    'hei_id' => $user->hei_id, // Scope by school
-                    'joined_year' => $record['joined_year'] ?? null // Scope by year
-                ],
-                array_merge($record, ['hei_id' => $user->hei_id])
-            );
+        $report = [
+            'total_excel' => count($data),
+            'total_inserted' => 0,
+            'total_duplicates' => 0,
+            'total_invalid' => 0,
+            'errors' => [],
+            'final_total' => 0
+        ];
+
+        if (empty($data)) {
+            $report['final_total'] = \App\Models\Faculty::where('hei_id', $user->hei_id)->count();
+            return response()->json(['success' => true, 'report' => $report]);
         }
 
-        return redirect()->back()->with('success', 'Faculty imported successfully.');
+        $joinedYear = $data[0]['joined_year'] ?? null;
+
+        $existingNames = \App\Models\Faculty::where('hei_id', $user->hei_id)
+            ->where('joined_year', $joinedYear)
+            ->pluck('name')
+            ->map(fn($n) => strtolower(trim($n)))
+            ->toArray();
+
+        $chunks = array_chunk($data, 500);
+        $globalRowOffset = 2; // Data starts at row 2
+
+        foreach ($chunks as $chunk) {
+            $toInsert = [];
+            $chunkNames = [];
+            $chunkErrors = [];
+            $chunkInvalid = 0;
+            $chunkDuplicates = 0;
+
+            foreach ($chunk as $index => $record) {
+                $currentRow = $globalRowOffset + $index;
+                $name = trim($record['name'] ?? '');
+                if (empty($name)) {
+                    $chunkInvalid++;
+                    $chunkErrors[] = ['row' => $currentRow, 'reason' => 'Missing required field: Name'];
+                    continue;
+                }
+
+                $lowerName = strtolower($name);
+                if (in_array($lowerName, $existingNames) || in_array($lowerName, $chunkNames)) {
+                    $chunkDuplicates++;
+                    continue;
+                }
+
+                $insertData = array_merge($record, [
+                    'hei_id' => $user->hei_id,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+                
+                $toInsert[] = $insertData;
+                $chunkNames[] = $lowerName;
+            }
+
+            if (!empty($toInsert)) {
+                DB::beginTransaction();
+                try {
+                    \App\Models\Faculty::insert($toInsert);
+                    DB::commit();
+                    
+                    $report['total_inserted'] += count($toInsert);
+                    $report['total_invalid'] += $chunkInvalid;
+                    $report['total_duplicates'] += $chunkDuplicates;
+                    $report['errors'] = array_merge($report['errors'], $chunkErrors);
+                    $existingNames = array_merge($existingNames, $chunkNames);
+                } catch (\Exception $e) {
+                    DB::rollBack();
+                    \Illuminate\Support\Facades\Log::error('Faculty bulk insert chunk failed', ['error' => $e->getMessage()]);
+                    $report['total_invalid'] += count($chunk);
+                    $report['errors'][] = ['row' => "Batch {$globalRowOffset}-" . ($globalRowOffset + count($chunk) - 1), 'reason' => 'Database error during batch insert. Chunk skipped.'];
+                }
+            } else {
+                $report['total_invalid'] += $chunkInvalid;
+                $report['total_duplicates'] += $chunkDuplicates;
+                $report['errors'] = array_merge($report['errors'], $chunkErrors);
+            }
+
+            $globalRowOffset += count($chunk);
+        }
+
+        $report['final_total'] = \App\Models\Faculty::where('hei_id', $user->hei_id)->where('joined_year', $joinedYear)->count();
+
+        return response()->json([
+            'success' => true,
+            'report' => $report,
+            'message' => 'Successfully processed ' . count($data) . ' records.'
+        ]);
     }
 
     public function bulkStoreE5(Request $request)
@@ -295,27 +371,67 @@ class FacultyController extends Controller
 
         $data = $request->input('faculty');
 
-        foreach ($data as $record) {
-            // Map the generic fields to the specific faculty_e5 columns
-            // Frontend sends camelCase keys (e.g. genderCode), we match them to snake_case db columns
-            \App\Models\FacultyE5::updateOrCreate(
-                [
-                    'name' => $record['name'],
-                    'hei_id' => $user->hei_id,
-                    'joined_year' => $record['joined_year'] ?? null
-                ],
-                [
-                    'email' => $record['email'],
-                    'avatar_initials' => $record['avatar_initials'],
+        $report = [
+            'total_excel' => count($data),
+            'total_inserted' => 0,
+            'total_duplicates' => 0,
+            'total_invalid' => 0,
+            'errors' => [],
+            'final_total' => 0
+        ];
+
+        if (empty($data)) {
+            $report['final_total'] = \App\Models\FacultyE5::where('hei_id', $user->hei_id)->count();
+            return response()->json(['success' => true, 'report' => $report]);
+        }
+
+        $joinedYear = $data[0]['joined_year'] ?? null;
+
+        $existingNames = \App\Models\FacultyE5::where('hei_id', $user->hei_id)
+            ->where('joined_year', $joinedYear)
+            ->pluck('name')
+            ->map(fn($n) => strtolower(trim($n)))
+            ->toArray();
+
+        $chunks = array_chunk($data, 500);
+        $globalRowOffset = 2; // Data starts at row 2
+
+        foreach ($chunks as $chunk) {
+            $toInsert = [];
+            $chunkNames = [];
+            $chunkErrors = [];
+            $chunkInvalid = 0;
+            $chunkDuplicates = 0;
+
+            foreach ($chunk as $index => $record) {
+                $currentRow = $globalRowOffset + $index;
+                $name = trim($record['name'] ?? '');
+                if (empty($name)) {
+                    $chunkInvalid++;
+                    $chunkErrors[] = ['row' => $currentRow, 'reason' => 'Missing required field: Name'];
+                    continue;
+                }
+
+                $lowerName = strtolower($name);
+                if (in_array($lowerName, $existingNames) || in_array($lowerName, $chunkNames)) {
+                    $chunkDuplicates++;
+                    continue;
+                }
+
+                $toInsert[] = [
+                    'name' => $name,
+                    'email' => $record['email'] ?? null,
+                    'avatar_initials' => $record['avatar_initials'] ?? null,
                     'form_type' => 'E5',
-                    'status' => $record['status'],
-                    'employment' => $record['employment'],
+                    'status' => $record['status'] ?? 'Not Updated',
+                    'employment' => $record['employment'] ?? null,
                     'hei_id' => $user->hei_id,
+                    'joined_year' => $joinedYear,
 
                     'ft_pt_code' => $record['fullTimeCode'] ?? null,
                     'gender_code' => $record['genderCode'] ?? null,
                     'discipline_code' => $record['disciplineCode'] ?? null,
-                    'highest_degree_code' => $record['degree'] ?? null, // 'degree' in frontend maps to highest_degree_code
+                    'highest_degree_code' => $record['degree'] ?? null,
                     'rank_code' => $record['rankCode'] ?? null,
                     'bachelors_code' => $record['bachelorsCode'] ?? null,
                     'masters_code' => $record['mastersCode'] ?? null,
@@ -325,11 +441,46 @@ class FacultyController extends Controller
                     'salary_range_code' => $record['salaryCode'] ?? null,
                     'teaching_load_code' => $record['loadCode'] ?? null,
                     'subjects' => $record['subjects'] ?? null,
-                ]
-            );
+
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+                $chunkNames[] = $lowerName;
+            }
+
+            if (!empty($toInsert)) {
+                DB::beginTransaction();
+                try {
+                    \App\Models\FacultyE5::insert($toInsert);
+                    DB::commit();
+                    
+                    $report['total_inserted'] += count($toInsert);
+                    $report['total_invalid'] += $chunkInvalid;
+                    $report['total_duplicates'] += $chunkDuplicates;
+                    $report['errors'] = array_merge($report['errors'], $chunkErrors);
+                    $existingNames = array_merge($existingNames, $chunkNames);
+                } catch (\Exception $e) {
+                    DB::rollBack();
+                    \Illuminate\Support\Facades\Log::error('Faculty E5 bulk insert chunk failed', ['error' => $e->getMessage()]);
+                    $report['total_invalid'] += count($chunk);
+                    $report['errors'][] = ['row' => "Batch {$globalRowOffset}-" . ($globalRowOffset + count($chunk) - 1), 'reason' => 'Database error during batch insert. Chunk skipped.'];
+                }
+            } else {
+                $report['total_invalid'] += $chunkInvalid;
+                $report['total_duplicates'] += $chunkDuplicates;
+                $report['errors'] = array_merge($report['errors'], $chunkErrors);
+            }
+
+            $globalRowOffset += count($chunk);
         }
 
-        return redirect()->back()->with('success', 'E5 Faculty imported successfully.');
+        $report['final_total'] = \App\Models\FacultyE5::where('hei_id', $user->hei_id)->where('joined_year', $joinedYear)->count();
+
+        return response()->json([
+            'success' => true,
+            'report' => $report,
+            'message' => 'Successfully processed ' . count($data) . ' records.'
+        ]);
     }
 
     public function update(Request $request, $id)
