@@ -16,6 +16,10 @@ use App\Models\RefMajorDiscipline;
 use App\Models\RefSpecificDiscipline;
 use App\Models\DisProgram;
 use Illuminate\Database\QueryException;
+use function redirect;
+use function collect;
+use function response;
+use function now;
 
 class AdminController extends Controller
 {
@@ -804,6 +808,9 @@ class AdminController extends Controller
 
         $chunks = array_chunk($rows, 500);
         $globalRowOffset = 2; // Data starts at row 2 (1-indexed + header)
+        // 5. Batch Processing (Performance Rule) - Process in chunks of 500
+        $chunks = array_chunk($rows, 500);
+        $globalIndexOffset = 0;
 
         foreach ($chunks as $chunk) {
             $groups = [];
@@ -815,6 +822,8 @@ class AdminController extends Controller
 
             foreach ($chunk as $index => $row) {
                 $currentRow = $globalRowOffset + $index;
+
+            foreach ($chunk as $index => $row) {
                 // 1. Trim and Normalize
                 $code = trim($row['code'] ?? '');
                 $groupName = trim($row['groupName'] ?? '');
@@ -828,6 +837,9 @@ class AdminController extends Controller
                     $chunkInvalid++;
                     $chunkErrors[] = [
                         'row' => $currentRow,
+                    $report['total_invalid']++;
+                    $report['errors'][] = [
+                        'row' => $globalIndexOffset + $index + 2, // 1-indexed + header
                         'reason' => 'Missing required field (Code, Group, or Program)'
                     ];
                     continue;
@@ -874,6 +886,7 @@ class AdminController extends Controller
                 ];
 
                 // Collect Programs
+                // Note: programs array index doesn't need to be keyed by code because we insert raw rows
                 $programs[] = [
                     'specific_discipline_code' => $code,
                     'program_name' => $normalizedProgram,
@@ -886,6 +899,9 @@ class AdminController extends Controller
             if (!empty($programs) || !empty($groups) || !empty($majors) || !empty($specifics)) {
                 DB::beginTransaction();
                 try {
+            // 6. Transaction Safety: Wrap each batch in a transaction
+            try {
+                DB::transaction(function () use ($groups, $majors, $specifics, $programs, &$report) {
                     // Strict Duplicate Rule: Insert if new, Ignore if duplicate
                     if (!empty($groups)) {
                         DB::table('discipline_group')->insertOrIgnore(array_values($groups));
@@ -921,6 +937,30 @@ class AdminController extends Controller
             }
 
             $globalRowOffset += count($chunk);
+                        // Unique Programs by filtering out PHP array duplicates just in case before inserting
+                        // Though insertOrIgnore handles DB duplicates, PHP duplicates in same batch would be ignored by DB anyway
+                        $uniquePrograms = collect($programs)->unique(function ($item) {
+                            return $item['specific_discipline_code'] . '-' . $item['program_name'];
+                        })->values()->all();
+
+                        $inserted = DB::table('dis_programs')->insertOrIgnore($uniquePrograms);
+                        $report['total_inserted'] += $inserted;
+                        
+                        // Deducting duplicates from the raw attempted count in this chunk
+                        $report['total_duplicates'] += count($programs) - $inserted;
+                    }
+                });
+            } catch (\Exception $e) {
+                // If batch fails: Rollback that batch only, continue next batch
+                \Log::error('Discipline Import Batch Error: ' . $e->getMessage());
+                $report['errors'][] = [
+                    'row' => 'Batch starting at ' . ($globalIndexOffset + 2),
+                    'reason' => 'Batch failed and rolled back. DB Error: ' . $e->getMessage()
+                ];
+                $report['total_invalid'] += count($chunk); // Consider whole batch failed/invalid if it rolled back
+            }
+
+            $globalIndexOffset += count($chunk);
         }
 
         // 4. Post-Import Reconciliation

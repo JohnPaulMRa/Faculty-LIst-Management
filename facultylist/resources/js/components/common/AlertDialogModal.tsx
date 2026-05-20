@@ -53,7 +53,7 @@ const AlertDialogModal: FC<AlertDialogModalProps> = ({
                     </AlertDialogHeader>
                 </div>
                 <div className="px-8 py-8 text-center">
-                    <AlertDialogDescription className="text-base text-gray-700 leading-relaxed">
+                    <AlertDialogDescription className="text-base text-gray-700 leading-relaxed whitespace-pre-wrap">
                         {message}
                     </AlertDialogDescription>
                 </div>

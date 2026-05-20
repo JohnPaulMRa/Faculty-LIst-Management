@@ -4,6 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Inertia\Inertia;
+use function redirect;
+use function now;
+use function abort;
+
 class FacultyController extends Controller
 {
     public function getReferenceData()
@@ -363,6 +368,73 @@ class FacultyController extends Controller
         } else {
             return redirect()->back()->with('error', 'No new records were imported. They might already exist or the file was invalid.');
         }
+        // 5. Batch Processing (Performance Rule) - Process in chunks of 500
+        $chunks = array_chunk($data, 500);
+        $globalIndexOffset = 0;
+
+        foreach ($chunks as $chunk) {
+            $insertData = [];
+            
+            $names = array_column($chunk, 'name');
+            $years = array_unique(array_filter(array_column($chunk, 'joined_year')));
+            
+            // Manual duplicate detection prior to insert to strictly follow "Ignore if duplicate"
+            $existingQuery = \App\Models\Faculty::where('hei_id', $user->hei_id)
+                ->whereIn('name', $names);
+            
+            if (!empty($years)) {
+                 $existingQuery->whereIn('joined_year', $years);
+            }
+            
+            $existingRecords = $existingQuery->get(['name', 'joined_year'])->map(function($item) {
+                return $item->name . '|' . ($item->joined_year ?? '');
+            })->toArray();
+
+            // Track within-chunk duplicates to prevent trying to insert the exact same name twice in one batch
+            $seenInChunk = [];
+
+            foreach ($chunk as $index => $record) {
+                $uniqueKey = $record['name'] . '|' . ($record['joined_year'] ?? '');
+                
+                if (in_array($uniqueKey, $existingRecords) || in_array($uniqueKey, $seenInChunk)) {
+                    $report['total_duplicates']++;
+                    continue; // Skip duplicate
+                }
+
+                $seenInChunk[] = $uniqueKey;
+                $insertData[] = array_merge($record, [
+                    'hei_id' => $user->hei_id,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+
+            // 6. Transaction Safety: Wrap each batch in a transaction
+            try {
+                DB::transaction(function () use ($insertData, &$report) {
+                    if (!empty($insertData)) {
+                        $inserted = DB::table('faculty_e2')->insertOrIgnore($insertData);
+                        $report['total_inserted'] += $inserted;
+                        $report['total_duplicates'] += count($insertData) - $inserted;
+                    }
+                });
+            } catch (\Exception $e) {
+                \Log::error('Faculty E2 Import Batch Error: ' . $e->getMessage());
+                $report['errors'][] = [
+                    'row' => 'Batch starting at ' . ($globalIndexOffset + 2),
+                    'reason' => 'Batch failed and rolled back. DB Error: ' . $e->getMessage()
+                ];
+                $report['total_invalid'] += count($chunk);
+            }
+            
+            $globalIndexOffset += count($chunk);
+        }
+
+        // 7. Post-Import Reconciliation
+        $report['final_total'] = \App\Models\Faculty::where('hei_id', $user->hei_id)->count();
+
+        // 8. Real-Time Consistency: Flash report to session for immediate UI reflection
+        return redirect()->back()->with('report', $report);
     }
 
     public function bulkStoreE5(Request $request)
@@ -436,6 +508,40 @@ class FacultyController extends Controller
 
                 $toInsert[] = [
                     'name' => $name,
+        // 5. Batch Processing (Performance Rule) - Process in chunks of 500
+        $chunks = array_chunk($data, 500);
+        $globalIndexOffset = 0;
+
+        foreach ($chunks as $chunk) {
+            $insertData = [];
+            
+            $names = array_column($chunk, 'name');
+            $years = array_unique(array_filter(array_column($chunk, 'joined_year')));
+            
+            $existingQuery = \App\Models\FacultyE5::where('hei_id', $user->hei_id)
+                ->whereIn('name', $names);
+            
+            if (!empty($years)) {
+                 $existingQuery->whereIn('joined_year', $years);
+            }
+            
+            $existingRecords = $existingQuery->get(['name', 'joined_year'])->map(function($item) {
+                return $item->name . '|' . ($item->joined_year ?? '');
+            })->toArray();
+
+            $seenInChunk = [];
+
+            foreach ($chunk as $index => $record) {
+                $uniqueKey = $record['name'] . '|' . ($record['joined_year'] ?? '');
+                
+                if (in_array($uniqueKey, $existingRecords) || in_array($uniqueKey, $seenInChunk)) {
+                    $report['total_duplicates']++;
+                    continue; // Skip duplicate
+                }
+
+                $seenInChunk[] = $uniqueKey;
+                $insertData[] = [
+                    'name' => $record['name'],
                     'email' => $record['email'] ?? null,
                     'avatar_initials' => $record['avatar_initials'] ?? null,
                     'form_type' => 'E5',
@@ -443,6 +549,7 @@ class FacultyController extends Controller
                     'employment' => $record['employment'] ?? null,
                     'hei_id' => $user->hei_id,
                     'joined_year' => $joinedYear,
+                    'joined_year' => $record['joined_year'] ?? null,
 
                     'ft_pt_code' => $record['fullTimeCode'] ?? null,
                     'gender_code' => $record['genderCode'] ?? null,
@@ -497,6 +604,38 @@ class FacultyController extends Controller
         } else {
             return redirect()->back()->with('error', 'No new records were imported. They might already exist or the file was invalid.');
         }
+                    
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+            }
+
+            // 6. Transaction Safety: Wrap each batch in a transaction
+            try {
+                DB::transaction(function () use ($insertData, &$report) {
+                    if (!empty($insertData)) {
+                        $inserted = DB::table('faculty_e5')->insertOrIgnore($insertData);
+                        $report['total_inserted'] += $inserted;
+                        $report['total_duplicates'] += count($insertData) - $inserted;
+                    }
+                });
+            } catch (\Exception $e) {
+                \Log::error('Faculty E5 Import Batch Error: ' . $e->getMessage());
+                $report['errors'][] = [
+                    'row' => 'Batch starting at ' . ($globalIndexOffset + 2),
+                    'reason' => 'Batch failed and rolled back. DB Error: ' . $e->getMessage()
+                ];
+                $report['total_invalid'] += count($chunk);
+            }
+            
+            $globalIndexOffset += count($chunk);
+        }
+
+        // 7. Post-Import Reconciliation
+        $report['final_total'] = \App\Models\FacultyE5::where('hei_id', $user->hei_id)->count();
+
+        // 8. Real-Time Consistency
+        return redirect()->back()->with('report', $report);
     }
 
     public function update(Request $request, $id)
