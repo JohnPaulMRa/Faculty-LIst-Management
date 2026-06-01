@@ -7,7 +7,9 @@ use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use function redirect;
 use function now;
+use function response;
 use function abort;
+
 
 class FacultyController extends Controller
 {
@@ -72,7 +74,7 @@ class FacultyController extends Controller
 
         $hei = $heiId ? \App\Models\Hei::find($heiId) : null;
 
-        return \Inertia\Inertia::render('Faculty/facultyprofile', [
+        return Inertia::render('Faculty/facultyprofile', [
             'initialFacultyData' => $facultyData,
             'filters' => $request->only(['search', 'year']),
             'referenceData' => $referenceData,
@@ -82,7 +84,7 @@ class FacultyController extends Controller
         ]);
     }
 
-    private function getFacultyE2Data($heiId, $search, $year)
+    private function getFacultyE2Data(?int $heiId, ?string $search, ?string $year)
     {
         $query = \App\Models\Faculty::query();
 
@@ -111,7 +113,7 @@ class FacultyController extends Controller
         });
     }
 
-    private function getFacultyE5Data($heiId, $search, $year)
+    private function getFacultyE5Data(?int $heiId, ?string $search, ?string $year)
     {
         $query = \App\Models\FacultyE5::query();
 
@@ -144,7 +146,7 @@ class FacultyController extends Controller
     }
 
 
-    private function getAvailableYears($heiId)
+    private function getAvailableYears(?int $heiId)
     {
         if (!$heiId)
             return [];
@@ -163,7 +165,7 @@ class FacultyController extends Controller
     }
 
 
-    public function edit($id)
+    public function edit(string $id)
     {
         \Illuminate\Support\Facades\Log::info("FacultyController@edit called with ID: {$id}");
 
@@ -226,7 +228,7 @@ class FacultyController extends Controller
             ->where('status', 'Submitted')
             ->exists();
 
-        return \Inertia\Inertia::render($component, [
+        return Inertia::render($component, [
             'faculty' => $faculty,
             'referenceData' => $referenceData,
             'isSubmitted' => $isSubmitted,
@@ -368,73 +370,6 @@ class FacultyController extends Controller
         } else {
             return redirect()->back()->with('error', 'No new records were imported. They might already exist or the file was invalid.');
         }
-        // 5. Batch Processing (Performance Rule) - Process in chunks of 500
-        $chunks = array_chunk($data, 500);
-        $globalIndexOffset = 0;
-
-        foreach ($chunks as $chunk) {
-            $insertData = [];
-            
-            $names = array_column($chunk, 'name');
-            $years = array_unique(array_filter(array_column($chunk, 'joined_year')));
-            
-            // Manual duplicate detection prior to insert to strictly follow "Ignore if duplicate"
-            $existingQuery = \App\Models\Faculty::where('hei_id', $user->hei_id)
-                ->whereIn('name', $names);
-            
-            if (!empty($years)) {
-                 $existingQuery->whereIn('joined_year', $years);
-            }
-            
-            $existingRecords = $existingQuery->get(['name', 'joined_year'])->map(function($item) {
-                return $item->name . '|' . ($item->joined_year ?? '');
-            })->toArray();
-
-            // Track within-chunk duplicates to prevent trying to insert the exact same name twice in one batch
-            $seenInChunk = [];
-
-            foreach ($chunk as $index => $record) {
-                $uniqueKey = $record['name'] . '|' . ($record['joined_year'] ?? '');
-                
-                if (in_array($uniqueKey, $existingRecords) || in_array($uniqueKey, $seenInChunk)) {
-                    $report['total_duplicates']++;
-                    continue; // Skip duplicate
-                }
-
-                $seenInChunk[] = $uniqueKey;
-                $insertData[] = array_merge($record, [
-                    'hei_id' => $user->hei_id,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
-            }
-
-            // 6. Transaction Safety: Wrap each batch in a transaction
-            try {
-                DB::transaction(function () use ($insertData, &$report) {
-                    if (!empty($insertData)) {
-                        $inserted = DB::table('faculty_e2')->insertOrIgnore($insertData);
-                        $report['total_inserted'] += $inserted;
-                        $report['total_duplicates'] += count($insertData) - $inserted;
-                    }
-                });
-            } catch (\Exception $e) {
-                \Log::error('Faculty E2 Import Batch Error: ' . $e->getMessage());
-                $report['errors'][] = [
-                    'row' => 'Batch starting at ' . ($globalIndexOffset + 2),
-                    'reason' => 'Batch failed and rolled back. DB Error: ' . $e->getMessage()
-                ];
-                $report['total_invalid'] += count($chunk);
-            }
-            
-            $globalIndexOffset += count($chunk);
-        }
-
-        // 7. Post-Import Reconciliation
-        $report['final_total'] = \App\Models\Faculty::where('hei_id', $user->hei_id)->count();
-
-        // 8. Real-Time Consistency: Flash report to session for immediate UI reflection
-        return redirect()->back()->with('report', $report);
     }
 
     public function bulkStoreE5(Request $request)
@@ -507,40 +442,6 @@ class FacultyController extends Controller
                 }
 
                 $toInsert[] = [
-                    'name' => $name,
-        // 5. Batch Processing (Performance Rule) - Process in chunks of 500
-        $chunks = array_chunk($data, 500);
-        $globalIndexOffset = 0;
-
-        foreach ($chunks as $chunk) {
-            $insertData = [];
-            
-            $names = array_column($chunk, 'name');
-            $years = array_unique(array_filter(array_column($chunk, 'joined_year')));
-            
-            $existingQuery = \App\Models\FacultyE5::where('hei_id', $user->hei_id)
-                ->whereIn('name', $names);
-            
-            if (!empty($years)) {
-                 $existingQuery->whereIn('joined_year', $years);
-            }
-            
-            $existingRecords = $existingQuery->get(['name', 'joined_year'])->map(function($item) {
-                return $item->name . '|' . ($item->joined_year ?? '');
-            })->toArray();
-
-            $seenInChunk = [];
-
-            foreach ($chunk as $index => $record) {
-                $uniqueKey = $record['name'] . '|' . ($record['joined_year'] ?? '');
-                
-                if (in_array($uniqueKey, $existingRecords) || in_array($uniqueKey, $seenInChunk)) {
-                    $report['total_duplicates']++;
-                    continue; // Skip duplicate
-                }
-
-                $seenInChunk[] = $uniqueKey;
-                $insertData[] = [
                     'name' => $record['name'],
                     'email' => $record['email'] ?? null,
                     'avatar_initials' => $record['avatar_initials'] ?? null,
@@ -549,8 +450,6 @@ class FacultyController extends Controller
                     'employment' => $record['employment'] ?? null,
                     'hei_id' => $user->hei_id,
                     'joined_year' => $joinedYear,
-                    'joined_year' => $record['joined_year'] ?? null,
-
                     'ft_pt_code' => $record['fullTimeCode'] ?? null,
                     'gender_code' => $record['genderCode'] ?? null,
                     'discipline_code' => $record['disciplineCode'] ?? null,
@@ -564,7 +463,6 @@ class FacultyController extends Controller
                     'salary_range_code' => $record['salaryCode'] ?? null,
                     'teaching_load_code' => $record['loadCode'] ?? null,
                     'subjects' => $record['subjects'] ?? null,
-
                     'created_at' => now(),
                     'updated_at' => now(),
                 ];
@@ -604,41 +502,9 @@ class FacultyController extends Controller
         } else {
             return redirect()->back()->with('error', 'No new records were imported. They might already exist or the file was invalid.');
         }
-                    
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ];
-            }
-
-            // 6. Transaction Safety: Wrap each batch in a transaction
-            try {
-                DB::transaction(function () use ($insertData, &$report) {
-                    if (!empty($insertData)) {
-                        $inserted = DB::table('faculty_e5')->insertOrIgnore($insertData);
-                        $report['total_inserted'] += $inserted;
-                        $report['total_duplicates'] += count($insertData) - $inserted;
-                    }
-                });
-            } catch (\Exception $e) {
-                \Log::error('Faculty E5 Import Batch Error: ' . $e->getMessage());
-                $report['errors'][] = [
-                    'row' => 'Batch starting at ' . ($globalIndexOffset + 2),
-                    'reason' => 'Batch failed and rolled back. DB Error: ' . $e->getMessage()
-                ];
-                $report['total_invalid'] += count($chunk);
-            }
-            
-            $globalIndexOffset += count($chunk);
-        }
-
-        // 7. Post-Import Reconciliation
-        $report['final_total'] = \App\Models\FacultyE5::where('hei_id', $user->hei_id)->count();
-
-        // 8. Real-Time Consistency
-        return redirect()->back()->with('report', $report);
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, string $id)
     {
         try {
             $isE5 = str_starts_with($id, 'e5_');
@@ -647,50 +513,52 @@ class FacultyController extends Controller
             \Illuminate\Support\Facades\Log::info("Faculty Update Request - ID: {$id}, RealID: {$realId}, isE5: " . ($isE5 ? 'Yes' : 'No'), $request->all());
 
             if ($isE5) {
+                /** @var \App\Models\FacultyE5 $faculty */
                 $faculty = \App\Models\FacultyE5::findOrFail($realId);
 
                 // Map incoming camelCase fields to snake_case only if they exist in the request
                 $updateData = [];
                 if ($request->has('name'))
-                    $updateData['name'] = $request->name;
+                    $updateData['name'] = $request->input('name');
                 if ($request->has('email'))
-                    $updateData['email'] = $request->email;
+                    $updateData['email'] = $request->input('email');
                 if ($request->has('status'))
-                    $updateData['status'] = $request->status;
+                    $updateData['status'] = $request->input('status');
                 if ($request->has('joined_year'))
-                    $updateData['joined_year'] = $request->joined_year;
+                    $updateData['joined_year'] = $request->input('joined_year');
                 if ($request->has('employment'))
-                    $updateData['employment'] = $request->employment;
+                    $updateData['employment'] = $request->input('employment');
                 if ($request->has('fullTimeCode'))
-                    $updateData['ft_pt_code'] = $request->fullTimeCode;
+                    $updateData['ft_pt_code'] = $request->input('fullTimeCode');
                 if ($request->has('genderCode'))
-                    $updateData['gender_code'] = $request->genderCode;
+                    $updateData['gender_code'] = $request->input('genderCode');
                 if ($request->has('disciplineCode'))
-                    $updateData['discipline_code'] = $request->disciplineCode;
+                    $updateData['discipline_code'] = $request->input('disciplineCode');
                 if ($request->has('degree'))
-                    $updateData['highest_degree_code'] = $request->degree;
+                    $updateData['highest_degree_code'] = $request->input('degree');
                 if ($request->has('rankCode'))
-                    $updateData['rank_code'] = $request->rankCode;
+                    $updateData['rank_code'] = $request->input('rankCode');
                 if ($request->has('tenureCode'))
-                    $updateData['tenure_code'] = $request->tenureCode;
+                    $updateData['tenure_code'] = $request->input('tenureCode');
                 if ($request->has('salaryCode'))
-                    $updateData['salary_range_code'] = $request->salaryCode;
+                    $updateData['salary_range_code'] = $request->input('salaryCode');
                 if ($request->has('loadCode'))
-                    $updateData['teaching_load_code'] = $request->loadCode;
+                    $updateData['teaching_load_code'] = $request->input('loadCode');
                 if ($request->has('licenseCode'))
-                    $updateData['license_code'] = $request->licenseCode;
+                    $updateData['license_code'] = $request->input('licenseCode');
                 if ($request->has('bachelorsCode'))
-                    $updateData['bachelors_code'] = $request->bachelorsCode;
+                    $updateData['bachelors_code'] = $request->input('bachelorsCode');
                 if ($request->has('mastersCode'))
-                    $updateData['masters_code'] = $request->mastersCode;
+                    $updateData['masters_code'] = $request->input('mastersCode');
                 if ($request->has('doctorateCode'))
-                    $updateData['doctorate_code'] = $request->doctorateCode;
+                    $updateData['doctorate_code'] = $request->input('doctorateCode');
                 if ($request->has('subjects'))
-                    $updateData['subjects'] = $request->subjects;
+                    $updateData['subjects'] = $request->input('subjects');
 
                 $faculty->fill($updateData);
                 $faculty->save();
             } else {
+                /** @var \App\Models\Faculty $faculty */
                 $faculty = \App\Models\Faculty::findOrFail($realId);
                 // For E2, we can mostly update directly from request keys that match column names
                 $faculty->fill($request->only([
@@ -752,14 +620,16 @@ class FacultyController extends Controller
         }
     }
 
-    public function destroy($id)
+    public function destroy(string $id)
     {
         $isE5 = str_starts_with($id, 'e5_');
         $realId = $isE5 ? substr($id, 3) : $id;
 
         if ($isE5) {
+            /** @var \App\Models\FacultyE5|null $faculty */
             $faculty = \App\Models\FacultyE5::find($realId);
         } else {
+            /** @var \App\Models\Faculty|null $faculty */
             $faculty = \App\Models\Faculty::find($realId);
         }
 

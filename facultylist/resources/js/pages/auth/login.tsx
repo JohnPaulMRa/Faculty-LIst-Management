@@ -8,19 +8,17 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
-import { dashboard, register } from '@/routes';
+import { dashboard } from '@/routes';
 import { store } from '@/routes/login';
 import { request } from '@/routes/password';
 import { type SharedData } from '@/types';
 
 interface WelcomeProps {
-    canRegister?: boolean;
     canResetPassword?: boolean;
     status?: string;
 }
 
-export default function Login({ // You might want to rename this component to 'Login'
-    canRegister = true,
+export default function Login({
     canResetPassword = true,
     status,
 }: WelcomeProps) {

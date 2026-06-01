@@ -11,15 +11,17 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use function redirect;
+use function collect;
+use function now;
+use function response;
+use function abort;
 use App\Models\RefDisciplineGroup;
 use App\Models\RefMajorDiscipline;
 use App\Models\RefSpecificDiscipline;
 use App\Models\DisProgram;
 use Illuminate\Database\QueryException;
-use function redirect;
-use function collect;
-use function response;
-use function now;
+
 
 class AdminController extends Controller
 {
@@ -48,6 +50,7 @@ class AdminController extends Controller
 
     public function updateHei(Request $request, int $id)
     {
+        /** @var \App\Models\Hei $hei */
         $hei = Hei::findOrFail($id);
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -72,6 +75,7 @@ class AdminController extends Controller
 
     public function destroyHei(int $id)
     {
+        /** @var \App\Models\Hei $hei */
         $hei = Hei::findOrFail($id);
         $hei->delete();
 
@@ -392,7 +396,7 @@ class AdminController extends Controller
             });
     }
 
-    private function normalizeProgramName($name)
+    private function normalizeProgramName(?string $name)
     {
         if (!$name) return "";
         $name = trim($name);
@@ -465,18 +469,29 @@ class AdminController extends Controller
         ];
     }
 
-    public function facultyList(Request $request)
+    public function facultyList(Request $request): \Inertia\Response
     {
+        /** @var \Illuminate\Support\Collection $schools */
         $schools = $this->getSchools($request);
+        
+        /** @var array $referenceData */
         $referenceData = $this->getReferenceData();
 
+        /** @var array|\Illuminate\Support\Collection $faculty */
         $faculty = [];
+        
+        /** @var array $submittedYears */
         $submittedYears = [];
-        if ($request->has('hei_id') && $request->hei_id) {
-            $heiId = $request->hei_id;
+        
+        if ($request->has('hei_id') && $request->input('hei_id')) {
+            $heiId = $request->input('hei_id');
             $search = $request->input('search');
-            $facultyE2 = $this->getFacultyE2($heiId, $search);
-            $facultyE5 = $this->getFacultyE5($heiId, $search);
+            
+            /** @var \Illuminate\Support\Collection $facultyE2 */
+            $facultyE2 = $this->getFacultyE2((int)$heiId, $search);
+            
+            /** @var \Illuminate\Support\Collection $facultyE5 */
+            $facultyE5 = $this->getFacultyE5((int)$heiId, $search);
 
             $faculty = collect($facultyE2)->concat($facultyE5)->sortBy('name')->values();
 
@@ -807,9 +822,6 @@ class AdminController extends Controller
         }
 
         $chunks = array_chunk($rows, 500);
-        $globalRowOffset = 2; // Data starts at row 2 (1-indexed + header)
-        // 5. Batch Processing (Performance Rule) - Process in chunks of 500
-        $chunks = array_chunk($rows, 500);
         $globalIndexOffset = 0;
 
         foreach ($chunks as $chunk) {
@@ -819,9 +831,6 @@ class AdminController extends Controller
             $programs = [];
             $chunkErrors = [];
             $chunkInvalid = 0;
-
-            foreach ($chunk as $index => $row) {
-                $currentRow = $globalRowOffset + $index;
 
             foreach ($chunk as $index => $row) {
                 // 1. Trim and Normalize
@@ -836,9 +845,6 @@ class AdminController extends Controller
                 if (empty($programName) || empty($groupName) || empty($code)) {
                     $chunkInvalid++;
                     $chunkErrors[] = [
-                        'row' => $currentRow,
-                    $report['total_invalid']++;
-                    $report['errors'][] = [
                         'row' => $globalIndexOffset + $index + 2, // 1-indexed + header
                         'reason' => 'Missing required field (Code, Group, or Program)'
                     ];
@@ -886,7 +892,6 @@ class AdminController extends Controller
                 ];
 
                 // Collect Programs
-                // Note: programs array index doesn't need to be keyed by code because we insert raw rows
                 $programs[] = [
                     'specific_discipline_code' => $code,
                     'program_name' => $normalizedProgram,
@@ -895,10 +900,6 @@ class AdminController extends Controller
                 ];
             }
 
-            // 3. Batch Processing & Transaction Safety
-            if (!empty($programs) || !empty($groups) || !empty($majors) || !empty($specifics)) {
-                DB::beginTransaction();
-                try {
             // 6. Transaction Safety: Wrap each batch in a transaction
             try {
                 DB::transaction(function () use ($groups, $majors, $specifics, $programs, &$report) {
@@ -913,32 +914,6 @@ class AdminController extends Controller
                         DB::table('specific_discipline')->insertOrIgnore(array_values($specifics));
                     }
                     if (!empty($programs)) {
-                        // insertOrIgnore handles the unique index on [specific_discipline_code, program_name]
-                        $inserted = DB::table('dis_programs')->insertOrIgnore(array_values($programs));
-                        $report['total_inserted'] += $inserted;
-                        $report['total_duplicates'] += (count($programs) - $inserted);
-                    }
-                    
-                    $report['total_invalid'] += $chunkInvalid;
-                    $report['errors'] = array_merge($report['errors'], $chunkErrors);
-                    DB::commit();
-                } catch (\Exception $e) {
-                    DB::rollBack();
-                    \Illuminate\Support\Facades\Log::error('Discipline bulk insert chunk failed', ['error' => $e->getMessage()]);
-                    $report['total_invalid'] += count($chunk);
-                    $report['errors'][] = [
-                        'row' => "Batch {$globalRowOffset}-" . ($globalRowOffset + count($chunk) - 1),
-                        'reason' => 'Database error during batch insert. Chunk skipped.'
-                    ];
-                }
-            } else {
-                $report['total_invalid'] += $chunkInvalid;
-                $report['errors'] = array_merge($report['errors'], $chunkErrors);
-            }
-
-            $globalRowOffset += count($chunk);
-                        // Unique Programs by filtering out PHP array duplicates just in case before inserting
-                        // Though insertOrIgnore handles DB duplicates, PHP duplicates in same batch would be ignored by DB anyway
                         $uniquePrograms = collect($programs)->unique(function ($item) {
                             return $item['specific_discipline_code'] . '-' . $item['program_name'];
                         })->values()->all();
@@ -946,13 +921,15 @@ class AdminController extends Controller
                         $inserted = DB::table('dis_programs')->insertOrIgnore($uniquePrograms);
                         $report['total_inserted'] += $inserted;
                         
-                        // Deducting duplicates from the raw attempted count in this chunk
                         $report['total_duplicates'] += count($programs) - $inserted;
                     }
                 });
+
+                $report['total_invalid'] += $chunkInvalid;
+                $report['errors'] = array_merge($report['errors'], $chunkErrors);
             } catch (\Exception $e) {
                 // If batch fails: Rollback that batch only, continue next batch
-                \Log::error('Discipline Import Batch Error: ' . $e->getMessage());
+                \Illuminate\Support\Facades\Log::error('Discipline Import Batch Error: ' . $e->getMessage());
                 $report['errors'][] = [
                     'row' => 'Batch starting at ' . ($globalIndexOffset + 2),
                     'reason' => 'Batch failed and rolled back. DB Error: ' . $e->getMessage()
@@ -1002,6 +979,7 @@ class AdminController extends Controller
 
             if ($prefix === 'p') {
                 // UPDATE PROGRAM SPECIFICALLY
+                /** @var \App\Models\DisProgram $prog */
                 $prog = DisProgram::find($realId);
                 if ($prog) {
                     $prog->program_name = $this->normalizeProgramName($programName);
@@ -1017,6 +995,7 @@ class AdminController extends Controller
                 }
             } elseif ($prefix === 's') {
                 // UPDATE SPECIFIC DISCIPLINE
+                /** @var \App\Models\RefSpecificDiscipline $specific */
                 $specific = RefSpecificDiscipline::find($realId);
                 if ($specific) {
                     $specific->description = $specificName;
@@ -1029,6 +1008,7 @@ class AdminController extends Controller
                 }
             } elseif ($prefix === 'm') {
                 // UPDATE MAJOR DISCIPLINE
+                /** @var \App\Models\RefMajorDiscipline $major */
                 $major = RefMajorDiscipline::where('code', $realId)->first();
                 if ($major) {
                     $major->description = $majorName ?: $specificName;
